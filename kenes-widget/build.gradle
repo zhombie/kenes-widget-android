@@ -55,8 +55,8 @@ uploadArchives {
                 authentication(userName: "admin", password: "admin123")
             }
             pom.version = "1.00-SNAPSHOT"
-            pom.artifactId = "kenes-widget"
-            pom.groupId = "q19.kenes_widget"
+            pom.artifactId = "kenes_widget"
+            pom.groupId = "q19"
         }
     }
 }
