@@ -1,4 +1,4 @@
-package q19.kenes
+package q19.kenes_widget
 
 object Constants {
 

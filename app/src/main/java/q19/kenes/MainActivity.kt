@@ -1,9 +1,10 @@
 package q19.kenes
 
+import android.content.Intent
 import android.os.Bundle
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import q19.kenes_widget.WidgetActivity
 
 
 class MainActivity : AppCompatActivity() {
@@ -12,20 +13,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        setupWebView()
-        loadUrl()
-    }
-
-    private fun setupWebView() {
-        webView.webViewClient = WebViewClient()
-        val webSettings = webView.settings
-        webSettings.javaScriptEnabled = true
-        webSettings.setSupportZoom(false)
-        webSettings.domStorageEnabled = true
-    }
-
-    private fun loadUrl() {
-        webView.loadUrl(Constants.URL)
+        button.setOnClickListener {
+            val intent = Intent(this, WidgetActivity::class.java)
+            startActivity(intent)
+        }
     }
 
 }
