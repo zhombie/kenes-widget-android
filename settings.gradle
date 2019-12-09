@@ -1,0 +1,2 @@
+include ':app', ':kenes-widget'
+rootProject.name='Kenes'
