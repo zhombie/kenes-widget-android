@@ -23,7 +23,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="q19.kenes_widget.WidgetActivity" />
+        <activity
+            android:name="q19.kenes_widget.WidgetActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
     </application>
 
 </manifest>

@@ -1,7 +1,6 @@
 package q19.kenes_widget
 
 import android.os.Bundle
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_widget.*
 
@@ -12,18 +11,12 @@ class WidgetActivity : AppCompatActivity() {
         setContentView(R.layout.activity_widget)
 
         setupWebView()
-        loadUrl()
     }
 
     private fun setupWebView() {
-        webView.webViewClient = WebViewClient()
-        val webSettings = webView.settings
-        webSettings.javaScriptEnabled = true
-        webSettings.setSupportZoom(false)
-        webSettings.domStorageEnabled = true
-    }
-
-    private fun loadUrl() {
+        webView.setCookiesEnabled(true)
+        webView.setThirdPartyCookiesEnabled(true)
+        webView.setMixedContentAllowed(true)
         webView.loadUrl(Constants.URL)
     }
 
