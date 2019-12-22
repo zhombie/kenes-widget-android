@@ -1,11 +1,8 @@
 package q19.kenes_widget
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
 import android.webkit.*
 
 class KenesWebView @JvmOverloads constructor(
@@ -28,34 +25,6 @@ class KenesWebView @JvmOverloads constructor(
 
 
         webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(
-                view: WebView?,
-                request: WebResourceRequest?
-            ): Boolean {
-                Log.d("LOL", "" + request)
-
-                val uri = Uri.parse(url)
-
-                val intent = Intent(Intent.ACTION_SEND, uri)
-                getContext().startActivity(intent)
-
-                view?.loadUrl(url)
-
-                return true
-            }
-
-            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                Log.d("LOL", "" + url)
-
-                val uri = Uri.parse(url)
-
-                val intent = Intent(Intent.ACTION_SEND, uri)
-                getContext().startActivity(intent)
-
-                view?.loadUrl(url)
-
-                return true
-            }
         }
 
         webChromeClient = object : WebChromeClient() {
