@@ -1,9 +1,13 @@
 package q19.kenes_widget
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.ACTION_SENDTO
 import android.os.Build
 import android.util.AttributeSet
 import android.webkit.*
+import org.nurmash.lib.nurmashwidgets.customtabs.Browser
 
 class KenesWebView @JvmOverloads constructor(
     context: Context,
@@ -23,8 +27,41 @@ class KenesWebView @JvmOverloads constructor(
         settings.domStorageEnabled = true
         settings.javaScriptEnabled = true
 
-
         webViewClient = object : WebViewClient() {
+
+            override fun shouldOverrideUrlLoading(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): Boolean {
+                val uri = request?.url
+                val url = uri.toString()
+                val scheme = uri?.scheme
+
+                val intent: Intent?
+
+                if (scheme != null && scheme == "mailto") {
+                    intent = Intent(ACTION_SENDTO, uri)
+                    try {
+                        getContext().startActivity(intent)
+                    } catch (ignored: ActivityNotFoundException) {
+                    }
+
+                    return true
+                }
+
+                return if (uri != null) {
+                    Browser.openLink(
+                        context = context,
+                        url = url,
+                        fallback = WebViewFallback()
+                    )
+
+                    true
+                } else {
+                    super.shouldOverrideUrlLoading(view, request)
+                }
+            }
+
         }
 
         webChromeClient = object : WebChromeClient() {

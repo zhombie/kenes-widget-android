@@ -4,12 +4,12 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -37,7 +37,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.1.0'
 
-//    implementation 'com.github.zhombie:kenes:1.0-SNAPSHOT'
+    implementation "androidx.browser:browser:1.2.0"
+
+    // Nurmash Android Lib - http://team.nurmash.kz/ihor/nurmash-android-lib
+    implementation 'org.nurmash.lib:nurmashwidgets:1.24-SNAPSHOT@aar'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
@@ -48,6 +51,10 @@ repositories {
     mavenCentral()
     maven {
         url "http://nexus.nurmash.kz/repository/maven-snapshots"
+        credentials {
+            username "admin"
+            password "admin123"
+        }
     }
 }
 
