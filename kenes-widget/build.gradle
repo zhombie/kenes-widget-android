@@ -39,34 +39,9 @@ dependencies {
 
     implementation "androidx.browser:browser:1.2.0"
 
-    // Nurmash Android Lib - http://team.nurmash.kz/ihor/nurmash-android-lib
-    implementation 'org.nurmash.lib:nurmashwidgets:1.24-SNAPSHOT@aar'
+    implementation 'com.github.zhombie:nurmashwidgets:1.1'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-}
-
-repositories {
-    mavenCentral()
-    maven {
-        url "http://nexus.nurmash.kz/repository/maven-snapshots"
-        credentials {
-            username "admin"
-            password "admin123"
-        }
-    }
-}
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "http://nexus.nurmash.kz/repository/maven-snapshots") {
-                authentication(userName: "admin", password: "admin123")
-            }
-            pom.version = "1.00-SNAPSHOT"
-            pom.artifactId = "kenes_widget"
-            pom.groupId = "q19"
-        }
-    }
 }
