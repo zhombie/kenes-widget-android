@@ -1,13 +1,12 @@
 package q19.kenes_widget
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.content.Intent.ACTION_SENDTO
 import android.os.Build
 import android.util.AttributeSet
-import android.webkit.*
-import org.nurmash.lib.nurmashwidgets.customtabs.Browser
+import android.view.View
+import android.webkit.CookieManager
+import android.webkit.WebSettings
+import android.webkit.WebView
 
 class KenesWebView @JvmOverloads constructor(
     context: Context,
@@ -27,45 +26,17 @@ class KenesWebView @JvmOverloads constructor(
         settings.domStorageEnabled = true
         settings.javaScriptEnabled = true
 
-        webViewClient = object : WebViewClient() {
+        setLayerType(View.LAYER_TYPE_HARDWARE, null)
 
-            override fun shouldOverrideUrlLoading(
-                view: WebView?,
-                request: WebResourceRequest?
-            ): Boolean {
-                val uri = request?.url
-                val url = uri.toString()
-                val scheme = uri?.scheme
+        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+        settings.allowContentAccess = true
+        settings.allowFileAccessFromFileURLs = true
+        settings.allowUniversalAccessFromFileURLs = true
+        settings.javaScriptCanOpenWindowsAutomatically = true
+        settings.mediaPlaybackRequiresUserGesture = false
 
-                val intent: Intent?
-
-                if (scheme != null && scheme == "mailto") {
-                    intent = Intent(ACTION_SENDTO, uri)
-                    try {
-                        getContext().startActivity(intent)
-                    } catch (ignored: ActivityNotFoundException) {
-                    }
-
-                    return true
-                }
-
-                return if (uri != null) {
-                    Browser.openLink(
-                        context = context,
-                        url = url,
-                        fallback = WebViewFallback()
-                    )
-
-                    true
-                } else {
-                    super.shouldOverrideUrlLoading(view, request)
-                }
-            }
-
-        }
-
-        webChromeClient = object : WebChromeClient() {
-        }
+        // Enable remote debugging via chrome://inspect
+        setWebContentsDebuggingEnabled(true)
     }
 
     fun setCookiesEnabled(enabled: Boolean) {
