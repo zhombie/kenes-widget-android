@@ -16,10 +16,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
 
-        Properties properties = new Properties()
-        properties.load(project.rootProject.file('local.properties').newDataInputStream())
-        def projectName = properties.getProperty('project.name')
-        resValue "string", "PROJECT_NAME", projectName
+        try {
+            Properties properties = new Properties()
+            properties.load(project.rootProject.file('local.properties').newDataInputStream())
+            def projectName = properties.getProperty('project.name')
+            resValue "string", "PROJECT_NAME", projectName
+        } catch (Exception e) {
+            e.printStackTrace()
+            resValue "string", "PROJECT_NAME", '"unknown"'
+        }
     }
 
     buildTypes {

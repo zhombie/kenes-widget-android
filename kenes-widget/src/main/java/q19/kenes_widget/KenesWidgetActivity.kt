@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.*
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -146,7 +147,13 @@ class KenesWidgetActivity : AppCompatActivity() {
             }
         }
 
-        kenesWebView?.loadUrl(KenesConstants.getUrl(this))
+        val url = KenesConstants.getUrl(this)
+        if (url.isNullOrBlank()) {
+            Toast.makeText(this, "Извините, но ссылка не доступна", Toast.LENGTH_SHORT).show()
+            finish()
+        } else {
+            kenesWebView?.loadUrl(url)
+        }
 
         kenesWebView?.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
