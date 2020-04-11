@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.KenesWidgetActivity
+import q19.kenes_widget.Project
 
 
 class MainActivity : AppCompatActivity() {
