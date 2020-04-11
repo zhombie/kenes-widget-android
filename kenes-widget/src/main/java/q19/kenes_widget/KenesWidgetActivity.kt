@@ -25,6 +25,7 @@ class KenesWidgetActivity : AppCompatActivity() {
 
         private const val KEY_PROJECT = "project"
 
+        @JvmStatic
         fun newIntent(context: Context, project: Project): Intent =
             Intent(context, KenesWidgetActivity::class.java)
                 .putExtra(KEY_PROJECT, project.ordinal)
