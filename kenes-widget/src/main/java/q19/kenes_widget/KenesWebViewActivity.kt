@@ -10,9 +10,9 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_webview.*
+import kotlinx.android.synthetic.main.kenes_activity_webview.*
 
-class WebViewActivity : AppCompatActivity() {
+internal class KenesWebViewActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_URL = "extraUrl"
@@ -22,7 +22,7 @@ class WebViewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_webview)
+        setContentView(R.layout.kenes_activity_webview)
 
         url = intent.getStringExtra(EXTRA_URL)
 

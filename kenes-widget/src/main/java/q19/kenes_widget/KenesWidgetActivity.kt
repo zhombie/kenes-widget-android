@@ -14,7 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import org.nurmash.lib.nurmashwidgets.customtabs.Browser
 
-class WidgetActivity : AppCompatActivity() {
+class KenesWidgetActivity : AppCompatActivity() {
 
     companion object {
         const val TAG = "WidgetActivity"
@@ -23,11 +23,11 @@ class WidgetActivity : AppCompatActivity() {
     }
 
     private var progressBar: ProgressBar? = null
-    private var webView: KenesWebView? = null
+    private var kenesWebView: KenesWebView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_widget)
+        setContentView(R.layout.kenes_activity_widget)
 
         bindViews()
 
@@ -36,7 +36,7 @@ class WidgetActivity : AppCompatActivity() {
 
     private fun bindViews() {
         progressBar = findViewById(R.id.progressBar)
-        webView = findViewById(R.id.webView)
+        kenesWebView = findViewById(R.id.kenesWebView)
     }
 
     private fun checkForAndAskForPermissions() {
@@ -101,13 +101,13 @@ class WidgetActivity : AppCompatActivity() {
     }
 
     private fun setupWebView() {
-        webView?.setCookiesEnabled(true)
-        webView?.setThirdPartyCookiesEnabled(true)
-        webView?.setMixedContentAllowed(true)
-        webView?.clearCache(true)
-        webView?.clearHistory()
+        kenesWebView?.setCookiesEnabled(true)
+        kenesWebView?.setThirdPartyCookiesEnabled(true)
+        kenesWebView?.setMixedContentAllowed(true)
+        kenesWebView?.clearCache(true)
+        kenesWebView?.clearHistory()
 
-        webView?.webViewClient = object : WebViewClient() {
+        kenesWebView?.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
                 view: WebView?,
                 request: WebResourceRequest?
@@ -130,9 +130,9 @@ class WidgetActivity : AppCompatActivity() {
 
                 return if (uri != null) {
                     Browser.openLink(
-                        context = this@WidgetActivity,
+                        context = this@KenesWidgetActivity,
                         url = url,
-                        fallback = WebViewFallback()
+                        fallback = KenesWebViewFallback()
                     )
                     true
                 } else {
@@ -146,9 +146,9 @@ class WidgetActivity : AppCompatActivity() {
             }
         }
 
-        webView?.loadUrl(Constants.URL)
+        kenesWebView?.loadUrl(KenesConstants.getUrl(this))
 
-        webView?.webChromeClient = object : WebChromeClient() {
+        kenesWebView?.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
                 runOnUiThread {
                     request?.grant(request.resources)
@@ -158,8 +158,8 @@ class WidgetActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (webView != null && webView!!.canGoBack()) {
-            webView?.goBack()
+        if (kenesWebView != null && kenesWebView!!.canGoBack()) {
+            kenesWebView?.goBack()
         } else {
             super.onBackPressed()
         }
@@ -167,14 +167,14 @@ class WidgetActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        webView?.clearCache(true)
-        webView?.clearHistory()
-        webView?.destroy()
+        kenesWebView?.clearCache(true)
+        kenesWebView?.clearHistory()
+        kenesWebView?.destroy()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        webView = null
+        kenesWebView = null
     }
 
     override fun onRequestPermissionsResult(
