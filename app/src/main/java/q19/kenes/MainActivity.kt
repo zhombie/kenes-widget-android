@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.KenesWidgetActivity
-import q19.kenes_widget.Project
 
 
 class MainActivity : AppCompatActivity() {
@@ -14,8 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.openWidget)?.setOnClickListener {
-//            val intent = Intent(this, KenesWidgetActivity::class.java)
-            startActivity(KenesWidgetActivity.newIntent(this, Project.KPT))
+            startActivity(KenesWidgetActivity.newIntent(this))
         }
     }
 

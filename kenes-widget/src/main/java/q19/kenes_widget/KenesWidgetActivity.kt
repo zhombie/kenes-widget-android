@@ -23,12 +23,9 @@ class KenesWidgetActivity : AppCompatActivity() {
 
         private const val PERMISSIONS_REQUEST_CODE = 0
 
-        private const val KEY_PROJECT = "project"
-
         @JvmStatic
-        fun newIntent(context: Context, project: Project): Intent =
+        fun newIntent(context: Context): Intent =
             Intent(context, KenesWidgetActivity::class.java)
-                .putExtra(KEY_PROJECT, project.ordinal)
     }
 
     private var progressBar: ProgressBar? = null
@@ -37,14 +34,6 @@ class KenesWidgetActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_widget)
-
-        val project = intent.getIntExtra(KEY_PROJECT, -1)
-
-        if (project == -1) {
-            // There is no project value with Intent
-        } else {
-            KenesConstants.PROJECT = Project.values()[project]
-        }
 
         bindViews()
 
