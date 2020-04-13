@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         findViewById<Button>(R.id.openWidget)?.setOnClickListener {
-            startActivity(KenesWidgetActivity.newIntent(this))
+            startActivity(KenesWidgetActivity.newIntent(this, "<HOSTNAME - REPLACE>"))
         }
     }
 

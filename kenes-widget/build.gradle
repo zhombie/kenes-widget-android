@@ -15,16 +15,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-
-        try {
-            Properties properties = new Properties()
-            properties.load(project.rootProject.file('local.properties').newDataInputStream())
-            def hostname = properties.getProperty('hostname')
-            resValue "string", "HOSTNAME", hostname
-        } catch (Exception e) {
-            e.printStackTrace()
-            resValue "string", "HOSTNAME", '"unknown"'
-        }
     }
 
     buildTypes {
@@ -47,17 +37,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
-//    implementation 'androidx.core:core-ktx:1.2.0'
-
-//    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     implementation "androidx.browser:browser:1.2.0"
 
-//    implementation 'com.google.android.material:material:1.1.0'
-
     implementation 'com.github.zhombie:nurmashwidgets:1.2'
-
-//    implementation 'org.webrtc:google-webrtc:1.0.30039'
 
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

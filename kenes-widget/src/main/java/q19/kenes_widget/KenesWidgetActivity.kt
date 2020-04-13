@@ -23,9 +23,12 @@ class KenesWidgetActivity : AppCompatActivity() {
 
         private const val PERMISSIONS_REQUEST_CODE = 0
 
+        private const val KEY_HOSTNAME = "hostname"
+
         @JvmStatic
-        fun newIntent(context: Context): Intent =
+        fun newIntent(context: Context, hostname: String): Intent =
             Intent(context, KenesWidgetActivity::class.java)
+                .putExtra(KEY_HOSTNAME, hostname)
     }
 
     private var progressBar: ProgressBar? = null
@@ -34,6 +37,14 @@ class KenesWidgetActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_widget)
+
+        val hostname = intent.getStringExtra(KEY_HOSTNAME)
+
+        if (hostname.isNullOrBlank()) {
+            throwError()
+        } else {
+            KenesUrlUtil.HOSTNAME = hostname
+        }
 
         bindViews()
 
@@ -152,10 +163,9 @@ class KenesWidgetActivity : AppCompatActivity() {
             }
         }
 
-        val url = KenesConstants.getUrl(this)
+        val url = KenesUrlUtil.getUrl()
         if (url.isNullOrBlank()) {
-            Toast.makeText(this, "Извините, но ссылка не доступна", Toast.LENGTH_SHORT).show()
-            finish()
+            throwError()
         } else {
             kenesWebView?.loadUrl(url)
         }
@@ -208,6 +218,11 @@ class KenesWidgetActivity : AppCompatActivity() {
             else ->
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
+    }
+
+    private fun throwError() {
+        Toast.makeText(this, "Извините, но ссылка не доступна", Toast.LENGTH_SHORT).show()
+        finish()
     }
 
 }
