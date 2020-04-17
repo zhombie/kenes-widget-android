@@ -187,17 +187,17 @@ class KenesWidgetActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        kenesWebView?.clearCache(true)
-        kenesWebView?.clearHistory()
-        kenesWebView?.destroy()
-    }
+//    override fun onStop() {
+//        super.onStop()
+//        kenesWebView?.clearCache(true)
+//        kenesWebView?.clearHistory()
+//        kenesWebView?.destroy()
+//    }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        kenesWebView = null
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        kenesWebView = null
+//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
