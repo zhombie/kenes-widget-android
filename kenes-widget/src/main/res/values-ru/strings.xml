@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kenes_exit_widget_title">Выход из виджета</string>
+    <string name="kenes_exit_widget_text">Вы действительно хотите выйти из виджета?</string>
+    <string name="kenes_yes">Да</string>
+    <string name="kenes_no">Нет</string>
+</resources>

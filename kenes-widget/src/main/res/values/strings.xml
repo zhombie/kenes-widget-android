@@ -1,3 +1,8 @@
 <resources>
-    <string name="kenes_app_name">kenes-widget</string>
+    <string name="kenes_app_name" translatable="false">kenes-widget</string>
+
+    <string name="kenes_exit_widget_title">Exit widget</string>
+    <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
+    <string name="kenes_yes">Yes</string>
+    <string name="kenes_no">No</string>
 </resources>

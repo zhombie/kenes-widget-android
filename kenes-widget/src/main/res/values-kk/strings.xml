@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="kenes_exit_widget_title">Виджеттен шығу</string>
+    <string name="kenes_exit_widget_text">Расымен виджеттен шыққыңыз келеді ме?</string>
+    <string name="kenes_yes">Ия</string>
+    <string name="kenes_no">Жоқ</string>
+</resources>

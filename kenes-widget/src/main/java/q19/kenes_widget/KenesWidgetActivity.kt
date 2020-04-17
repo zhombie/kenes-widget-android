@@ -180,12 +180,30 @@ class KenesWidgetActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (kenesWebView != null && kenesWebView!!.canGoBack()) {
-            kenesWebView?.goBack()
-        } else {
-            super.onBackPressed()
-        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.kenes_exit_widget_title)
+            .setMessage(R.string.kenes_exit_widget_text)
+            .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                dialog.dismiss()
+                kenesWebView?.clearCache(true)
+                kenesWebView?.clearHistory()
+                kenesWebView?.destroy()
+                kenesWebView = null
+                finish()
+            }
+            .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
+
+//    override fun onBackPressed() {
+//        if (kenesWebView != null && kenesWebView!!.canGoBack()) {
+//            kenesWebView?.goBack()
+//        } else {
+//            super.onBackPressed()
+//        }
+//    }
 
 //    override fun onStop() {
 //        super.onStop()
