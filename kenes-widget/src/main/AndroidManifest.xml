@@ -2,20 +2,24 @@
     package="q19.kenes_widget">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.camera.autofocus" />
-    <uses-feature android:name="android.hardware.camera2.full" />
-    <uses-feature android:name="android.hardware.camera2.autofocus" />
-    <uses-permission android:name="android.webkit.PermissionRequest" />
-    <uses-feature android:name="android.webkit.resource.VIDEO_CAPTURE" />
-    <uses-feature android:name="android.webkit.resource.AUDIO_CAPTURE" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+<!--    Will be used in future updates, in order to detect whether the device has active network connection  -->
+<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />-->
+
+<!--    Permissions & features that will be needed  -->
+<!--    <uses-feature android:name="android.hardware.camera" />-->
+<!--    <uses-feature android:name="android.hardware.camera.autofocus" />-->
+<!--    <uses-feature android:name="android.hardware.camera2.full" />-->
+<!--    <uses-feature android:name="android.hardware.camera2.autofocus" />-->
+<!--    <uses-permission android:name="android.webkit.PermissionRequest" />-->
+<!--    <uses-feature android:name="android.webkit.resource.VIDEO_CAPTURE" />-->
+<!--    <uses-feature android:name="android.webkit.resource.AUDIO_CAPTURE" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>-->
 
 </manifest>

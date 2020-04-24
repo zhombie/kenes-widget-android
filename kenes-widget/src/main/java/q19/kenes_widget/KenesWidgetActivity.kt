@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.webkit.*
@@ -47,7 +48,6 @@ class KenesWidgetActivity : AppCompatActivity() {
         }
 
         bindViews()
-
         checkForAndAskForPermissions()
     }
 
@@ -56,13 +56,17 @@ class KenesWidgetActivity : AppCompatActivity() {
         kenesWebView = findViewById(R.id.kenesWebView)
     }
 
+    private fun unbindViews() {
+        progressBar = null
+        kenesWebView = null
+    }
+
     private fun checkForAndAskForPermissions() {
         // Check if the permissions have been granted
         if (
             isPermissionGranted(Manifest.permission.CAMERA) &&
             isPermissionGranted(Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
-            isPermissionGranted(Manifest.permission.RECORD_AUDIO) &&
-            isPermissionGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            isPermissionGranted(Manifest.permission.RECORD_AUDIO)
         ) {
             // Permissions have already been granted
             setupWebView()
@@ -71,8 +75,7 @@ class KenesWidgetActivity : AppCompatActivity() {
             if (
                 isShouldShowRequestPermissionRationale(Manifest.permission.CAMERA) &&
                 isShouldShowRequestPermissionRationale(Manifest.permission.MODIFY_AUDIO_SETTINGS) &&
-                isShouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) &&
-                isShouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                isShouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)
             ) {
                 // Provide an additional rationale to the user if the permissions were not granted
                 // and the user would benefit from additional context for the use of the permissions.
@@ -84,8 +87,7 @@ class KenesWidgetActivity : AppCompatActivity() {
                         requestPermissions(arrayOf(
                             Manifest.permission.CAMERA,
                             Manifest.permission.MODIFY_AUDIO_SETTINGS,
-                            Manifest.permission.RECORD_AUDIO,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            Manifest.permission.RECORD_AUDIO
                         ))
                     }
                     .setNegativeButton("Нет") { dialog, _ ->
@@ -157,18 +159,18 @@ class KenesWidgetActivity : AppCompatActivity() {
                 }
             }
 
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+                progressBar?.visibility = View.VISIBLE
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 progressBar?.visibility = View.GONE
             }
         }
 
-        val url = KenesUrlUtil.getUrl()
-        if (url.isNullOrBlank()) {
-            throwError()
-        } else {
-            kenesWebView?.loadUrl(url)
-        }
+//        loadCameraCallUrl()
 
         kenesWebView?.webChromeClient = object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
@@ -179,16 +181,21 @@ class KenesWidgetActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadWidgetUrl() {
+        val url = KenesUrlUtil.getUrl()
+        if (url.isNullOrBlank()) {
+            throwError()
+        } else {
+            kenesWebView?.loadUrl(url)
+        }
+    }
+
     override fun onBackPressed() {
         AlertDialog.Builder(this)
             .setTitle(R.string.kenes_exit_widget_title)
             .setMessage(R.string.kenes_exit_widget_text)
             .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
                 dialog.dismiss()
-                kenesWebView?.clearCache(true)
-                kenesWebView?.clearHistory()
-                kenesWebView?.destroy()
-                kenesWebView = null
                 finish()
             }
             .setNegativeButton(R.string.kenes_no) { dialog, _ ->
@@ -197,25 +204,31 @@ class KenesWidgetActivity : AppCompatActivity() {
             .show()
     }
 
-//    override fun onBackPressed() {
-//        if (kenesWebView != null && kenesWebView!!.canGoBack()) {
-//            kenesWebView?.goBack()
-//        } else {
-//            super.onBackPressed()
-//        }
-//    }
+    override fun onResume() {
+        super.onResume()
+        kenesWebView?.onResume()
+        loadWidgetUrl()
+    }
 
-//    override fun onStop() {
-//        super.onStop()
-//        kenesWebView?.clearCache(true)
-//        kenesWebView?.clearHistory()
-//        kenesWebView?.destroy()
-//    }
+    override fun onPause() {
+        kenesWebView?.stopLoading()
+        kenesWebView?.onPause()
+        clearWebViewData()
+        kenesWebView?.loadUrl("about:blank")
+        super.onPause()
+    }
 
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        kenesWebView = null
-//    }
+    override fun onDestroy() {
+        clearWebViewData()
+        kenesWebView?.destroy()
+        unbindViews()
+        super.onDestroy()
+    }
+
+    private fun clearWebViewData() {
+        kenesWebView?.clearCache(true)
+        kenesWebView?.clearHistory()
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
