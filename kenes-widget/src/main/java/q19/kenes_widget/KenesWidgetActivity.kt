@@ -100,8 +100,7 @@ class KenesWidgetActivity : AppCompatActivity() {
                 requestPermissions(arrayOf(
                     Manifest.permission.CAMERA,
                     Manifest.permission.MODIFY_AUDIO_SETTINGS,
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.RECORD_AUDIO
                 ))
             }
         }
