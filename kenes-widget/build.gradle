@@ -42,7 +42,16 @@ dependencies {
 
     implementation 'com.github.zhombie:nurmashwidgets:1.2'
 
+    implementation ('io.socket:socket.io-client:1.0.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
+
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    compile files('libs/autobanh.jar')
+    compile files('libs/base_java.jar')
+    compile files('libs/libjingle_peerconnection.jar')
 }

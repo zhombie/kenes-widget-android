@@ -4,4 +4,7 @@
     <string name="kenes_exit_widget_text">Вы действительно хотите выйти из виджета?</string>
     <string name="kenes_yes">Да</string>
     <string name="kenes_no">Нет</string>
+
+    <string name="kenes_message">Сообщение</string>
+    <string name="kenes_video_call">Видеозвонок</string>
 </resources>

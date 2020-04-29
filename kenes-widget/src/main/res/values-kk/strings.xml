@@ -4,4 +4,7 @@
     <string name="kenes_exit_widget_text">Расымен виджеттен шыққыңыз келеді ме?</string>
     <string name="kenes_yes">Ия</string>
     <string name="kenes_no">Жоқ</string>
+
+    <string name="kenes_message">Хабарлама</string>
+    <string name="kenes_video_call">Видеозвонок</string>
 </resources>
