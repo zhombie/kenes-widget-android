@@ -25,6 +25,12 @@ import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import org.webrtc.PeerConnection.Observer
+import q19.kenes_widget.adapter.ChatAdapter
+import q19.kenes_widget.adapter.ChatAdapterItemDecoration
+import q19.kenes_widget.models.FeedbackButton
+import q19.kenes_widget.models.Message
+import q19.kenes_widget.util.CircleTransformation
+import q19.kenes_widget.util.UrlUtil
 import java.util.*
 
 class KenesVideoCallActivity : AppCompatActivity() {
@@ -68,7 +74,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
         setContentView(R.layout.kenes_activity_video_call)
 
         // TODO: Remove later, exhaustive on PROD
-        KenesUrlUtil.HOSTNAME = "https://kenes.vlx.kz"
+        UrlUtil.HOSTNAME = "https://kenes.vlx.kz"
 
         if (Picasso.get() == null) {
             Picasso.setSingletonInstance(Picasso.Builder(this).build())
@@ -196,7 +202,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     val photo = operatorGreet.optString("photo")
                     var text = operatorGreet.optString("text")
 
-                    val photoUrl = KenesUrlUtil.getStaticUrl(photo)
+                    val photoUrl = UrlUtil.getStaticUrl(photo)
 
                     logD("photoUrl: $photoUrl")
 

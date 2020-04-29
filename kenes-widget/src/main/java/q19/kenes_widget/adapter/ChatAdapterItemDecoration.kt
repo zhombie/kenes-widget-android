@@ -1,11 +1,12 @@
-package q19.kenes_widget
+package q19.kenes_widget.adapter
 
 import android.content.Context
 import android.graphics.Rect
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import q19.kenes_widget.R
 
-class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
 
     private var verticalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.message_vertical_spacing)
 

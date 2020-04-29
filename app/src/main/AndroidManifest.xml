@@ -23,7 +23,7 @@
         </activity>
 
         <activity
-            android:name="q19.kenes_widget.KenesWidgetActivity"
+            android:name="q19.kenes_widget.legacy.KenesWidgetActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
 
         <activity

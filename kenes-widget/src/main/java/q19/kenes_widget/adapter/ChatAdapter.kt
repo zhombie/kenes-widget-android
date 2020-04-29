@@ -1,23 +1,21 @@
-package q19.kenes_widget
+package q19.kenes_widget.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import q19.kenes_widget.R
+import q19.kenes_widget.models.Message
 
-class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val LAYOUT_MY_MESSAGE = R.layout.cell_my_message
         private val LAYOUT_OPPONENT_MESSAGE = R.layout.cell_opponent_message
     }
 
-    var data: MutableList<Message> = mutableListOf()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
+    private var data: MutableList<Message> = mutableListOf()
 
     fun addNewItem(message: Message) {
         data.add(message)

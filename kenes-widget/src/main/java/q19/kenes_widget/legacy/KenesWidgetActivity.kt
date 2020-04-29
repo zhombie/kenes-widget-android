@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.legacy
 
 import android.Manifest
 import android.content.ActivityNotFoundException
@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import org.nurmash.lib.nurmashwidgets.customtabs.Browser
+import q19.kenes_widget.R
+import q19.kenes_widget.util.UrlUtil
 
 class KenesWidgetActivity : AppCompatActivity() {
 
@@ -44,7 +46,7 @@ class KenesWidgetActivity : AppCompatActivity() {
         if (hostname.isNullOrBlank()) {
             throwError()
         } else {
-            KenesUrlUtil.HOSTNAME = hostname
+            UrlUtil.HOSTNAME = hostname
         }
 
         bindViews()
@@ -181,7 +183,7 @@ class KenesWidgetActivity : AppCompatActivity() {
     }
 
     private fun loadWidgetUrl() {
-        val url = KenesUrlUtil.getWidgetUrl()
+        val url = UrlUtil.getWidgetUrl()
         if (url.isNullOrBlank()) {
             throwError()
         } else {

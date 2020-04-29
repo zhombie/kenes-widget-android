@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.legacy
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -11,6 +11,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.kenes_activity_webview.*
+import q19.kenes_widget.R
 
 internal class KenesWebViewActivity : AppCompatActivity() {
 

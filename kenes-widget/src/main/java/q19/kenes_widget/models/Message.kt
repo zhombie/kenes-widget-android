@@ -1,9 +1,9 @@
-package q19.kenes_widget
+package q19.kenes_widget.models
 
 import android.text.format.DateFormat
 import java.util.*
 
-data class Message(
+internal data class Message(
     var from_me: Boolean = false,
     var text: String,
     var date: Calendar = now()
@@ -28,7 +28,11 @@ data class Message(
         }
     }
 
-    constructor(from_me: Boolean, text: String, date: Long) : this(from_me, text, fromTimestamp(date))
+    constructor(
+        from_me: Boolean,
+        text: String,
+        date: Long
+    ) : this(from_me, text, fromTimestamp(date))
 
     val time: String
         get() = parse(date)

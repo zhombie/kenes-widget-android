@@ -1,9 +1,9 @@
-package q19.kenes_widget
+package q19.kenes_widget.util
 
 import android.graphics.*
 import com.squareup.picasso.Transformation
 
-class CircleTransformation : Transformation {
+internal class CircleTransformation : Transformation {
 
     override fun transform(source: Bitmap?): Bitmap? {
         if (source == null) {

@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.legacy
 
 import android.content.Context
 import android.content.Intent
