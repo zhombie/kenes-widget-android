@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_activated="true">
+        <layer-list>
+            <!-- Drop Shadow Stack -->
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#05409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#25409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#30409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#35409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#40409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#45409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#50409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+
+            <!-- Background -->
+            <item>
+                <shape android:shape="oval">
+                    <stroke android:width="2.5dp" android:color="@color/kenes_blue" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <item android:state_pressed="true">
+        <layer-list>
+            <!-- Drop Shadow Stack -->
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#05409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#25409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#30409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#35409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#40409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#45409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="oval">
+                    <padding android:top="1dp" android:right="1dp" android:bottom="1dp" android:left="1dp" />
+                    <stroke android:color="#50409EFF" android:width="2dp" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+
+            <!-- Background -->
+            <item>
+                <shape android:shape="oval">
+                    <stroke android:width="2.5dp" android:color="@color/kenes_blue" />
+                    <size android:width="14dp" android:height="14dp" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+
+    <item>
+        <shape android:shape="oval">
+            <stroke android:width="1dp" android:color="#DCDFE6" />
+            <size android:width="14dp" android:height="14dp" />
+        </shape>
+    </item>
+
+</selector>

@@ -10,4 +10,6 @@
     <string name="kenes_message">Message</string>
     <string name="kenes_video_call">Video Call</string>
     <string name="kenes_call_agent">Call agent</string>
+    <string name="kenes_send">Send</string>
+    <string name="kenes_satisfied_with_call">Are you satisfied with the response of the operator?</string>
 </resources>

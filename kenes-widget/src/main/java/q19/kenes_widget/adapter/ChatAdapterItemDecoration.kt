@@ -18,6 +18,18 @@ internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDe
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        outRect.bottom = verticalSpacing
+        val adapter = parent.adapter as? ChatAdapter?
+        val position = parent.layoutManager?.getPosition(view)
+
+        if (adapter != null && position != null) {
+            when (adapter.getItemViewType(position)) {
+                ChatAdapter.LAYOUT_NOTIFICATION -> {
+                    outRect.top = verticalSpacing
+                    outRect.bottom = verticalSpacing
+                }
+                else ->
+                    outRect.bottom = verticalSpacing
+            }
+        }
     }
 }

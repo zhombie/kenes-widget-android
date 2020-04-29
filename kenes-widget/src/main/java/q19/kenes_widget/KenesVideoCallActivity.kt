@@ -8,12 +8,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,10 +29,12 @@ import org.webrtc.PeerConnection.*
 import org.webrtc.PeerConnection.Observer
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
-import q19.kenes_widget.models.FeedbackButton
+import q19.kenes_widget.adapter.RatingAdapter
 import q19.kenes_widget.models.Message
+import q19.kenes_widget.models.RatingButton
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
+import q19.kenes_widget.util.hideKeyboard
 import java.util.*
 
 class KenesVideoCallActivity : AppCompatActivity() {
@@ -54,10 +58,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var callView: LinearLayout? = null
     private var callButton: AppCompatButton? = null
     private var infoView: TextView? = null
+    private var footerView: LinearLayout? = null
     private var inputView: AppCompatEditText? = null
+    private var attachmentButton: AppCompatImageButton? = null
     private var recyclerView: RecyclerView? = null
+    private var feedbackView: LinearLayout? = null
+    private var titleView: TextView? = null
+    private var ratingView: RecyclerView? = null
+    private var rateButton: AppCompatButton? = null
 
-    private var chatAdapter: ChatAdapter? = null
+    private lateinit var chatAdapter: ChatAdapter
 
     private var socket: Socket? = null
     private var peerConnection: PeerConnection? = null
@@ -86,20 +96,45 @@ class KenesVideoCallActivity : AppCompatActivity() {
         callView = findViewById(R.id.callView)
         callButton = findViewById(R.id.callButton)
         infoView = findViewById(R.id.infoView)
+        footerView = findViewById(R.id.footerView)
         inputView = findViewById(R.id.inputView)
+        attachmentButton = findViewById(R.id.attachmentButton)
         recyclerView = findViewById(R.id.recyclerView)
+        feedbackView = findViewById(R.id.feedbackView)
+        titleView = findViewById(R.id.titleView)
+        ratingView = findViewById(R.id.ratingView)
+        rateButton = findViewById(R.id.rateButton)
+
+        rateButton?.isEnabled = false
 
         recyclerView?.visibility = View.GONE
+        feedbackView?.visibility = View.GONE
         callView?.visibility = View.VISIBLE
+        footerView?.visibility = View.VISIBLE
 
         callButton?.setOnClickListener {
             start()
         }
 
+        attachmentButton?.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setMessage("Не реализовано")
+                .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+
+//        inputView?.
+
         inputView?.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEND) {
-                sendUserTextMessage(v.text.toString())
+                val text = v.text.toString()
+                sendUserTextMessage(text)
                 inputView?.text?.clear()
+                chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
+                scrollToBottom()
+                return@setOnEditorActionListener true
             }
             false
         }
@@ -189,6 +224,51 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             logD("connectToSignallingServer: STREAM: $args")
 
+        }?.on("user_chat_init") { args ->
+
+            logD("connectToSignallingServer: USER_CHAT_INIT: $args")
+
+            if (args.size == 1) {
+                val chat = args[0] as? JSONObject?
+                logD("connectToSignallingServer: chat: $chat")
+            }
+
+        }?.on("category_list") { args ->
+
+            logD("connectToSignallingServer: CATEGORY_LIST: $args")
+
+            if (args.size == 1) {
+                val categories = args[0] as? JSONObject?
+                logD("connectToSignallingServer: categories: $categories")
+            }
+
+        }?.on("form_init") { args ->
+
+            logD("connectToSignallingServer: FORM_INIT: $args")
+
+            if (args.size == 1) {
+                val form = args[0] as? JSONObject?
+                logD("connectToSignallingServer: form: $form")
+            }
+
+        }?.on("form_final") { args ->
+
+            logD("connectToSignallingServer: FORM_FINAL: $args")
+
+            if (args.size == 1) {
+                val form = args[0] as? JSONObject?
+                logD("connectToSignallingServer: form: $form")
+            }
+
+        }?.on("send_configs") { args ->
+
+            logD("connectToSignallingServer: SEND_CONFIGS: $args")
+
+            if (args.size == 1) {
+                val configs = args[0] as? JSONObject?
+                logD("connectToSignallingServer: configs: $configs")
+            }
+
         }?.on("operator_greet") { args ->
 
             logD("connectToSignallingServer: OPERATOR_GREET: $args")
@@ -197,7 +277,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 logD("connectToSignallingServer: JSONObject operatorGreet: $operatorGreet")
 
                 if (operatorGreet != null) {
-                    val name = operatorGreet.optString("name")
+//                    val name = operatorGreet.optString("name")
                     val fullName = operatorGreet.optString("full_name")
                     val photo = operatorGreet.optString("photo")
                     var text = operatorGreet.optString("text")
@@ -217,8 +297,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         nameView?.text = fullName
                         subNameView?.text = getString(R.string.kenes_call_agent)
 
-                        text = text.replace("{}", name)
-                        chatAdapter?.addNewItem(Message(false, text))
+                        text = text.replace("{}", fullName)
+                        chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
+                        scrollToBottom()
                     }
                 }
             }
@@ -244,20 +325,55 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 if (feedback != null) {
                     val buttons = feedback.optJSONArray("buttons")
                     val text = feedback.optString("text")
-                    val chatId = feedback.optLong("chat_id")
+//                    val chatId = feedback.optLong("chat_id")
 
                     if (buttons != null) {
-                        val feedbackButtons = mutableListOf<FeedbackButton>()
-                        for (i in 0..buttons.length()) {
+                        val ratingButtons = mutableListOf<RatingButton>()
+                        for (i in 0 until buttons.length()) {
                             val button = buttons[i] as JSONObject
-                            val feedbackButton = FeedbackButton(
+                            ratingButtons.add(RatingButton(
                                 button.optString("title"),
                                 button.optString("payload")
-                            )
-                            feedbackButtons.add(feedbackButton)
+                            ))
                         }
-                        feedbackButtons.forEach {
-                            logD("feedbackButton: " + it.title + ", " + it.payload)
+
+                        runOnUiThread {
+                            callView?.visibility = View.GONE
+                            recyclerView?.visibility = View.GONE
+                            feedbackView?.visibility = View.VISIBLE
+                            inputView?.let { hideKeyboard(it) }
+                            footerView?.visibility = View.GONE
+
+                            titleView?.text = text
+
+                            var selectedRatingButton: RatingButton? = null
+                            val ratingAdapter = RatingAdapter(ratingButtons) {
+                                selectedRatingButton = it
+
+                                if (selectedRatingButton != null) {
+                                    rateButton?.isEnabled = true
+                                }
+                            }
+                            ratingView?.adapter = ratingAdapter
+                            ratingAdapter.notifyDataSetChanged()
+
+                            rateButton?.setOnClickListener {
+                                val userFeedback = JSONObject()
+                                userFeedback.put("r", selectedRatingButton?.rating)
+                                userFeedback.put("chat_id", selectedRatingButton?.chatId)
+                                socket?.emit("user_feedback", userFeedback)
+
+                                selectedRatingButton = null
+
+                                rateButton?.isEnabled = false
+
+                                ratingView?.adapter = null
+
+                                callView?.visibility = View.GONE
+                                feedbackView?.visibility = View.GONE
+                                recyclerView?.visibility = View.VISIBLE
+                                footerView?.visibility = View.VISIBLE
+                            }
                         }
                     }
                 }
@@ -286,22 +402,40 @@ class KenesVideoCallActivity : AppCompatActivity() {
                                 .setTitle("Внимание")
                                 .setMessage(text)
                                 .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+//                                    peerConnectionFactory?.dispose()
+//                                    peerConnection?.dispose()
+//                                    rootEglBase?.release()
+//                                    socket?.close()
+
+                                    avatarView?.setImageDrawable(null)
+                                    nameView?.text = null
+                                    subNameView?.text = null
+
+                                    recyclerView?.visibility = View.GONE
+                                    callView?.visibility = View.VISIBLE
+                                    callButton?.isEnabled = true
+                                    infoView?.text = null
+                                    infoView?.visibility = View.GONE
+
                                     dialog.dismiss()
-                                    socket?.close()
-                                    peerConnectionFactory?.dispose()
-                                    peerConnection?.dispose()
-                                    rootEglBase?.release()
                                 }
                                 .show()
                         }
                     } else if (!action.isNullOrBlank() && action == "operator_disconnect") {
                         runOnUiThread {
-                            chatAdapter?.clearItems()
-                            recyclerView?.visibility = View.GONE
-                            callView?.visibility = View.VISIBLE
-                            callButton?.isEnabled = true
-                            infoView?.text = null
-                            infoView?.visibility = View.GONE
+                            feedbackView?.visibility = View.GONE
+                            callView?.visibility = View.GONE
+                            recyclerView?.visibility = View.VISIBLE
+
+                            chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
+                            scrollToBottom()
+
+//                            chatAdapter.clearItems()
+//                            recyclerView?.visibility = View.GONE
+//                            callView?.visibility = View.VISIBLE
+//                            callButton?.isEnabled = true
+//                            infoView?.text = null
+//                            infoView?.visibility = View.GONE
                         }
                     } else {
                         if (!id.isNullOrBlank()) {
@@ -310,7 +444,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                                 infoView?.text = text
                                 infoView?.visibility = View.VISIBLE
 
-                                chatAdapter?.addNewItem(Message(false, text, time))
+                                chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                                scrollToBottom()
                             }
                         } else {
                             if (type == "offer") {
@@ -433,7 +568,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
             logD("sendUserTextMessage: $e")
         }
         socket?.emit("user_message", userMessage)
-        chatAdapter?.addNewItem(Message(true, text))
+    }
+
+    private fun scrollToBottom() {
+        recyclerView?.let {
+            val adapter = it.adapter
+            if (adapter != null) {
+                logD("scrollTo: " + (adapter.itemCount - 1))
+                it.scrollToPosition(adapter.itemCount - 1)
+            }
+        }
     }
 
     private fun logD(message: String) {
@@ -460,7 +604,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
         infoView = null
         inputView = null
 
-        chatAdapter = null
         recyclerView?.adapter = null
         recyclerView = null
     }

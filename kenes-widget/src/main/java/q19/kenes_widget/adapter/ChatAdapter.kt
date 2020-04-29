@@ -11,59 +11,74 @@ import q19.kenes_widget.models.Message
 internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val LAYOUT_MY_MESSAGE = R.layout.cell_my_message
-        private val LAYOUT_OPPONENT_MESSAGE = R.layout.cell_opponent_message
+        val LAYOUT_SELF_MESSAGE = R.layout.kenes_cell_my_message
+        val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
+        val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
     }
 
-    private var data: MutableList<Message> = mutableListOf()
+    private var messages: MutableList<Message> = mutableListOf()
 
-    fun addNewItem(message: Message) {
-        data.add(message)
-        notifyItemInserted(data.size - 1)
+    fun addNewMessage(message: Message) {
+        messages.add(message)
+        notifyItemInserted(messages.size - 1)
     }
 
-    fun clearItems() {
-        data.clear()
-        notifyItemRangeRemoved(0, data.size - 1)
+    fun clearMessages() {
+        messages.clear()
+        notifyItemRangeRemoved(0, messages.size - 1)
     }
 
-    override fun getItemCount(): Int = data.size
+    override fun getItemCount(): Int = messages.size
 
     override fun getItemViewType(position: Int): Int {
-        return if (data[position].from_me) {
-            LAYOUT_MY_MESSAGE
-        } else {
-            LAYOUT_OPPONENT_MESSAGE
+        return when (messages[position].type) {
+            Message.Type.SELF ->
+                LAYOUT_SELF_MESSAGE
+            Message.Type.NOTIFICATION ->
+                LAYOUT_NOTIFICATION
+            else ->
+                LAYOUT_OPPONENT_MESSAGE
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
 
-        return if (viewType == LAYOUT_MY_MESSAGE) {
-            val view = inflater.inflate(LAYOUT_MY_MESSAGE, parent, false)
-            MyMessageViewHolder(view)
-        } else {
-            val view = inflater.inflate(LAYOUT_OPPONENT_MESSAGE, parent, false)
-            OpponentMessageViewHolder(view)
+        return when (viewType) {
+            LAYOUT_SELF_MESSAGE -> {
+                val view = inflater.inflate(LAYOUT_SELF_MESSAGE, parent, false)
+                SelfMessageViewHolder(view)
+            }
+            LAYOUT_NOTIFICATION -> {
+                val view = inflater.inflate(LAYOUT_NOTIFICATION, parent, false)
+                NotificationViewHolder(view)
+            }
+            else -> {
+                val view = inflater.inflate(LAYOUT_OPPONENT_MESSAGE, parent, false)
+                OpponentMessageViewHolder(view)
+            }
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val message = data[position]
+        val message = messages[position]
 
-        if (message.from_me) {
-            if (holder is MyMessageViewHolder) {
+        if (message.type == Message.Type.SELF) {
+            if (holder is SelfMessageViewHolder) {
                 holder.bind(message)
             }
-        } else {
+        } else if (message.type == Message.Type.NOTIFICATION) {
+            if (holder is NotificationViewHolder) {
+                holder.bind(message)
+            }
+        } else if (message.type == Message.Type.OPPONENT) {
             if (holder is OpponentMessageViewHolder) {
                 holder.bind(message)
             }
         }
     }
 
-    private inner class MyMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class SelfMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView: TextView? = null
         private var timeView: TextView? = null
 
@@ -79,6 +94,21 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private var textView: TextView? = null
+        private var timeView: TextView? = null
+
+        init {
+            textView = view.findViewById(R.id.textView)
+            timeView = view.findViewById(R.id.timeView)
+        }
+
+        fun bind(message: Message) {
+            textView?.text = message.text
+            timeView?.text = message.time
+        }
+    }
+
+    private inner class NotificationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView: TextView? = null
         private var timeView: TextView? = null
 

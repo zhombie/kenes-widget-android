@@ -58,7 +58,7 @@
         android:clipToPadding="false"
         android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/cell_my_message"
+        tools:listitem="@layout/kenes_cell_my_message"
         tools:itemCount="5" />
 
     <LinearLayout
@@ -76,7 +76,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/kenes_bg_button"
-            android:elevation="0dp"
             android:paddingStart="20dp"
             android:paddingTop="12dp"
             android:paddingEnd="20dp"
@@ -97,10 +96,66 @@
 
     </LinearLayout>
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/feedbackView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/titleView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="sans-serif-medium"
+            android:lineSpacingExtra="3sp"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            tools:text="Удовлетворены ли вы ответом оператора?" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/ratingView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:overScrollMode="never"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="3"
+            tools:listitem="@layout/kenes_cell_rating" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/rateButton"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/kenes_bg_button"
+            android:enabled="false"
+            android:paddingStart="15dp"
+            android:paddingTop="9dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="9dp"
+            android:text="@string/kenes_send"
+            android:textAllCaps="false"
+            android:textColor="@color/kenes_selector_button_text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/footerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:orientation="horizontal"
         android:paddingStart="15dp"
         android:paddingTop="10dp"
         android:paddingEnd="15dp"
@@ -108,14 +163,17 @@
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/inputView"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="@drawable/kenes_bg_message"
             android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
             android:hint="@string/kenes_message"
             android:imeOptions="actionSend"
             android:maxLength="500"
             android:maxLines="1"
+            android:minHeight="50dp"
             android:paddingStart="15dp"
             android:paddingTop="10dp"
             android:paddingEnd="15dp"
@@ -124,6 +182,15 @@
             android:textColor="@color/kenes_black"
             android:textSize="16sp" />
 
-    </FrameLayout>
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/attachmentButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="5dp"
+            android:src="@drawable/kenes_ic_attachment" />
+
+    </LinearLayout>
 
 </LinearLayout>

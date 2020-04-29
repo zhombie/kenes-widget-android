@@ -4,7 +4,7 @@ import android.text.format.DateFormat
 import java.util.*
 
 internal data class Message(
-    var from_me: Boolean = false,
+    var type: Type = Type.OPPONENT,
     var text: String,
     var date: Calendar = now()
 ) {
@@ -29,12 +29,18 @@ internal data class Message(
     }
 
     constructor(
-        from_me: Boolean,
+        type: Type,
         text: String,
         date: Long
-    ) : this(from_me, text, fromTimestamp(date))
+    ) : this(type, text, fromTimestamp(date))
 
     val time: String
         get() = parse(date)
+
+    enum class Type {
+        SELF,
+        OPPONENT,
+        NOTIFICATION
+    }
 
 }
