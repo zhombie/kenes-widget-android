@@ -181,7 +181,7 @@ class KenesWidgetActivity : AppCompatActivity() {
     }
 
     private fun loadWidgetUrl() {
-        val url = KenesUrlUtil.getUrl()
+        val url = KenesUrlUtil.getWidgetUrl()
         if (url.isNullOrBlank()) {
             throwError()
         } else {

@@ -7,4 +7,5 @@
 
     <string name="kenes_message">Сообщение</string>
     <string name="kenes_video_call">Видеозвонок</string>
+    <string name="kenes_call_agent">Оператор</string>
 </resources>

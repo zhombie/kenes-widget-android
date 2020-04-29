@@ -1,14 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical"
     android:fitsSystemWindows="true">
 
-    <FrameLayout
+    <RelativeLayout
+        android:id="@+id/headerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:padding="15dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/avatarView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp"
+            tools:src="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/nameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/avatarView"
+            android:layout_toEndOf="@id/avatarView"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            tools:text="Kenes" />
+
+        <TextView
+            android:id="@+id/subNameView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/nameView"
+            android:layout_alignStart="@id/nameView"
+            android:layout_marginTop="1dp"
+            android:fontFamily="sans-serif"
+            android:textColor="#40000000"
+            android:textSize="13sp"
+            tools:text="Smart Bot" />
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginTop="15dp"
+        android:clipToPadding="false"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/cell_my_message"
+        tools:itemCount="5" />
+
+    <LinearLayout
+        android:id="@+id/callView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/callButton"
@@ -24,17 +83,27 @@
             android:paddingBottom="12dp"
             android:text="@string/kenes_video_call"
             android:textAllCaps="false"
-            android:textColor="@color/kenes_blue" />
+            android:textColor="@color/kenes_selector_button_text" />
 
-    </FrameLayout>
+        <TextView
+            android:id="@+id/infoView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="14dp"
+            android:text=""
+            android:textColor="#909399"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:paddingStart="15dp"
         android:paddingTop="10dp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
+        android:paddingEnd="15dp"
         android:paddingBottom="15dp">
 
         <androidx.appcompat.widget.AppCompatEditText
@@ -44,12 +113,14 @@
             android:background="@drawable/kenes_bg_message"
             android:fontFamily="sans-serif"
             android:hint="@string/kenes_message"
+            android:imeOptions="actionSend"
             android:maxLength="500"
-            android:maxLines="5"
+            android:maxLines="1"
             android:paddingStart="15dp"
             android:paddingTop="10dp"
             android:paddingEnd="15dp"
             android:paddingBottom="10dp"
+            android:singleLine="true"
             android:textColor="@color/kenes_black"
             android:textSize="16sp" />
 

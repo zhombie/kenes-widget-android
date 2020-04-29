@@ -5,7 +5,9 @@
     <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
     <string name="kenes_yes">Yes</string>
     <string name="kenes_no">No</string>
+    <string name="kenes_ok" translatable="false">OK</string>
 
     <string name="kenes_message">Message</string>
     <string name="kenes_video_call">Video Call</string>
+    <string name="kenes_call_agent">Call agent</string>
 </resources>

@@ -4,6 +4,11 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven'
 
 android {
+    sourceSets.main {
+        jniLibs.srcDir 'libs'
+        jni.srcDirs = [] //disable automatic ndk-build call
+    }
+
     compileSdkVersion 29
 
 
@@ -39,6 +44,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
 
     implementation "androidx.browser:browser:1.2.0"
+
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    implementation 'com.squareup.picasso:picasso:2.71828'
 
     implementation 'com.github.zhombie:nurmashwidgets:1.2'
 

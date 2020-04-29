@@ -6,7 +6,31 @@ internal object KenesUrlUtil {
 
     var HOSTNAME: String? = null
 
-    fun getUrl(): String? {
+    private const val STATIC_PATH = "/static/uploads/"
+
+    fun getStaticUrl(path: String): String? {
+        return HOSTNAME?.let {
+            if (it.isBlank()) {
+                null
+            } else {
+                if (URL_REGEX.containsMatchIn(it)) {
+                    if (path.startsWith(STATIC_PATH)) {
+                        it + path
+                    } else {
+                        if (it.endsWith("/")) {
+                            it.dropLast(1) + STATIC_PATH + path
+                        } else {
+                            it + STATIC_PATH + path
+                        }
+                    }
+                } else {
+                    null
+                }
+            }
+        }
+    }
+
+    fun getWidgetUrl(): String? {
         return HOSTNAME?.let {
             if (it.isBlank()) {
                 null
