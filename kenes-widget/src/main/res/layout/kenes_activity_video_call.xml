@@ -16,7 +16,7 @@
         android:padding="15dp">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/avatarView"
+            android:id="@+id/opponentAvatarView"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
@@ -25,22 +25,22 @@
             tools:src="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/nameView"
+            android:id="@+id/opponentNameView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/avatarView"
-            android:layout_toEndOf="@id/avatarView"
+            android:layout_alignTop="@id/opponentAvatarView"
+            android:layout_toEndOf="@id/opponentAvatarView"
             android:fontFamily="sans-serif"
             android:textColor="@color/black"
             android:textSize="14sp"
             tools:text="Kenes" />
 
         <TextView
-            android:id="@+id/subNameView"
+            android:id="@+id/opponentSecondNameView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/nameView"
-            android:layout_alignStart="@id/nameView"
+            android:layout_below="@id/opponentNameView"
+            android:layout_alignStart="@id/opponentNameView"
             android:layout_marginTop="1dp"
             android:fontFamily="sans-serif"
             android:textColor="#40000000"
@@ -63,7 +63,7 @@
         tools:listitem="@layout/kenes_cell_my_message" />
 
     <LinearLayout
-        android:id="@+id/callView"
+        android:id="@+id/videoCallView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -72,7 +72,7 @@
         android:visibility="gone">
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/callButton"
+            android:id="@+id/videoCallButton"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
             android:textColor="@color/kenes_selector_button_text" />
 
         <TextView
-            android:id="@+id/infoView"
+            android:id="@+id/videoCallInfoView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="14dp"

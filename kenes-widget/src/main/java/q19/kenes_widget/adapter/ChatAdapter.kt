@@ -1,6 +1,5 @@
 package q19.kenes_widget.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -193,7 +192,7 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 adapter.category = category
                 adapter.notifyDataSetChanged()
 
-                Log.d("LOL", "BIND -> CATEGORY: " + message.category)
+//                Log.d("LOL", "BIND -> CATEGORY: " + message.category)
             }
         }
     }

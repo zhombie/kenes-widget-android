@@ -1,30 +1,25 @@
 package q19.kenes_widget.model
 
 internal data class Configs(
+    var opponent: Opponent = Opponent(),
     var contacts: MutableList<Contact> = mutableListOf(),
     var workingHours: WorkingHours = WorkingHours()
 ) {
 
-    internal data class Contact(
+    data class Opponent(
+        var name: String? = null,
+        var secondName: String? = null,
+        var avatarUrl: String? = null
+    )
+
+    data class Contact(
         var id: String,
         var url: String
     )
 
-    internal data class WorkingHours(
-        var messageKk: String = "",
-        var messageRu: String = ""
-    ) {
-
-        companion object {
-            fun from(messageKk: String?, messageRu: String?): WorkingHours {
-                return WorkingHours(messageKk ?: "", messageRu ?: "")
-            }
-        }
-
-    }
-
-    override fun toString(): String {
-        return "$contacts"
-    }
+    data class WorkingHours(
+        var messageKk: String? = null,
+        var messageRu: String? = null
+    )
 
 }

@@ -30,15 +30,17 @@ import org.webrtc.PeerConnection.Observer
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.RatingAdapter
+import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Configs
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.model.RatingButton
+import q19.kenes_widget.model.WidgetIceServer
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
 import java.lang.Exception
-import java.util.*
+import kotlin.collections.ArrayList
 
 class KenesVideoCallActivity : AppCompatActivity() {
 
@@ -47,20 +49,18 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         private const val REQUEST_CODE_PERMISSIONS = 111
 
-        private const val SIGNALLING_SERVER_URL = "https://kenes2.vlx.kz/user"
-
         @JvmStatic
         fun newIntent(context: Context): Intent {
             return Intent(context, KenesVideoCallActivity::class.java)
         }
     }
 
-    private var avatarView: AppCompatImageView? = null
-    private var nameView: TextView? = null
-    private var subNameView: TextView? = null
-    private var callView: LinearLayout? = null
-    private var callButton: AppCompatButton? = null
-    private var infoView: TextView? = null
+    private var opponentAvatarView: AppCompatImageView? = null
+    private var opponentNameView: TextView? = null
+    private var opponentSecondNameView: TextView? = null
+    private var videoCallView: LinearLayout? = null
+    private var videoCallButton: AppCompatButton? = null
+    private var videoCallInfoView: TextView? = null
     private var footerView: LinearLayout? = null
     private var inputView: AppCompatEditText? = null
     private var attachmentButton: AppCompatImageButton? = null
@@ -94,8 +94,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
     )
 
     private var configs: Configs = Configs()
-
+    private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
     private var messages: MutableList<Message> = mutableListOf()
+    private var activeDialog: Dialog? = null
 
     private var isCategoriesShown: Boolean = false
     private var isFilled: Boolean = false
@@ -107,55 +108,117 @@ class KenesVideoCallActivity : AppCompatActivity() {
         // TODO: Remove later, exhaustive on PROD
         UrlUtil.HOSTNAME = "https://kenes.vlx.kz"
 
+        /**
+         * [Picasso] configuration
+         */
         if (Picasso.get() == null) {
             Picasso.setSingletonInstance(Picasso.Builder(this).build())
         }
 
         palette = resources.getIntArray(R.array.kenes_palette)
 
-        avatarView = findViewById(R.id.avatarView)
-        nameView = findViewById(R.id.nameView)
-        subNameView = findViewById(R.id.subNameView)
-        callView = findViewById(R.id.callView)
-        callButton = findViewById(R.id.callButton)
-        infoView = findViewById(R.id.infoView)
+
+        // -------------------------- Binding views -----------------------------------
+        /**
+         * Bind [R.id.headerView] views: [R.id.opponentAvatarView], [R.id.opponentNameView],
+         * [R.id.opponentSecondNameView].
+         * Header view for opponent info display.
+         */
+        opponentAvatarView = findViewById(R.id.opponentAvatarView)
+        opponentNameView = findViewById(R.id.opponentNameView)
+        opponentSecondNameView = findViewById(R.id.opponentSecondNameView)
+
+        /**
+         * Bind [R.id.videoCallView] views: [R.id.videoCallButton], [R.id.videoCallInfoView].
+         */
+        videoCallView = findViewById(R.id.videoCallView)
+        videoCallButton = findViewById(R.id.videoCallButton)
+        videoCallInfoView = findViewById(R.id.videoCallInfoView)
+
+        /**
+         * Bind [R.id.footerView] views: [R.id.inputView], [R.id.attachmentButton].
+         * Footer view for messenger.
+         */
         footerView = findViewById(R.id.footerView)
         inputView = findViewById(R.id.inputView)
         attachmentButton = findViewById(R.id.attachmentButton)
+
+        /**
+         * Bind [R.id.recyclerView] view.
+         * View for chat.
+         */
         recyclerView = findViewById(R.id.recyclerView)
+
+        /**
+         * Bind [R.id.feedbackView] views: [R.id.titleView], [R.id.ratingView], [R.id.rateButton].
+         * Big screen view for user feedback after dialogue with a call agent.
+         */
         feedbackView = findViewById(R.id.feedbackView)
         titleView = findViewById(R.id.titleView)
         ratingView = findViewById(R.id.ratingView)
         rateButton = findViewById(R.id.rateButton)
+
+        /**
+         * Bind [R.id.navigationView] views: [R.id.homeButton], [R.id.videoButton],
+         * [R.id.audioButton], [R.id.videoCallInfoView].
+         * Widget navigation buttons.
+         */
         homeNavButton = findViewById(R.id.homeButton)
         videoNavButton = findViewById(R.id.videoButton)
         audioNavButton = findViewById(R.id.audioButton)
         infoNavButton = findViewById(R.id.infoButton)
 
+        // ------------------------------------------------------------------------
+
+
+        // --------------------- Default screen setups ----------------------------
+
+        /**
+         * Default active navigation button [homeNavButton]
+         */
         setActiveNavButtonTintColor(homeNavButton)
 
+        /**
+         * Default states of views
+         */
         rateButton?.isEnabled = false
+        bindOpponentData(Configs())
+        inputView?.text?.clear()
+
+        // TODO: Remove after attachment upload ability realization
+        attachmentButton?.visibility = View.GONE
 
         feedbackView?.visibility = View.GONE
-        callView?.visibility = View.GONE
+        videoCallView?.visibility = View.GONE
         recyclerView?.visibility = View.VISIBLE
         footerView?.visibility = View.VISIBLE
 
-        homeNavButton?.setOnClickListener {
-            activeNavButtonIndex = 0
-            updateActiveNavButtonTintColor()
+        // ------------------------------------------------------------------------
 
+
+        /**
+         * Configuration of action listeners (click/touch)
+         */
+        homeNavButton?.setOnClickListener {
             if (feedbackView?.visibility == View.VISIBLE) {
                 return@setOnClickListener
             } else {
+                activeNavButtonIndex = 0
+                updateActiveNavButtonTintColor()
+
                 chatAdapter.clearMessages()
                 scrollToTop()
 
                 messages.clear()
+
                 isCategoriesShown = false
                 isFilled = false
 
-                callView?.visibility = View.GONE
+                videoCallButton?.isEnabled = true
+                videoCallInfoView?.text = null
+                videoCallInfoView?.visibility = View.GONE
+
+                videoCallView?.visibility = View.GONE
                 feedbackView?.visibility = View.GONE
                 recyclerView?.visibility = View.VISIBLE
                 footerView?.visibility = View.VISIBLE
@@ -171,30 +234,39 @@ class KenesVideoCallActivity : AppCompatActivity() {
             activeNavButtonIndex = 1
             updateActiveNavButtonTintColor()
 
-            callButton?.isEnabled = true
-            infoView?.text = null
-            infoView?.visibility = View.GONE
+            videoCallButton?.isEnabled = true
+            videoCallInfoView?.text = null
+            videoCallInfoView?.visibility = View.GONE
 
             feedbackView?.visibility = View.GONE
             recyclerView?.visibility = View.GONE
-            callView?.visibility = View.VISIBLE
+            videoCallView?.visibility = View.VISIBLE
             footerView?.visibility = View.VISIBLE
         }
 
         audioNavButton?.setOnClickListener {
-            activeNavButtonIndex = 2
-            updateActiveNavButtonTintColor()
+            if (feedbackView?.visibility == View.VISIBLE) {
+                return@setOnClickListener
+            } else {
+                activeNavButtonIndex = 2
+                updateActiveNavButtonTintColor()
+            }
         }
 
         infoNavButton?.setOnClickListener {
-            activeNavButtonIndex = 3
-            updateActiveNavButtonTintColor()
+            if (feedbackView?.visibility == View.VISIBLE) {
+                return@setOnClickListener
+            } else {
+                activeNavButtonIndex = 3
+                updateActiveNavButtonTintColor()
+            }
         }
 
-        callButton?.setOnClickListener {
+        videoCallButton?.setOnClickListener {
             val initialize = JSONObject()
             initialize.put("video", true)
             socket?.emit("initialize", initialize)
+
             videoCall()
         }
 
@@ -218,7 +290,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 scrollToBottom()
                 return@setOnEditorActionListener true
             }
-            false
+            return@setOnEditorActionListener false
         }
 
         chatAdapter = ChatAdapter()
@@ -246,7 +318,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun start() {
-        fetchConfigs()
+        fetchWidgetConfigs()
+        fetchIceServers()
 
         connectToSignallingServer()
 
@@ -264,53 +337,94 @@ class KenesVideoCallActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchConfigs() {
-        val asyncTask = HttpRequestHandler()
-        val response = asyncTask.execute().get()
-
+    private fun fetchWidgetConfigs() {
         try {
+            val asyncTask = HttpRequestHandler(url = UrlUtil.HOSTNAME + "/configs")
+            val response = asyncTask.execute().get()
+
             val json = JSONObject(response)
+
             val configs = json.optJSONObject("configs")
             val contacts = json.optJSONObject("contacts")
             val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-            Picasso.get()
-                .load(UrlUtil.getStaticUrl(configs?.optString("image")))
-                .fit()
-                .centerCrop()
-                .transform(CircleTransformation())
-                .into(avatarView)
+            this.configs.opponent = Configs.Opponent(
+                name = configs?.optString("default_operator") ?: "",
+                secondName = configs?.optString("title") ?: "",
+                avatarUrl = UrlUtil.getStaticUrl(configs?.optString("image")) ?: ""
+            )
 
-            nameView?.text = configs?.optString("default_operator")
-            subNameView?.text = configs?.optString("title")
-
-            contacts?.keys()?.forEach {
-                this.configs.contacts.add(
-                    Configs.Contact(
-                        it,
-                        (contacts[it] as? String?) ?: ""
-                    )
-                )
+            contacts?.keys()?.forEach { key ->
+                this.configs.contacts.add(Configs.Contact(key, (contacts[key] as? String?) ?: ""))
             }
 
-            this.configs.workingHours = Configs.WorkingHours.from(
+            this.configs.workingHours = Configs.WorkingHours(
                 configs?.optString("message_kk"),
                 configs?.optString("message_ru")
             )
+
+            bindOpponentData(this.configs)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    private fun connectToSignallingServer() {
-        socket = IO.socket(SIGNALLING_SERVER_URL)
+    private fun fetchIceServers() {
+        try {
+            val asyncTask = HttpRequestHandler(url = UrlUtil.HOSTNAME + "/ice_servers")
+            val response = asyncTask.execute().get()
 
-        logD("connectToSignallingServer")
+            val json = JSONObject(response)
+
+            val iceServersJson = json.optJSONArray("ice_servers")
+
+            if (iceServersJson != null) {
+                for (i in 0 until iceServersJson.length()) {
+                    val iceServerJson = iceServersJson[i] as? JSONObject?
+
+                    this.iceServers.add(WidgetIceServer(
+                        url = iceServerJson?.optString("url"),
+                        username = iceServerJson?.optString("username"),
+                        urls = iceServerJson?.optString("urls"),
+                        credential = iceServerJson?.optString("credential")
+                    ))
+                }
+
+                this.iceServers.forEach { iceServer ->
+                    logD("iceServer: $iceServer")
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun bindOpponentData(configs: Configs) {
+        if (!configs.opponent.avatarUrl.isNullOrBlank()) {
+            Picasso.get()
+                .load(configs.opponent.avatarUrl)
+                .fit()
+                .centerCrop()
+                .transform(CircleTransformation())
+                .into(opponentAvatarView)
+        } else {
+            opponentAvatarView?.setImageDrawable(null)
+        }
+
+        opponentNameView?.text = configs.opponent.name
+        opponentSecondNameView?.text = configs.opponent.secondName
+    }
+
+    private fun connectToSignallingServer() {
+        socket = IO.socket(UrlUtil.SIGNALLING_SERVER_URL)
 
         socket?.on(Socket.EVENT_CONNECT) { args ->
             
-            logD("connectToSignallingServer: EVENT_CONNECT: $args")
-            logD("connectToSignallingServer -> socket.connected(): " + socket?.connected())
+            logD("event [EVENT_CONNECT]: $args")
+
+            args.forEach { arg ->
+                logD("event [EVENT_CONNECT], arg: ${arg as? JSONObject}")
+            }
 
             val userDashboard = JSONObject()
             userDashboard.put("action", "get_category_list")
@@ -319,66 +433,93 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         }?.on("open") { args ->
 
-            logD("connectToSignallingServer: OPEN: $args")
+            logD("event [OPEN]: $args")
 
         }?.on("call") { args ->
 
-            logD("connectToSignallingServer: CALL: $args")
+            logD("event [CALL]: $args")
 
             if (args.size == 1) {
                 val call = args[0] as? JSONObject?
-                logD("connectToSignallingServer: JSONObject call: $call")
+                logD("JSONObject call: $call")
 
                 if (call != null) {
                     val type = call.optString("type")
 
                     if (type == "accept") {
                         runOnUiThread {
+                            activeDialog = Dialog(
+                                operatorId = call.optString("operator"),
+                                instance = call.optString("instance"),
+                                media = call.optString("media")
+                            )
+
+                            videoCallButton?.isEnabled = false
+                            videoCallInfoView?.text = null
+                            feedbackView?.visibility = View.GONE
+                            videoCallView?.visibility = View.GONE
                             recyclerView?.visibility = View.VISIBLE
-                            callView?.visibility = View.GONE
                         }
                     }
                 }
             }
 
+        }?.on("user_queue") { args ->
+
+            logD("event [USER_QUEUE]: $args")
+
+            if (args.size == 1) {
+                val userQueueJson = args[0] as? JSONObject?
+                logD("userQueueJson: $userQueueJson")
+            }
+
+        }?.on("operator_status") { args ->
+
+            logD("event [OPERATOR_STATUS]: $args")
+
+            if (args.size == 1) {
+                val operatorStatusJson = args[0] as? JSONObject?
+                logD("operatorStatusJson: $operatorStatusJson")
+            }
+
         }?.on("stream") { args ->
 
-            logD("connectToSignallingServer: STREAM: $args")
+            logD("event [STREAM]: $args")
 
         }?.on("user_chat_init") { args ->
 
-            logD("connectToSignallingServer: USER_CHAT_INIT: $args")
+            logD("event [USER_CHAT_INIT]: $args")
 
             if (args.size == 1) {
-                val chat = args[0] as? JSONObject?
-                logD("connectToSignallingServer: chat: $chat")
+                val chatInitJson = args[0] as? JSONObject?
+                logD("chatInitJson: $chatInitJson")
             }
 
         }?.on("category_list") { args ->
 
             if (args.size == 1) {
                 val categoryList = args[0] as? JSONObject?
-                logD("connectToSignallingServer: categoryList: $categoryList")
+                logD("categoryListJson: $categoryList")
 
-                val categoriesList = categoryList?.optJSONArray("category_list")
+                val categoryListJson = categoryList?.optJSONArray("category_list")
 
-                if (categoriesList != null) {
+                if (categoryListJson != null) {
                     var categories = mutableListOf<Category>()
-                    for (i in 0 until categoriesList.length()) {
-                        val category = categoriesList[i] as JSONObject
+                    for (i in 0 until categoryListJson.length()) {
+                        val categoryJson = categoryListJson[i] as JSONObject
                         categories.add(Category(
-                            id = category.optLong("id"),
-                            title = category.optString("title"),
-                            lang = category.optInt("lang"),
-                            parentId = category.optLong("parent_id", -1),
-                            photo = category.optString("photo")
+                            id = categoryJson.optLong("id"),
+                            title = categoryJson.optString("title"),
+                            lang = categoryJson.optInt("lang"),
+                            parentId = categoryJson.optLong("parent_id", -1),
+                            photo = categoryJson.optString("photo")
                         ))
                     }
 
                     categories = categories.sortedBy { it.id }.toMutableList()
 
                     categories.forEachIndexed { index, category ->
-                        logD("category: $category")
+//                        logD("category: $category")
 
                         if (category.parentId == null || category.parentId == -1L) {
                             if (palette.isNotEmpty()) {
@@ -400,13 +541,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         }
                     }
 
-                    val isNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.category?.sections.isNullOrEmpty() }
+                    val isMessagesNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.category?.sections.isNullOrEmpty() }
 
-                    if (!isCategoriesShown && isFilled && isNotEmpty) {
-                        logD("FINAL ->>>>>>: " + messages.map { it.category?.id.toString() + " - " + it.category?.title + " -> " + it.category?.sections?.map { section -> section.id.toString() + " - " + section.title + " #" + section.parentId  }})
+                    if (!isCategoriesShown && isFilled && isMessagesNotEmpty) {
+//                        logD("FINAL ->>>>>>: " + messages.map { it.category?.id.toString() + " - " + it.category?.title + " -> " + it.category?.sections?.map { section -> section.id.toString() + " - " + section.title + " #" + section.parentId  }})
                         runOnUiThread {
                             feedbackView?.visibility = View.GONE
-                            callView?.visibility = View.GONE
+                            videoCallView?.visibility = View.GONE
                             recyclerView?.visibility = View.VISIBLE
                             footerView?.visibility = View.VISIBLE
 
@@ -421,58 +562,56 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         }?.on("form_init") { args ->
 
-            logD("connectToSignallingServer: FORM_INIT: $args")
+            logD("event [FORM_INIT]: $args")
 
             if (args.size == 1) {
-                val form = args[0] as? JSONObject?
-                logD("connectToSignallingServer: form: $form")
+                val formInitJson = args[0] as? JSONObject?
+                logD("formInitJson: $formInitJson")
             }
 
         }?.on("form_final") { args ->
 
-            logD("connectToSignallingServer: FORM_FINAL: $args")
+            logD("event [FORM_FINAL]: $args")
 
             if (args.size == 1) {
-                val form = args[0] as? JSONObject?
-                logD("connectToSignallingServer: form: $form")
+                val formFinalJson = args[0] as? JSONObject?
+                logD("formFinalJson: $formFinalJson")
             }
 
         }?.on("send_configs") { args ->
 
-            logD("connectToSignallingServer: SEND_CONFIGS: $args")
+            logD("event [SEND_CONFIGS]: $args")
 
             if (args.size == 1) {
-                val configs = args[0] as? JSONObject?
-                logD("connectToSignallingServer: configs: $configs")
+                val configsJson = args[0] as? JSONObject?
+                logD("configsJson: $configsJson")
             }
 
         }?.on("operator_greet") { args ->
 
-            logD("connectToSignallingServer: OPERATOR_GREET: $args")
+            logD("event [OPERATOR_GREET]: $args")
             if (args.size == 1) {
-                val operatorGreet = args[0] as? JSONObject?
-                logD("connectToSignallingServer: JSONObject operatorGreet: $operatorGreet")
+                val operatorGreetJson = args[0] as? JSONObject?
+                logD("JSONObject operatorGreetJson: $operatorGreetJson")
 
-                if (operatorGreet != null) {
+                if (operatorGreetJson != null) {
 //                    val name = operatorGreet.optString("name")
-                    val fullName = operatorGreet.optString("full_name")
-                    val photo = operatorGreet.optString("photo")
-                    var text = operatorGreet.optString("text")
+                    val fullName = operatorGreetJson.optString("full_name")
+                    val photo = operatorGreetJson.optString("photo")
+                    var text = operatorGreetJson.optString("text")
 
                     val photoUrl = UrlUtil.getStaticUrl(photo)
 
                     logD("photoUrl: $photoUrl")
 
                     runOnUiThread {
-                        Picasso.get()
-                            .load(photoUrl)
-                            .fit()
-                            .centerCrop()
-                            .transform(CircleTransformation())
-                            .into(avatarView)
-
-                        nameView?.text = fullName
-                        subNameView?.text = getString(R.string.kenes_call_agent)
+                        bindOpponentData(Configs(
+                            opponent = Configs.Opponent(
+                                name = fullName, 
+                                secondName = getString(R.string.kenes_call_agent), 
+                                avatarUrl = photoUrl
+                            )
+                        ))
 
                         text = text.replace("{}", fullName)
                         chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
@@ -483,31 +622,29 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         }?.on("operator_typing") { args ->
 
-            logD("connectToSignallingServer: OPERATOR_TYPING: $args")
+            logD("event [OPERATOR_TYPING]: $args")
             if (args.size == 1) {
-                val operatorTyping = args[0] as? JSONObject?
-                logD("connectToSignallingServer: JSONObject operatorTyping: $operatorTyping")
-
-                if (operatorTyping != null) {
-                }
+                val operatorTypingJson = args[0] as? JSONObject?
+                logD("JSONObject operatorTypingJson: $operatorTypingJson")
             }
 
         }?.on("feedback") { args ->
 
-            logD("connectToSignallingServer: FEEDBACK: $args")
+            logD("event [FEEDBACK]: $args")
             if (args.size == 1) {
-                val feedback = args[0] as? JSONObject?
-                logD("connectToSignallingServer: JSONObject feedback: $feedback")
+                val feedbackJson = args[0] as? JSONObject?
+                logD("JSONObject feedbackJson: $feedbackJson")
 
-                if (feedback != null) {
-                    val buttons = feedback.optJSONArray("buttons")
-                    val text = feedback.optString("text")
+                if (feedbackJson != null) {
+                    val buttonsJson = feedbackJson.optJSONArray("buttons")
+
+                    val text = feedbackJson.optString("text")
 //                    val chatId = feedback.optLong("chat_id")
 
-                    if (buttons != null) {
+                    if (buttonsJson != null) {
                         val ratingButtons = mutableListOf<RatingButton>()
-                        for (i in 0 until buttons.length()) {
-                            val button = buttons[i] as JSONObject
+                        for (i in 0 until buttonsJson.length()) {
+                            val button = buttonsJson[i] as JSONObject
                             ratingButtons.add(RatingButton(
                                 button.optString("title"),
                                 button.optString("payload")
@@ -515,7 +652,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         }
 
                         runOnUiThread {
-                            callView?.visibility = View.GONE
+                            videoCallView?.visibility = View.GONE
                             recyclerView?.visibility = View.GONE
                             feedbackView?.visibility = View.VISIBLE
                             inputView?.let { hideKeyboard(it) }
@@ -546,14 +683,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                                 ratingView?.adapter = null
 
-                                callView?.visibility = View.GONE
+                                videoCallView?.visibility = View.GONE
                                 feedbackView?.visibility = View.GONE
                                 recyclerView?.visibility = View.VISIBLE
                                 footerView?.visibility = View.VISIBLE
 
-                                avatarView?.setImageDrawable(null)
-                                nameView?.text = null
-                                subNameView?.text = null
+                                bindOpponentData(this.configs)
                             }
                         }
                     }
@@ -561,21 +696,20 @@ class KenesVideoCallActivity : AppCompatActivity() {
             }
 
         }?.on("message") { args ->
-            logD("connectToSignallingServer: MESSAGE: $args")
+            logD("event [MESSAGE]: $args")
 
             if (args.size == 1) {
                 val message = args[0] as? JSONObject?
-                if (message != null) {
-                    logD("connectToSignallingServer: JSONObject message: $message")
+                logD("message: $message")
 
+                if (message != null) {
                     val type = message.optString("type")
                     val text = message.optString("text")
                     val noOnline = message.optBoolean("no_online")
                     val id = message.optString("id")
                     val action = message.optString("action")
                     val time = message.optLong("time")
-
-                    logD("connectToSignallingServer: no_online: $noOnline")
+                    val sender = message.optString("sender")
 
                     if (noOnline) {
                         runOnUiThread {
@@ -588,15 +722,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                                    rootEglBase?.release()
 //                                    socket?.close()
 
-                                    avatarView?.setImageDrawable(null)
-                                    nameView?.text = null
-                                    subNameView?.text = null
+                                    bindOpponentData(this.configs)
 
                                     recyclerView?.visibility = View.GONE
-                                    callView?.visibility = View.VISIBLE
-                                    callButton?.isEnabled = true
-                                    infoView?.text = null
-                                    infoView?.visibility = View.GONE
+                                    videoCallInfoView?.text = null
+                                    videoCallInfoView?.visibility = View.GONE
+                                    videoCallButton?.isEnabled = true
+                                    videoCallView?.visibility = View.VISIBLE
 
                                     dialog.dismiss()
                                 }
@@ -604,8 +736,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         }
                     } else if (!action.isNullOrBlank() && action == "operator_disconnect") {
                         runOnUiThread {
+                            activeDialog = null
+
+                            videoCallInfoView?.text = null
+                            videoCallButton?.isEnabled = true
+
                             feedbackView?.visibility = View.GONE
-                            callView?.visibility = View.GONE
+                            videoCallView?.visibility = View.GONE
                             recyclerView?.visibility = View.VISIBLE
 
                             chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
@@ -619,23 +756,31 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                            infoView?.visibility = View.GONE
                         }
                     } else {
-                        if (!id.isNullOrBlank()) {
-                            runOnUiThread {
-                                callButton?.isEnabled = false
-                                infoView?.text = text
-                                infoView?.visibility = View.VISIBLE
+                        if (sender == activeDialog?.operatorId) {
+                            if (!id.isNullOrBlank()) {
+                                runOnUiThread {
+                                    activeDialog = null
 
-                                chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                                scrollToBottom()
+                                    videoCallButton?.isEnabled = false
+                                    videoCallInfoView?.text = text
+                                    videoCallInfoView?.visibility = View.VISIBLE
+
+                                    chatAdapter.addNewMessage(
+                                        Message(Message.Type.OPPONENT, text, time)
+                                    )
+                                    scrollToBottom()
+                                }
+                            } else {
+                                if (type == "offer") {
+                                    logD("connectToSignallingServer: OFFER")
+                                } else if (type == "accept") {
+                                    logD("connectToSignallingServer: ACCEPT:")
+                                    val rtc = message.optJSONObject("rtc")
+                                    logD("connectToSignallingServer: RTC: $rtc")
+                                }
                             }
                         } else {
-                            if (type == "offer") {
-                                logD("connectToSignallingServer: OFFER")
-                            } else if (type == "accept") {
-                                logD("connectToSignallingServer: ACCEPT:")
-                                val rtc = message.optJSONObject("rtc")
-                                logD("connectToSignallingServer: RTC: $rtc")
-                            }
+                            Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
                         }
                     }
                 }
@@ -643,18 +788,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         }?.on(Socket.EVENT_DISCONNECT) {
 
-            logD("connectToSignallingServer: EVENT_DISCONNECT")
+            logD("event [EVENT_DISCONNECT]")
 
             runOnUiThread {
-                avatarView?.setImageDrawable(null)
-                nameView?.text = null
-                subNameView?.text = null
+                bindOpponentData(this.configs)
 
                 recyclerView?.visibility = View.GONE
-                callView?.visibility = View.VISIBLE
-                callButton?.isEnabled = true
-                infoView?.text = null
-                infoView?.visibility = View.GONE
+                videoCallInfoView?.text = null
+                videoCallInfoView?.visibility = View.GONE
+                videoCallButton?.isEnabled = true
+                videoCallView?.visibility = View.VISIBLE
             }
 
         }
@@ -689,7 +832,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private fun createPeerConnection(factory: PeerConnectionFactory): PeerConnection? {
         val iceServers = ArrayList<IceServer>()
-        iceServers.add(IceServer("stun:stun.l.google.com:19302"))
+        if (!this.iceServers.isNullOrEmpty()) {
+            this.iceServers.forEach {
+                iceServers.add(IceServer(it.url, it.username, it.credential))
+            }
+        } else {
+            iceServers.add(IceServer("stun:stun.l.google.com:19302"))
+        }
         val rtcConfig = RTCConfiguration(iceServers)
         val pcConstraints = MediaConstraints()
         val pcObserver: Observer = object : Observer {
@@ -763,7 +912,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
         recyclerView?.let {
             val adapter = it.adapter
             if (adapter != null) {
-                logD("scrollTo: " + (adapter.itemCount - 1))
+//                logD("scrollTo: " + (adapter.itemCount - 1))
                 it.scrollToPosition(adapter.itemCount - 1)
             }
         }
@@ -789,6 +938,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        activeDialog = null
         isFilled = false
         isCategoriesShown = false
         messages.clear()
@@ -803,14 +953,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
         peerConnection = null
         rootEglBase = null
 
-        avatarView = null
-        nameView = null
-        subNameView = null
-        callView = null
-        callButton = null
-        infoView = null
+        opponentAvatarView = null
+        opponentNameView = null
+        opponentSecondNameView = null
+        videoCallView = null
+        videoCallButton = null
+        videoCallInfoView = null
         inputView = null
 
+        chatAdapter.clearMessages()
         recyclerView?.adapter = null
         recyclerView = null
     }
