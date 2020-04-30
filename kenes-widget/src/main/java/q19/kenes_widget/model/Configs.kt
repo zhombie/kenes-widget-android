@@ -1,4 +1,4 @@
-package q19.kenes_widget.models
+package q19.kenes_widget.model
 
 internal data class Configs(
     var contacts: MutableList<Contact> = mutableListOf(),

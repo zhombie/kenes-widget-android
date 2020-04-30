@@ -30,10 +30,10 @@ import org.webrtc.PeerConnection.Observer
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.RatingAdapter
-import q19.kenes_widget.models.Category
-import q19.kenes_widget.models.Configs
-import q19.kenes_widget.models.Message
-import q19.kenes_widget.models.RatingButton
+import q19.kenes_widget.model.Category
+import q19.kenes_widget.model.Configs
+import q19.kenes_widget.model.Message
+import q19.kenes_widget.model.RatingButton
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard

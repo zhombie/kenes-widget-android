@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.models.RatingButton
+import q19.kenes_widget.model.RatingButton
 
 internal class RatingAdapter(
     private val ratingButtons: List<RatingButton>,

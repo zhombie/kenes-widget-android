@@ -1,4 +1,4 @@
-package q19.kenes_widget.models
+package q19.kenes_widget.model
 
 import android.text.format.DateFormat
 import java.util.*

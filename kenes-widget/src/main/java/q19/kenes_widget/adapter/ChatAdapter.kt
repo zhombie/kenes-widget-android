@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.models.Message
+import q19.kenes_widget.model.Message
 
 internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
