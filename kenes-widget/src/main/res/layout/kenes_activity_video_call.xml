@@ -173,7 +173,7 @@
             android:imeOptions="actionSend"
             android:maxLength="500"
             android:maxLines="1"
-            android:minHeight="50dp"
+            android:minHeight="56dp"
             android:paddingStart="15dp"
             android:paddingTop="10dp"
             android:paddingEnd="15dp"
@@ -190,6 +190,62 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="5dp"
             android:src="@drawable/kenes_ic_attachment" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F3F3F3" />
+
+    <LinearLayout
+        android:id="@+id/navigationView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/homeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/kenes_ic_headphones" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/videoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/kenes_ic_camera" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/audioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/kenes_ic_headphones" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/infoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/kenes_ic_list" />
 
     </LinearLayout>
 

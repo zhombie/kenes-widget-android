@@ -14,6 +14,7 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val LAYOUT_SELF_MESSAGE = R.layout.kenes_cell_my_message
         val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
+        val LAYOUT_TYPING = R.layout.kenes_cell_typing
     }
 
     private var messages: MutableList<Message> = mutableListOf()
@@ -23,9 +24,18 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyItemInserted(messages.size - 1)
     }
 
+    fun removeLastMessage() {
+        messages.dropLast(1)
+        notifyItemRemoved(messages.size - 1)
+    }
+
     fun clearMessages() {
         messages.clear()
         notifyItemRangeRemoved(0, messages.size - 1)
+    }
+
+    fun hasMessages(): Boolean {
+        return !messages.isNullOrEmpty()
     }
 
     override fun getItemCount(): Int = messages.size
@@ -36,6 +46,8 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 LAYOUT_SELF_MESSAGE
             Message.Type.NOTIFICATION ->
                 LAYOUT_NOTIFICATION
+            Message.Type.TYPING ->
+                LAYOUT_TYPING
             else ->
                 LAYOUT_OPPONENT_MESSAGE
         }
@@ -52,6 +64,10 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             LAYOUT_NOTIFICATION -> {
                 val view = inflater.inflate(LAYOUT_NOTIFICATION, parent, false)
                 NotificationViewHolder(view)
+            }
+            LAYOUT_TYPING -> {
+                val view = inflater.inflate(LAYOUT_TYPING, parent, false)
+                TypingViewHolder(view)
             }
             else -> {
                 val view = inflater.inflate(LAYOUT_OPPONENT_MESSAGE, parent, false)
@@ -70,6 +86,10 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         } else if (message.type == Message.Type.NOTIFICATION) {
             if (holder is NotificationViewHolder) {
                 holder.bind(message)
+            }
+        } else if (message.type == Message.Type.TYPING) {
+            if (holder is TypingViewHolder) {
+                holder.bind()
             }
         } else if (message.type == Message.Type.OPPONENT) {
             if (holder is OpponentMessageViewHolder) {
@@ -120,6 +140,11 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         fun bind(message: Message) {
             textView?.text = message.text
             timeView?.text = message.time
+        }
+    }
+
+    private inner class TypingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        fun bind() {
         }
     }
 

@@ -8,7 +8,11 @@ internal object UrlUtil {
 
     private const val STATIC_PATH = "/static/uploads/"
 
-    fun getStaticUrl(path: String): String? {
+    fun getStaticUrl(path: String?): String? {
+        if (path == null) {
+            return null
+        }
+
         return HOSTNAME?.let {
             if (it.isBlank()) {
                 null

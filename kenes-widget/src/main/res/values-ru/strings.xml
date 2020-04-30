@@ -10,4 +10,5 @@
     <string name="kenes_call_agent">Оператор</string>
     <string name="kenes_send">Отправить</string>
     <string name="kenes_satisfied_with_call">Удовлетворены ли вы ответом оператора?</string>
+    <string name="kenes_typing">Печатает…</string>
 </resources>

@@ -9,7 +9,7 @@ internal data class Message(
     var date: Calendar = now()
 ) {
 
-    companion object {
+    internal companion object {
         fun fromTimestamp(timestamp: Long): Calendar {
             val calendar = Calendar.getInstance()
             if (timestamp == 0L) {
@@ -28,19 +28,24 @@ internal data class Message(
         }
     }
 
-    constructor(
+    internal constructor(
         type: Type,
         text: String,
         date: Long
     ) : this(type, text, fromTimestamp(date))
 
-    val time: String
+    internal constructor(
+        type: Type
+    ) : this(type, "", now())
+
+    internal val time: String
         get() = parse(date)
 
-    enum class Type {
+    internal enum class Type {
         SELF,
         OPPONENT,
-        NOTIFICATION
+        NOTIFICATION,
+        TYPING
     }
 
 }
