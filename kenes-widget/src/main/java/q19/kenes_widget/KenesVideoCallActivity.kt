@@ -37,6 +37,7 @@ import q19.kenes_widget.model.RatingButton
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
+import java.lang.Exception
 import java.util.*
 
 class KenesVideoCallActivity : AppCompatActivity() {
@@ -85,12 +86,19 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var peerConnectionFactory: PeerConnectionFactory? = null
     private var rootEglBase: EglBase? = null
 
+    private var palette = intArrayOf()
+
     private var permissions = arrayOf(
         Manifest.permission.CAMERA,
         Manifest.permission.RECORD_AUDIO
     )
 
     private var configs: Configs = Configs()
+
+    private var messages: MutableList<Message> = mutableListOf()
+
+    private var isCategoriesShown: Boolean = false
+    private var isFilled: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,6 +110,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
         if (Picasso.get() == null) {
             Picasso.setSingletonInstance(Picasso.Builder(this).build())
         }
+
+        palette = resources.getIntArray(R.array.kenes_palette)
 
         avatarView = findViewById(R.id.avatarView)
         nameView = findViewById(R.id.nameView)
@@ -126,9 +136,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         rateButton?.isEnabled = false
 
-        recyclerView?.visibility = View.GONE
         feedbackView?.visibility = View.GONE
-        callView?.visibility = View.VISIBLE
+        callView?.visibility = View.GONE
+        recyclerView?.visibility = View.VISIBLE
         footerView?.visibility = View.VISIBLE
 
         homeNavButton?.setOnClickListener {
@@ -141,10 +151,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 chatAdapter.clearMessages()
                 scrollToTop()
 
-                recyclerView?.visibility = View.GONE
+                messages.clear()
+                isCategoriesShown = false
+                isFilled = false
+
+                callView?.visibility = View.GONE
                 feedbackView?.visibility = View.GONE
+                recyclerView?.visibility = View.VISIBLE
                 footerView?.visibility = View.VISIBLE
-                callView?.visibility = View.VISIBLE
 
                 val userDashboard = JSONObject()
                 userDashboard.put("action", "get_category_list")
@@ -156,6 +170,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
         videoNavButton?.setOnClickListener {
             activeNavButtonIndex = 1
             updateActiveNavButtonTintColor()
+
+            callButton?.isEnabled = true
+            infoView?.text = null
+            infoView?.visibility = View.GONE
+
+            feedbackView?.visibility = View.GONE
+            recyclerView?.visibility = View.GONE
+            callView?.visibility = View.VISIBLE
+            footerView?.visibility = View.VISIBLE
         }
 
         audioNavButton?.setOnClickListener {
@@ -185,8 +208,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 }
                 .show()
         }
-
-//        inputView?.
 
         inputView?.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_SEND) {
@@ -246,32 +267,39 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private fun fetchConfigs() {
         val asyncTask = HttpRequestHandler()
         val response = asyncTask.execute().get()
-        val json = JSONObject(response)
-        val configs = json.optJSONObject("configs")
-        val contacts = json.optJSONObject("contacts")
-        val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-        Picasso.get()
-            .load(UrlUtil.getStaticUrl(configs?.optString("image")))
-            .fit()
-            .centerCrop()
-            .transform(CircleTransformation())
-            .into(avatarView)
+        try {
+            val json = JSONObject(response)
+            val configs = json.optJSONObject("configs")
+            val contacts = json.optJSONObject("contacts")
+            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-        nameView?.text = configs?.optString("default_operator")
-        subNameView?.text = configs?.optString("title")
+            Picasso.get()
+                .load(UrlUtil.getStaticUrl(configs?.optString("image")))
+                .fit()
+                .centerCrop()
+                .transform(CircleTransformation())
+                .into(avatarView)
 
-        contacts?.keys()?.forEach {
-            this.configs.contacts.add(Configs.Contact(
-                it,
-                (contacts[it] as? String?) ?: ""
-            ))
+            nameView?.text = configs?.optString("default_operator")
+            subNameView?.text = configs?.optString("title")
+
+            contacts?.keys()?.forEach {
+                this.configs.contacts.add(
+                    Configs.Contact(
+                        it,
+                        (contacts[it] as? String?) ?: ""
+                    )
+                )
+            }
+
+            this.configs.workingHours = Configs.WorkingHours.from(
+                configs?.optString("message_kk"),
+                configs?.optString("message_ru")
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-        this.configs.workingHours = Configs.WorkingHours.from(
-            configs?.optString("message_kk"),
-            configs?.optString("message_ru")
-        )
     }
 
     private fun connectToSignallingServer() {
@@ -328,8 +356,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         }?.on("category_list") { args ->
 
-            logD("connectToSignallingServer: CATEGORY_LIST: $args")
-
             if (args.size == 1) {
                 val categoryList = args[0] as? JSONObject?
                 logD("connectToSignallingServer: categoryList: $categoryList")
@@ -341,19 +367,54 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     for (i in 0 until categoriesList.length()) {
                         val category = categoriesList[i] as JSONObject
                         categories.add(Category(
-                            category.optLong("id"),
-                            category.optString("title"),
-                            category.optInt("lang"),
-                            category.optLong("parent_id"),
-                            category.optString("photo")
+                            id = category.optLong("id"),
+                            title = category.optString("title"),
+                            lang = category.optInt("lang"),
+                            parentId = category.optLong("parent_id", -1),
+                            photo = category.optString("photo")
                         ))
                     }
 
                     categories = categories.sortedBy { it.id }.toMutableList()
 
-                    categories.forEach {
-//                        socket?.emit("")
-                        logD("category: ${it.id}, ${it.title}")
+                    categories.forEachIndexed { index, category ->
+                        logD("category: $category")
+
+                        if (category.parentId == null || category.parentId == -1L) {
+                            if (palette.isNotEmpty()) {
+                                category.color = palette[index]
+                            }
+                            messages.add(Message(Message.Type.CATEGORY, category))
+
+                            val userDashboard = JSONObject()
+                            userDashboard.put("action", "get_category_list")
+                            userDashboard.put("parent_id", category.id)
+                            socket?.emit("user_dashboard", userDashboard)
+                        } else {
+                            messages.map {
+                                if (it.category?.id == category.parentId) {
+                                    it.category?.sections?.add(category)
+                                }
+                            }
+                            isFilled = true
+                        }
+                    }
+
+                    val isNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.category?.sections.isNullOrEmpty() }
+
+                    if (!isCategoriesShown && isFilled && isNotEmpty) {
+                        logD("FINAL ->>>>>>: " + messages.map { it.category?.id.toString() + " - " + it.category?.title + " -> " + it.category?.sections?.map { section -> section.id.toString() + " - " + section.title + " #" + section.parentId  }})
+                        runOnUiThread {
+                            feedbackView?.visibility = View.GONE
+                            callView?.visibility = View.GONE
+                            recyclerView?.visibility = View.VISIBLE
+                            footerView?.visibility = View.VISIBLE
+
+                            chatAdapter.setNewMessages(this.messages)
+                            scrollToTop()
+
+                            isCategoriesShown = true
+                        }
                     }
                 }
             }
@@ -613,6 +674,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 message.put("type", "offer")
                 message.put("sdp", sessionDescription.description)
                 socket?.emit("message", message)
+
+                runOnUiThread {
+                    chatAdapter.clearMessages()
+                }
             }
 
             override fun onCreateFailure(s: String) {
@@ -723,6 +788,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        isFilled = false
+        isCategoriesShown = false
+        messages.clear()
+
         socket?.disconnect()
         peerConnectionFactory?.dispose()
         peerConnection?.dispose()

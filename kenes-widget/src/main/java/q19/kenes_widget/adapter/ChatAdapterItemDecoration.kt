@@ -8,7 +8,7 @@ import q19.kenes_widget.R
 
 internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
 
-    private var verticalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.message_vertical_spacing)
+    private var verticalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_message_vertical_spacing)
 
     override fun getItemOffsets(
         outRect: Rect,

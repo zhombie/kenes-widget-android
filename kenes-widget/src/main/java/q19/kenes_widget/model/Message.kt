@@ -6,10 +6,11 @@ import java.util.*
 internal data class Message(
     var type: Type = Type.OPPONENT,
     var text: String,
-    var date: Calendar = now()
+    var date: Calendar = now(),
+    var category: Category? = null
 ) {
 
-    internal companion object {
+    companion object {
         fun fromTimestamp(timestamp: Long): Calendar {
             val calendar = Calendar.getInstance()
             if (timestamp == 0L) {
@@ -28,24 +29,30 @@ internal data class Message(
         }
     }
 
-    internal constructor(
+    constructor(
         type: Type,
         text: String,
         date: Long
     ) : this(type, text, fromTimestamp(date))
 
-    internal constructor(
+    constructor(
+        type: Type,
+        category: Category
+    ) : this(type, "", now(), category)
+
+    constructor(
         type: Type
     ) : this(type, "", now())
 
-    internal val time: String
+    val time: String
         get() = parse(date)
 
-    internal enum class Type {
+    enum class Type {
         SELF,
         OPPONENT,
         NOTIFICATION,
-        TYPING
+        TYPING,
+        CATEGORY
     }
 
 }

@@ -4,4 +4,27 @@
     <color name="kenes_blue">#409EFF</color>
 
     <color name="kenes_gray">#8D8D8D</color>
+
+    <color name="kenes_palette_blue">@color/kenes_blue</color>
+    <color name="kenes_palette_green">#67C23A</color>
+    <color name="kenes_palette_orange">#E6A23C</color>
+    <color name="kenes_palette_darker_blue">#2F89FC</color>
+    <color name="kenes_palette_pink">#CA5FA6</color>
+    <color name="kenes_palette_brown">#BB7171</color>
+    <color name="kenes_palette_aqua">#28C3D4</color>
+    <color name="kenes_palette_purple">#866EC7</color>
+    <color name="kenes_palette_gray">#606266</color>
+
+    <array name="kenes_palette">
+        <item>@color/kenes_palette_blue</item>
+        <item>@color/kenes_palette_green</item>
+        <item>@color/kenes_palette_orange</item>
+        <item>@color/kenes_palette_darker_blue</item>
+        <item>@color/kenes_palette_pink</item>
+        <item>@color/kenes_palette_brown</item>
+        <item>@color/kenes_palette_aqua</item>
+        <item>@color/kenes_palette_purple</item>
+        <item>@color/kenes_palette_gray</item>
+    </array>
+
 </resources>

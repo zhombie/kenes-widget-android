@@ -1,6 +1,5 @@
 package q19.kenes_widget.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,8 +67,6 @@ internal class RatingAdapter(
 
             textView?.setOnClickListener {
                 val tempPosition = selectedRatingButtonPosition
-
-                Log.d("LOL", "selected -> tempPosition:" + tempPosition + ", adapterPosition: " + adapterPosition)
 
                 selectedRatingButtonPosition = adapterPosition
                 notifyItemChanged(tempPosition)
