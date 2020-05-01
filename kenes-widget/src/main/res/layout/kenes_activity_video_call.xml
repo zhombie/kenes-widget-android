@@ -47,12 +47,26 @@
             android:textSize="13sp"
             tools:text="Smart Bot" />
 
+        <TextView
+            android:id="@+id/idView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="7dp"
+            android:layout_marginEnd="15dp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/red"
+            android:textSize="17sp"
+            tools:text="12345" />
+
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/videoDialogView"
         android:layout_width="match_parent"
-        android:layout_height="300dp">
+        android:layout_height="350dp">
 
         <org.webrtc.SurfaceViewRenderer
             android:id="@+id/remoteSurfaceView"
