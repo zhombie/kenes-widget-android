@@ -337,6 +337,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
             videoCallInitialize()
 
             videoDialogView?.visibility = View.VISIBLE
+
+            sendOffer()
         }
 
         start()
@@ -760,8 +762,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     runOnUiThread {
                         bindOpponentData(Configs(
                             opponent = Configs.Opponent(
-                                name = fullName, 
-                                secondName = getString(R.string.kenes_call_agent), 
+                                name = fullName,
+                                secondName = getString(R.string.kenes_call_agent),
                                 avatarUrl = photoUrl
                             )
                         ))
@@ -860,7 +862,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 val type = rtc?.optString("type")
 
                 if (type == "start") {
-                    videoCall()
+                    sendOffer()
                 }
 
                 if (type == "answer") {
@@ -879,11 +881,23 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 }
 
                 if (type == "offer") {
-                    peerConnection?.setRemoteDescription(
-                        SimpleSdpObserver(),
-                        SessionDescription(SessionDescription.Type.OFFER, rtc.getString("sdp"))
-                    )
+                    runOnUiThread {
+                        videoCallButton?.isEnabled = false
+                        videoCallInfoView?.text = null
+                        videoCallView?.visibility = View.GONE
+                        recyclerView?.visibility = View.VISIBLE
 
+                        videoCallInitialize()
+
+                        peerConnection?.setRemoteDescription(
+                            SimpleSdpObserver(),
+                            SessionDescription(SessionDescription.Type.OFFER, rtc.getString("sdp"))
+                        )
+
+                        createAnswer()
+
+                        videoDialogView?.visibility = View.VISIBLE
+                    }
                 }
 
                 if (type == "hangup") {
@@ -1015,7 +1029,25 @@ class KenesVideoCallActivity : AppCompatActivity() {
         socket?.connect()
     }
 
-    private fun videoCall() {
+    private fun createAnswer() {
+        peerConnection?.createAnswer(object : SimpleSdpObserver() {
+            override fun onCreateSuccess(sessionDescription: SessionDescription) {
+                logD("onCreateSuccess: " + sessionDescription.description)
+                peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
+
+//                [START] Sending answer with SDP for rtc.vlx.kz
+                val message = JSONObject()
+                val rtc = JSONObject()
+                rtc.put("type", "answer")
+                rtc.put("sdp", sessionDescription.description)
+                message.put("rtc", rtc)
+                socket?.emit("message", message)
+//                [END] Sending answer with SDP for rtc.vlx.kz
+            }
+        }, MediaConstraints())
+    }
+
+    private fun sendOffer() {
         val sdpMediaConstraints = MediaConstraints()
 
         peerConnection?.createOffer(object : SimpleSdpObserver() {
@@ -1061,8 +1093,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
             iceServers.add(IceServer("stun:stun.l.google.com:19302"))
         }
         val rtcConfig = RTCConfiguration(iceServers)
-        val pcConstraints = MediaConstraints()
-        val pcObserver: Observer = object : Observer {
+        val peerConnectionConstraints = MediaConstraints()
+        val peerConnectionObserver = object : Observer {
             override fun onSignalingChange(signalingState: SignalingState) {
                 logD("onSignalingChange: $signalingState")
             }
@@ -1113,9 +1145,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                val remoteAudioTrack = mediaStream.audioTracks[0]
 //                remoteAudioTrack.setEnabled(true);
 
-                val remoteVideoTrack = mediaStream.videoTracks[0]
-                remoteVideoTrack.setEnabled(true)
-                remoteVideoTrack.addRenderer(VideoRenderer(surfaceView2))
+                if (mediaStream.videoTracks.isNotEmpty()) {
+                    val remoteVideoTrack = mediaStream.videoTracks[0]
+                    remoteVideoTrack.setEnabled(true)
+                    remoteVideoTrack.addRenderer(VideoRenderer(surfaceView2))
+                }
             }
 
             override fun onRemoveStream(mediaStream: MediaStream) {
@@ -1130,7 +1164,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 logD("onRenegotiationNeeded")
             }
         }
-        return factory.createPeerConnection(rtcConfig, pcConstraints, pcObserver)
+        return factory.createPeerConnection(rtcConfig, peerConnectionConstraints, peerConnectionObserver)
     }
 
     private fun sendUserTextMessage(text: String) {
