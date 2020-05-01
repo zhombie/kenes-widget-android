@@ -45,9 +45,15 @@ class PeerConnectionClient private constructor() {
         private const val AUDIO_NOISE_SUPPRESSION_CONSTRAINT = "googNoiseSuppression"
         private const val AUDIO_LEVEL_CONTROL_CONSTRAINT = "levelControl"
         private const val DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT = "DtlsSrtpKeyAgreement"
+        private const val OFFER_TO_RECEIVE_AUDIO_CONSTRAINT = "OfferToReceiveAudio"
+        private const val OFFER_TO_RECEIVE_VIDEO_CONSTRAINT = "OfferToReceiveVideo"
         private const val HD_VIDEO_WIDTH = 1280
         private const val HD_VIDEO_HEIGHT = 720
         private const val BPS_IN_KBPS = 1000
+
+        private const val DEFAULT_VIDEO_WIDTH = 0
+        private const val DEFAULT_VIDEO_HEIGHT = 0
+        private const val DEFAULT_VIDEO_FPS = 0
 
         val instance = PeerConnectionClient()
 
@@ -178,10 +184,15 @@ class PeerConnectionClient private constructor() {
             return newSdpDescription.toString()
         }
     }
-    
+
+    // Executor thread is started once in private ctor and is used for all
+    // peer connection API calls to ensure new peer connection factory is
+    // created on the same thread as previously destroyed factory.
+    private var executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+
     private val pcObserver = PCObserver()
     private val sdpObserver = SDPObserver()
-    private var executor: ScheduledExecutorService
+
     private var context: Context? = null
     private var factory: PeerConnectionFactory? = null
     private var peerConnection: PeerConnection? = null
@@ -199,9 +210,9 @@ class PeerConnectionClient private constructor() {
     private var remoteRenders: List<VideoRenderer.Callbacks>? = null
     private var signalingParameters: AppRTCClient.SignalingParameters? = null
     private var pcConstraints: MediaConstraints? = null
-    private var videoWidth = 0
-    private var videoHeight = 0
-    private var videoFps = 0
+    private var videoWidth = DEFAULT_VIDEO_WIDTH
+    private var videoHeight = DEFAULT_VIDEO_HEIGHT
+    private var videoFps = DEFAULT_VIDEO_FPS
     private var audioConstraints: MediaConstraints? = null
     private var aecDumpFileDescriptor: ParcelFileDescriptor? = null
     private var sdpMediaConstraints: MediaConstraints? = null
@@ -229,13 +240,6 @@ class PeerConnectionClient private constructor() {
     private var dataChannel: DataChannel? = null
     private var dataChannelEnabled = false
 
-    init {
-        // Executor thread is started once in private ctor and is used for all
-        // peer connection API calls to ensure new peer connection factory is
-        // created on the same thread as previously destroyed factory.
-        executor = Executors.newSingleThreadScheduledExecutor()
-    }
-    
     /**
      * Peer connection parameters.
      */
@@ -251,7 +255,7 @@ class PeerConnectionClient private constructor() {
     /**
      * Peer connection parameters.
      */
-    class PeerConnectionParameters @JvmOverloads constructor(
+    class PeerConnectionParameters(
         val videoCallEnabled: Boolean,
         val loopback: Boolean,
         val tracing: Boolean,
@@ -497,19 +501,13 @@ class PeerConnectionClient private constructor() {
         // Create peer connection constraints.
         pcConstraints = MediaConstraints()
         // Enable DTLS for normal calls and disable for loopback calls.
-        if (peerConnectionParameters!!.loopback) {
+        if (peerConnectionParameters != null && peerConnectionParameters!!.loopback) {
             pcConstraints?.optional?.add(
-                MediaConstraints.KeyValuePair(
-                    DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT,
-                    "false"
-                )
+                MediaConstraints.KeyValuePair(DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT, "false")
             )
         } else {
             pcConstraints?.optional?.add(
-                MediaConstraints.KeyValuePair(
-                    DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT,
-                    "true"
-                )
+                MediaConstraints.KeyValuePair(DTLS_SRTP_KEY_AGREEMENT_CONSTRAINT, "true")
             )
         }
 
@@ -520,18 +518,18 @@ class PeerConnectionClient private constructor() {
         }
         // Create video constraints if video call is enabled.
         if (isVideoCallEnabled) {
-            videoWidth = peerConnectionParameters!!.videoWidth
-            videoHeight = peerConnectionParameters!!.videoHeight
-            videoFps = peerConnectionParameters!!.videoFps
+            videoWidth = peerConnectionParameters?.videoWidth ?: DEFAULT_VIDEO_WIDTH
+            videoHeight = peerConnectionParameters?.videoHeight ?: DEFAULT_VIDEO_HEIGHT
+            videoFps = peerConnectionParameters?.videoFps ?: DEFAULT_VIDEO_FPS
 
             // If video resolution is not specified, default to HD.
-            if (videoWidth == 0 || videoHeight == 0) {
+            if (videoWidth == DEFAULT_VIDEO_WIDTH || videoHeight == DEFAULT_VIDEO_HEIGHT) {
                 videoWidth = HD_VIDEO_WIDTH
                 videoHeight = HD_VIDEO_HEIGHT
             }
 
             // If fps is not specified, default to 30.
-            if (videoFps == 0) {
+            if (videoFps == DEFAULT_VIDEO_FPS) {
                 videoFps = 30
             }
             Logging.d(TAG, "Capturing format: " + videoWidth + "x" + videoHeight + "@" + videoFps)
@@ -540,54 +538,39 @@ class PeerConnectionClient private constructor() {
         // Create audio constraints.
         audioConstraints = MediaConstraints()
         // added for audio performance measurements
-        if (peerConnectionParameters!!.noAudioProcessing) {
+        if (peerConnectionParameters != null && peerConnectionParameters!!.noAudioProcessing) {
             logDebug("Disabling audio processing")
             audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_ECHO_CANCELLATION_CONSTRAINT,
-                    "false"
-                )
+                MediaConstraints.KeyValuePair(AUDIO_ECHO_CANCELLATION_CONSTRAINT, "false")
             )
             audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT,
-                    "false"
-                )
+                MediaConstraints.KeyValuePair(AUDIO_AUTO_GAIN_CONTROL_CONSTRAINT, "false")
             )
             audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_HIGH_PASS_FILTER_CONSTRAINT,
-                    "false"
-                )
+                MediaConstraints.KeyValuePair(AUDIO_HIGH_PASS_FILTER_CONSTRAINT, "false")
             )
             audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_NOISE_SUPPRESSION_CONSTRAINT,
-                    "false"
-                )
+                MediaConstraints.KeyValuePair(AUDIO_NOISE_SUPPRESSION_CONSTRAINT, "false")
             )
         }
-        if (peerConnectionParameters!!.enableLevelControl) {
+        if (peerConnectionParameters != null && peerConnectionParameters!!.enableLevelControl) {
             logDebug("Enabling level control.")
             audioConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair(
-                    AUDIO_LEVEL_CONTROL_CONSTRAINT,
-                    "true"
-                )
+                MediaConstraints.KeyValuePair(AUDIO_LEVEL_CONTROL_CONSTRAINT, "true")
             )
         }
         // Create SDP constraints.
         sdpMediaConstraints = MediaConstraints()
         sdpMediaConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
+            MediaConstraints.KeyValuePair(OFFER_TO_RECEIVE_AUDIO_CONSTRAINT, "true")
         )
-        if (isVideoCallEnabled || peerConnectionParameters!!.loopback) {
+        if (isVideoCallEnabled || (peerConnectionParameters != null && peerConnectionParameters!!.loopback)) {
             sdpMediaConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true")
+                MediaConstraints.KeyValuePair(OFFER_TO_RECEIVE_VIDEO_CONSTRAINT, "true")
             )
         } else {
             sdpMediaConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false")
+                MediaConstraints.KeyValuePair(OFFER_TO_RECEIVE_VIDEO_CONSTRAINT, "false")
             )
         }
     }
@@ -598,7 +581,7 @@ class PeerConnectionClient private constructor() {
             return
         }
         logDebug("Create peer connection.")
-        logDebug("PCConstraints: " + pcConstraints.toString())
+        logDebug("PCConstraints: $pcConstraints")
         queuedRemoteCandidates = LinkedList()
         if (isVideoCallEnabled) {
             logDebug("EGLContext: $renderEGLContext")
@@ -616,12 +599,14 @@ class PeerConnectionClient private constructor() {
         peerConnection = factory?.createPeerConnection(rtcConfig, pcConstraints, pcObserver)
         if (dataChannelEnabled) {
             val init = DataChannel.Init()
-            init.ordered = peerConnectionParameters?.dataChannelParameters!!.ordered
-            init.negotiated = peerConnectionParameters?.dataChannelParameters!!.negotiated
-            init.maxRetransmits = peerConnectionParameters?.dataChannelParameters!!.maxRetransmits
-            init.maxRetransmitTimeMs = peerConnectionParameters?.dataChannelParameters!!.maxRetransmitTimeMs
-            init.id = peerConnectionParameters?.dataChannelParameters!!.id
-            init.protocol = peerConnectionParameters?.dataChannelParameters?.protocol
+            peerConnectionParameters?.dataChannelParameters?.let { dataChannelParameters ->
+                init.ordered = dataChannelParameters.ordered
+                init.negotiated = dataChannelParameters.negotiated
+                init.maxRetransmits = dataChannelParameters.maxRetransmits
+                init.maxRetransmitTimeMs = dataChannelParameters.maxRetransmitTimeMs
+                init.id = dataChannelParameters.id
+                init.protocol = peerConnectionParameters?.dataChannelParameters?.protocol
+            }
             dataChannel = peerConnection?.createDataChannel("ApprtcDemo data", init)
         }
         isInitiator = false
@@ -639,7 +624,7 @@ class PeerConnectionClient private constructor() {
         if (isVideoCallEnabled) {
             findVideoSender()
         }
-        if (peerConnectionParameters!!.aecDump) {
+        if (peerConnectionParameters != null && peerConnectionParameters!!.aecDump) {
             try {
                 aecDumpFileDescriptor = ParcelFileDescriptor.open(
                     File(Environment.getExternalStorageDirectory().path + File.separator + "Download/audio.aecdump"),
@@ -654,47 +639,46 @@ class PeerConnectionClient private constructor() {
     }
 
     private fun closeInternal() {
-        if (factory != null && peerConnectionParameters!!.aecDump) {
+        if (factory != null && peerConnectionParameters != null && peerConnectionParameters!!.aecDump) {
             factory?.stopAecDump()
         }
+
         logDebug("Closing peer connection.")
+
         statsTimer?.cancel()
-        if (dataChannel != null) {
-            dataChannel?.dispose()
-            dataChannel = null
-        }
-        if (peerConnection != null) {
-            peerConnection?.dispose()
-            peerConnection = null
-        }
+
+        dataChannel?.dispose()
+        dataChannel = null
+
+        peerConnection?.dispose()
+        peerConnection = null
+
         logDebug("Closing audio source.")
-        if (audioSource != null) {
-            audioSource?.dispose()
-            audioSource = null
-        }
+        audioSource?.dispose()
+        audioSource = null
+
         logDebug("Stopping capture.")
-        if (videoCapturer != null) {
-            try {
-                videoCapturer?.stopCapture()
-            } catch (e: InterruptedException) {
-                throw RuntimeException(e)
-            }
-            videoCapturerStopped = true
-            videoCapturer?.dispose()
-            videoCapturer = null
+        try {
+            videoCapturer?.stopCapture()
+        } catch (e: InterruptedException) {
+            throw RuntimeException(e)
         }
+        videoCapturerStopped = true
+        videoCapturer?.dispose()
+        videoCapturer = null
+
         logDebug("Closing video source.")
-        if (videoSource != null) {
-            videoSource?.dispose()
-            videoSource = null
-        }
+        videoSource?.dispose()
+        videoSource = null
+
         logDebug("Closing peer connection factory.")
-        if (factory != null) {
-            factory?.dispose()
-            factory = null
-        }
+        factory?.dispose()
+        factory = null
+
         options = null
+
         logDebug("Closing peer connection done.")
+
         events?.onPeerConnectionClosed()
         PeerConnectionFactory.stopInternalTracingCapture()
         PeerConnectionFactory.shutdownInternalTracer()
@@ -814,7 +798,7 @@ class PeerConnectionClient private constructor() {
                         false
                     )
                 }
-                if (peerConnectionParameters!!.audioStartBitrate > 0) {
+                if (peerConnectionParameters != null && peerConnectionParameters!!.audioStartBitrate > 0) {
                     sdpDescription = setStartBitrate(
                         AUDIO_CODEC_OPUS,
                         false,
@@ -862,25 +846,27 @@ class PeerConnectionClient private constructor() {
                 logWarn("Sender is not ready.")
                 return@Runnable
             }
-            val parameters = localVideoSender!!.parameters
-            if (parameters.encodings.size == 0) {
-                logWarn("RtpParameters are not ready.")
-                return@Runnable
-            }
-            for (encoding in parameters.encodings) {
-                // Null value means no limit.
-                encoding.maxBitrateBps = if (maxBitrateKbps == null) null else maxBitrateKbps * BPS_IN_KBPS
-            }
-            if (!localVideoSender!!.setParameters(parameters)) {
-                logError("RtpSender.setParameters failed.")
+            val parameters = localVideoSender?.parameters
+            if (parameters != null) {
+                if (parameters.encodings.size == 0) {
+                    logWarn("RtpParameters are not ready.")
+                    return@Runnable
+                }
+                for (encoding in parameters.encodings) {
+                    // Null value means no limit.
+                    encoding.maxBitrateBps =
+                        if (maxBitrateKbps == null) null else maxBitrateKbps * BPS_IN_KBPS
+                }
+                if (!localVideoSender!!.setParameters(parameters)) {
+                    logError("RtpSender.setParameters failed.")
+                }
             }
             logDebug("Configured max video bitrate to: $maxBitrateKbps")
         })
     }
 
     private fun reportError(errorMessage: String) {
-        logError("Peerconnection error: $errorMessage"
-        )
+        logError("Peerconnection error: $errorMessage")
         executor.execute {
             if (!isError) {
                 events?.onPeerConnectionError(errorMessage)
@@ -906,12 +892,14 @@ class PeerConnectionClient private constructor() {
     }
 
     private fun findVideoSender() {
-        for (sender in peerConnection!!.senders) {
-            if (sender.track() != null) {
-                val trackType = sender.track().kind()
-                if (trackType == VIDEO_TRACK_TYPE) {
-                    logDebug("Found video sender.")
-                    localVideoSender = sender
+        peerConnection?.let { peerConnection ->
+            for (sender in peerConnection.senders) {
+                if (sender.track() != null) {
+                    val trackType = sender.track().kind()
+                    if (trackType == VIDEO_TRACK_TYPE) {
+                        logDebug("Found video sender.")
+                        localVideoSender = sender
+                    }
                 }
             }
         }
@@ -934,8 +922,8 @@ class PeerConnectionClient private constructor() {
                 return  // No video is sent or only one camera is available or error happened.
             }
             logDebug("Switch camera")
-            val cameraVideoCapturer = videoCapturer as CameraVideoCapturer
-            cameraVideoCapturer.switchCamera(null)
+            val cameraVideoCapturer = videoCapturer as? CameraVideoCapturer?
+            cameraVideoCapturer?.switchCamera(null)
         } else {
             logDebug("Will not switch camera, video caputurer is not a camera")
         }
@@ -945,8 +933,8 @@ class PeerConnectionClient private constructor() {
         executor.execute { switchCameraInternal() }
     }
 
-    fun changeCaptureFormat(width: Int, height: Int, framerate: Int) {
-        executor.execute { changeCaptureFormatInternal(width, height, framerate) }
+    fun changeCaptureFormat(width: Int, height: Int, frameRate: Int) {
+        executor.execute { changeCaptureFormatInternal(width, height, frameRate) }
     }
 
     private fun changeCaptureFormatInternal(width: Int, height: Int, framerate: Int) {
@@ -954,8 +942,7 @@ class PeerConnectionClient private constructor() {
             logError("Failed to change capture format. Video: $isVideoCallEnabled. Error : $isError")
             return
         }
-        logDebug("changeCaptureFormat: " + width + "x" + height + "@" + framerate
-        )
+        logDebug("changeCaptureFormat: " + width + "x" + height + "@" + framerate)
         videoSource?.adaptOutputFormat(width, height, framerate)
     }
 

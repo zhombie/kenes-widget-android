@@ -106,11 +106,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var infoNavButton: AppCompatImageButton? = null
 
     /**
-     * Video dialog view variables: [videoDialogView], [surfaceView], [surfaceView2], [hangupButton]
+     * Video dialog view variables: [videoDialogView], [localSurfaceView], [remoteSurfaceView], [hangupButton]
      */
     private var videoDialogView: FrameLayout? = null
-    private var surfaceView: SurfaceViewRenderer? = null
-    private var surfaceView2: SurfaceViewRenderer? = null
+    private var localSurfaceView: SurfaceViewRenderer? = null
+    private var remoteSurfaceView: SurfaceViewRenderer? = null
     private var hangupButton: AppCompatImageButton? = null
 
     private var activeNavButtonIndex = 0
@@ -127,7 +127,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
 
-    private var videoTrackFromCamera: VideoTrack? = null
+    private var videoSource: VideoSource? = null
+    private var videoCapturer: VideoCapturer? = null
+    private var localVideoTrack: VideoTrack? = null
+    private var remoteVideoTrack: VideoTrack? = null
 
     private var configs: Configs = Configs()
 
@@ -207,12 +210,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
         infoNavButton = findViewById(R.id.infoButton)
 
         /**
-         * Bind [R.id.videoDialogView] views: [R.id.surfaceView], [R.id.surfaceView2],
+         * Bind [R.id.videoDialogView] views: [R.id.localSurfaceView], [R.id.remoteSurfaceView],
          * [R.id.hangupButton].
          */
         videoDialogView = findViewById(R.id.videoDialogView)
-        surfaceView = findViewById(R.id.surfaceView)
-        surfaceView2 = findViewById(R.id.surfaceView2)
+        localSurfaceView = findViewById(R.id.localSurfaceView)
+        remoteSurfaceView = findViewById(R.id.remoteSurfaceView)
         hangupButton = findViewById(R.id.hangupButton)
 
         // ------------------------------------------------------------------------
@@ -373,12 +376,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             try {
                 runOnUiThread {
-                    rootEglBase?.release()
-                    videoTrackFromCamera?.dispose()
-                    peerConnection?.dispose()
-                    peerConnectionFactory?.dispose()
-                    surfaceView?.release()
-                    surfaceView2?.release()
+                    closeVideoCall()
 
                     videoDialogView?.visibility = View.GONE
                     recyclerView?.visibility = View.GONE
@@ -426,13 +424,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private fun videoCallInitialize() {
         rootEglBase = EglBase.create()
 
-        surfaceView?.init(rootEglBase?.eglBaseContext, null)
-        surfaceView?.setEnableHardwareScaler(true)
-        surfaceView?.setMirror(true)
+        localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
+        localSurfaceView?.setEnableHardwareScaler(true)
+        localSurfaceView?.setMirror(true)
 
-        surfaceView2?.init(rootEglBase?.eglBaseContext, null)
-        surfaceView2?.setEnableHardwareScaler(true)
-        surfaceView2?.setMirror(true)
+        remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
+        remoteSurfaceView?.setEnableHardwareScaler(true)
+        remoteSurfaceView?.setMirror(true)
 
         PeerConnectionFactory.initializeAndroidGlobals(this, true, true, true)
         peerConnectionFactory = PeerConnectionFactory(null)
@@ -445,14 +443,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
         val videoSource = peerConnectionFactory?.createVideoSource(videoCapturer)
         videoCapturer?.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS)
 
-        videoTrackFromCamera = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, videoSource)
-        videoTrackFromCamera?.setEnabled(true)
-        videoTrackFromCamera?.addRenderer(VideoRenderer(surfaceView))
+        localVideoTrack = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, videoSource)
+        localVideoTrack?.setEnabled(true)
+        localVideoTrack?.addRenderer(VideoRenderer(localSurfaceView))
 
         peerConnection = peerConnectionFactory?.let { createPeerConnection(it) }
 
         val mediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
-        mediaStream?.addTrack(videoTrackFromCamera)
+        mediaStream?.addTrack(localVideoTrack)
         peerConnection?.addStream(mediaStream)
     }
 
@@ -492,11 +490,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
             val asyncTask = HttpRequestHandler(url = UrlUtil.HOSTNAME + "/configs")
             val response = asyncTask.execute().get()
 
-            val json = JSONObject(response)
+            val json = if (response.isNullOrBlank()) {
+                null
+            } else {
+                JSONObject(response)
+            }
 
-            val configs = json.optJSONObject("configs")
-            val contacts = json.optJSONObject("contacts")
-            val localBotConfigs = json.optJSONObject("local_bot_configs")
+            val configs = json?.optJSONObject("configs")
+            val contacts = json?.optJSONObject("contacts")
+//            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
             this.configs.opponent = Configs.Opponent(
                 name = configs?.optString("default_operator") ?: "",
@@ -515,7 +517,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             bindOpponentData(this.configs)
         } catch (e: Exception) {
-            e.printStackTrace()
+//            e.printStackTrace()
+            logD("ERROR! $e")
         }
     }
 
@@ -524,9 +527,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
             val asyncTask = HttpRequestHandler(url = UrlUtil.HOSTNAME + "/ice_servers")
             val response = asyncTask.execute().get()
 
-            val json = JSONObject(response)
+            val json = if (response.isNullOrBlank()) {
+                null
+            } else {
+                JSONObject(response)
+            }
 
-            val iceServersJson = json.optJSONArray("ice_servers")
+            val iceServersJson = json?.optJSONArray("ice_servers")
 
             if (iceServersJson != null) {
                 for (i in 0 until iceServersJson.length()) {
@@ -545,7 +552,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+//            e.printStackTrace()
+            logD("ERROR! $e")
         }
     }
 
@@ -578,7 +586,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
             socket?.emit("user_dashboard", userDashboard)
 
             // TODO: [START] There is no need on PROD
-            val id = (Math.random() * 10000).roundToInt()
+            val id = "" + (Math.random() * 10000).roundToInt()
             val reg = JSONObject()
             reg.put("id", id)
             socket?.emit("reg", reg)
@@ -860,7 +868,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 val type = rtc?.optString("type")
 
                 if (type == "start") {
-                    videoCall()
+                    sendOffer()
                 }
 
                 if (type == "answer") {
@@ -889,12 +897,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 if (type == "hangup") {
                     try {
                         runOnUiThread {
-                            rootEglBase?.release()
-                            videoTrackFromCamera?.dispose()
-                            peerConnection?.dispose()
-                            peerConnectionFactory?.dispose()
-                            surfaceView?.release()
-                            surfaceView2?.release()
+                            closeVideoCall()
 
                             videoDialogView?.visibility = View.GONE
                         }
@@ -902,7 +905,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         e.printStackTrace()
                     }
                 }
-                return@on
 //                [END] MESSAGE HANDLER FOR rtc.vlx.kz
 
                 if (message != null) {
@@ -920,10 +922,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                                 .setTitle("Внимание")
                                 .setMessage(text)
                                 .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-//                                    peerConnectionFactory?.dispose()
-//                                    peerConnection?.dispose()
-//                                    rootEglBase?.release()
-//                                    socket?.close()
+//                                    closeVideoCall()
 
                                     bindOpponentData(this.configs)
 
@@ -1015,7 +1014,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
         socket?.connect()
     }
 
-    private fun videoCall() {
+    private fun sendOffer() {
+        logD("sendOffer")
+
         val sdpMediaConstraints = MediaConstraints()
 
         peerConnection?.createOffer(object : SimpleSdpObserver() {
@@ -1113,9 +1114,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                val remoteAudioTrack = mediaStream.audioTracks[0]
 //                remoteAudioTrack.setEnabled(true);
 
-                val remoteVideoTrack = mediaStream.videoTracks[0]
-                remoteVideoTrack.setEnabled(true)
-                remoteVideoTrack.addRenderer(VideoRenderer(surfaceView2))
+                if (mediaStream.videoTracks.isNotEmpty()) {
+                    remoteVideoTrack = mediaStream.videoTracks[0]
+                    remoteVideoTrack?.setEnabled(true)
+                    remoteVideoTrack?.addRenderer(VideoRenderer(remoteSurfaceView))
+                }
             }
 
             override fun onRemoveStream(mediaStream: MediaStream) {
@@ -1175,6 +1178,52 @@ class KenesVideoCallActivity : AppCompatActivity() {
         appCompatImageButton?.setColorFilter(ContextCompat.getColor(this, R.color.kenes_gray))
     }
 
+    private fun closeVideoCall() {
+        try {
+            peerConnection?.dispose()
+            peerConnection = null
+
+            logD("Stopping capture.")
+            try {
+                videoCapturer?.stopCapture()
+            } catch (e: InterruptedException) {
+                throw RuntimeException(e)
+            }
+            videoCapturer?.dispose()
+            videoCapturer = null
+
+            logD("Closing video source.")
+            videoSource?.dispose()
+            videoSource = null
+
+            logD("Closing peer connection factory.")
+            peerConnectionFactory?.dispose()
+            peerConnectionFactory = null
+
+            logD("Closing peer connection done.")
+
+            PeerConnectionFactory.stopInternalTracingCapture()
+            PeerConnectionFactory.shutdownInternalTracer()
+
+            rootEglBase?.release()
+            rootEglBase = null
+
+            localVideoTrack?.dispose()
+            localVideoTrack = null
+
+            localSurfaceView?.release()
+            localSurfaceView = null
+
+            remoteVideoTrack?.dispose()
+            remoteVideoTrack = null
+
+            remoteSurfaceView?.release()
+            remoteSurfaceView = null
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
@@ -1183,23 +1232,22 @@ class KenesVideoCallActivity : AppCompatActivity() {
         isCategoriesShown = false
         messages.clear()
 
-        socket?.disconnect()
-        peerConnectionFactory?.dispose()
-        peerConnection?.dispose()
-        rootEglBase?.release()
+        closeVideoCall()
 
+        socket?.disconnect()
         socket = null
-        peerConnectionFactory = null
-        peerConnection = null
-        rootEglBase = null
 
         opponentAvatarView = null
         opponentNameView = null
         opponentSecondNameView = null
+
         videoCallView = null
         videoCallButton = null
         videoCallInfoView = null
+
+        footerView = null
         inputView = null
+        attachmentButton = null
 
         chatAdapter.clearMessages()
         recyclerView?.adapter = null
