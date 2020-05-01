@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -26,21 +27,15 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
-import org.webrtc.PeerConnection.Observer
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.RatingAdapter
 import q19.kenes_widget.model.*
-import q19.kenes_widget.model.Category
-import q19.kenes_widget.model.Configs
 import q19.kenes_widget.model.Message
-import q19.kenes_widget.model.RatingButton
-import q19.kenes_widget.model.WidgetIceServer
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
-import java.lang.Exception
-import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 class KenesVideoCallActivity : AppCompatActivity() {
 
@@ -49,30 +44,74 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         private const val REQUEST_CODE_PERMISSIONS = 111
 
+        const val VIDEO_RESOLUTION_WIDTH = 1280
+        const val VIDEO_RESOLUTION_HEIGHT = 720
+        const val FPS = 30
+
+        const val VIDEO_TRACK_ID = "ARDAMSv0"
+
+        private var permissions = arrayOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        )
+
         @JvmStatic
         fun newIntent(context: Context): Intent {
             return Intent(context, KenesVideoCallActivity::class.java)
         }
     }
 
+    private var palette = intArrayOf()
+
+    /**
+     * Opponent info view variables: [opponentAvatarView], [opponentNameView], [opponentSecondNameView]
+     */
     private var opponentAvatarView: AppCompatImageView? = null
     private var opponentNameView: TextView? = null
     private var opponentSecondNameView: TextView? = null
+
+    /**
+     * Video call screen view variables: [videoCallView], [videoCallButton], [videoCallInfoView]
+     */
     private var videoCallView: LinearLayout? = null
     private var videoCallButton: AppCompatButton? = null
     private var videoCallInfoView: TextView? = null
+
+    /**
+     * Footer view variables: [footerView], [inputView], [attachmentButton]
+     */
     private var footerView: LinearLayout? = null
     private var inputView: AppCompatEditText? = null
     private var attachmentButton: AppCompatImageButton? = null
+
+    /**
+     * Chat view variables: [recyclerView]
+     */
     private var recyclerView: RecyclerView? = null
+
+    /**
+     * User feedback after dialog view variables: [feedbackView], [titleView], [ratingView], [rateButton]
+     */
     private var feedbackView: LinearLayout? = null
     private var titleView: TextView? = null
     private var ratingView: RecyclerView? = null
     private var rateButton: AppCompatButton? = null
+
+    /**
+     * Bottom navigation view variables: [homeNavButton], [videoNavButton], [audioNavButton], [infoNavButton]
+     */
     private var homeNavButton: AppCompatImageButton? = null
     private var videoNavButton: AppCompatImageButton? = null
     private var audioNavButton: AppCompatImageButton? = null
     private var infoNavButton: AppCompatImageButton? = null
+
+    /**
+     * Video dialog view variables: [videoDialogView], [surfaceView], [surfaceView2], [hangupButton]
+     */
+    private var videoDialogView: FrameLayout? = null
+    private var surfaceView: SurfaceViewRenderer? = null
+    private var surfaceView2: SurfaceViewRenderer? = null
+    private var hangupButton: AppCompatImageButton? = null
 
     private var activeNavButtonIndex = 0
 
@@ -86,16 +125,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var peerConnectionFactory: PeerConnectionFactory? = null
     private var rootEglBase: EglBase? = null
 
-    private var palette = intArrayOf()
+    private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
 
-    private var permissions = arrayOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.RECORD_AUDIO
-    )
+    private var videoTrackFromCamera: VideoTrack? = null
 
     private var configs: Configs = Configs()
-    private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
+
     private var messages: MutableList<Message> = mutableListOf()
+
     private var activeDialog: Dialog? = null
 
     private var isCategoriesShown: Boolean = false
@@ -106,7 +143,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
         setContentView(R.layout.kenes_activity_video_call)
 
         // TODO: Remove later, exhaustive on PROD
-        UrlUtil.HOSTNAME = "https://kenes.vlx.kz"
+//        UrlUtil.HOSTNAME = "https://kenes.vlx.kz"
+        UrlUtil.HOSTNAME = "https://rtc.vlx.kz"
 
         /**
          * [Picasso] configuration
@@ -168,6 +206,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
         audioNavButton = findViewById(R.id.audioButton)
         infoNavButton = findViewById(R.id.infoButton)
 
+        /**
+         * Bind [R.id.videoDialogView] views: [R.id.surfaceView], [R.id.surfaceView2],
+         * [R.id.hangupButton].
+         */
+        videoDialogView = findViewById(R.id.videoDialogView)
+        surfaceView = findViewById(R.id.surfaceView)
+        surfaceView2 = findViewById(R.id.surfaceView2)
+        hangupButton = findViewById(R.id.hangupButton)
+
         // ------------------------------------------------------------------------
 
 
@@ -184,9 +231,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
         rateButton?.isEnabled = false
         bindOpponentData(Configs())
         inputView?.text?.clear()
+        activeDialog = null
 
         // TODO: Remove after attachment upload ability realization
         attachmentButton?.visibility = View.GONE
+
+        videoDialogView?.visibility = View.GONE
 
         feedbackView?.visibility = View.GONE
         videoCallView?.visibility = View.GONE
@@ -263,11 +313,30 @@ class KenesVideoCallActivity : AppCompatActivity() {
         }
 
         videoCallButton?.setOnClickListener {
-            val initialize = JSONObject()
-            initialize.put("video", true)
-            socket?.emit("initialize", initialize)
+            activeDialog = null
 
-            videoCall()
+//            [BEGIN] Widget video call initialization in kenes.vlx.kz
+//            val initialize = JSONObject()
+//            initialize.put("video", true)
+//            socket?.emit("initialize", initialize)
+//            [END] Widget video call initialization in kenes.vlx.kz
+
+//            [BEGIN] Widget video call initialization in rtc.vlx.kz
+            val call = JSONObject()
+            call.put("to", inputView?.text.toString())
+            socket?.emit("call", call)
+//            [END] Widget video call initialization in rtc.vlx.kz
+
+            inputView?.text?.clear()
+
+            videoCallButton?.isEnabled = false
+            videoCallInfoView?.text = null
+            videoCallView?.visibility = View.GONE
+            recyclerView?.visibility = View.VISIBLE
+
+            videoCallInitialize()
+
+            videoDialogView?.visibility = View.VISIBLE
         }
 
         start()
@@ -291,6 +360,36 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
+        }
+
+        hangupButton?.setOnClickListener {
+//            [BEGIN] Widget active video call hangup in rtc.vlx.kz
+            val message = JSONObject()
+            val rtc = JSONObject()
+            rtc.put("type", "hangup")
+            message.put("rtc", rtc)
+            socket?.emit("message", message)
+//            [END] Widget active video call hangup in rtc.vlx.kz
+
+            try {
+                runOnUiThread {
+                    rootEglBase?.release()
+                    videoTrackFromCamera?.dispose()
+                    peerConnection?.dispose()
+                    peerConnectionFactory?.dispose()
+                    surfaceView?.release()
+                    surfaceView2?.release()
+
+                    videoDialogView?.visibility = View.GONE
+                    recyclerView?.visibility = View.GONE
+
+                    videoCallButton?.isEnabled = true
+                    videoCallInfoView?.text = null
+                    videoCallView?.visibility = View.VISIBLE
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
         chatAdapter = ChatAdapter()
@@ -322,8 +421,18 @@ class KenesVideoCallActivity : AppCompatActivity() {
         fetchIceServers()
 
         connectToSignallingServer()
+    }
 
+    private fun videoCallInitialize() {
         rootEglBase = EglBase.create()
+
+        surfaceView?.init(rootEglBase?.eglBaseContext, null)
+        surfaceView?.setEnableHardwareScaler(true)
+        surfaceView?.setMirror(true)
+
+        surfaceView2?.init(rootEglBase?.eglBaseContext, null)
+        surfaceView2?.setEnableHardwareScaler(true)
+        surfaceView2?.setMirror(true)
 
         PeerConnectionFactory.initializeAndroidGlobals(this, true, true, true)
         peerConnectionFactory = PeerConnectionFactory(null)
@@ -332,10 +441,51 @@ class KenesVideoCallActivity : AppCompatActivity() {
             rootEglBase?.eglBaseContext
         )
 
-        peerConnectionFactory?.let {
-            peerConnection = createPeerConnection(it)
+        val videoCapturer = createVideoCapturer()
+        val videoSource = peerConnectionFactory?.createVideoSource(videoCapturer)
+        videoCapturer?.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS)
+
+        videoTrackFromCamera = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, videoSource)
+        videoTrackFromCamera?.setEnabled(true)
+        videoTrackFromCamera?.addRenderer(VideoRenderer(surfaceView))
+
+        peerConnection = peerConnectionFactory?.let { createPeerConnection(it) }
+
+        val mediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
+        mediaStream?.addTrack(videoTrackFromCamera)
+        peerConnection?.addStream(mediaStream)
+    }
+
+    private fun createVideoCapturer(): VideoCapturer? {
+        return if (useCamera2()) {
+            createCameraCapturer(Camera2Enumerator(this))
+        } else {
+            createCameraCapturer(Camera1Enumerator(true))
         }
     }
+
+    private fun createCameraCapturer(enumerator: CameraEnumerator): VideoCapturer? {
+        val deviceNames = enumerator.deviceNames
+        for (deviceName in deviceNames) {
+            if (enumerator.isFrontFacing(deviceName)) {
+                val videoCapturer = enumerator.createCapturer(deviceName, null)
+                if (videoCapturer != null) {
+                    return videoCapturer
+                }
+            }
+        }
+        for (deviceName in deviceNames) {
+            if (!enumerator.isFrontFacing(deviceName)) {
+                val videoCapturer = enumerator.createCapturer(deviceName, null)
+                if (videoCapturer != null) {
+                    return videoCapturer
+                }
+            }
+        }
+        return null
+    }
+
+    private fun useCamera2(): Boolean = Camera2Enumerator.isSupported(this)
 
     private fun fetchWidgetConfigs() {
         try {
@@ -422,14 +572,17 @@ class KenesVideoCallActivity : AppCompatActivity() {
             
             logD("event [EVENT_CONNECT]: $args")
 
-            args.forEach { arg ->
-                logD("event [EVENT_CONNECT], arg: ${arg as? JSONObject}")
-            }
-
             val userDashboard = JSONObject()
             userDashboard.put("action", "get_category_list")
             userDashboard.put("parent_id", 0)
             socket?.emit("user_dashboard", userDashboard)
+
+            // TODO: [START] There is no need on PROD
+            val id = (Math.random() * 10000).roundToInt()
+            val reg = JSONObject()
+            reg.put("id", id)
+            socket?.emit("reg", reg)
+            // TODO: [END] There is no need on PROD
 
         }?.on("open") { args ->
 
@@ -702,6 +855,56 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 val message = args[0] as? JSONObject?
                 logD("message: $message")
 
+//                [START] MESSAGE HANDLER FOR rtc.vlx.kz
+                val rtc = message?.optJSONObject("rtc")
+                val type = rtc?.optString("type")
+
+                if (type == "start") {
+                    videoCall()
+                }
+
+                if (type == "answer") {
+                    peerConnection?.setRemoteDescription(
+                        SimpleSdpObserver(),
+                        SessionDescription(SessionDescription.Type.ANSWER, rtc.optString("sdp"))
+                    )
+                }
+
+                if (type == "candidate") {
+                    peerConnection?.addIceCandidate(IceCandidate(
+                        rtc.getString("id"),
+                        rtc.getInt("label"),
+                        rtc.getString("candidate")
+                    ))
+                }
+
+                if (type == "offer") {
+                    peerConnection?.setRemoteDescription(
+                        SimpleSdpObserver(),
+                        SessionDescription(SessionDescription.Type.OFFER, rtc.getString("sdp"))
+                    )
+
+                }
+
+                if (type == "hangup") {
+                    try {
+                        runOnUiThread {
+                            rootEglBase?.release()
+                            videoTrackFromCamera?.dispose()
+                            peerConnection?.dispose()
+                            peerConnectionFactory?.dispose()
+                            surfaceView?.release()
+                            surfaceView2?.release()
+
+                            videoDialogView?.visibility = View.GONE
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                return@on
+//                [END] MESSAGE HANDLER FOR rtc.vlx.kz
+
                 if (message != null) {
                     val type = message.optString("type")
                     val text = message.optString("text")
@@ -756,8 +959,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                            infoView?.visibility = View.GONE
                         }
                     } else {
-                        if (sender == activeDialog?.operatorId) {
-                            if (!id.isNullOrBlank()) {
+                        val activeDialogOperatorId = activeDialog?.operatorId
+
+                        val isSenderIdsNullOrBlank = sender.isBlank() && activeDialogOperatorId.isNullOrBlank()
+                        val isSenderIdsSame = sender.isNotBlank() && !activeDialogOperatorId.isNullOrBlank() && sender == activeDialogOperatorId
+
+                        if (isSenderIdsNullOrBlank || isSenderIdsSame) {
+                            if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
                                 runOnUiThread {
                                     activeDialog = null
 
@@ -791,6 +999,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
             logD("event [EVENT_DISCONNECT]")
 
             runOnUiThread {
+                activeDialog = null
+
                 bindOpponentData(this.configs)
 
                 recyclerView?.visibility = View.GONE
@@ -813,10 +1023,21 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 logD("onCreateSuccess: " + sessionDescription.description)
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
+//                [START] Sending offer with SDP for kenes.vlx.kz
+//                val message = JSONObject()
+//                message.put("type", "offer")
+//                message.put("sdp", sessionDescription.description)
+//                socket?.emit("message", message)
+//                [END] Sending offer with SDP for kenes.vlx.kz
+
+//                [START] Sending offer with SDP for rtc.vlx.kz
                 val message = JSONObject()
-                message.put("type", "offer")
-                message.put("sdp", sessionDescription.description)
+                val rtc = JSONObject()
+                rtc.put("type", "offer")
+                rtc.put("sdp", sessionDescription.description)
+                message.put("rtc", rtc)
                 socket?.emit("message", message)
+//                [END] Sending offer with SDP for kenes.vlx.kz
 
                 runOnUiThread {
                     chatAdapter.clearMessages()
@@ -861,13 +1082,25 @@ class KenesVideoCallActivity : AppCompatActivity() {
             override fun onIceCandidate(iceCandidate: IceCandidate) {
                 logD("onIceCandidate: " + iceCandidate.sdp)
 
+//                [START] Sending ICE Candidate for kenes.vlx.kz
+//                val message = JSONObject()
+//                message.put("type", "candidate")
+//                message.put("label", iceCandidate.sdpMLineIndex)
+//                message.put("id", iceCandidate.sdpMid)
+//                message.put("candidate", iceCandidate.sdp)
+//                logD("onIceCandidate: sending candidate $message")
+//                socket?.emit("message", message)
+//                [START] Sending ICE Candidate for kenes.vlx.kz
+
+//                [START] Sending offer with SDP for rtc.vlx.kz
                 val message = JSONObject()
-                message.put("type", "candidate")
-                message.put("label", iceCandidate.sdpMLineIndex)
-                message.put("id", iceCandidate.sdpMid)
-                message.put("candidate", iceCandidate.sdp)
-                logD("onIceCandidate: sending candidate $message")
+                val rtc = JSONObject()
+                rtc.put("type", "candidate")
+                rtc.put("label", iceCandidate.sdpMLineIndex)
+                rtc.put("candidate", iceCandidate.sdp)
+                message.put("rtc", rtc)
                 socket?.emit("message", message)
+//                [START] Sending offer with SDP for rtc.vlx.kz
             }
 
             override fun onIceCandidatesRemoved(iceCandidates: Array<IceCandidate>) {
@@ -876,6 +1109,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             override fun onAddStream(mediaStream: MediaStream) {
                 logD("onAddStream: " + mediaStream.videoTracks.size)
+
+//                val remoteAudioTrack = mediaStream.audioTracks[0]
+//                remoteAudioTrack.setEnabled(true);
+
+                val remoteVideoTrack = mediaStream.videoTracks[0]
+                remoteVideoTrack.setEnabled(true)
+                remoteVideoTrack.addRenderer(VideoRenderer(surfaceView2))
             }
 
             override fun onRemoveStream(mediaStream: MediaStream) {

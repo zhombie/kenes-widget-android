@@ -8,7 +8,8 @@ internal object UrlUtil {
 
     private const val STATIC_PATH = "/static/uploads/"
 
-    const val SIGNALLING_SERVER_URL = "https://kenes2.vlx.kz/user"
+//    const val SIGNALLING_SERVER_URL = "https://kenes2.vlx.kz/user"
+    const val SIGNALLING_SERVER_URL = "https://rtc.vlx.kz"
 
     fun getStaticUrl(path: String?): String? {
         if (path == null) {
