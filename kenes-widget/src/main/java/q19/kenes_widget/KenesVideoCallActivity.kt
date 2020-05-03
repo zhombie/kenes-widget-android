@@ -11,7 +11,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -409,9 +408,25 @@ class KenesVideoCallActivity : AppCompatActivity() {
         }
 
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
-            override fun onCategoryChildClicked(category: Category) {
-                Toast.makeText(this@KenesVideoCallActivity, "category: $category", Toast.LENGTH_SHORT).show()
+            override fun onReturnBackClicked(category: Category) {
+                activeCategoryChild = null
 
+                val previous = messages.filter {
+                    it.category?.id == category.parentId
+                }
+
+                val isPreviousIsAHome = previous.all { it.category?.home == true }
+
+                if (isPreviousIsAHome) {
+                    chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
+                    scrollToTop()
+                } else {
+                    chatAdapter.setNewMessages(previous)
+                    scrollToTop()
+                }
+            }
+
+            override fun onCategoryChildClicked(category: Category) {
                 activeCategoryChild = category
 
                 val userDashboard = JSONObject()
@@ -748,6 +763,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             if (palette.isNotEmpty()) {
                                 category.color = palette[index]
                             }
+                            category.home = true
                             messages.add(Message(Message.Type.CATEGORY, category))
 
                             val userDashboard = JSONObject()
@@ -755,12 +771,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             userDashboard.put("parent_id", category.id)
                             socket?.emit("user_dashboard", userDashboard)
                         } else {
-                            if (category.parentId == activeCategoryChild?.id) {
+                            if (category.parentId == activeCategoryChild?.id && activeCategoryChild?.children?.any { it.id == category.id } == false) {
                                 activeCategoryChild?.children?.add(category)
                             }
 
                             messages.forEach { message ->
-                                if (message.category?.id == category.parentId) {
+                                if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
                                     message.category?.children?.add(category)
                                 } else {
 //                                    message.category?.sections?.forEach { section ->

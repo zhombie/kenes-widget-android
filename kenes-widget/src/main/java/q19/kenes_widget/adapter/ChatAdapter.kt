@@ -255,6 +255,10 @@ internal class ChatAdapter(
 
                 crossChildrenAdapter.category = category
                 crossChildrenAdapter.notifyDataSetChanged()
+
+                titleView?.setOnClickListener {
+                    callback.onReturnBackClicked(category)
+                }
             }
         }
 
@@ -282,6 +286,7 @@ internal class ChatAdapter(
     interface Callback {
         fun onCategoryChildClicked(category: Category)
         fun onGoToHomeClicked()
+        fun onReturnBackClicked(category: Category)
     }
 
 }

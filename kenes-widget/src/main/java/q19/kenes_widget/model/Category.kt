@@ -14,6 +14,8 @@ internal class Category(
     var photo: String? = null,
     var children: MutableList<Category> = mutableListOf(),
 
+//    Local system variables
+    var home: Boolean = false,
     @ColorInt var color: Int = 0
 ) {
 
