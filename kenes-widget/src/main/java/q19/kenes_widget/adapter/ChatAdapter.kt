@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Message
-import q19.kenes_widget.model.Response
+import q19.kenes_widget.model.Category
 
 internal class ChatAdapter(
     private val callback: Callback
@@ -23,8 +23,8 @@ internal class ChatAdapter(
         val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
         val LAYOUT_TYPING = R.layout.kenes_cell_typing
-        val LAYOUT_CATEGORY_BLOCK = R.layout.kenes_cell_category_block
-        val LAYOUT_SECTION_PAGE = R.layout.kenes_cell_section_page
+        val LAYOUT_CATEGORY = R.layout.kenes_cell_category
+        val LAYOUT_CROSS_CHILDREN = R.layout.kenes_cell_cross_children
     }
 
     private var messages: MutableList<Message> = mutableListOf()
@@ -76,9 +76,9 @@ internal class ChatAdapter(
             Message.Type.TYPING ->
                 LAYOUT_TYPING
             Message.Type.CATEGORY ->
-                LAYOUT_CATEGORY_BLOCK
-            Message.Type.SECTION ->
-                LAYOUT_SECTION_PAGE
+                LAYOUT_CATEGORY
+            Message.Type.CROSS_CHILDREN ->
+                LAYOUT_CROSS_CHILDREN
             else ->
                 LAYOUT_OPPONENT_MESSAGE
         }
@@ -93,8 +93,8 @@ internal class ChatAdapter(
             LAYOUT_SELF_MESSAGE -> SelfMessageViewHolder(view)
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
-            LAYOUT_CATEGORY_BLOCK -> CategoryViewHolder(view)
-            LAYOUT_SECTION_PAGE -> SectionViewHolder(view)
+            LAYOUT_CATEGORY -> CategoryViewHolder(view)
+            LAYOUT_CROSS_CHILDREN -> CrossChildrenViewHolder(view)
             else -> OpponentMessageViewHolder(view)
         }
     }
@@ -118,8 +118,8 @@ internal class ChatAdapter(
             if (holder is CategoryViewHolder) {
                 holder.bind(message)
             }
-        } else if (message.type == Message.Type.SECTION) {
-            if (holder is SectionViewHolder) {
+        } else if (message.type == Message.Type.CROSS_CHILDREN) {
+            if (holder is CrossChildrenViewHolder) {
                 holder.bind(message)
             }
         } else if (message.type == Message.Type.OPPONENT) {
@@ -179,34 +179,34 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), SectionsAdapter.Callback {
+    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), CategoryAdapter.Callback {
         private var titleView: TextView? = null
         private var recyclerView: RecyclerView? = null
 
-        private var adapter: SectionsAdapter
+        private var categoryAdapter: CategoryAdapter
 
         init {
             titleView = view.findViewById(R.id.titleView)
             recyclerView = view.findViewById(R.id.recyclerView)
 
             recyclerView?.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = SectionsAdapter(this)
-            recyclerView?.adapter = adapter
+            categoryAdapter = CategoryAdapter(this)
+            recyclerView?.adapter = categoryAdapter
             recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
         }
 
         fun bind(message: Message) {
-            val category = message.response
+            val category = message.category
             if (category != null) {
                 titleView?.text = category.title
 
-                adapter.response = category
-                adapter.notifyDataSetChanged()
+                categoryAdapter.category = category
+                categoryAdapter.notifyDataSetChanged()
             }
         }
 
-        override fun onSectionClicked(section: Response) {
-            callback.onSectionClicked(section)
+        override fun onChildClicked(category: Category) {
+            callback.onCategoryChildClicked(category)
         }
 
         private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
@@ -226,12 +226,12 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class SectionViewHolder(view: View) : RecyclerView.ViewHolder(view), SectionChildrenAdapter.Callback {
+    private inner class CrossChildrenViewHolder(view: View) : RecyclerView.ViewHolder(view), CrossChildrenAdapter.Callback {
         private var titleView: TextView? = null
         private var recyclerView: RecyclerView? = null
         private var goToHomeButton: AppCompatButton? = null
 
-        private var adapter: SectionChildrenAdapter
+        private var crossChildrenAdapter: CrossChildrenAdapter
 
         init {
             titleView = view.findViewById(R.id.titleView)
@@ -239,8 +239,8 @@ internal class ChatAdapter(
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
 
             recyclerView?.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
-            adapter = SectionChildrenAdapter(this)
-            recyclerView?.adapter = adapter
+            crossChildrenAdapter = CrossChildrenAdapter(this)
+            recyclerView?.adapter = crossChildrenAdapter
             recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
 
             goToHomeButton?.setOnClickListener {
@@ -249,17 +249,17 @@ internal class ChatAdapter(
         }
 
         fun bind(message: Message) {
-            val category = message.response
+            val category = message.category
             if (category != null) {
                 titleView?.text = category.title
 
-                adapter.response = category
-                adapter.notifyDataSetChanged()
+                crossChildrenAdapter.category = category
+                crossChildrenAdapter.notifyDataSetChanged()
             }
         }
 
-        override fun onSectionClicked(response: Response) {
-            callback.onSectionClicked(response)
+        override fun onCrossChildClicked(category: Category) {
+            callback.onCategoryChildClicked(category)
         }
 
         private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
@@ -280,7 +280,7 @@ internal class ChatAdapter(
     }
 
     interface Callback {
-        fun onSectionClicked(section: Response)
+        fun onCategoryChildClicked(category: Category)
         fun onGoToHomeClicked()
     }
 

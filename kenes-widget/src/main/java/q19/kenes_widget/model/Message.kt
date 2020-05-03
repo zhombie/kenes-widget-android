@@ -7,7 +7,7 @@ internal data class Message(
     var type: Type = Type.OPPONENT,
     var text: String,
     var date: Calendar = now(),
-    var response: Response? = null
+    var category: Category? = null
 ) {
 
     companion object {
@@ -37,8 +37,8 @@ internal data class Message(
 
     constructor(
         type: Type,
-        response: Response
-    ) : this(type, "", now(), response)
+        category: Category?
+    ) : this(type, "", now(), category)
 
     constructor(
         type: Type
@@ -56,11 +56,11 @@ internal data class Message(
         TYPING,
 
         CATEGORY,
-        SECTION
+        CROSS_CHILDREN
     }
 
     override fun toString(): String {
-        return "Message(category=$response)"
+        return "Message(category=$category)"
     }
 
 }

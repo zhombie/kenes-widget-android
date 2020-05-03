@@ -34,9 +34,11 @@ import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.RatingAdapter
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
+import q19.kenes_widget.network.HttpRequestHandler
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
+import q19.kenes_widget.webrtc.SimpleSdpObserver
 
 class KenesVideoCallActivity : AppCompatActivity() {
 
@@ -145,6 +147,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var configs: Configs = Configs()
 
     private var messages: MutableList<Message> = mutableListOf()
+    private var activeCategoryChild: Category? = null
 
     private var activeDialog: Dialog? = null
 
@@ -152,8 +155,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //    private var isFilled: Boolean = false
 
     private var isInitiator = false
-
-    private var activeSection: Response? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -278,6 +279,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 scrollToTop()
 
                 messages.clear()
+
+                activeCategoryChild = null
 
 //                isCategoriesShown = false
 //                isFilled = false
@@ -406,19 +409,19 @@ class KenesVideoCallActivity : AppCompatActivity() {
         }
 
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
-            override fun onSectionClicked(section: Response) {
-                Toast.makeText(this@KenesVideoCallActivity, "section: $section", Toast.LENGTH_SHORT).show()
+            override fun onCategoryChildClicked(category: Category) {
+                Toast.makeText(this@KenesVideoCallActivity, "category: $category", Toast.LENGTH_SHORT).show()
 
-                activeSection = section
+                activeCategoryChild = category
 
                 val userDashboard = JSONObject()
                 userDashboard.put("action", "get_category_list")
-                userDashboard.put("parent_id", section.id)
+                userDashboard.put("parent_id", category.id)
                 socket?.emit("user_dashboard", userDashboard)
             }
 
             override fun onGoToHomeClicked() {
-                activeSection = null
+                activeCategoryChild = null
 
                 chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
                 scrollToTop()
@@ -720,14 +723,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 val categoryListJson = categoryList?.optJSONArray("category_list")
 
                 if (categoryListJson != null) {
-                    var categories = mutableListOf<Response>()
+                    var categories = mutableListOf<Category>()
                     for (i in 0 until categoryListJson.length()) {
                         val categoryJson = categoryListJson[i] as JSONObject
                         var parentId: Long? = categoryJson.optLong("parent_id", -1L)
                         if (parentId == -1L) {
                             parentId = null
                         }
-                        categories.add(Response(
+                        categories.add(Category(
                             id = categoryJson.optLong("id"),
                             title = categoryJson.optString("title"),
                             lang = categoryJson.optInt("lang"),
@@ -752,13 +755,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             userDashboard.put("parent_id", category.id)
                             socket?.emit("user_dashboard", userDashboard)
                         } else {
-                            if (category.parentId == activeSection?.id) {
-                                activeSection?.responses?.add(category)
+                            if (category.parentId == activeCategoryChild?.id) {
+                                activeCategoryChild?.children?.add(category)
                             }
 
                             messages.forEach { message ->
-                                if (message.response?.id == category.parentId) {
-                                    message.response?.responses?.add(category)
+                                if (message.category?.id == category.parentId) {
+                                    message.category?.children?.add(category)
                                 } else {
 //                                    message.category?.sections?.forEach { section ->
 //                                        if (section.id == category.parentId) {
@@ -773,14 +776,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                     logD("categories: $categories")
 
-                    val isMessagesNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.response?.responses.isNullOrEmpty() }
+                    val isMessagesNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.category?.children.isNullOrEmpty() }
 
 //                    if (!isCategoriesShown && isFilled && isMessagesNotEmpty) {
                     if (isMessagesNotEmpty) {
 //                        logD("FINAL ->>>>>>: " + messages.map { it.category?.id.toString() + " - " + it.category?.title + " -> " + it.category?.sections?.map { section -> section.id.toString() + " - " + section.title + " #" + section.parentId  }})
                         runOnUiThread {
-                            if (activeSection != null) {
-                                chatAdapter.setNewMessages(listOf(Message(Message.Type.SECTION, activeSection!!)))
+                            if (activeCategoryChild != null) {
+                                chatAdapter.setNewMessages(listOf(Message(Message.Type.CROSS_CHILDREN, activeCategoryChild)))
                                 scrollToTop()
                             } else {
                                 feedbackView?.visibility = View.GONE

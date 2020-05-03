@@ -6,29 +6,29 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.model.Response
+import q19.kenes_widget.model.Category
 
-internal class SectionsAdapter(
+internal class CategoryAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        val LAYOUT_SECTION = R.layout.kenes_cell_big_section
+        val LAYOUT_CATEGORY = R.layout.kenes_cell_category_child
     }
 
-    var response: Response? = null
+    var category: Category? = null
 
-    override fun getItemCount(): Int = response?.responses?.size ?: 0
+    override fun getItemCount(): Int = category?.children?.size ?: 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(LAYOUT_SECTION, parent, false)
+        val view = inflater.inflate(LAYOUT_CATEGORY, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            response?.let { holder.bind(it) }
+            category?.let { holder.bind(it) }
         }
     }
 
@@ -39,23 +39,23 @@ internal class SectionsAdapter(
             textView = view.findViewById(R.id.textView)
         }
 
-        fun bind(response: Response) {
-            val section = response.responses[adapterPosition]
+        fun bind(category: Category) {
+            val child = category.children[adapterPosition]
 
-            textView?.text = section.title
+            textView?.text = child.title
 
-            textView?.setTextColor(response.color)
+            textView?.setTextColor(category.color)
 
-            textView?.background = response.getDefaultBackground(itemView.resources)
+            textView?.background = category.getDefaultBackground(itemView.resources)
 
             textView?.setOnClickListener {
-                callback.onSectionClicked(section)
+                callback.onChildClicked(child)
             }
         }
     }
 
     interface Callback {
-        fun onSectionClicked(section: Response)
+        fun onChildClicked(category: Category)
     }
 
 }

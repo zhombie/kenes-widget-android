@@ -6,13 +6,13 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import q19.kenes_widget.R
 
-internal open class Response(
-    open var id: Long,
-    open var title: String,
-    open var lang: Int,
-    open var parentId: Long? = null,
-    open var photo: String? = null,
-    open var responses: MutableList<Response> = mutableListOf(),
+internal class Category(
+    var id: Long,
+    var title: String,
+    var lang: Int,
+    var parentId: Long? = null,
+    var photo: String? = null,
+    var children: MutableList<Category> = mutableListOf(),
 
     @ColorInt var color: Int = 0
 ) {
@@ -49,9 +49,9 @@ internal open class Response(
 
     fun getDefaultBackground(resources: Resources): GradientDrawable {
         return buildBackground(Background(
-            resources.getDimension(R.dimen.kenes_section_border_radius),
+            resources.getDimension(R.dimen.kenes_child_border_radius),
             Background.Stroke(
-                resources.getDimensionPixelOffset(R.dimen.kenes_section_stroke_width),
+                resources.getDimensionPixelOffset(R.dimen.kenes_child_stroke_width),
                 getColorWithAlpha(0.3F)
             ),
             getColorWithAlpha(0.06F)
@@ -59,7 +59,7 @@ internal open class Response(
     }
 
     override fun toString(): String {
-        return "Response(id=$id, title=\"$title\", parentId=$parentId, sections=$responses])"
+        return "Category(id=$id, title=\"$title\", parentId=$parentId, children=$children])"
     }
 
 }

@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.webrtc
 
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription
