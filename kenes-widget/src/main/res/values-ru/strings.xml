@@ -11,4 +11,6 @@
     <string name="kenes_send">Отправить</string>
     <string name="kenes_satisfied_with_call">Удовлетворены ли вы ответом оператора?</string>
     <string name="kenes_typing">Печатает…</string>
+    <string name="kenes_all">Все</string>
+    <string name="kenes_go_to_home">На главную</string>
 </resources>

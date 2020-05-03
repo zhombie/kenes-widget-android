@@ -1,22 +1,30 @@
 package q19.kenes_widget.adapter
 
+import android.content.Context
+import android.graphics.Rect
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Message
+import q19.kenes_widget.model.Response
 
-internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class ChatAdapter(
+    private val callback: Callback
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         val LAYOUT_SELF_MESSAGE = R.layout.kenes_cell_my_message
         val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
         val LAYOUT_TYPING = R.layout.kenes_cell_typing
-        val LAYOUT_CATEGORY = R.layout.kenes_cell_category
+        val LAYOUT_CATEGORY_BLOCK = R.layout.kenes_cell_category_block
+        val LAYOUT_SECTION_PAGE = R.layout.kenes_cell_section_page
     }
 
     private var messages: MutableList<Message> = mutableListOf()
@@ -26,7 +34,14 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyItemInserted(messages.size - 1)
     }
 
+    fun addNewMessages(messages: List<Message>) {
+        val last = this.messages.size - 1
+        this.messages.addAll(last, messages)
+        notifyItemRangeInserted(last, messages.size)
+    }
+
     fun setNewMessages(messages: List<Message>) {
+        Log.d("LOL", "setNewMessages(messages: $messages)")
         if (messages.isNotEmpty()) {
             this.messages.clear()
         }
@@ -61,7 +76,9 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             Message.Type.TYPING ->
                 LAYOUT_TYPING
             Message.Type.CATEGORY ->
-                LAYOUT_CATEGORY
+                LAYOUT_CATEGORY_BLOCK
+            Message.Type.SECTION ->
+                LAYOUT_SECTION_PAGE
             else ->
                 LAYOUT_OPPONENT_MESSAGE
         }
@@ -70,27 +87,15 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
 
+        val view = inflater.inflate(viewType, parent, false)
+
         return when (viewType) {
-            LAYOUT_SELF_MESSAGE -> {
-                val view = inflater.inflate(LAYOUT_SELF_MESSAGE, parent, false)
-                SelfMessageViewHolder(view)
-            }
-            LAYOUT_NOTIFICATION -> {
-                val view = inflater.inflate(LAYOUT_NOTIFICATION, parent, false)
-                NotificationViewHolder(view)
-            }
-            LAYOUT_TYPING -> {
-                val view = inflater.inflate(LAYOUT_TYPING, parent, false)
-                TypingViewHolder(view)
-            }
-            LAYOUT_CATEGORY -> {
-                val view = inflater.inflate(LAYOUT_CATEGORY, parent, false)
-                CategoryViewHolder(view)
-            }
-            else -> {
-                val view = inflater.inflate(LAYOUT_OPPONENT_MESSAGE, parent, false)
-                OpponentMessageViewHolder(view)
-            }
+            LAYOUT_SELF_MESSAGE -> SelfMessageViewHolder(view)
+            LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
+            LAYOUT_TYPING -> TypingViewHolder(view)
+            LAYOUT_CATEGORY_BLOCK -> CategoryViewHolder(view)
+            LAYOUT_SECTION_PAGE -> SectionViewHolder(view)
+            else -> OpponentMessageViewHolder(view)
         }
     }
 
@@ -111,6 +116,10 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
         } else if (message.type == Message.Type.CATEGORY) {
             if (holder is CategoryViewHolder) {
+                holder.bind(message)
+            }
+        } else if (message.type == Message.Type.SECTION) {
+            if (holder is SectionViewHolder) {
                 holder.bind(message)
             }
         } else if (message.type == Message.Type.OPPONENT) {
@@ -170,9 +179,10 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
     }
 
-    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), SectionsAdapter.Callback {
         private var titleView: TextView? = null
         private var recyclerView: RecyclerView? = null
+
         private var adapter: SectionsAdapter
 
         init {
@@ -180,21 +190,98 @@ internal class ChatAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             recyclerView = view.findViewById(R.id.recyclerView)
 
             recyclerView?.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
-            adapter = SectionsAdapter()
+            adapter = SectionsAdapter(this)
             recyclerView?.adapter = adapter
+            recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
         }
 
         fun bind(message: Message) {
-            val category = message.category
+            val category = message.response
             if (category != null) {
                 titleView?.text = category.title
 
-                adapter.category = category
+                adapter.response = category
                 adapter.notifyDataSetChanged()
-
-//                Log.d("LOL", "BIND -> CATEGORY: " + message.category)
             }
         }
+
+        override fun onSectionClicked(section: Response) {
+            callback.onSectionClicked(section)
+        }
+
+        private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+
+            private var horizontalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_message_horizontal_spacing)
+
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                super.getItemOffsets(outRect, view, parent, state)
+
+                outRect.right = horizontalSpacing
+            }
+        }
+    }
+
+    private inner class SectionViewHolder(view: View) : RecyclerView.ViewHolder(view), SectionChildrenAdapter.Callback {
+        private var titleView: TextView? = null
+        private var recyclerView: RecyclerView? = null
+        private var goToHomeButton: AppCompatButton? = null
+
+        private var adapter: SectionChildrenAdapter
+
+        init {
+            titleView = view.findViewById(R.id.titleView)
+            recyclerView = view.findViewById(R.id.recyclerView)
+            goToHomeButton = view.findViewById(R.id.goToHomeButton)
+
+            recyclerView?.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
+            adapter = SectionChildrenAdapter(this)
+            recyclerView?.adapter = adapter
+            recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
+
+            goToHomeButton?.setOnClickListener {
+                callback.onGoToHomeClicked()
+            }
+        }
+
+        fun bind(message: Message) {
+            val category = message.response
+            if (category != null) {
+                titleView?.text = category.title
+
+                adapter.response = category
+                adapter.notifyDataSetChanged()
+            }
+        }
+
+        override fun onSectionClicked(response: Response) {
+            callback.onSectionClicked(response)
+        }
+
+        private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
+
+            private var verticalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_message_vertical_spacing)
+
+            override fun getItemOffsets(
+                outRect: Rect,
+                view: View,
+                parent: RecyclerView,
+                state: RecyclerView.State
+            ) {
+                super.getItemOffsets(outRect, view, parent, state)
+
+                outRect.bottom = verticalSpacing
+            }
+        }
+    }
+
+    interface Callback {
+        fun onSectionClicked(section: Response)
+        fun onGoToHomeClicked()
     }
 
 }

@@ -13,4 +13,6 @@
     <string name="kenes_send">Send</string>
     <string name="kenes_satisfied_with_call">Are you satisfied with the response of the operator?</string>
     <string name="kenes_typing">Typing…</string>
+    <string name="kenes_all">All</string>
+    <string name="kenes_go_to_home">Home</string>
 </resources>

@@ -6,13 +6,13 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import q19.kenes_widget.R
 
-internal data class Category(
-    var id: Long,
-    var title: String,
-    var lang: Int,
-    var parentId: Long? = null,
-    var photo: String? = null,
-    var sections: MutableList<Category> = mutableListOf(),
+internal open class Response(
+    open var id: Long,
+    open var title: String,
+    open var lang: Int,
+    open var parentId: Long? = null,
+    open var photo: String? = null,
+    open var responses: MutableList<Response> = mutableListOf(),
 
     @ColorInt var color: Int = 0
 ) {
@@ -56,6 +56,10 @@ internal data class Category(
             ),
             getColorWithAlpha(0.06F)
         ))
+    }
+
+    override fun toString(): String {
+        return "Response(id=$id, title=\"$title\", parentId=$parentId, sections=$responses])"
     }
 
 }

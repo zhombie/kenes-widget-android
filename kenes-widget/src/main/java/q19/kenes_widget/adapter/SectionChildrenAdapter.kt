@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Response
 
-internal class SectionsAdapter(
+internal class SectionChildrenAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        val LAYOUT_SECTION = R.layout.kenes_cell_big_section
+        val LAYOUT_SECTION_CHILD = R.layout.kenes_cell_small_section
     }
 
     var response: Response? = null
@@ -22,7 +22,7 @@ internal class SectionsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(LAYOUT_SECTION, parent, false)
+        val view = inflater.inflate(LAYOUT_SECTION_CHILD, parent, false)
         return ViewHolder(view)
     }
 
@@ -44,10 +44,6 @@ internal class SectionsAdapter(
 
             textView?.text = section.title
 
-            textView?.setTextColor(response.color)
-
-            textView?.background = response.getDefaultBackground(itemView.resources)
-
             textView?.setOnClickListener {
                 callback.onSectionClicked(section)
             }
@@ -55,7 +51,7 @@ internal class SectionsAdapter(
     }
 
     interface Callback {
-        fun onSectionClicked(section: Response)
+        fun onSectionClicked(response: Response)
     }
 
 }

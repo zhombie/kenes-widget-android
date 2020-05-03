@@ -11,4 +11,6 @@
     <string name="kenes_send">Жіберу</string>
     <string name="kenes_satisfied_with_call">Сіз оператордың жауабына қанағаттанасыз ба?</string>
     <string name="kenes_typing">Теруде…</string>
+    <string name="kenes_all">Барлығы</string>
+    <string name="kenes_go_to_home">Бастапқы бетке</string>
 </resources>

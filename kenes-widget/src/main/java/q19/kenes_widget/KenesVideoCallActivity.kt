@@ -11,6 +11,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -36,7 +37,6 @@ import q19.kenes_widget.model.Message
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
-import kotlin.math.roundToInt
 
 class KenesVideoCallActivity : AppCompatActivity() {
 
@@ -115,8 +115,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var remoteSurfaceView: SurfaceViewRenderer? = null
     private var hangupButton: AppCompatImageButton? = null
 
-//    private var activeNavButtonIndex = 0
-    private var activeNavButtonIndex = 1
+    private var activeNavButtonIndex = 0
 
     private val navButtons
         get() = listOf(homeNavButton, videoNavButton, audioNavButton, infoNavButton)
@@ -149,18 +148,20 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private var activeDialog: Dialog? = null
 
-    private var isCategoriesShown: Boolean = false
-    private var isFilled: Boolean = false
+//    private var isCategoriesShown: Boolean = false
+//    private var isFilled: Boolean = false
 
     private var isInitiator = false
+
+    private var activeSection: Response? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_video_call)
 
         // TODO: Remove later, exhaustive on PROD
-//        UrlUtil.HOSTNAME = "https://kenes.vlx.kz"
-        UrlUtil.HOSTNAME = "https://rtc.vlx.kz"
+        UrlUtil.setHostname("https://kenes.vlx.kz")
+//        UrlUtil.setHostname("https://rtc.vlx.kz")
 
         /**
          * [Picasso] configuration
@@ -239,8 +240,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
         /**
          * Default active navigation button [homeNavButton]
          */
-//        setActiveNavButtonTintColor(homeNavButton)
-        setActiveNavButtonTintColor(videoNavButton)
+        setActiveNavButtonTintColor(homeNavButton)
+//        setActiveNavButtonTintColor(videoNavButton)
 
         /**
          * Default states of views
@@ -256,10 +257,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
         videoDialogView?.visibility = View.GONE
 
         feedbackView?.visibility = View.GONE
-//        videoCallView?.visibility = View.GONE
-//        recyclerView?.visibility = View.VISIBLE
-        videoCallView?.visibility = View.VISIBLE
-        recyclerView?.visibility = View.GONE
+        videoCallView?.visibility = View.GONE
+        recyclerView?.visibility = View.VISIBLE
         footerView?.visibility = View.VISIBLE
 
         // ------------------------------------------------------------------------
@@ -280,8 +279,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                 messages.clear()
 
-                isCategoriesShown = false
-                isFilled = false
+//                isCategoriesShown = false
+//                isFilled = false
 
                 videoCallButton?.isEnabled = true
                 videoCallInfoView?.text = null
@@ -406,7 +405,25 @@ class KenesVideoCallActivity : AppCompatActivity() {
             videoCallView?.visibility = View.VISIBLE
         }
 
-        chatAdapter = ChatAdapter()
+        chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
+            override fun onSectionClicked(section: Response) {
+                Toast.makeText(this@KenesVideoCallActivity, "section: $section", Toast.LENGTH_SHORT).show()
+
+                activeSection = section
+
+                val userDashboard = JSONObject()
+                userDashboard.put("action", "get_category_list")
+                userDashboard.put("parent_id", section.id)
+                socket?.emit("user_dashboard", userDashboard)
+            }
+
+            override fun onGoToHomeClicked() {
+                activeSection = null
+
+                chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
+                scrollToTop()
+            }
+        })
         recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView?.adapter = chatAdapter
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
@@ -517,7 +534,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private fun fetchWidgetConfigs() {
         try {
-            val asyncTask = HttpRequestHandler(url = UrlUtil.HOSTNAME + "/configs")
+            val asyncTask = HttpRequestHandler(url = UrlUtil.getHostname() + "/configs")
             val response = asyncTask.execute().get()
 
             val json = if (response.isNullOrBlank()) {
@@ -554,7 +571,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private fun fetchIceServers() {
         try {
-            val asyncTask = HttpRequestHandler(url = UrlUtil.HOSTNAME + "/ice_servers")
+            val asyncTask = HttpRequestHandler(url = UrlUtil.getHostname() + "/ice_servers")
             val response = asyncTask.execute().get()
 
             val json = if (response.isNullOrBlank()) {
@@ -604,26 +621,31 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun connectToSignallingServer() {
-        socket = IO.socket(UrlUtil.SIGNALLING_SERVER_URL)
+        val signallingServerUrl = UrlUtil.getSignallingServerUrl()
+        if (signallingServerUrl.isNullOrBlank()) {
+            throw NullPointerException("Signalling server url is null.")
+        } else {
+            socket = IO.socket(signallingServerUrl)
+        }
 
         socket?.on(Socket.EVENT_CONNECT) { args ->
             
             logD("event [EVENT_CONNECT]: $args")
 
-//            val userDashboard = JSONObject()
-//            userDashboard.put("action", "get_category_list")
-//            userDashboard.put("parent_id", 0)
-//            socket?.emit("user_dashboard", userDashboard)
+            val userDashboard = JSONObject()
+            userDashboard.put("action", "get_category_list")
+            userDashboard.put("parent_id", 0)
+            socket?.emit("user_dashboard", userDashboard)
 
-            // TODO: [START] There is no need on PROD
-            val id = "" + (Math.random() * 10000).roundToInt()
-            runOnUiThread {
-                idView.text = id
-            }
-            val reg = JSONObject()
-            reg.put("id", id)
-            socket?.emit("reg", reg)
-            // TODO: [END] There is no need on PROD
+//            // TODO: [START] There is no need on PROD
+//            val id = "" + (Math.random() * 10000).roundToInt()
+//            runOnUiThread {
+//                idView.text = id
+//            }
+//            val reg = JSONObject()
+//            reg.put("id", id)
+//            socket?.emit("reg", reg)
+//            // TODO: [END] There is no need on PROD
 
         }?.on("open") { args ->
 
@@ -698,14 +720,18 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 val categoryListJson = categoryList?.optJSONArray("category_list")
 
                 if (categoryListJson != null) {
-                    var categories = mutableListOf<Category>()
+                    var categories = mutableListOf<Response>()
                     for (i in 0 until categoryListJson.length()) {
                         val categoryJson = categoryListJson[i] as JSONObject
-                        categories.add(Category(
+                        var parentId: Long? = categoryJson.optLong("parent_id", -1L)
+                        if (parentId == -1L) {
+                            parentId = null
+                        }
+                        categories.add(Response(
                             id = categoryJson.optLong("id"),
                             title = categoryJson.optString("title"),
                             lang = categoryJson.optInt("lang"),
-                            parentId = categoryJson.optLong("parent_id", -1),
+                            parentId = parentId,
                             photo = categoryJson.optString("photo")
                         ))
                     }
@@ -713,9 +739,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     categories = categories.sortedBy { it.id }.toMutableList()
 
                     categories.forEachIndexed { index, category ->
-//                        logD("category: $category")
+                        logD("category: $category")
 
-                        if (category.parentId == null || category.parentId == -1L) {
+                        if (category.parentId == null) {
                             if (palette.isNotEmpty()) {
                                 category.color = palette[index]
                             }
@@ -726,29 +752,47 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             userDashboard.put("parent_id", category.id)
                             socket?.emit("user_dashboard", userDashboard)
                         } else {
-                            messages.map {
-                                if (it.category?.id == category.parentId) {
-                                    it.category?.sections?.add(category)
+                            if (category.parentId == activeSection?.id) {
+                                activeSection?.responses?.add(category)
+                            }
+
+                            messages.forEach { message ->
+                                if (message.response?.id == category.parentId) {
+                                    message.response?.responses?.add(category)
+                                } else {
+//                                    message.category?.sections?.forEach { section ->
+//                                        if (section.id == category.parentId) {
+//                                            section.sections.add(Section.from(category))
+//                                        }
+//                                    }
                                 }
                             }
-                            isFilled = true
+//                            isFilled = true
                         }
                     }
 
-                    val isMessagesNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.category?.sections.isNullOrEmpty() }
+                    logD("categories: $categories")
 
-                    if (!isCategoriesShown && isFilled && isMessagesNotEmpty) {
+                    val isMessagesNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.response?.responses.isNullOrEmpty() }
+
+//                    if (!isCategoriesShown && isFilled && isMessagesNotEmpty) {
+                    if (isMessagesNotEmpty) {
 //                        logD("FINAL ->>>>>>: " + messages.map { it.category?.id.toString() + " - " + it.category?.title + " -> " + it.category?.sections?.map { section -> section.id.toString() + " - " + section.title + " #" + section.parentId  }})
                         runOnUiThread {
-                            feedbackView?.visibility = View.GONE
-                            videoCallView?.visibility = View.GONE
-                            recyclerView?.visibility = View.VISIBLE
-                            footerView?.visibility = View.VISIBLE
+                            if (activeSection != null) {
+                                chatAdapter.setNewMessages(listOf(Message(Message.Type.SECTION, activeSection!!)))
+                                scrollToTop()
+                            } else {
+                                feedbackView?.visibility = View.GONE
+                                videoCallView?.visibility = View.GONE
+                                recyclerView?.visibility = View.VISIBLE
+                                footerView?.visibility = View.VISIBLE
 
-                            chatAdapter.setNewMessages(this.messages)
-                            scrollToTop()
+                                chatAdapter.setNewMessages(this.messages)
+                                scrollToTop()
 
-                            isCategoriesShown = true
+//                                isCategoriesShown = true
+                            }
                         }
                     }
                 }
@@ -1368,8 +1412,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
         super.onDestroy()
 
         activeDialog = null
-        isFilled = false
-        isCategoriesShown = false
+//        isFilled = false
+//        isCategoriesShown = false
         messages.clear()
 
         closeVideoCall()

@@ -4,50 +4,67 @@ internal object UrlUtil {
 
     private val URL_REGEX = """^(http://|https://)\w""".toRegex()
 
-    var HOSTNAME: String? = null
+    private var HOSTNAME: String? = null
 
     private const val STATIC_PATH = "/static/uploads/"
-
-//    const val SIGNALLING_SERVER_URL = "https://kenes2.vlx.kz/user"
-    const val SIGNALLING_SERVER_URL = "https://rtc.vlx.kz"
 
     fun getStaticUrl(path: String?): String? {
         if (path == null) {
             return null
         }
 
-        return HOSTNAME?.let {
-            if (it.isBlank()) {
-                null
+        val hostname = getHostname()
+        return if (!hostname.isNullOrBlank()) {
+            if (path.startsWith(STATIC_PATH)) {
+                hostname + path
             } else {
-                if (URL_REGEX.containsMatchIn(it)) {
-                    if (path.startsWith(STATIC_PATH)) {
-                        it + path
-                    } else {
-                        if (it.endsWith("/")) {
-                            it.dropLast(1) + STATIC_PATH + path
-                        } else {
-                            it + STATIC_PATH + path
-                        }
-                    }
+                if (hostname.endsWith("/")) {
+                    hostname.dropLast(1) + STATIC_PATH + path
                 } else {
-                    null
+                    hostname + STATIC_PATH + path
                 }
             }
+        } else {
+            return null
         }
     }
 
     fun getWidgetUrl(): String? {
-        return HOSTNAME?.let {
-            if (it.isBlank()) {
-                null
+        val hostname = getHostname()
+        return if (!hostname.isNullOrBlank()) {
+            "$hostname/admin/widget?is_mobile=true"
+        } else {
+            return null
+        }
+    }
+
+    fun getHostname(): String? {
+        val hostname = HOSTNAME
+        return if (!hostname.isNullOrBlank()) {
+            if (URL_REGEX.containsMatchIn(hostname)) {
+                HOSTNAME
             } else {
-                if (URL_REGEX.containsMatchIn(it)) {
-                    "$it/admin/widget?is_mobile=true"
-                } else {
-                    null
-                }
+                null
             }
+        } else {
+            null
+        }
+    }
+
+    fun setHostname(hostname: String) {
+        HOSTNAME = hostname
+    }
+
+    fun getSignallingServerUrl(): String? {
+        val hostname = getHostname()
+        return if (!hostname.isNullOrBlank()) {
+            when {
+                "kenes.vlx.kz" in hostname -> "https://kenes2.vlx.kz/user"
+                "rtc.vlx.kz" in hostname -> "https://rtc.vlx.kz"
+                else -> null
+            }
+        } else {
+            null
         }
     }
 

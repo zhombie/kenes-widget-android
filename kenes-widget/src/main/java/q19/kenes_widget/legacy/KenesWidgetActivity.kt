@@ -46,7 +46,7 @@ class KenesWidgetActivity : AppCompatActivity() {
         if (hostname.isNullOrBlank()) {
             throwError()
         } else {
-            UrlUtil.HOSTNAME = hostname
+            UrlUtil.setHostname(hostname)
         }
 
         bindViews()
