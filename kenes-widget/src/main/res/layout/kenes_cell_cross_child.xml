@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingEnd="10dp">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView"
@@ -14,7 +13,7 @@
         android:clickable="true"
         android:focusable="true"
         android:padding="10dp"
-        android:textColor="@color/kenes_blue"
+        android:textColor="@color/kenes_selector_button_text"
         tools:text="Регистрация бизнеса" />
 
 </LinearLayout>

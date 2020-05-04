@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
@@ -35,6 +36,8 @@ import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.HttpRequestHandler
 import q19.kenes_widget.util.CircleTransformation
+import q19.kenes_widget.util.JsonUtil.getNullableString
+import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.webrtc.SimpleSdpObserver
@@ -145,9 +148,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private var configs: Configs = Configs()
 
+    @get:Synchronized
+    @set:Synchronized
     private var messages: MutableList<Message> = mutableListOf()
+
+    @get:Synchronized
+    @set:Synchronized
     private var activeCategoryChild: Category? = null
 
+    @get:Synchronized
+    @set:Synchronized
     private var activeDialog: Dialog? = null
 
 //    private var isCategoriesShown: Boolean = false
@@ -374,9 +384,22 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 .show()
         }
 
-        inputView?.setOnEditorActionListener { v, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEND) {
+        inputView?.setOnEditorActionListener { v, actionId, keyEvent ->
+            logD("setOnEditorActionListener: $actionId, $keyEvent")
+
+            if (actionId == EditorInfo.IME_ACTION_SEND || keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
                 val text = v.text.toString()
+
+                if (text.isBlank()) {
+                    return@setOnEditorActionListener false
+                }
+
+                activeCategoryChild = null
+
+                if (chatAdapter.isAllMessagesAreCategory()) {
+                    chatAdapter.clearMessages()
+                }
+
                 sendUserTextMessage(text)
                 inputView?.text?.clear()
                 chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
@@ -384,6 +407,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@setOnEditorActionListener true
             }
             return@setOnEditorActionListener false
+        }
+
+        inputView?.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                scrollToBottom()
+            }
+        }
+
+        inputView?.setOnClickListener {
+            scrollToBottom()
         }
 
         hangupButton?.setOnClickListener {
@@ -411,28 +444,39 @@ class KenesVideoCallActivity : AppCompatActivity() {
             override fun onReturnBackClicked(category: Category) {
                 activeCategoryChild = null
 
-                val previous = messages.filter {
-                    it.category?.id == category.parentId
-                }
+//                val previous = treeByParent(category)
 
-                val isPreviousIsAHome = previous.all { it.category?.home == true }
+//                val previous = messages.filter {
+//                    it.category?.id == category.parentId
+//                }
+//
+//                logD("previous: $previous")
+//
+//                val isPreviousIsAHome = previous.all { it.category?.home == true }
 
-                if (isPreviousIsAHome) {
-                    chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
-                    scrollToTop()
-                } else {
-                    chatAdapter.setNewMessages(previous)
-                    scrollToTop()
-                }
+//                if (isPreviousIsAHome) {
+                chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
+                scrollToTop()
+//                } else {
+//                    chatAdapter.setNewMessages(previous)
+//                    scrollToTop()
+//                }
             }
 
             override fun onCategoryChildClicked(category: Category) {
                 activeCategoryChild = category
 
-                val userDashboard = JSONObject()
-                userDashboard.put("action", "get_category_list")
-                userDashboard.put("parent_id", category.id)
-                socket?.emit("user_dashboard", userDashboard)
+                if (category.responses.isNotEmpty()) {
+                    val userDashboard = JSONObject()
+                    userDashboard.put("action", "get_response")
+                    userDashboard.put("id", category.responses.first())
+                    socket?.emit("user_dashboard", userDashboard)
+                } else {
+                    val userDashboard = JSONObject()
+                    userDashboard.put("action", "get_category_list")
+                    userDashboard.put("parent_id", category.id)
+                    socket?.emit("user_dashboard", userDashboard)
+                }
             }
 
             override fun onGoToHomeClicked() {
@@ -733,7 +777,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             if (args.size == 1) {
                 val categoryList = args[0] as? JSONObject?
-                logD("categoryListJson: $categoryList")
+//                logD("categoryListJson: $categoryList")
 
                 val categoryListJson = categoryList?.optJSONArray("category_list")
 
@@ -750,7 +794,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             title = categoryJson.optString("title"),
                             lang = categoryJson.optInt("lang"),
                             parentId = parentId,
-                            photo = categoryJson.optString("photo")
+                            photo = categoryJson.optString("photo"),
+                            responses = categoryJson.optJSONArrayAsList("responses")
                         ))
                     }
 
@@ -775,43 +820,49 @@ class KenesVideoCallActivity : AppCompatActivity() {
                                 activeCategoryChild?.children?.add(category)
                             }
 
-                            messages.forEach { message ->
-                                if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
-                                    message.category?.children?.add(category)
-                                } else {
-//                                    message.category?.sections?.forEach { section ->
-//                                        if (section.id == category.parentId) {
-//                                            section.sections.add(Section.from(category))
-//                                        }
-//                                    }
+//                            messages.forEach { message ->
+//                                if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
+//                                    message.category?.children?.add(category)
+//                                } else {
+////                                    message.category?.sections?.forEach { section ->
+////                                        if (section.id == category.parentId) {
+////                                            section.sections.add(Section.from(category))
+////                                        }
+////                                    }
+//                                }
+//                            }
+
+                            if (activeCategoryChild == null) {
+                                messages.forEach { message ->
+                                    if (message.category?.id == category.parentId) {
+                                        message.category?.children?.add(category)
+                                    }
                                 }
+                            } else {
+//                                val message = Message(Message.Type.CROSS_CHILDREN, category)
+//                                    if (!messages.contains(message)) {
+//                                    messages.add(message)
+//                                }
                             }
-//                            isFilled = true
                         }
                     }
 
-                    logD("categories: $categories")
-
-                    val isMessagesNotEmpty = !messages.isNullOrEmpty() && messages.all { !it.category?.children.isNullOrEmpty() }
-
-//                    if (!isCategoriesShown && isFilled && isMessagesNotEmpty) {
-                    if (isMessagesNotEmpty) {
-//                        logD("FINAL ->>>>>>: " + messages.map { it.category?.id.toString() + " - " + it.category?.title + " -> " + it.category?.sections?.map { section -> section.id.toString() + " - " + section.title + " #" + section.parentId  }})
+                    if (!messages.isNullOrEmpty() && messages.all { !it.category?.children.isNullOrEmpty() } && activeCategoryChild == null) {
                         runOnUiThread {
-                            if (activeCategoryChild != null) {
-                                chatAdapter.setNewMessages(listOf(Message(Message.Type.CROSS_CHILDREN, activeCategoryChild)))
-                                scrollToTop()
-                            } else {
-                                feedbackView?.visibility = View.GONE
-                                videoCallView?.visibility = View.GONE
-                                recyclerView?.visibility = View.VISIBLE
-                                footerView?.visibility = View.VISIBLE
+                            feedbackView?.visibility = View.GONE
+                            videoCallView?.visibility = View.GONE
+                            recyclerView?.visibility = View.VISIBLE
+                            footerView?.visibility = View.VISIBLE
 
-                                chatAdapter.setNewMessages(this.messages)
-                                scrollToTop()
+                            chatAdapter.setNewMessages(messages)
+                            scrollToTop()
+                        }
+                    } else {
+                        runOnUiThread {
+                            val activeCategoryChildMessage = Message(Message.Type.CROSS_CHILDREN, activeCategoryChild)
 
-//                                isCategoriesShown = true
-                            }
+                            chatAdapter.setNewMessages(listOf(activeCategoryChildMessage))
+                            scrollToTop()
                         }
                     }
                 }
@@ -960,112 +1011,112 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 logD("message: $message")
 
 //                [START] MESSAGE HANDLER FOR rtc.vlx.kz
-                val rtc = message?.optJSONObject("rtc")
-                val type = rtc?.optString("type")
-
-                if (type == "start") {
+//                val rtc = message?.optJSONObject("rtc")
+//                val type = rtc?.optString("type")
+//
+//                if (type == "start") {
+////                    sendOffer()
+//
+//                    val message2 = JSONObject()
+//                    val rtc2 = JSONObject()
+//                    rtc2.put("type", "prepare")
+//                    message2.put("rtc", rtc2)
+//                    socket?.emit("message", message2)
+//                }
+//
+//                if (type == "prepare") {
+//                    videoCallInitialize()
+//
+//                    runOnUiThread {
+//                        videoCallButton?.isEnabled = false
+//                        videoCallInfoView?.text = null
+//                        videoCallView?.visibility = View.GONE
+//                        recyclerView?.visibility = View.VISIBLE
+//
+//                        videoDialogView?.visibility = View.VISIBLE
+//                    }
+//
+//                    val message2 = JSONObject()
+//                    val rtc2 = JSONObject()
+//                    rtc2.put("type", "ready")
+//                    message2.put("rtc", rtc2)
+//                    socket?.emit("message", message2)
+//                }
+//
+//                if (type == "ready") {
+//                    videoCallInitialize()
+//
+//                    runOnUiThread {
+//                        videoCallButton?.isEnabled = false
+//                        videoCallInfoView?.text = null
+//                        videoCallView?.visibility = View.GONE
+//                        recyclerView?.visibility = View.VISIBLE
+//
+//                        videoDialogView?.visibility = View.VISIBLE
+//                    }
+//
 //                    sendOffer()
-
-                    val message2 = JSONObject()
-                    val rtc2 = JSONObject()
-                    rtc2.put("type", "prepare")
-                    message2.put("rtc", rtc2)
-                    socket?.emit("message", message2)
-                }
-
-                if (type == "prepare") {
-                    videoCallInitialize()
-
-                    runOnUiThread {
-                        videoCallButton?.isEnabled = false
-                        videoCallInfoView?.text = null
-                        videoCallView?.visibility = View.GONE
-                        recyclerView?.visibility = View.VISIBLE
-
-                        videoDialogView?.visibility = View.VISIBLE
-                    }
-
-                    val message2 = JSONObject()
-                    val rtc2 = JSONObject()
-                    rtc2.put("type", "ready")
-                    message2.put("rtc", rtc2)
-                    socket?.emit("message", message2)
-                }
-
-                if (type == "ready") {
-                    videoCallInitialize()
-
-                    runOnUiThread {
-                        videoCallButton?.isEnabled = false
-                        videoCallInfoView?.text = null
-                        videoCallView?.visibility = View.GONE
-                        recyclerView?.visibility = View.VISIBLE
-
-                        videoDialogView?.visibility = View.VISIBLE
-                    }
-
-                    sendOffer()
-                }
-
-                if (type == "answer") {
-                    peerConnection?.setRemoteDescription(
-                        SimpleSdpObserver(),
-                        SessionDescription(SessionDescription.Type.ANSWER, rtc.optString("sdp"))
-                    )
-                }
-
-                if (type == "candidate") {
-                    peerConnection?.addIceCandidate(IceCandidate(
-                        rtc.getString("id"),
-                        rtc.getInt("label"),
-                        rtc.getString("candidate")
-                    ))
-                }
-
-                if (type == "offer") {
-                    peerConnection?.setRemoteDescription(
-                        SimpleSdpObserver(),
-                        SessionDescription(SessionDescription.Type.OFFER, rtc.getString("sdp"))
-                    )
-
-                    sendAnswer()
-
-                    runOnUiThread {
-                        videoCallButton?.isEnabled = false
-                        videoCallInfoView?.text = null
-                        videoCallView?.visibility = View.GONE
-                        recyclerView?.visibility = View.VISIBLE
-
-//                        videoCallInitialize()
-
-                        videoDialogView?.visibility = View.VISIBLE
-                    }
-                }
-
-                if (type == "hangup") {
-                    isInitiator = false
-
-                    closeVideoCall()
-
-                    runOnUiThread {
-                        videoDialogView?.visibility = View.GONE
-                        recyclerView?.visibility = View.GONE
-                        videoCallButton?.isEnabled = true
-                        videoCallInfoView?.text = null
-                        videoCallInfoView?.visibility = View.GONE
-                        videoCallView?.visibility = View.VISIBLE
-                    }
-                }
+//                }
+//
+//                if (type == "answer") {
+//                    peerConnection?.setRemoteDescription(
+//                        SimpleSdpObserver(),
+//                        SessionDescription(SessionDescription.Type.ANSWER, rtc.optString("sdp"))
+//                    )
+//                }
+//
+//                if (type == "candidate") {
+//                    peerConnection?.addIceCandidate(IceCandidate(
+//                        rtc.getString("id"),
+//                        rtc.getInt("label"),
+//                        rtc.getString("candidate")
+//                    ))
+//                }
+//
+//                if (type == "offer") {
+//                    peerConnection?.setRemoteDescription(
+//                        SimpleSdpObserver(),
+//                        SessionDescription(SessionDescription.Type.OFFER, rtc.getString("sdp"))
+//                    )
+//
+//                    sendAnswer()
+//
+//                    runOnUiThread {
+//                        videoCallButton?.isEnabled = false
+//                        videoCallInfoView?.text = null
+//                        videoCallView?.visibility = View.GONE
+//                        recyclerView?.visibility = View.VISIBLE
+//
+////                        videoCallInitialize()
+//
+//                        videoDialogView?.visibility = View.VISIBLE
+//                    }
+//                }
+//
+//                if (type == "hangup") {
+//                    isInitiator = false
+//
+//                    closeVideoCall()
+//
+//                    runOnUiThread {
+//                        videoDialogView?.visibility = View.GONE
+//                        recyclerView?.visibility = View.GONE
+//                        videoCallButton?.isEnabled = true
+//                        videoCallInfoView?.text = null
+//                        videoCallInfoView?.visibility = View.GONE
+//                        videoCallView?.visibility = View.VISIBLE
+//                    }
+//                }
 //                [END] MESSAGE HANDLER FOR rtc.vlx.kz
 
                 if (message != null) {
                     val type = message.optString("type")
-                    val text = message.optString("text")
+                    val text = message.getNullableString("text")
                     val noOnline = message.optBoolean("no_online")
                     val id = message.optString("id")
-                    val action = message.optString("action")
+                    val action = message.getNullableString("action")
                     val time = message.optLong("time")
-                    val sender = message.optString("sender")
+                    val sender = message.getNullableString("sender")
 
                     if (noOnline) {
                         runOnUiThread {
@@ -1109,36 +1160,43 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                            infoView?.visibility = View.GONE
                         }
                     } else {
-                        val activeDialogOperatorId = activeDialog?.operatorId
+                        if (activeDialog == null) {
+                            logD("text: $text")
 
-                        val isSenderIdsNullOrBlank = sender.isBlank() && activeDialogOperatorId.isNullOrBlank()
-                        val isSenderIdsSame = sender.isNotBlank() && !activeDialogOperatorId.isNullOrBlank() && sender == activeDialogOperatorId
+//                                if (type == "offer") {
+//                                    logD("connectToSignallingServer: OFFER")
+//                                } else if (type == "accept") {
+//                                    logD("connectToSignallingServer: ACCEPT:")
+//                                    val rtc = message.optJSONObject("rtc")
+//                                    logD("connectToSignallingServer: RTC: $rtc")
+//                                }
 
-                        if (isSenderIdsNullOrBlank || isSenderIdsSame) {
-                            if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
-                                runOnUiThread {
-                                    activeDialog = null
-
-                                    videoCallButton?.isEnabled = false
-                                    videoCallInfoView?.text = text
-                                    videoCallInfoView?.visibility = View.VISIBLE
-
-                                    chatAdapter.addNewMessage(
-                                        Message(Message.Type.OPPONENT, text, time)
-                                    )
+                            runOnUiThread {
+                                if (activeCategoryChild != null) {
+                                    chatAdapter.setNewMessages(listOf(Message(Message.Type.RESPONSE, text, time, activeCategoryChild)))
                                     scrollToBottom()
-                                }
-                            } else {
-                                if (type == "offer") {
-                                    logD("connectToSignallingServer: OFFER")
-                                } else if (type == "accept") {
-                                    logD("connectToSignallingServer: ACCEPT:")
-                                    val rtc = message.optJSONObject("rtc")
-                                    logD("connectToSignallingServer: RTC: $rtc")
+                                } else {
+                                    chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                                    scrollToBottom()
                                 }
                             }
                         } else {
-                            Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
+                            if (!sender.isNullOrBlank() && !activeDialog?.operatorId.isNullOrBlank() && sender == activeDialog?.operatorId) {
+                                if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
+                                    runOnUiThread {
+                                        activeDialog = null
+
+                                        videoCallButton?.isEnabled = false
+                                        videoCallInfoView?.text = text
+                                        videoCallInfoView?.visibility = View.VISIBLE
+
+                                        chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                                        scrollToBottom()
+                                    }
+                                }
+                            } else {
+                                Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
+                            }
                         }
                     }
                 }
@@ -1458,7 +1516,76 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun logD(message: String) {
-        Log.d(TAG, message)
+//        Log.d(TAG, message)
+        if (message.length > 4000) {
+            Log.d(TAG, message.substring(0, 4000))
+            logD(message.substring(4000))
+        } else {
+            Log.d(TAG, message)
+        }
+    }
+
+    private fun treeByChildren(category: Category?): List<Category> {
+        fun inner(children: MutableList<Category>): List<Category> {
+            val categories = children.filter {
+                it.id == category?.id
+            }
+            return if (categories.isEmpty()) {
+                children.flatMap { inner(it.children) }
+            } else {
+                categories
+            }
+        }
+
+        return messages.flatMap { message ->
+            val children = message.category?.children
+            return when {
+                children.isNullOrEmpty() -> {
+                    listOf()
+                }
+                message.category?.id == category?.id -> {
+                    children
+                }
+                else -> {
+                    inner(children)
+                }
+            }
+        }
+    }
+
+    private fun treeByParent(category: Category?): List<Category> {
+        fun inner(children: MutableList<Category>): List<Category> {
+            val categories = children.filter {
+                it.id == category?.parentId
+            }
+            return if (categories.isEmpty()) {
+                children.flatMap { inner(it.children) }
+            } else {
+                categories
+            }
+//            return children.flatMap {
+//                if (it.id == category?.parentId) {
+//                    it.children
+//                } else {
+//                    inner(it.children)
+//                }
+//            }
+        }
+
+        return messages.flatMap { message ->
+            val children = message.category?.children
+            return when {
+                children.isNullOrEmpty() -> {
+                    listOf()
+                }
+                message.category?.id == category?.parentId -> {
+                    children
+                }
+                else -> {
+                    inner(children)
+                }
+            }
+        }
     }
 
 }

@@ -2,6 +2,7 @@ package q19.kenes_widget.adapter
 
 import android.content.Context
 import android.graphics.Rect
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +26,7 @@ internal class ChatAdapter(
         val LAYOUT_TYPING = R.layout.kenes_cell_typing
         val LAYOUT_CATEGORY = R.layout.kenes_cell_category
         val LAYOUT_CROSS_CHILDREN = R.layout.kenes_cell_cross_children
+        val LAYOUT_RESPONSE = R.layout.kenes_cell_response
     }
 
     private var messages: MutableList<Message> = mutableListOf()
@@ -41,7 +43,7 @@ internal class ChatAdapter(
     }
 
     fun setNewMessages(messages: List<Message>) {
-        Log.d("LOL", "setNewMessages(messages: $messages)")
+//        Log.d("LOL", "setNewMessages(messages: $messages)")
         if (messages.isNotEmpty()) {
             this.messages.clear()
         }
@@ -65,6 +67,10 @@ internal class ChatAdapter(
         return !messages.isNullOrEmpty()
     }
 
+    fun isAllMessagesAreCategory(): Boolean {
+        return messages.all { it.type == Message.Type.CATEGORY || it.type == Message.Type.CROSS_CHILDREN || it.type == Message.Type.RESPONSE }
+    }
+
     override fun getItemCount(): Int = messages.size
 
     override fun getItemViewType(position: Int): Int {
@@ -79,6 +85,8 @@ internal class ChatAdapter(
                 LAYOUT_CATEGORY
             Message.Type.CROSS_CHILDREN ->
                 LAYOUT_CROSS_CHILDREN
+            Message.Type.RESPONSE ->
+                LAYOUT_RESPONSE
             else ->
                 LAYOUT_OPPONENT_MESSAGE
         }
@@ -95,6 +103,7 @@ internal class ChatAdapter(
             LAYOUT_TYPING -> TypingViewHolder(view)
             LAYOUT_CATEGORY -> CategoryViewHolder(view)
             LAYOUT_CROSS_CHILDREN -> CrossChildrenViewHolder(view)
+            LAYOUT_RESPONSE -> ResponseViewHolder(view)
             else -> OpponentMessageViewHolder(view)
         }
     }
@@ -120,6 +129,10 @@ internal class ChatAdapter(
             }
         } else if (message.type == Message.Type.CROSS_CHILDREN) {
             if (holder is CrossChildrenViewHolder) {
+                holder.bind(message)
+            }
+        } else if (message.type == Message.Type.RESPONSE) {
+            if (holder is ResponseViewHolder) {
                 holder.bind(message)
             }
         } else if (message.type == Message.Type.OPPONENT) {
@@ -279,6 +292,34 @@ internal class ChatAdapter(
                 super.getItemOffsets(outRect, view, parent, state)
 
                 outRect.bottom = verticalSpacing
+            }
+        }
+    }
+
+    private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private var titleView: TextView? = null
+        private var textView: TextView? = null
+        private var timeView: TextView? = null
+
+        init {
+            titleView = view.findViewById(R.id.titleView)
+            textView = view.findViewById(R.id.textView)
+            timeView = view.findViewById(R.id.timeView)
+
+            textView?.movementMethod = LinkMovementMethod.getInstance()
+        }
+
+        fun bind(message: Message) {
+            val category = message.category
+
+            if (category != null) {
+                titleView?.text = message.category?.title
+                textView?.setText(message.htmlText, TextView.BufferType.SPANNABLE)
+                timeView?.text = message.time
+
+                titleView?.setOnClickListener {
+                    callback.onReturnBackClicked(category)
+                }
             }
         }
     }

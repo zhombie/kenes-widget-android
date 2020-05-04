@@ -13,6 +13,7 @@ internal class Category(
     var parentId: Long? = null,
     var photo: String? = null,
     var children: MutableList<Category> = mutableListOf(),
+    var responses: MutableList<Int> = mutableListOf(),
 
 //    Local system variables
     var home: Boolean = false,
@@ -61,7 +62,7 @@ internal class Category(
     }
 
     override fun toString(): String {
-        return "Category(id=$id, title=\"$title\", parentId=$parentId, children=$children])"
+        return "Category(id=$id, title=\"$title\", parentId=$parentId, children=$children, responses=$responses)"
     }
 
 }
