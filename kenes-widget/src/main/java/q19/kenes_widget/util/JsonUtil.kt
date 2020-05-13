@@ -27,4 +27,14 @@ object JsonUtil {
         return if (isNull(key)) null else optString(key)
     }
 
+    fun jsonObject(lambda: JSONObject.() -> Unit): JSONObject {
+        val jsonObject = JSONObject()
+        try {
+            jsonObject.apply(lambda)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return jsonObject
+    }
+
 }

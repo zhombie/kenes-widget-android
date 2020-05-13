@@ -1,301 +1,332 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:orientation="vertical"
     android:fitsSystemWindows="true">
 
-    <RelativeLayout
-        android:id="@+id/headerView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:padding="15dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/opponentAvatarView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="10dp"
-            tools:src="@tools:sample/avatars" />
-
-        <TextView
-            android:id="@+id/opponentNameView"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/headerView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@id/opponentAvatarView"
-            android:layout_toEndOf="@id/opponentAvatarView"
-            android:fontFamily="sans-serif"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            tools:text="Kenes" />
+            android:background="@color/white"
+            android:padding="15dp">
 
-        <TextView
-            android:id="@+id/opponentSecondNameView"
-            android:layout_width="wrap_content"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/opponentAvatarView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginEnd="10dp"
+                tools:src="@tools:sample/avatars" />
+
+            <TextView
+                android:id="@+id/opponentNameView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/opponentAvatarView"
+                android:layout_toEndOf="@id/opponentAvatarView"
+                android:fontFamily="sans-serif"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                tools:text="Kenes" />
+
+            <TextView
+                android:id="@+id/opponentSecondNameView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/opponentNameView"
+                android:layout_alignStart="@id/opponentNameView"
+                android:layout_marginTop="1dp"
+                android:fontFamily="sans-serif"
+                android:textColor="#40000000"
+                android:textSize="13sp"
+                tools:text="Smart Bot" />
+
+        </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="15dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="5"
+            tools:listitem="@layout/kenes_cell_my_message" />
+
+        <LinearLayout
+            android:id="@+id/videoCallView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/videoCallButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@drawable/kenes_bg_button_4dp"
+                android:paddingStart="20dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="12dp"
+                android:text="@string/kenes_video_call"
+                android:textAllCaps="false"
+                android:textColor="@color/kenes_selector_button_text" />
+
+            <TextView
+                android:id="@+id/videoCallInfoView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="14dp"
+                android:text=""
+                android:textColor="#909399"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/feedbackView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/opponentNameView"
-            android:layout_alignStart="@id/opponentNameView"
-            android:layout_marginTop="1dp"
-            android:fontFamily="sans-serif"
-            android:textColor="#40000000"
-            android:textSize="13sp"
-            tools:text="Smart Bot" />
+            android:layout_weight="1"
+            android:background="@color/white"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="gone">
 
-        <TextView
-            android:id="@+id/idView"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/titleView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="sans-serif-medium"
+                android:lineSpacingExtra="3sp"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                tools:text="Удовлетворены ли вы ответом оператора?" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/ratingView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical"
+                android:overScrollMode="never"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3"
+                tools:listitem="@layout/kenes_cell_rating" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/rateButton"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/kenes_bg_button_4dp"
+                android:enabled="false"
+                android:paddingStart="15dp"
+                android:paddingTop="9dp"
+                android:paddingEnd="15dp"
+                android:paddingBottom="9dp"
+                android:text="@string/kenes_send"
+                android:textAllCaps="false"
+                android:textColor="@color/kenes_selector_button_text" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/footerView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="7dp"
-            android:layout_marginEnd="15dp"
-            android:fontFamily="sans-serif-medium"
-            android:textColor="@color/red"
-            android:textSize="17sp"
-            tools:text="12345" />
+            android:background="@color/white"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="15dp">
 
-    </RelativeLayout>
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/inputView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/kenes_bg_message"
+                android:fontFamily="sans-serif"
+                android:gravity="center_vertical"
+                android:hint="@string/kenes_message"
+                android:imeOptions="actionSend"
+                android:maxLength="500"
+                android:maxLines="1"
+                android:minHeight="56dp"
+                android:paddingStart="15dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="15dp"
+                android:paddingBottom="10dp"
+                android:singleLine="true"
+                android:textColor="@color/kenes_black"
+                android:textSize="16sp" />
 
-    <FrameLayout
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/attachmentButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="5dp"
+                android:src="@drawable/kenes_ic_attachment" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#F3F3F3" />
+
+        <LinearLayout
+            android:id="@+id/navigationView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom|center_horizontal"
+            android:orientation="horizontal"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/homeButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:src="@drawable/kenes_ic_home" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/videoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:src="@drawable/kenes_ic_camera" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/audioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:src="@drawable/kenes_ic_headphones" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/infoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:src="@drawable/kenes_ic_list" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
         android:id="@+id/videoDialogView"
         android:layout_width="match_parent"
-        android:layout_height="350dp">
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
 
         <org.webrtc.SurfaceViewRenderer
             android:id="@+id/remoteSurfaceView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp" />
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true" />
 
         <org.webrtc.SurfaceViewRenderer
             android:id="@+id/localSurfaceView"
-            android:layout_width="125dp"
-            android:layout_height="150dp"
-            android:layout_gravity="top|end"
-            android:layout_margin="5dp" />
+            android:layout_width="160dp"
+            android:layout_height="213.3dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:elevation="10dp" />
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/goToChatButton"
+            android:layout_width="47dp"
+            android:layout_height="47dp"
+            android:layout_alignTop="@id/hangupButton"
+            android:layout_alignBottom="@id/hangupButton"
+            android:layout_toStartOf="@id/hangupButton"
+            android:background="@null"
+            android:clickable="true"
+            android:elevation="10dp"
+            android:focusable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/kenes_selector_chat_message" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/hangupButton"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_margin="10dp"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="40dp"
             android:background="@null"
             android:clickable="true"
+            android:elevation="10dp"
             android:focusable="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/kenes_ic_phone" />
-
-    </FrameLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="15dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="5"
-        tools:listitem="@layout/kenes_cell_my_message" />
-
-    <LinearLayout
-        android:id="@+id/videoCallView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/videoCallButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:background="@drawable/kenes_bg_button_4dp"
-            android:paddingStart="20dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="12dp"
-            android:text="@string/kenes_video_call"
-            android:textAllCaps="false"
-            android:textColor="@color/kenes_selector_button_text" />
-
-        <TextView
-            android:id="@+id/videoCallInfoView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="14dp"
-            android:text=""
-            android:textColor="#909399"
-            android:textSize="14sp"
-            android:visibility="gone" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/feedbackView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="@color/white"
-        android:gravity="center_vertical"
-        android:orientation="vertical"
-        android:padding="10dp"
-        android:visibility="gone">
-
-        <TextView
-            android:id="@+id/titleView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="15dp"
-            android:fontFamily="sans-serif-medium"
-            android:lineSpacingExtra="3sp"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            tools:text="Удовлетворены ли вы ответом оператора?" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/ratingView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:orientation="vertical"
-            android:overScrollMode="never"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="3"
-            tools:listitem="@layout/kenes_cell_rating" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/rateButton"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:background="@drawable/kenes_bg_button_4dp"
-            android:enabled="false"
-            android:paddingStart="15dp"
-            android:paddingTop="9dp"
-            android:paddingEnd="15dp"
-            android:paddingBottom="9dp"
-            android:text="@string/kenes_send"
-            android:textAllCaps="false"
-            android:textColor="@color/kenes_selector_button_text" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/footerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:orientation="horizontal"
-        android:paddingStart="15dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="15dp"
-        android:paddingBottom="15dp">
-
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/inputView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/kenes_bg_message"
-            android:fontFamily="sans-serif"
-            android:gravity="center_vertical"
-            android:hint="@string/kenes_message"
-            android:imeOptions="actionSend"
-            android:maxLength="500"
-            android:maxLines="1"
-            android:minHeight="56dp"
-            android:paddingStart="15dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="15dp"
-            android:paddingBottom="10dp"
-            android:singleLine="true"
-            android:textColor="@color/kenes_black"
-            android:textSize="16sp" />
+            android:src="@drawable/kenes_selector_phone" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/attachmentButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="5dp"
-            android:src="@drawable/kenes_ic_attachment" />
+            android:id="@+id/switchSourceButton"
+            android:layout_width="47dp"
+            android:layout_height="47dp"
+            android:layout_alignTop="@id/hangupButton"
+            android:layout_alignBottom="@id/hangupButton"
+            android:layout_toEndOf="@id/hangupButton"
+            android:background="@null"
+            android:clickable="true"
+            android:elevation="10dp"
+            android:focusable="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/kenes_selector_display" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#F3F3F3" />
-
-    <LinearLayout
-        android:id="@+id/navigationView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp">
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/homeButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_headphones" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/videoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_camera" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/audioButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_headphones" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/infoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_list" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

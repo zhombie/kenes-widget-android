@@ -9,8 +9,8 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +37,7 @@ import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.HttpRequestHandler
 import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.JsonUtil.getNullableString
+import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
@@ -112,12 +113,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var infoNavButton: AppCompatImageButton? = null
 
     /**
-     * Video dialog view variables: [videoDialogView], [localSurfaceView], [remoteSurfaceView], [hangupButton]
+     * Video dialog view variables: [videoDialogView], [localSurfaceView], [remoteSurfaceView],
+     * [goToChatButton], [hangupButton], [switchSourceButton]
      */
-    private var videoDialogView: FrameLayout? = null
+    private var videoDialogView: RelativeLayout? = null
     private var localSurfaceView: SurfaceViewRenderer? = null
     private var remoteSurfaceView: SurfaceViewRenderer? = null
+    private var goToChatButton: AppCompatImageButton? = null
     private var hangupButton: AppCompatImageButton? = null
+    private var switchSourceButton: AppCompatImageButton? = null
 
     private var activeNavButtonIndex = 0
 
@@ -133,12 +137,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
 
-    private var audioSource: AudioSource? = null
-    private var videoSource: VideoSource? = null
+    private var localAudioSource: AudioSource? = null
+    private var localVideoSource: VideoSource? = null
 
     private var localMediaStream: MediaStream? = null
 
-    private var videoCapturer: VideoCapturer? = null
+    private var localVideoCapturer: VideoCapturer? = null
 
     private var localAudioTrack: AudioTrack? = null
     private var remoteAudioTrack: AudioTrack? = null
@@ -160,9 +164,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
     @set:Synchronized
     private var activeDialog: Dialog? = null
 
-//    private var isCategoriesShown: Boolean = false
-//    private var isFilled: Boolean = false
-
     private var isInitiator = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -171,7 +172,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         // TODO: Remove later, exhaustive on PROD
         UrlUtil.setHostname("https://kenes.vlx.kz")
-//        UrlUtil.setHostname("https://rtc.vlx.kz")
 
         /**
          * [Picasso] configuration
@@ -235,12 +235,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         /**
          * Bind [R.id.videoDialogView] views: [R.id.localSurfaceView], [R.id.remoteSurfaceView],
-         * [R.id.hangupButton].
+         * [R.id.hangupButton], [R.id.goToChatButton], [R.id.switchSourceButton].
          */
         videoDialogView = findViewById(R.id.videoDialogView)
         localSurfaceView = findViewById(R.id.localSurfaceView)
         remoteSurfaceView = findViewById(R.id.remoteSurfaceView)
+        goToChatButton = findViewById(R.id.goToChatButton)
         hangupButton = findViewById(R.id.hangupButton)
+        switchSourceButton = findViewById(R.id.switchSourceButton)
 
         // ------------------------------------------------------------------------
 
@@ -250,8 +252,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
         /**
          * Default active navigation button [homeNavButton]
          */
-        setActiveNavButtonTintColor(homeNavButton)
-//        setActiveNavButtonTintColor(videoNavButton)
+        when (activeNavButtonIndex) {
+            0 -> setActiveNavButtonTintColor(homeNavButton)
+            1 -> setActiveNavButtonTintColor(videoNavButton)
+            2 -> setActiveNavButtonTintColor(audioNavButton)
+            3 -> setActiveNavButtonTintColor(infoNavButton)
+        }
 
         /**
          * Default states of views
@@ -275,7 +281,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
 
         /**
-         * Configuration of action listeners (click/touch)
+         * Configuration of home bottom navigation button action listeners (click/touch)
          */
         homeNavButton?.setOnClickListener {
             if (feedbackView?.visibility == View.VISIBLE) {
@@ -290,9 +296,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 messages.clear()
 
                 activeCategoryChild = null
-
-//                isCategoriesShown = false
-//                isFilled = false
 
                 videoCallButton?.isEnabled = true
                 videoCallInfoView?.text = null
@@ -318,10 +321,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
             videoCallInfoView?.text = null
             videoCallInfoView?.visibility = View.GONE
 
+            footerView?.visibility = View.GONE
             feedbackView?.visibility = View.GONE
             recyclerView?.visibility = View.GONE
             videoCallView?.visibility = View.VISIBLE
-            footerView?.visibility = View.VISIBLE
         }
 
         audioNavButton?.setOnClickListener {
@@ -342,35 +345,21 @@ class KenesVideoCallActivity : AppCompatActivity() {
             }
         }
 
+        /**
+         * Configuration of other button action listeners (click/touch)
+         */
         videoCallButton?.setOnClickListener {
             activeDialog = null
 
             isInitiator = true
 
-//            [BEGIN] Widget video call initialization in kenes.vlx.kz
-//            val initialize = JSONObject()
-//            initialize.put("video", true)
-//            socket?.emit("initialize", initialize)
-//            [END] Widget video call initialization in kenes.vlx.kz
-
-//            [BEGIN] Widget video call initialization in rtc.vlx.kz
-            val call = JSONObject()
-            call.put("to", inputView?.text.toString())
-            socket?.emit("call", call)
-//            [END] Widget video call initialization in rtc.vlx.kz
-
             inputView?.text?.clear()
+            chatAdapter.clearMessages()
 
-//            videoCallButton?.isEnabled = false
-//            videoCallInfoView?.text = null
-//            videoCallView?.visibility = View.GONE
-//            recyclerView?.visibility = View.VISIBLE
-//
-//            videoCallInitialize()
-//
-//            videoDialogView?.visibility = View.VISIBLE
-//
-//            sendOffer()
+            socket?.emit("initialize", jsonObject { put("video", true) })
+
+            videoCallButton?.isEnabled = false
+            videoCallInfoView?.text = null
         }
 
         start()
@@ -419,18 +408,18 @@ class KenesVideoCallActivity : AppCompatActivity() {
             scrollToBottom()
         }
 
+        goToChatButton?.setOnClickListener {
+            videoDialogView?.visibility = View.INVISIBLE
+        }
+
         hangupButton?.setOnClickListener {
             isInitiator = false
 
-//            [BEGIN] Widget active video call hangup in rtc.vlx.kz
-            val message = JSONObject()
-            val rtc = JSONObject()
-            rtc.put("type", "hangup")
-            message.put("rtc", rtc)
-            socket?.emit("message", message)
-//            [END] Widget active video call hangup in rtc.vlx.kz
+            sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
 
             closeVideoCall()
+
+            socket?.close()
 
             videoDialogView?.visibility = View.GONE
             recyclerView?.visibility = View.GONE
@@ -438,6 +427,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
             videoCallButton?.isEnabled = true
             videoCallInfoView?.text = null
             videoCallView?.visibility = View.VISIBLE
+
+            activeNavButtonIndex = 0
+            updateActiveNavButtonTintColor()
+            connectToSignallingServer()
         }
 
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
@@ -545,11 +538,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun createVideoTrack(): VideoTrack? {
-        videoCapturer = createVideoCapturer()
-        videoSource = peerConnectionFactory?.createVideoSource(videoCapturer)
-        videoCapturer?.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS)
+        localVideoCapturer = createVideoCapturer()
+        localVideoSource = peerConnectionFactory?.createVideoSource(localVideoCapturer)
+        localVideoCapturer?.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS)
 
-        localVideoTrack = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, videoSource)
+        localVideoTrack = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(true)
         localVideoTrack?.addRenderer(VideoRenderer(localSurfaceView))
 
@@ -557,8 +550,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun createAudioTrack(): AudioTrack? {
-        audioSource = peerConnectionFactory?.createAudioSource(MediaConstraints())
-        localAudioTrack = peerConnectionFactory?.createAudioTrack(AUDIO_TRACK_ID, audioSource)
+        localAudioSource = peerConnectionFactory?.createAudioSource(MediaConstraints())
+        localAudioTrack = peerConnectionFactory?.createAudioTrack(AUDIO_TRACK_ID, localAudioSource)
         localAudioTrack?.setEnabled(true)
         return localAudioTrack
     }
@@ -699,172 +692,132 @@ class KenesVideoCallActivity : AppCompatActivity() {
             userDashboard.put("parent_id", 0)
             socket?.emit("user_dashboard", userDashboard)
 
-//            // TODO: [START] There is no need on PROD
-//            val id = "" + (Math.random() * 10000).roundToInt()
-//            runOnUiThread {
-//                idView.text = id
-//            }
-//            val reg = JSONObject()
-//            reg.put("id", id)
-//            socket?.emit("reg", reg)
-//            // TODO: [END] There is no need on PROD
-
-        }?.on("open") { args ->
-
-            logD("event [OPEN]: $args")
-
         }?.on("call") { args ->
 
             logD("event [CALL]: $args")
 
-            if (args.size == 1) {
-                val call = args[0] as? JSONObject?
-                logD("JSONObject call: $call")
+            if (args.size != 1) {
+                return@on
+            }
 
-                if (call != null) {
-                    val type = call.optString("type")
+            val call = args[0] as? JSONObject?
 
-                    if (type == "accept") {
-                        activeDialog = Dialog(
-                            operatorId = call.optString("operator"),
-                            instance = call.optString("instance"),
-                            media = call.optString("media")
-                        )
+            logD("JSONObject call: $call")
 
-                        runOnUiThread {
-                            videoCallButton?.isEnabled = false
-                            videoCallInfoView?.text = null
-                            feedbackView?.visibility = View.GONE
-                            videoCallView?.visibility = View.GONE
-                            recyclerView?.visibility = View.VISIBLE
-                        }
-                    }
+            if (call == null) {
+                return@on
+            }
+
+            val type = call.optString("type")
+
+            if (type == "accept") {
+                activeDialog = Dialog(
+                    operatorId = call.optString("operator"),
+                    instance = call.optString("instance"),
+                    media = call.optString("media")
+                )
+
+                runOnUiThread {
+                    videoCallButton?.isEnabled = false
+                    videoCallInfoView?.text = null
+                    feedbackView?.visibility = View.GONE
+                    videoCallView?.visibility = View.GONE
+                    recyclerView?.visibility = View.VISIBLE
                 }
-            }
-
-        }?.on("user_queue") { args ->
-
-            logD("event [USER_QUEUE]: $args")
-
-            if (args.size == 1) {
-                val userQueueJson = args[0] as? JSONObject?
-                logD("userQueueJson: $userQueueJson")
-            }
-
-        }?.on("operator_status") { args ->
-
-            logD("event [OPERATOR_STATUS]: $args")
-
-            if (args.size == 1) {
-                val operatorStatusJson = args[0] as? JSONObject?
-                logD("operatorStatusJson: $operatorStatusJson")
-            }
-
-        }?.on("stream") { args ->
-
-            logD("event [STREAM]: $args")
-
-        }?.on("user_chat_init") { args ->
-
-            logD("event [USER_CHAT_INIT]: $args")
-
-            if (args.size == 1) {
-                val chatInitJson = args[0] as? JSONObject?
-                logD("chatInitJson: $chatInitJson")
             }
 
         }?.on("category_list") { args ->
 
-            if (args.size == 1) {
-                val categoryList = args[0] as? JSONObject?
-//                logD("categoryListJson: $categoryList")
+            if (args.size != 1) {
+                return@on
+            }
 
-                val categoryListJson = categoryList?.optJSONArray("category_list")
+            val categoryList = args[0] as? JSONObject? ?: return@on
+//            logD("categoryListJson: $categoryList")
 
-                if (categoryListJson != null) {
-                    var categories = mutableListOf<Category>()
-                    for (i in 0 until categoryListJson.length()) {
-                        val categoryJson = categoryListJson[i] as JSONObject
-                        var parentId: Long? = categoryJson.optLong("parent_id", -1L)
-                        if (parentId == -1L) {
-                            parentId = null
-                        }
-                        categories.add(Category(
-                            id = categoryJson.optLong("id"),
-                            title = categoryJson.optString("title"),
-                            lang = categoryJson.optInt("lang"),
-                            parentId = parentId,
-                            photo = categoryJson.optString("photo"),
-                            responses = categoryJson.optJSONArrayAsList("responses")
-                        ))
+            val categoryListJson = categoryList.optJSONArray("category_list") ?: return@on
+
+            var categories = mutableListOf<Category>()
+            for (i in 0 until categoryListJson.length()) {
+                val categoryJson = categoryListJson[i] as JSONObject
+                var parentId: Long? = categoryJson.optLong("parent_id", -1L)
+                if (parentId == -1L) {
+                    parentId = null
+                }
+                categories.add(Category(
+                    id = categoryJson.optLong("id"),
+                    title = categoryJson.optString("title"),
+                    lang = categoryJson.optInt("lang"),
+                    parentId = parentId,
+                    photo = categoryJson.optString("photo"),
+                    responses = categoryJson.optJSONArrayAsList("responses")
+                ))
+            }
+
+            categories = categories.sortedBy { it.id }.toMutableList()
+
+            categories.forEachIndexed { index, category ->
+//            logD("category: $category")
+
+                if (category.parentId == null) {
+                    if (palette.isNotEmpty()) {
+                        category.color = palette[index]
+                    }
+                    category.home = true
+                    messages.add(Message(Message.Type.CATEGORY, category))
+
+                    val userDashboard = JSONObject()
+                    userDashboard.put("action", "get_category_list")
+                    userDashboard.put("parent_id", category.id)
+                    socket?.emit("user_dashboard", userDashboard)
+                } else {
+                    if (category.parentId == activeCategoryChild?.id && activeCategoryChild?.children?.any { it.id == category.id } == false) {
+                        activeCategoryChild?.children?.add(category)
                     }
 
-                    categories = categories.sortedBy { it.id }.toMutableList()
-
-                    categories.forEachIndexed { index, category ->
-                        logD("category: $category")
-
-                        if (category.parentId == null) {
-                            if (palette.isNotEmpty()) {
-                                category.color = palette[index]
-                            }
-                            category.home = true
-                            messages.add(Message(Message.Type.CATEGORY, category))
-
-                            val userDashboard = JSONObject()
-                            userDashboard.put("action", "get_category_list")
-                            userDashboard.put("parent_id", category.id)
-                            socket?.emit("user_dashboard", userDashboard)
-                        } else {
-                            if (category.parentId == activeCategoryChild?.id && activeCategoryChild?.children?.any { it.id == category.id } == false) {
-                                activeCategoryChild?.children?.add(category)
-                            }
-
-//                            messages.forEach { message ->
-//                                if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
-//                                    message.category?.children?.add(category)
-//                                } else {
-////                                    message.category?.sections?.forEach { section ->
-////                                        if (section.id == category.parentId) {
-////                                            section.sections.add(Section.from(category))
-////                                        }
-////                                    }
+//                        messages.forEach { message ->
+//                            if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
+//                                message.category?.children?.add(category)
+//                            } else {
+//                                message.category?.sections?.forEach { section ->
+//                                    if (section.id == category.parentId) {
+//                                        section.sections.add(Section.from(category))
+//                                    }
 //                                }
 //                            }
+//                        }
 
-                            if (activeCategoryChild == null) {
-                                messages.forEach { message ->
-                                    if (message.category?.id == category.parentId) {
-                                        message.category?.children?.add(category)
-                                    }
-                                }
-                            } else {
-//                                val message = Message(Message.Type.CROSS_CHILDREN, category)
-//                                    if (!messages.contains(message)) {
-//                                    messages.add(message)
-//                                }
+                    if (activeCategoryChild == null) {
+                        messages.forEach { message ->
+                            if (message.category?.id == category.parentId) {
+                                message.category?.children?.add(category)
                             }
                         }
-                    }
-
-                    if (!messages.isNullOrEmpty() && messages.all { !it.category?.children.isNullOrEmpty() } && activeCategoryChild == null) {
-                        runOnUiThread {
-                            feedbackView?.visibility = View.GONE
-                            videoCallView?.visibility = View.GONE
-                            recyclerView?.visibility = View.VISIBLE
-                            footerView?.visibility = View.VISIBLE
-
-                            chatAdapter.setNewMessages(messages)
-                            scrollToTop()
-                        }
                     } else {
-                        runOnUiThread {
-                            val activeCategoryChildMessage = Message(Message.Type.CROSS_CHILDREN, activeCategoryChild)
-
-                            chatAdapter.setNewMessages(listOf(activeCategoryChildMessage))
-                            scrollToTop()
-                        }
+//                        val message = Message(Message.Type.CROSS_CHILDREN, category)
+//                            if (!messages.contains(message)) {
+//                            messages.add(message)
+//                        }
                     }
+                }
+            }
+
+            if (!messages.isNullOrEmpty() && messages.all { !it.category?.children.isNullOrEmpty() } && activeCategoryChild == null) {
+                runOnUiThread {
+                    feedbackView?.visibility = View.GONE
+                    videoCallView?.visibility = View.GONE
+                    recyclerView?.visibility = View.VISIBLE
+                    footerView?.visibility = View.VISIBLE
+
+                    chatAdapter.setNewMessages(messages)
+                    scrollToTop()
+                }
+            } else {
+                val activeCategoryChildMessage = Message(Message.Type.CROSS_CHILDREN, activeCategoryChild)
+
+                runOnUiThread {
+                    chatAdapter.setNewMessages(listOf(activeCategoryChildMessage))
+                    scrollToTop()
                 }
             }
 
@@ -872,133 +825,151 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             logD("event [FORM_INIT]: $args")
 
-            if (args.size == 1) {
-                val formInitJson = args[0] as? JSONObject?
-                logD("formInitJson: $formInitJson")
+            if (args.size != 1) {
+                return@on
             }
+
+            val formInitJson = args[0] as? JSONObject?
+            logD("formInitJson: $formInitJson")
 
         }?.on("form_final") { args ->
 
             logD("event [FORM_FINAL]: $args")
 
-            if (args.size == 1) {
-                val formFinalJson = args[0] as? JSONObject?
-                logD("formFinalJson: $formFinalJson")
+            if (args.size != 1) {
+                return@on
             }
+
+            val formFinalJson = args[0] as? JSONObject?
+            logD("formFinalJson: $formFinalJson")
 
         }?.on("send_configs") { args ->
 
             logD("event [SEND_CONFIGS]: $args")
 
-            if (args.size == 1) {
-                val configsJson = args[0] as? JSONObject?
-                logD("configsJson: $configsJson")
+            if (args.size != 1) {
+                return@on
             }
 
+            val configsJson = args[0] as? JSONObject?
+            logD("configsJson: $configsJson")
+
         }?.on("operator_greet") { args ->
-
             logD("event [OPERATOR_GREET]: $args")
-            if (args.size == 1) {
-                val operatorGreetJson = args[0] as? JSONObject?
-                logD("JSONObject operatorGreetJson: $operatorGreetJson")
 
-                if (operatorGreetJson != null) {
-//                    val name = operatorGreet.optString("name")
-                    val fullName = operatorGreetJson.optString("full_name")
-                    val photo = operatorGreetJson.optString("photo")
-                    var text = operatorGreetJson.optString("text")
+            if (args.size != 1) {
+                return@on
+            }
 
-                    val photoUrl = UrlUtil.getStaticUrl(photo)
+            val operatorGreetJson = args[0] as? JSONObject?
 
-                    logD("photoUrl: $photoUrl")
+            logD("JSONObject operatorGreetJson: $operatorGreetJson")
 
-                    runOnUiThread {
-                        bindOpponentData(Configs(
-                            opponent = Configs.Opponent(
-                                name = fullName,
-                                secondName = getString(R.string.kenes_call_agent),
-                                avatarUrl = photoUrl
-                            )
-                        ))
+            if (operatorGreetJson == null) {
+                return@on
+            }
 
-                        text = text.replace("{}", fullName)
-                        chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
-                        scrollToBottom()
-                    }
-                }
+//            val name = operatorGreet.optString("name")
+            val fullName = operatorGreetJson.optString("full_name")
+            val photo = operatorGreetJson.optString("photo")
+            var text = operatorGreetJson.optString("text")
+
+            val photoUrl = UrlUtil.getStaticUrl(photo)
+
+            logD("photoUrl: $photoUrl")
+
+            text = text.replace("{}", fullName)
+
+            runOnUiThread {
+                bindOpponentData(Configs(
+                    opponent = Configs.Opponent(
+                        name = fullName,
+                        secondName = getString(R.string.kenes_call_agent),
+                        avatarUrl = photoUrl
+                    )
+                ))
+
+                chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
+                scrollToBottom()
             }
 
         }?.on("operator_typing") { args ->
 
             logD("event [OPERATOR_TYPING]: $args")
-            if (args.size == 1) {
-                val operatorTypingJson = args[0] as? JSONObject?
-                logD("JSONObject operatorTypingJson: $operatorTypingJson")
+
+            if (args.size != 1) {
+                return@on
             }
+
+            val operatorTypingJson = args[0] as? JSONObject?
+            logD("JSONObject operatorTypingJson: $operatorTypingJson")
 
         }?.on("feedback") { args ->
 
             logD("event [FEEDBACK]: $args")
-            if (args.size == 1) {
-                val feedbackJson = args[0] as? JSONObject?
-                logD("JSONObject feedbackJson: $feedbackJson")
+            if (args.size != 1) {
+                return@on
+            }
 
-                if (feedbackJson != null) {
-                    val buttonsJson = feedbackJson.optJSONArray("buttons")
+            val feedbackJson = args[0] as? JSONObject? ?: return@on
 
-                    val text = feedbackJson.optString("text")
-//                    val chatId = feedback.optLong("chat_id")
+            logD("JSONObject feedbackJson: $feedbackJson")
 
-                    if (buttonsJson != null) {
-                        val ratingButtons = mutableListOf<RatingButton>()
-                        for (i in 0 until buttonsJson.length()) {
-                            val button = buttonsJson[i] as JSONObject
-                            ratingButtons.add(RatingButton(
-                                button.optString("title"),
-                                button.optString("payload")
-                            ))
+            val buttonsJson = feedbackJson.optJSONArray("buttons")
+
+            val text = feedbackJson.optString("text")
+//            val chatId = feedback.optLong("chat_id")
+
+            if (buttonsJson != null) {
+                val ratingButtons = mutableListOf<RatingButton>()
+                for (i in 0 until buttonsJson.length()) {
+                    val button = buttonsJson[i] as JSONObject
+                    ratingButtons.add(RatingButton(
+                        button.optString("title"),
+                        button.optString("payload")
+                    ))
+                }
+
+                runOnUiThread {
+                    videoCallButton?.isEnabled = false
+                    videoCallView?.visibility = View.GONE
+                    recyclerView?.visibility = View.GONE
+                    inputView?.let { hideKeyboard(it) }
+                    footerView?.visibility = View.GONE
+
+                    feedbackView?.visibility = View.VISIBLE
+
+                    titleView?.text = text
+
+                    var selectedRatingButton: RatingButton? = null
+                    val ratingAdapter = RatingAdapter(ratingButtons) {
+                        selectedRatingButton = it
+
+                        if (selectedRatingButton != null) {
+                            rateButton?.isEnabled = true
                         }
+                    }
+                    ratingView?.adapter = ratingAdapter
+                    ratingAdapter.notifyDataSetChanged()
 
-                        runOnUiThread {
-                            videoCallView?.visibility = View.GONE
-                            recyclerView?.visibility = View.GONE
-                            feedbackView?.visibility = View.VISIBLE
-                            inputView?.let { hideKeyboard(it) }
-                            footerView?.visibility = View.GONE
+                    rateButton?.setOnClickListener {
+                        socket?.emit("user_feedback", jsonObject {
+                            put("r", selectedRatingButton?.rating)
+                            put("chat_id", selectedRatingButton?.chatId)
+                        })
 
-                            titleView?.text = text
+                        selectedRatingButton = null
 
-                            var selectedRatingButton: RatingButton? = null
-                            val ratingAdapter = RatingAdapter(ratingButtons) {
-                                selectedRatingButton = it
+                        rateButton?.isEnabled = false
 
-                                if (selectedRatingButton != null) {
-                                    rateButton?.isEnabled = true
-                                }
-                            }
-                            ratingView?.adapter = ratingAdapter
-                            ratingAdapter.notifyDataSetChanged()
+                        ratingView?.adapter = null
 
-                            rateButton?.setOnClickListener {
-                                val userFeedback = JSONObject()
-                                userFeedback.put("r", selectedRatingButton?.rating)
-                                userFeedback.put("chat_id", selectedRatingButton?.chatId)
-                                socket?.emit("user_feedback", userFeedback)
+                        videoCallView?.visibility = View.GONE
+                        feedbackView?.visibility = View.GONE
+                        recyclerView?.visibility = View.VISIBLE
+                        footerView?.visibility = View.VISIBLE
 
-                                selectedRatingButton = null
-
-                                rateButton?.isEnabled = false
-
-                                ratingView?.adapter = null
-
-                                videoCallView?.visibility = View.GONE
-                                feedbackView?.visibility = View.GONE
-                                recyclerView?.visibility = View.VISIBLE
-                                footerView?.visibility = View.VISIBLE
-
-                                bindOpponentData(this.configs)
-                            }
-                        }
+                        bindOpponentData(this.configs)
                     }
                 }
             }
@@ -1006,197 +977,199 @@ class KenesVideoCallActivity : AppCompatActivity() {
         }?.on("message") { args ->
             logD("event [MESSAGE]: $args")
 
-            if (args.size == 1) {
-                val message = args[0] as? JSONObject?
-                logD("message: $message")
+            if (args.size != 1) {
+                logD("ERROR! Strange message args behaviour.")
+                return@on
+            }
 
-//                [START] MESSAGE HANDLER FOR rtc.vlx.kz
-//                val rtc = message?.optJSONObject("rtc")
-//                val type = rtc?.optString("type")
-//
-//                if (type == "start") {
-////                    sendOffer()
-//
-//                    val message2 = JSONObject()
-//                    val rtc2 = JSONObject()
-//                    rtc2.put("type", "prepare")
-//                    message2.put("rtc", rtc2)
-//                    socket?.emit("message", message2)
-//                }
-//
-//                if (type == "prepare") {
-//                    videoCallInitialize()
-//
-//                    runOnUiThread {
-//                        videoCallButton?.isEnabled = false
-//                        videoCallInfoView?.text = null
-//                        videoCallView?.visibility = View.GONE
-//                        recyclerView?.visibility = View.VISIBLE
-//
-//                        videoDialogView?.visibility = View.VISIBLE
-//                    }
-//
-//                    val message2 = JSONObject()
-//                    val rtc2 = JSONObject()
-//                    rtc2.put("type", "ready")
-//                    message2.put("rtc", rtc2)
-//                    socket?.emit("message", message2)
-//                }
-//
-//                if (type == "ready") {
-//                    videoCallInitialize()
-//
-//                    runOnUiThread {
-//                        videoCallButton?.isEnabled = false
-//                        videoCallInfoView?.text = null
-//                        videoCallView?.visibility = View.GONE
-//                        recyclerView?.visibility = View.VISIBLE
-//
-//                        videoDialogView?.visibility = View.VISIBLE
-//                    }
-//
-//                    sendOffer()
-//                }
-//
-//                if (type == "answer") {
-//                    peerConnection?.setRemoteDescription(
-//                        SimpleSdpObserver(),
-//                        SessionDescription(SessionDescription.Type.ANSWER, rtc.optString("sdp"))
-//                    )
-//                }
-//
-//                if (type == "candidate") {
-//                    peerConnection?.addIceCandidate(IceCandidate(
-//                        rtc.getString("id"),
-//                        rtc.getInt("label"),
-//                        rtc.getString("candidate")
-//                    ))
-//                }
-//
-//                if (type == "offer") {
-//                    peerConnection?.setRemoteDescription(
-//                        SimpleSdpObserver(),
-//                        SessionDescription(SessionDescription.Type.OFFER, rtc.getString("sdp"))
-//                    )
-//
-//                    sendAnswer()
-//
-//                    runOnUiThread {
-//                        videoCallButton?.isEnabled = false
-//                        videoCallInfoView?.text = null
-//                        videoCallView?.visibility = View.GONE
-//                        recyclerView?.visibility = View.VISIBLE
-//
-////                        videoCallInitialize()
-//
-//                        videoDialogView?.visibility = View.VISIBLE
-//                    }
-//                }
-//
-//                if (type == "hangup") {
-//                    isInitiator = false
-//
-//                    closeVideoCall()
-//
-//                    runOnUiThread {
-//                        videoDialogView?.visibility = View.GONE
-//                        recyclerView?.visibility = View.GONE
-//                        videoCallButton?.isEnabled = true
-//                        videoCallInfoView?.text = null
-//                        videoCallInfoView?.visibility = View.GONE
-//                        videoCallView?.visibility = View.VISIBLE
-//                    }
-//                }
-//                [END] MESSAGE HANDLER FOR rtc.vlx.kz
+            val message = args[0] as? JSONObject? ?: return@on
 
-                if (message != null) {
-                    val type = message.optString("type")
-                    val text = message.getNullableString("text")
-                    val noOnline = message.optBoolean("no_online")
-                    val id = message.optString("id")
-                    val action = message.getNullableString("action")
-                    val time = message.optLong("time")
-                    val sender = message.getNullableString("sender")
+            logD("message: $message")
 
-                    if (noOnline) {
-                        runOnUiThread {
-                            AlertDialog.Builder(this)
-                                .setTitle("Внимание")
-                                .setMessage(text)
-                                .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-//                                    closeVideoCall()
+            val text = message.getNullableString("text")
+            val noOnline = message.optBoolean("no_online")
+            val noResults = message.optBoolean("no_results")
+            val id = message.optString("id")
+            val action = message.getNullableString("action")
+            val time = message.optLong("time")
+            val sender = message.getNullableString("sender")
+            val from = message.getNullableString("from")
+            val rtc = message.optJSONObject("rtc")
 
-                                    bindOpponentData(this.configs)
+            if (noOnline) {
+                runOnUiThread {
+                    AlertDialog.Builder(this)
+                        .setTitle("Внимание")
+                        .setMessage(text)
+                        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+//                            closeVideoCall()
 
-                                    recyclerView?.visibility = View.GONE
-                                    videoCallInfoView?.text = null
-                                    videoCallInfoView?.visibility = View.GONE
-                                    videoCallButton?.isEnabled = true
-                                    videoCallView?.visibility = View.VISIBLE
+                            bindOpponentData(this.configs)
 
-                                    dialog.dismiss()
-                                }
-                                .show()
-                        }
-                    } else if (!action.isNullOrBlank() && action == "operator_disconnect") {
-                        runOnUiThread {
-                            activeDialog = null
-
+                            recyclerView?.visibility = View.GONE
                             videoCallInfoView?.text = null
+                            videoCallInfoView?.visibility = View.GONE
                             videoCallButton?.isEnabled = true
+                            videoCallView?.visibility = View.VISIBLE
 
-                            feedbackView?.visibility = View.GONE
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+
+                return@on
+            }
+
+            if (action == "operator_disconnect") {
+//                activeDialog = null
+
+                closeVideoCall()
+
+                runOnUiThread {
+                    videoCallInfoView?.text = null
+                    videoCallButton?.isEnabled = true
+
+                    feedbackView?.visibility = View.GONE
+                    videoCallView?.visibility = View.GONE
+                    recyclerView?.visibility = View.VISIBLE
+
+                    chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
+                    scrollToBottom()
+                }
+
+                return@on
+            }
+
+            rtc?.let {
+                when (rtc.getNullableString("type")) {
+                    Rtc.Type.START?.value -> {
+                        sendMessage(userMessage { rtc { type = Rtc.Type.PREPARE } })
+                    }
+                    Rtc.Type.PREPARE?.value -> {
+                        videoCallInitialize()
+
+                        runOnUiThread {
+                            videoCallButton?.isEnabled = false
+                            videoCallInfoView?.text = null
                             videoCallView?.visibility = View.GONE
                             recyclerView?.visibility = View.VISIBLE
 
-                            chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
-                            scrollToBottom()
-
-//                            chatAdapter.clearItems()
-//                            recyclerView?.visibility = View.GONE
-//                            callView?.visibility = View.VISIBLE
-//                            callButton?.isEnabled = true
-//                            infoView?.text = null
-//                            infoView?.visibility = View.GONE
+                            videoDialogView?.visibility = View.VISIBLE
                         }
-                    } else {
-                        if (activeDialog == null) {
-                            logD("text: $text")
 
-//                                if (type == "offer") {
-//                                    logD("connectToSignallingServer: OFFER")
-//                                } else if (type == "accept") {
-//                                    logD("connectToSignallingServer: ACCEPT:")
-//                                    val rtc = message.optJSONObject("rtc")
-//                                    logD("connectToSignallingServer: RTC: $rtc")
-//                                }
+                        sendMessage(userMessage { rtc { type = Rtc.Type.READY } })
+                    }
+                    Rtc.Type.READY?.value -> {
+                        videoCallInitialize()
 
-                            runOnUiThread {
-                                if (activeCategoryChild != null) {
-                                    chatAdapter.setNewMessages(listOf(Message(Message.Type.RESPONSE, text, time, activeCategoryChild)))
-                                    scrollToBottom()
-                                } else {
-                                    chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                                    scrollToBottom()
-                                }
-                            }
+                        runOnUiThread {
+                            videoCallButton?.isEnabled = false
+                            videoCallInfoView?.text = null
+                            videoCallView?.visibility = View.GONE
+                            recyclerView?.visibility = View.VISIBLE
+
+                            videoDialogView?.visibility = View.VISIBLE
+                        }
+
+                        sendOffer()
+                    }
+                    Rtc.Type.ANSWER?.value -> {
+                        peerConnection?.setRemoteDescription(
+                            SimpleSdpObserver(),
+                            SessionDescription(
+                                SessionDescription.Type.ANSWER,
+                                rtc.getString("sdp")
+                            )
+                        )
+                    }
+                    Rtc.Type.CANDIDATE?.value -> {
+                        peerConnection?.addIceCandidate(
+                            IceCandidate(
+                                rtc.getString("id"),
+                                rtc.getInt("label"),
+                                rtc.getString("candidate")
+                            )
+                        )
+                    }
+                    Rtc.Type.OFFER?.value -> {
+                        peerConnection?.setRemoteDescription(
+                            SimpleSdpObserver(),
+                            SessionDescription(
+                                SessionDescription.Type.OFFER,
+                                rtc.getString("sdp")
+                            )
+                        )
+
+                        sendAnswer()
+
+                        runOnUiThread {
+                            videoCallButton?.isEnabled = false
+                            videoCallInfoView?.text = null
+                            videoCallView?.visibility = View.GONE
+                            recyclerView?.visibility = View.VISIBLE
+
+                            videoDialogView?.visibility = View.VISIBLE
+                        }
+                    }
+                    Rtc.Type.HANGUP?.value -> {
+                        isInitiator = false
+                        activeDialog = null
+
+                        closeVideoCall()
+
+                        runOnUiThread {
+                            videoDialogView?.visibility = View.GONE
+
+                            recyclerView?.visibility = View.GONE
+                            videoCallButton?.isEnabled = true
+                            videoCallInfoView?.text = null
+                            videoCallInfoView?.visibility = View.GONE
+                            videoCallView?.visibility = View.VISIBLE
+                        }
+                    }
+                    else -> {
+                        return@on
+                    }
+                }
+                return@on
+            }
+
+            if (activeDialog != null) {
+//                if (!sender.isNullOrBlank() && !activeDialog?.operatorId.isNullOrBlank() && sender == activeDialog?.operatorId) {
+//                    if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
+//
+//                    }
+//                } else {
+//                    Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
+//                }
+                runOnUiThread {
+                    chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    scrollToBottom()
+                }
+            } else {
+                logD("text: $text")
+
+                if (from == "operator" && sender.isNullOrBlank() && action.isNullOrBlank()) {
+                    runOnUiThread {
+                        videoCallButton?.isEnabled = false
+                        videoCallInfoView?.text = text
+                        videoCallInfoView?.visibility = View.VISIBLE
+
+                        chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                        scrollToBottom()
+                    }
+                } else {
+                    runOnUiThread {
+                        if (activeCategoryChild != null) {
+                            chatAdapter.setNewMessages(listOf(
+                                Message(Message.Type.RESPONSE, text, time, activeCategoryChild)
+                            ))
+                            scrollToBottom()
                         } else {
-                            if (!sender.isNullOrBlank() && !activeDialog?.operatorId.isNullOrBlank() && sender == activeDialog?.operatorId) {
-                                if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
-                                    runOnUiThread {
-                                        activeDialog = null
-
-                                        videoCallButton?.isEnabled = false
-                                        videoCallInfoView?.text = text
-                                        videoCallInfoView?.visibility = View.VISIBLE
-
-                                        chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                                        scrollToBottom()
-                                    }
-                                }
-                            } else {
-                                Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
-                            }
+                            chatAdapter.addNewMessage(
+                                Message(Message.Type.OPPONENT, text, time)
+                            )
+                            scrollToBottom()
                         }
                     }
                 }
@@ -1206,13 +1179,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             logD("event [EVENT_DISCONNECT]")
 
+            isInitiator = false
+
+            activeDialog = null
+
             runOnUiThread {
-                isInitiator = false
-
-                activeDialog = null
-
-                idView.text = null
-
                 bindOpponentData(this.configs)
 
                 recyclerView?.visibility = View.GONE
@@ -1228,51 +1199,37 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun sendAnswer() {
-        val sdpMediaConstraints = MediaConstraints()
+        val mediaConstraints = MediaConstraints()
+
+//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
 
         peerConnection?.createAnswer(object : SimpleSdpObserver() {
             override fun onCreateSuccess(sessionDescription: SessionDescription) {
                 logD("onCreateSuccess: " + sessionDescription.description)
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
-//                [START] Sending answer with SDP for rtc.vlx.kz
-                val message = JSONObject()
-                val rtc = JSONObject()
-                rtc.put("type", "answer")
-                rtc.put("sdp", sessionDescription.description)
-                message.put("rtc", rtc)
-                socket?.emit("message", message)
-//                [END] Sending answer with SDP for rtc.vlx.kz
+                sendMessage(userMessage {
+                    rtc { type = Rtc.Type.ANSWER; sdp = sessionDescription.description }
+                })
             }
-        }, sdpMediaConstraints)
+        }, mediaConstraints)
     }
 
     private fun sendOffer() {
-        val sdpMediaConstraints = MediaConstraints()
+        val mediaConstraints = MediaConstraints()
 
-//        sdpMediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
-//        sdpMediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
+//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
 
         peerConnection?.createOffer(object : SimpleSdpObserver() {
             override fun onCreateSuccess(sessionDescription: SessionDescription) {
                 logD("onCreateSuccess: " + sessionDescription.description)
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
-//                [START] Sending offer with SDP for kenes.vlx.kz
-//                val message = JSONObject()
-//                message.put("type", "offer")
-//                message.put("sdp", sessionDescription.description)
-//                socket?.emit("message", message)
-//                [END] Sending offer with SDP for kenes.vlx.kz
-
-//                [START] Sending offer with SDP for rtc.vlx.kz
-                val message = JSONObject()
-                val rtc = JSONObject()
-                rtc.put("type", "offer")
-                rtc.put("sdp", sessionDescription.description)
-                message.put("rtc", rtc)
-                socket?.emit("message", message)
-//                [END] Sending offer with SDP for kenes.vlx.kz
+                sendMessage(userMessage {
+                    rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description }
+                })
 
                 runOnUiThread {
                     chatAdapter.clearMessages()
@@ -1283,7 +1240,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 super.onCreateFailure(s)
                 logD("onCreateFailure: $s")
             }
-        }, sdpMediaConstraints)
+        }, mediaConstraints)
     }
 
     private fun createPeerConnection(factory: PeerConnectionFactory): PeerConnection? {
@@ -1293,9 +1250,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 iceServers.add(IceServer(it.url, it.username, it.credential))
             }
         } else {
-//            iceServers.add(IceServer("stun:stun.l.google.com:19302"))
-            iceServers.add(IceServer("stun:global.stun.twilio.com:3478?transport=udp"))
-            iceServers.add(IceServer("turn:195.12.123.27:3478?transport=udp", "test", "test"))
+            iceServers.add(IceServer("stun:stun.l.google.com:19302"))
         }
         val rtcConfig = RTCConfiguration(iceServers)
         rtcConfig.iceTransportsType = IceTransportsType.RELAY
@@ -1309,7 +1264,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 logD("onIceConnectionChange: $iceConnectionState")
 
                 when (iceConnectionState) {
-                    IceConnectionState.CLOSED, IceConnectionState.DISCONNECTED, IceConnectionState.FAILED -> {
+                    IceConnectionState.CLOSED, IceConnectionState.FAILED -> {
                         runOnUiThread {
                             recyclerView?.visibility = View.GONE
                             videoDialogView?.visibility = View.GONE
@@ -1335,26 +1290,14 @@ class KenesVideoCallActivity : AppCompatActivity() {
             override fun onIceCandidate(iceCandidate: IceCandidate) {
                 logD("onIceCandidate: " + iceCandidate.sdp)
 
-//                [START] Sending ICE Candidate for kenes.vlx.kz
-//                val message = JSONObject()
-//                message.put("type", "candidate")
-//                message.put("label", iceCandidate.sdpMLineIndex)
-//                message.put("id", iceCandidate.sdpMid)
-//                message.put("candidate", iceCandidate.sdp)
-//                logD("onIceCandidate: sending candidate $message")
-//                socket?.emit("message", message)
-//                [START] Sending ICE Candidate for kenes.vlx.kz
-
-//                [START] Sending offer with SDP for rtc.vlx.kz
-                val message = JSONObject()
-                val rtc = JSONObject()
-                rtc.put("type", "candidate")
-                rtc.put("id", iceCandidate.sdpMid)
-                rtc.put("label", iceCandidate.sdpMLineIndex)
-                rtc.put("candidate", iceCandidate.sdp)
-                message.put("rtc", rtc)
-                socket?.emit("message", message)
-//                [START] Sending offer with SDP for rtc.vlx.kz
+                sendMessage(userMessage {
+                    rtc {
+                        type = Rtc.Type.CANDIDATE
+                        id = iceCandidate.sdpMid
+                        label = iceCandidate.sdpMLineIndex
+                        candidate = iceCandidate.sdp
+                    }
+                })
             }
 
             override fun onIceCandidatesRemoved(iceCandidates: Array<IceCandidate>) {
@@ -1363,9 +1306,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             override fun onAddStream(mediaStream: MediaStream) {
                 logD("onAddStream: " + mediaStream.videoTracks.size)
-
-//                val remoteAudioTrack = mediaStream.audioTracks[0]
-//                remoteAudioTrack.setEnabled(true);
 
                 if (mediaStream.audioTracks.isNotEmpty()) {
                     remoteAudioTrack = mediaStream.audioTracks[0]
@@ -1410,6 +1350,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
         socket?.emit("user_message", userMessage)
     }
 
+    private fun sendMessage(message: JSONObject) {
+        logD("sendMessage: $message")
+        socket?.emit("message", message)
+    }
+
     private fun scrollToTop() {
         recyclerView?.scrollToPosition(0)
     }
@@ -1447,16 +1392,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         logD("Stopping capture.")
         try {
-            videoCapturer?.stopCapture()
+            localVideoCapturer?.stopCapture()
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        videoCapturer?.dispose()
-        videoCapturer = null
+        localVideoCapturer?.dispose()
+        localVideoCapturer = null
 
-//        logD("Closing video source.")
-//        videoSource?.dispose()
-        videoSource = null
+        logD("Closing video source.")
+//        localVideoSource?.dispose()
+        localVideoSource = null
 
 //        localMediaStream?.dispose()
         localMediaStream = null
@@ -1489,8 +1434,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
         super.onDestroy()
 
         activeDialog = null
-//        isFilled = false
-//        isCategoriesShown = false
         messages.clear()
 
         closeVideoCall()

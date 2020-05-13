@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/videoDialogView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true">
+
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/remoteSurfaceView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true" />
+
+    <org.webrtc.SurfaceViewRenderer
+        android:id="@+id/localSurfaceView"
+        android:layout_width="160dp"
+        android:layout_height="213.3dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:elevation="10dp" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/goToChatButton"
+        android:layout_width="47dp"
+        android:layout_height="47dp"
+        android:layout_alignTop="@id/hangupButton"
+        android:layout_alignBottom="@id/hangupButton"
+        android:layout_toStartOf="@id/hangupButton"
+        android:background="@null"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/kenes_selector_chat_message" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/hangupButton"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="40dp"
+        android:background="@null"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/kenes_selector_phone" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/switchSourceButton"
+        android:layout_width="47dp"
+        android:layout_height="47dp"
+        android:layout_alignTop="@id/hangupButton"
+        android:layout_alignBottom="@id/hangupButton"
+        android:layout_toEndOf="@id/hangupButton"
+        android:background="@null"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/kenes_selector_display" />
+
+</RelativeLayout>
