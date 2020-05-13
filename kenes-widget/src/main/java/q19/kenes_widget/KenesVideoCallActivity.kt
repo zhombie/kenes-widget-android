@@ -10,7 +10,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +40,7 @@ import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
+import q19.kenes_widget.views.VideoDialogView
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
 class KenesVideoCallActivity : AppCompatActivity() {
@@ -113,15 +113,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var infoNavButton: AppCompatImageButton? = null
 
     /**
-     * Video dialog view variables: [videoDialogView], [localSurfaceView], [remoteSurfaceView],
-     * [goToChatButton], [hangupButton], [switchSourceButton]
+     * Video dialog view variables: [videoDialogView]
      */
-    private var videoDialogView: RelativeLayout? = null
-    private var localSurfaceView: SurfaceViewRenderer? = null
-    private var remoteSurfaceView: SurfaceViewRenderer? = null
-    private var goToChatButton: AppCompatImageButton? = null
-    private var hangupButton: AppCompatImageButton? = null
-    private var switchSourceButton: AppCompatImageButton? = null
+    private var videoDialogView: VideoDialogView? = null
 
     private var activeNavButtonIndex = 0
 
@@ -165,6 +159,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var activeDialog: Dialog? = null
 
     private var isInitiator = false
+
+    private var viewState: ViewState = ViewState.IDLE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -234,15 +230,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
         infoNavButton = findViewById(R.id.infoButton)
 
         /**
-         * Bind [R.id.videoDialogView] views: [R.id.localSurfaceView], [R.id.remoteSurfaceView],
-         * [R.id.hangupButton], [R.id.goToChatButton], [R.id.switchSourceButton].
+         * Bind [R.id.videoDialogView] view.
          */
         videoDialogView = findViewById(R.id.videoDialogView)
-        localSurfaceView = findViewById(R.id.localSurfaceView)
-        remoteSurfaceView = findViewById(R.id.remoteSurfaceView)
-        goToChatButton = findViewById(R.id.goToChatButton)
-        hangupButton = findViewById(R.id.hangupButton)
-        switchSourceButton = findViewById(R.id.switchSourceButton)
 
         // ------------------------------------------------------------------------
 
@@ -349,8 +339,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
          * Configuration of other button action listeners (click/touch)
          */
         videoCallButton?.setOnClickListener {
-            activeDialog = null
-
             isInitiator = true
 
             inputView?.text?.clear()
@@ -408,29 +396,34 @@ class KenesVideoCallActivity : AppCompatActivity() {
             scrollToBottom()
         }
 
-        goToChatButton?.setOnClickListener {
-            videoDialogView?.visibility = View.INVISIBLE
-        }
+        videoDialogView?.callback = object : VideoDialogView.Callback {
+            override fun onGoToChatButtonClicked() {
+                videoDialogView?.visibility = View.INVISIBLE
+            }
 
-        hangupButton?.setOnClickListener {
-            isInitiator = false
+            override fun onHangUpButtonClicked() {
+                isInitiator = false
 
-            sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
+                sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
 
-            closeVideoCall()
+                closeVideoCall()
 
-            socket?.close()
+                socket?.close()
 
-            videoDialogView?.visibility = View.GONE
-            recyclerView?.visibility = View.GONE
+                videoDialogView?.visibility = View.GONE
+                recyclerView?.visibility = View.GONE
 
-            videoCallButton?.isEnabled = true
-            videoCallInfoView?.text = null
-            videoCallView?.visibility = View.VISIBLE
+                videoCallButton?.isEnabled = true
+                videoCallInfoView?.text = null
+                videoCallView?.visibility = View.VISIBLE
 
-            activeNavButtonIndex = 0
-            updateActiveNavButtonTintColor()
-            connectToSignallingServer()
+                activeNavButtonIndex = 0
+                updateActiveNavButtonTintColor()
+                connectToSignallingServer()
+            }
+
+            override fun onSwitchSourceButtonClicked() {
+            }
         }
 
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
@@ -513,13 +506,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
         rootEglBase = EglBase.create()
 
         runOnUiThread {
-            localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
-            localSurfaceView?.setEnableHardwareScaler(true)
-            localSurfaceView?.setMirror(true)
+            videoDialogView?.localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
+            videoDialogView?.localSurfaceView?.setEnableHardwareScaler(true)
+            videoDialogView?.localSurfaceView?.setMirror(true)
 
-            remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
-            remoteSurfaceView?.setEnableHardwareScaler(true)
-            remoteSurfaceView?.setMirror(true)
+            videoDialogView?.remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
+            videoDialogView?.remoteSurfaceView?.setEnableHardwareScaler(true)
+            videoDialogView?.remoteSurfaceView?.setMirror(true)
         }
 
         PeerConnectionFactory.initializeAndroidGlobals(this, true, true, true)
@@ -544,7 +537,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         localVideoTrack = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(true)
-        localVideoTrack?.addRenderer(VideoRenderer(localSurfaceView))
+        localVideoTrack?.addRenderer(VideoRenderer(videoDialogView?.localSurfaceView))
 
         return localVideoTrack
     }
@@ -1315,7 +1308,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 if (mediaStream.videoTracks.isNotEmpty()) {
                     remoteVideoTrack = mediaStream.videoTracks[0]
                     remoteVideoTrack?.setEnabled(true)
-                    remoteVideoTrack?.addRenderer(VideoRenderer(remoteSurfaceView))
+                    remoteVideoTrack?.addRenderer(VideoRenderer(videoDialogView?.remoteSurfaceView))
                 }
             }
 
@@ -1423,11 +1416,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //        remoteVideoTrack?.dispose()
         remoteVideoTrack = null
 
-        localSurfaceView?.release()
-        localSurfaceView = null
-
-        remoteSurfaceView?.release()
-        remoteSurfaceView = null
+        videoDialogView?.release()
     }
 
     override fun onDestroy() {

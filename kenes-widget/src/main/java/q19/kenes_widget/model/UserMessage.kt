@@ -22,13 +22,15 @@ internal class UserMessage(
                 rtcObject.put("id", rtc?.id)
             }
 
-            if (rtc?.label != null) {
-                rtcObject.put("label", rtc?.label)
+            rtc?.label?.let {
+                rtcObject.put("label", it)
             }
 
             if (!rtc?.candidate.isNullOrBlank()) {
                 rtcObject.put("candidate", rtc?.candidate)
             }
+
+            messageObject.put("rtc", rtcObject)
         } catch (e: Exception) {
             e.printStackTrace()
         }
