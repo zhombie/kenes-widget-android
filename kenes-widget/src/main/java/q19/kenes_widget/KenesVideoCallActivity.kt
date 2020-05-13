@@ -40,6 +40,7 @@ import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
+import q19.kenes_widget.views.VideoCallView
 import q19.kenes_widget.views.VideoDialogView
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
@@ -78,11 +79,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var opponentSecondNameView: TextView? = null
 
     /**
-     * Video call screen view variables: [videoCallView], [videoCallButton], [videoCallInfoView]
+     * Video call screen view variables: [videoCallView]
      */
-    private var videoCallView: LinearLayout? = null
-    private var videoCallButton: AppCompatButton? = null
-    private var videoCallInfoView: TextView? = null
+    private var videoCallView: VideoCallView? = null
 
     /**
      * Footer view variables: [footerView], [inputView], [attachmentButton]
@@ -190,11 +189,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
         opponentSecondNameView = findViewById(R.id.opponentSecondNameView)
 
         /**
-         * Bind [R.id.videoCallView] views: [R.id.videoCallButton], [R.id.videoCallInfoView].
+         * Bind [R.id.videoCallView] view
          */
         videoCallView = findViewById(R.id.videoCallView)
-        videoCallButton = findViewById(R.id.videoCallButton)
-        videoCallInfoView = findViewById(R.id.videoCallInfoView)
 
         /**
          * Bind [R.id.footerView] views: [R.id.inputView], [R.id.attachmentButton].
@@ -230,7 +227,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
         infoNavButton = findViewById(R.id.infoButton)
 
         /**
-         * Bind [R.id.videoDialogView] view.
+         * Bind [R.id.videoDialogView] view
          */
         videoDialogView = findViewById(R.id.videoDialogView)
 
@@ -287,9 +284,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                 activeCategoryChild = null
 
-                videoCallButton?.isEnabled = true
-                videoCallInfoView?.text = null
-                videoCallInfoView?.visibility = View.GONE
+                videoCallView?.setDefaultState()
 
                 videoCallView?.visibility = View.GONE
                 feedbackView?.visibility = View.GONE
@@ -307,9 +302,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
             activeNavButtonIndex = 1
             updateActiveNavButtonTintColor()
 
-            videoCallButton?.isEnabled = true
-            videoCallInfoView?.text = null
-            videoCallInfoView?.visibility = View.GONE
+            videoCallView?.setDefaultState()
 
             footerView?.visibility = View.GONE
             feedbackView?.visibility = View.GONE
@@ -338,7 +331,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
         /**
          * Configuration of other button action listeners (click/touch)
          */
-        videoCallButton?.setOnClickListener {
+        videoCallView?.setOnCallClickListener {
             isInitiator = true
 
             inputView?.text?.clear()
@@ -346,8 +339,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             socket?.emit("initialize", jsonObject { put("video", true) })
 
-            videoCallButton?.isEnabled = false
-            videoCallInfoView?.text = null
+            videoCallView?.setDisabledState()
         }
 
         start()
@@ -413,8 +405,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 videoDialogView?.visibility = View.GONE
                 recyclerView?.visibility = View.GONE
 
-                videoCallButton?.isEnabled = true
-                videoCallInfoView?.text = null
+                videoCallView?.setDefaultState(false)
                 videoCallView?.visibility = View.VISIBLE
 
                 activeNavButtonIndex = 0
@@ -680,10 +671,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
             
             logD("event [EVENT_CONNECT]: $args")
 
-            val userDashboard = JSONObject()
-            userDashboard.put("action", "get_category_list")
-            userDashboard.put("parent_id", 0)
-            socket?.emit("user_dashboard", userDashboard)
+            socket?.emit("user_dashboard", jsonObject {
+                put("action", "get_category_list")
+                put("parent_id", 0)
+            })
 
         }?.on("call") { args ->
 
@@ -693,13 +684,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@on
             }
 
-            val call = args[0] as? JSONObject?
+            val call = args[0] as? JSONObject? ?: return@on
 
             logD("JSONObject call: $call")
-
-            if (call == null) {
-                return@on
-            }
 
             val type = call.optString("type")
 
@@ -711,10 +698,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 )
 
                 runOnUiThread {
-                    videoCallButton?.isEnabled = false
-                    videoCallInfoView?.text = null
-                    feedbackView?.visibility = View.GONE
+                    videoCallView?.setDisabledState()
                     videoCallView?.visibility = View.GONE
+
+                    feedbackView?.visibility = View.GONE
+
                     recyclerView?.visibility = View.VISIBLE
                 }
             }
@@ -759,10 +747,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     category.home = true
                     messages.add(Message(Message.Type.CATEGORY, category))
 
-                    val userDashboard = JSONObject()
-                    userDashboard.put("action", "get_category_list")
-                    userDashboard.put("parent_id", category.id)
-                    socket?.emit("user_dashboard", userDashboard)
+                    socket?.emit("user_dashboard", jsonObject {
+                        put("action", "get_category_list")
+                        put("parent_id", category.id)
+                    })
                 } else {
                     if (category.parentId == activeCategoryChild?.id && activeCategoryChild?.children?.any { it.id == category.id } == false) {
                         activeCategoryChild?.children?.add(category)
@@ -822,7 +810,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@on
             }
 
-            val formInitJson = args[0] as? JSONObject?
+            val formInitJson = args[0] as? JSONObject? ?: return@on
             logD("formInitJson: $formInitJson")
 
         }?.on("form_final") { args ->
@@ -833,7 +821,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@on
             }
 
-            val formFinalJson = args[0] as? JSONObject?
+            val formFinalJson = args[0] as? JSONObject? ?: return@on
             logD("formFinalJson: $formFinalJson")
 
         }?.on("send_configs") { args ->
@@ -844,7 +832,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@on
             }
 
-            val configsJson = args[0] as? JSONObject?
+            val configsJson = args[0] as? JSONObject? ?: return@on
             logD("configsJson: $configsJson")
 
         }?.on("operator_greet") { args ->
@@ -854,13 +842,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@on
             }
 
-            val operatorGreetJson = args[0] as? JSONObject?
+            val operatorGreetJson = args[0] as? JSONObject? ?: return@on
 
             logD("JSONObject operatorGreetJson: $operatorGreetJson")
-
-            if (operatorGreetJson == null) {
-                return@on
-            }
 
 //            val name = operatorGreet.optString("name")
             val fullName = operatorGreetJson.optString("full_name")
@@ -894,12 +878,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 return@on
             }
 
-            val operatorTypingJson = args[0] as? JSONObject?
+            val operatorTypingJson = args[0] as? JSONObject? ?: return@on
             logD("JSONObject operatorTypingJson: $operatorTypingJson")
 
         }?.on("feedback") { args ->
 
             logD("event [FEEDBACK]: $args")
+
             if (args.size != 1) {
                 return@on
             }
@@ -924,10 +909,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 }
 
                 runOnUiThread {
-                    videoCallButton?.isEnabled = false
+                    videoCallView?.setDisabledState()
                     videoCallView?.visibility = View.GONE
+
                     recyclerView?.visibility = View.GONE
+
                     inputView?.let { hideKeyboard(it) }
+
                     footerView?.visibility = View.GONE
 
                     feedbackView?.visibility = View.VISIBLE
@@ -958,8 +946,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         ratingView?.adapter = null
 
                         videoCallView?.visibility = View.GONE
+
                         feedbackView?.visibility = View.GONE
+
                         recyclerView?.visibility = View.VISIBLE
+
                         footerView?.visibility = View.VISIBLE
 
                         bindOpponentData(this.configs)
@@ -1000,9 +991,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             bindOpponentData(this.configs)
 
                             recyclerView?.visibility = View.GONE
-                            videoCallInfoView?.text = null
-                            videoCallInfoView?.visibility = View.GONE
-                            videoCallButton?.isEnabled = true
+
+                            videoCallView?.setDefaultState()
                             videoCallView?.visibility = View.VISIBLE
 
                             dialog.dismiss()
@@ -1019,11 +1009,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 closeVideoCall()
 
                 runOnUiThread {
-                    videoCallInfoView?.text = null
-                    videoCallButton?.isEnabled = true
+                    videoCallView?.setDefaultState()
+                    videoCallView?.visibility = View.GONE
 
                     feedbackView?.visibility = View.GONE
-                    videoCallView?.visibility = View.GONE
+
                     recyclerView?.visibility = View.VISIBLE
 
                     chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
@@ -1042,9 +1032,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         videoCallInitialize()
 
                         runOnUiThread {
-                            videoCallButton?.isEnabled = false
-                            videoCallInfoView?.text = null
+                            videoCallView?.setDisabledState()
                             videoCallView?.visibility = View.GONE
+
                             recyclerView?.visibility = View.VISIBLE
 
                             videoDialogView?.visibility = View.VISIBLE
@@ -1056,9 +1046,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         videoCallInitialize()
 
                         runOnUiThread {
-                            videoCallButton?.isEnabled = false
-                            videoCallInfoView?.text = null
+                            videoCallView?.setDisabledState()
                             videoCallView?.visibility = View.GONE
+
                             recyclerView?.visibility = View.VISIBLE
 
                             videoDialogView?.visibility = View.VISIBLE
@@ -1096,9 +1086,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         sendAnswer()
 
                         runOnUiThread {
-                            videoCallButton?.isEnabled = false
-                            videoCallInfoView?.text = null
+                            videoCallView?.setDisabledState()
                             videoCallView?.visibility = View.GONE
+
                             recyclerView?.visibility = View.VISIBLE
 
                             videoDialogView?.visibility = View.VISIBLE
@@ -1114,9 +1104,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                             videoDialogView?.visibility = View.GONE
 
                             recyclerView?.visibility = View.GONE
-                            videoCallButton?.isEnabled = true
-                            videoCallInfoView?.text = null
-                            videoCallInfoView?.visibility = View.GONE
+
+                            videoCallView?.setDefaultState()
                             videoCallView?.visibility = View.VISIBLE
                         }
                     }
@@ -1144,9 +1133,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                 if (from == "operator" && sender.isNullOrBlank() && action.isNullOrBlank()) {
                     runOnUiThread {
-                        videoCallButton?.isEnabled = false
-                        videoCallInfoView?.text = text
-                        videoCallInfoView?.visibility = View.VISIBLE
+                        videoCallView?.setDisabledState(text)
 
                         chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                         scrollToBottom()
@@ -1180,9 +1167,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 bindOpponentData(this.configs)
 
                 recyclerView?.visibility = View.GONE
-                videoCallInfoView?.text = null
-                videoCallInfoView?.visibility = View.GONE
-                videoCallButton?.isEnabled = true
+
+                videoCallView?.setDefaultState()
                 videoCallView?.visibility = View.VISIBLE
             }
 
@@ -1260,10 +1246,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     IceConnectionState.CLOSED, IceConnectionState.FAILED -> {
                         runOnUiThread {
                             recyclerView?.visibility = View.GONE
+
                             videoDialogView?.visibility = View.GONE
-                            videoCallButton?.isEnabled = true
-                            videoCallInfoView?.text = null
-                            videoCallInfoView?.visibility = View.GONE
+
+                            videoCallView?.setDefaultState()
                             videoCallView?.visibility = View.VISIBLE
                         }
                     }
@@ -1435,8 +1421,6 @@ class KenesVideoCallActivity : AppCompatActivity() {
         opponentSecondNameView = null
 
         videoCallView = null
-        videoCallButton = null
-        videoCallInfoView = null
 
         footerView = null
         inputView = null

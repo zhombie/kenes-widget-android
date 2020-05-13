@@ -51,10 +51,6 @@ class VideoDialogView @JvmOverloads constructor(
         remoteSurfaceView.release()
     }
 
-    fun destroy() {
-        goToChatButton.hasOnClickListeners()
-    }
-
     interface Callback {
         fun onHangUpButtonClicked()
         fun onGoToChatButtonClicked()
