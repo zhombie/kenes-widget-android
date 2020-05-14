@@ -1,8 +1,10 @@
 package q19.kenes_widget
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,18 +15,16 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
-import kotlinx.android.synthetic.main.kenes_activity_main.*
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
@@ -39,15 +39,14 @@ import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
+import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
-import q19.kenes_widget.views.AudioCallView
-import q19.kenes_widget.views.AudioDialogView
-import q19.kenes_widget.views.VideoCallView
-import q19.kenes_widget.views.VideoDialogView
+import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
+import q19.kenes_widget.views.*
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
-class KenesWidgetV2Activity : AppCompatActivity() {
+class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
     companion object {
         const val TAG = "LOL"
@@ -92,6 +91,11 @@ class KenesWidgetV2Activity : AppCompatActivity() {
     private var audioCallView: AudioCallView? = null
 
     /**
+     * Info screen view variables: [infoView]
+     */
+    private var infoView: InfoView? = null
+
+    /**
      * Footer view variables: [footerView], [inputView], [attachmentButton]
      */
     private var footerView: RelativeLayout? = null
@@ -113,12 +117,9 @@ class KenesWidgetV2Activity : AppCompatActivity() {
     private var rateButton: AppCompatButton? = null
 
     /**
-     * Bottom navigation view variables: [homeNavButton], [videoNavButton], [audioNavButton], [infoNavButton]
+     * Bottom navigation view variables: [bottomNavigationView]
      */
-    private var homeNavButton: AppCompatImageButton? = null
-    private var videoNavButton: AppCompatImageButton? = null
-    private var audioNavButton: AppCompatImageButton? = null
-    private var infoNavButton: AppCompatImageButton? = null
+    private var bottomNavigationView: BottomNavigationView? = null
 
     /**
      * Video dialog view variables: [videoDialogView]
@@ -129,15 +130,6 @@ class KenesWidgetV2Activity : AppCompatActivity() {
      * Audio dialog view variables: [audioDialogView]
      */
     private var audioDialogView: AudioDialogView? = null
-
-    private var activeNavButtonIndex = 0
-        set(value) {
-            field = value
-            updateActiveNavButtonTintColor(value)
-        }
-
-    private val navButtons
-        get() = listOf(homeNavButton, videoNavButton, audioNavButton, infoNavButton)
 
     private lateinit var chatAdapter: ChatAdapter
 
@@ -187,7 +179,7 @@ class KenesWidgetV2Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.kenes_activity_main)
+        setContentView(R.layout.kenes_activity_widget_v2)
 
         // TODO: Remove later, exhaustive on PROD
         UrlUtil.setHostname("https://kenes.vlx.kz")
@@ -223,6 +215,11 @@ class KenesWidgetV2Activity : AppCompatActivity() {
         audioCallView = findViewById(R.id.audioCallView)
 
         /**
+         * Bind [R.id.audioCallView] view
+         */
+        infoView = findViewById(R.id.infoView)
+
+        /**
          * Bind [R.id.footerView] views: [R.id.goToActiveDialogButton], [R.id.inputView],
          * [R.id.attachmentButton].
          * Footer view for messenger.
@@ -248,14 +245,9 @@ class KenesWidgetV2Activity : AppCompatActivity() {
         rateButton = findViewById(R.id.rateButton)
 
         /**
-         * Bind [R.id.navigationView] views: [R.id.homeButton], [R.id.videoButton],
-         * [R.id.audioButton], [R.id.videoCallInfoView].
-         * Widget navigation buttons.
+         * Bind [R.id.bottomNavigationView] view
          */
-        homeNavButton = findViewById(R.id.homeButton)
-        videoNavButton = findViewById(R.id.videoButton)
-        audioNavButton = findViewById(R.id.audioButton)
-        infoNavButton = findViewById(R.id.infoButton)
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
 
         /**
          * Bind [R.id.videoDialogView] view
@@ -273,14 +265,9 @@ class KenesWidgetV2Activity : AppCompatActivity() {
         // --------------------- Default screen setups ----------------------------
 
         /**
-         * Default active navigation button [homeNavButton]
+         * Default active navigation button of [bottomNavigationView]
          */
-        when (activeNavButtonIndex) {
-            0 -> setActiveNavButtonTintColor(homeNavButton)
-            1 -> setActiveNavButtonTintColor(videoNavButton)
-            2 -> setActiveNavButtonTintColor(audioNavButton)
-            3 -> setActiveNavButtonTintColor(infoNavButton)
-        }
+        bottomNavigationView?.setHomeNavButtonActive()
 
         /**
          * Default states of views
@@ -301,72 +288,50 @@ class KenesWidgetV2Activity : AppCompatActivity() {
         /**
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
-        homeNavButton?.setOnClickListener {
-            if (feedbackView?.visibility == View.VISIBLE) {
-                return@setOnClickListener
+        bottomNavigationView?.callback = object : BottomNavigationView.Callback {
+            override fun onHomeNavButtonClicked() {
+                if (feedbackView?.visibility == View.VISIBLE) {
+                    return
+                }
+
+                viewState = ViewState.ChatBot
+
+                chatAdapter.clearMessages()
+                scrollToTop()
+
+                messages.clear()
+
+                activeCategoryChild = null
+
+                socket?.emit("user_dashboard", jsonObject {
+                    put("action", "get_category_list")
+                    put("parent_id", 0)
+                })
             }
 
-            if (viewState.isOnLiveCall) {
-                return@setOnClickListener
+            override fun onVideoNavButtonClicked() {
+                if (feedbackView?.visibility == View.VISIBLE) {
+                    return
+                }
+
+                viewState = ViewState.VideoDialog(State.IDLE)
             }
 
-            activeNavButtonIndex = 0
+            override fun onAudioNavButtonClicked() {
+                if (feedbackView?.visibility == View.VISIBLE) {
+                    return
+                }
 
-            viewState = ViewState.ChatBot
-
-            chatAdapter.clearMessages()
-            scrollToTop()
-
-            messages.clear()
-
-            activeCategoryChild = null
-
-            socket?.emit("user_dashboard", jsonObject {
-                put("action", "get_category_list")
-                put("parent_id", 0)
-            })
-        }
-
-        videoNavButton?.setOnClickListener {
-            if (feedbackView?.visibility == View.VISIBLE) {
-                return@setOnClickListener
+                viewState = ViewState.AudioDialog(State.IDLE)
             }
 
-            if (viewState.isOnLiveCall) {
-                return@setOnClickListener
+            override fun onInfoNavButtonClicked() {
+                if (feedbackView?.visibility == View.VISIBLE) {
+                    return
+                }
+
+                viewState = ViewState.Info
             }
-
-            activeNavButtonIndex = 1
-
-            viewState = ViewState.VideoDialog(State.IDLE)
-        }
-
-        audioNavButton?.setOnClickListener {
-            if (feedbackView?.visibility == View.VISIBLE) {
-                return@setOnClickListener
-            }
-
-            if (viewState.isOnLiveCall) {
-                return@setOnClickListener
-            }
-
-            activeNavButtonIndex = 2
-
-            viewState = ViewState.AudioDialog(State.IDLE)
-        }
-
-        infoNavButton?.setOnClickListener {
-            if (feedbackView?.visibility == View.VISIBLE) {
-                return@setOnClickListener
-            }
-
-            if (viewState.isOnLiveCall) {
-                return@setOnClickListener
-            }
-
-            activeNavButtonIndex = 3
-
-            viewState = ViewState.Info
         }
 
         /**
@@ -456,7 +421,7 @@ class KenesWidgetV2Activity : AppCompatActivity() {
 
                 viewState = ViewState.VideoDialog(State.USER_DISCONNECT)
 
-                activeNavButtonIndex = 0
+                bottomNavigationView?.setHomeNavButtonActive()
                 connectToSignallingServer()
             }
 
@@ -480,8 +445,39 @@ class KenesWidgetV2Activity : AppCompatActivity() {
 
                 viewState = ViewState.AudioDialog(State.USER_DISCONNECT)
 
-                activeNavButtonIndex = 0
+                bottomNavigationView?.setHomeNavButtonActive()
                 connectToSignallingServer()
+            }
+        }
+
+        infoView?.callback = object : InfoView.Callback {
+            override fun onPhoneNumberClicked(phoneNumber: String) {
+                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
+                startActivity(intent)
+            }
+
+            override fun onSocialClicked(contact: Configs.Contact) {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contact.url))
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+
+            override fun onLanguageChangeClicked(language: Language) {
+                val languages = Language.AllLanguages
+
+                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                    .setTitle(R.string.kenes_select_language_from_list)
+                    .setSingleChoiceItems(languages.map { it.value }.toTypedArray(), -1) { dialog, which ->
+                        updateLocale(languages[which].locale)
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
 
@@ -673,8 +669,18 @@ class KenesWidgetV2Activity : AppCompatActivity() {
             )
 
             contacts?.keys()?.forEach { key ->
-                this.configs.contacts.add(Configs.Contact(key, (contacts[key] as? String?) ?: ""))
+                val value = contacts[key]
+
+                if (value is String) {
+                    this.configs.contacts.add(Configs.Contact(key, value))
+                } else if (value is JSONArray) {
+                    this.configs.phones = value.parse()
+                }
             }
+
+            infoView?.setContacts(this.configs.contacts)
+            infoView?.setPhones(this.configs.phones)
+            infoView?.setLanguage(Language.DEFAULT)
 
             this.configs.workingHours = Configs.WorkingHours(
                 configs?.optString("message_kk"),
@@ -1431,8 +1437,12 @@ class KenesWidgetV2Activity : AppCompatActivity() {
     private fun updateViewState(viewState: ViewState) {
         when (viewState) {
             is ViewState.VideoDialog -> {
+                infoView?.visibility = View.GONE
+
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
+                        bottomNavigationView?.setNavButtonsEnabled()
+
                         goToActiveDialogButton?.text = null
                         goToActiveDialogButton?.visibility = View.GONE
 
@@ -1460,6 +1470,8 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                         recyclerView?.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
+                        bottomNavigationView?.setNavButtonsDisabled()
+
                         videoCallView?.setDisabledState()
                         videoCallView?.visibility = View.GONE
 
@@ -1472,6 +1484,8 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                         videoDialogView?.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT -> {
+                        bottomNavigationView?.setNavButtonsEnabled()
+
                         goToActiveDialogButton?.text = null
                         goToActiveDialogButton?.visibility = View.GONE
 
@@ -1501,8 +1515,12 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                 }
             }
             is ViewState.AudioDialog -> {
+                infoView?.visibility = View.GONE
+
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
+                        bottomNavigationView?.setNavButtonsEnabled()
+
                         goToActiveDialogButton?.text = null
                         goToActiveDialogButton?.visibility = View.GONE
 
@@ -1530,6 +1548,8 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                         recyclerView?.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
+                        bottomNavigationView?.setNavButtonsDisabled()
+
                         audioCallView?.setDisabledState()
                         audioCallView?.visibility = View.GONE
 
@@ -1542,6 +1562,8 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                         audioDialogView?.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT -> {
+                        bottomNavigationView?.setNavButtonsEnabled()
+
                         goToActiveDialogButton?.text = null
                         goToActiveDialogButton?.visibility = View.GONE
 
@@ -1577,6 +1599,8 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                 videoCallView?.setDisabledState()
                 videoCallView?.visibility = View.GONE
 
+                infoView?.visibility = View.GONE
+
                 recyclerView?.visibility = View.GONE
 
                 footerView?.visibility = View.GONE
@@ -1589,6 +1613,8 @@ class KenesWidgetV2Activity : AppCompatActivity() {
 
                 audioCallView?.setDefaultState()
                 audioCallView?.visibility = View.GONE
+
+                infoView?.visibility = View.GONE
 
                 videoDialogView?.visibility = View.GONE
 
@@ -1616,25 +1642,10 @@ class KenesWidgetV2Activity : AppCompatActivity() {
                 recyclerView?.visibility = View.GONE
 
                 footerView?.visibility = View.GONE
+
+                infoView?.visibility = View.VISIBLE
             }
         }
-    }
-
-    private fun updateActiveNavButtonTintColor(index: Int) {
-        if (index >= 0 && index < navButtons.size) {
-            navButtons.forEach {
-                setInactiveNavButtonTintColor(it)
-            }
-            setActiveNavButtonTintColor(navButtons[index])
-        }
-    }
-
-    private fun setActiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
-        appCompatImageButton?.setColorFilter(ContextCompat.getColor(this, R.color.kenes_blue))
-    }
-
-    private fun setInactiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
-        appCompatImageButton?.setColorFilter(ContextCompat.getColor(this, R.color.kenes_gray))
     }
 
     private fun closeLiveCall() {

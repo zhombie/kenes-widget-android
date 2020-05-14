@@ -12,8 +12,8 @@ internal class HttpRequestHandler(
 ) : AsyncTask<String, String, String>() {
 
     companion object {
-        const val READ_TIMEOUT = 1000
-        const val CONNECTION_TIMEOUT = 2000
+        const val READ_TIMEOUT = 5000
+        const val CONNECTION_TIMEOUT = 5000
     }
 
     enum class HttpMethod(val method: String) {

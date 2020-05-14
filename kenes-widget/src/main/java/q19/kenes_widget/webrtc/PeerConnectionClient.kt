@@ -690,7 +690,7 @@ class PeerConnectionClient private constructor() {
         } else videoWidth * videoHeight >= 1280 * 720
 
     private val stats: Unit
-        private get() {
+        get() {
             if (peerConnection == null || isError) {
                 return
             }

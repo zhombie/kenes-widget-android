@@ -10,7 +10,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import q19.kenes_widget.R
 
-class VideoCallView @JvmOverloads constructor(
+internal class VideoCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

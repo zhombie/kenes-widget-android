@@ -5,6 +5,7 @@
     <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
     <string name="kenes_yes">Yes</string>
     <string name="kenes_no">No</string>
+    <string name="kenes_cancel">Cancel</string>
     <string name="kenes_ok" translatable="false">OK</string>
 
     <string name="kenes_message">Message</string>
@@ -18,4 +19,8 @@
     <string name="kenes_go_to_home">Home</string>
     <string name="kenes_return_to_audio_call">Return to audio call</string>
     <string name="kenes_return_to_video_call">Return to video call</string>
+    <string name="kenes_info">Info</string>
+    <string name="kenes_chat_bot">%s сhat-bot</string>
+    <string name="kenes_change_language">Change language</string>
+    <string name="kenes_select_language_from_list">Please, select a language from the list</string>
 </resources>

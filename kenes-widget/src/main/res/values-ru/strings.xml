@@ -4,6 +4,7 @@
     <string name="kenes_exit_widget_text">Вы действительно хотите выйти из виджета?</string>
     <string name="kenes_yes">Да</string>
     <string name="kenes_no">Нет</string>
+    <string name="kenes_cancel">Отмена</string>
 
     <string name="kenes_message">Сообщение</string>
     <string name="kenes_video_call">Видеозвонок</string>
@@ -16,4 +17,8 @@
     <string name="kenes_go_to_home">На главную</string>
     <string name="kenes_return_to_audio_call">Вернуться к аудиозвонку</string>
     <string name="kenes_return_to_video_call">Вернуться к видеозвонку</string>
+    <string name="kenes_info">Информация</string>
+    <string name="kenes_chat_bot">%s чат-бот</string>
+    <string name="kenes_change_language">Сменить язык</string>
+    <string name="kenes_select_language_from_list">Пожалуйста, выберите язык из списка</string>
 </resources>

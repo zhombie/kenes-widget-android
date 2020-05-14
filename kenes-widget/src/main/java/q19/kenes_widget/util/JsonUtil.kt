@@ -5,18 +5,18 @@ import org.json.JSONObject
 
 object JsonUtil {
 
-    fun JSONObject.optJSONArrayAsList(name: String): MutableList<Int> {
+    inline fun <reified T> JSONObject.optJSONArrayAsList(name: String): MutableList<T> {
         return optJSONArray(name)?.parse() ?: mutableListOf()
     }
 
-    private fun JSONArray?.parse(): MutableList<Int> {
+    inline fun <reified T> JSONArray?.parse(): MutableList<T> {
         if (this == null) {
             return mutableListOf()
         }
-        val list = mutableListOf<Int>()
+        val list = mutableListOf<T>()
         for (i in 0 until length()) {
             val item = this[i]
-            if (item is Int) {
+            if (item is T) {
                 list.add(item)
             }
         }

@@ -12,7 +12,7 @@ import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.util.CircleTransformation
 
-class AudioDialogView @JvmOverloads constructor(
+internal class AudioDialogView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

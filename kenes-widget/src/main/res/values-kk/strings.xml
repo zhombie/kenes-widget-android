@@ -4,6 +4,7 @@
     <string name="kenes_exit_widget_text">Расымен виджеттен шыққыңыз келеді ме?</string>
     <string name="kenes_yes">Ия</string>
     <string name="kenes_no">Жоқ</string>
+    <string name="kenes_cancel">Жою</string>
 
     <string name="kenes_message">Хабарлама</string>
     <string name="kenes_video_call">Видеозвонок</string>
@@ -16,4 +17,8 @@
     <string name="kenes_go_to_home">Бастапқы бетке</string>
     <string name="kenes_return_to_audio_call">Аудиозвонокқа оралу</string>
     <string name="kenes_return_to_video_call">Видеозвонокқа оралу</string>
+    <string name="kenes_info">Қосымша ақпарат</string>
+    <string name="kenes_chat_bot">%s чат-боты</string>
+    <string name="kenes_change_language">Тілді өзгерту</string>
+    <string name="kenes_select_language_from_list">Өтінеміз, тізімнен тілді таңдаңыз</string>
 </resources>
