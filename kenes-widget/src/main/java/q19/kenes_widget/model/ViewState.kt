@@ -1,22 +1,38 @@
 package q19.kenes_widget.model
 
 sealed class ViewState {
-    object IDLE : ViewState()
     object ChatBot : ViewState()
-    class VideoDialog(var dialog: Dialog?) : ViewState()
-    class AudioDialog(var dialog: Dialog?) : ViewState()
-}
+    object CallFeedback : ViewState()
+    class VideoDialog(var state: State) : ViewState()
+    class AudioDialog(var state: State) : ViewState()
+    object Info : ViewState()
 
-fun ViewState.getVideoDialog(): Dialog? {
-    return if (this is ViewState.VideoDialog) {
-        dialog
-    } else {
-        null
+    override fun toString(): String {
+        return when (this) {
+            is VideoDialog -> "VideoDialog"
+            is AudioDialog -> "AudioDialog"
+            ChatBot -> "ChatBot"
+            CallFeedback -> "CallFeedback"
+            Info -> "Info"
+        }
     }
 }
 
-fun ViewState.setVideoDialog(dialog: Dialog?) {
-    if (this is ViewState.VideoDialog) {
-        this.dialog = dialog
-    }
+enum class State {
+    IDLE,
+    PENDING,
+    PREPARATION,
+    LIVE,
+    OPPONENT_DISCONNECT,
+    USER_DISCONNECT,
+    HIDDEN,
+    SHOWN
 }
+
+
+val ViewState.isOnLiveCall: Boolean
+    get() = when (this) {
+        is ViewState.VideoDialog -> state == State.LIVE
+        is ViewState.AudioDialog -> state == State.LIVE
+        else -> false
+    }

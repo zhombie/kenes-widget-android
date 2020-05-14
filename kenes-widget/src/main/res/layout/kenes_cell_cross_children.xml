@@ -44,7 +44,7 @@
         android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:background="@drawable/kenes_bg_button_15dp"
+        android:background="@drawable/kenes_bg_button_white_rounded_15dp"
         android:drawableStart="@drawable/kenes_ic_back_blue"
         android:drawablePadding="7dp"
         android:paddingStart="15dp"

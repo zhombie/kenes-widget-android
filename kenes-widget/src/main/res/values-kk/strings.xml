@@ -7,10 +7,13 @@
 
     <string name="kenes_message">Хабарлама</string>
     <string name="kenes_video_call">Видеозвонок</string>
+    <string name="kenes_audio_call">Аудиозвонок</string>
     <string name="kenes_call_agent">Оператор</string>
     <string name="kenes_send">Жіберу</string>
     <string name="kenes_satisfied_with_call">Сіз оператордың жауабына қанағаттанасыз ба?</string>
     <string name="kenes_typing">Теруде…</string>
     <string name="kenes_all">Барлығы</string>
     <string name="kenes_go_to_home">Бастапқы бетке</string>
+    <string name="kenes_return_to_audio_call">Аудиозвонокқа оралу</string>
+    <string name="kenes_return_to_video_call">Видеозвонокқа оралу</string>
 </resources>

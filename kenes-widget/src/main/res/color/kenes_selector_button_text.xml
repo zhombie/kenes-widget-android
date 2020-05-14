@@ -7,7 +7,7 @@
 
     <item
         android:state_pressed="true"
-        android:color="@color/white" />
+        android:color="@color/kenes_white" />
 
     <item android:color="@color/kenes_blue" />
 

@@ -10,45 +10,45 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import q19.kenes_widget.R
 
-class VideoCallView @JvmOverloads constructor(
+class AudioCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val videoCallButton: AppCompatButton
-    private val videoCallInfoView: TextView
+    private val audioCallButton: AppCompatButton
+    private val audioCallInfoView: TextView
 
     init {
-        val view = inflate(context, R.layout.kenes_video_call_view, this)
+        val view = inflate(context, R.layout.kenes_audio_call_view, this)
 
-        videoCallButton = view.findViewById(R.id.videoCallButton)
-        videoCallInfoView = view.findViewById(R.id.videoCallInfoView)
+        audioCallButton = view.findViewById(R.id.audioCallButton)
+        audioCallInfoView = view.findViewById(R.id.audioCallInfoView)
     }
 
     fun setDefaultState(isHideInfoView: Boolean = true) {
-        videoCallButton.isEnabled = true
-        videoCallInfoView.text = null
+        audioCallButton.isEnabled = true
+        audioCallInfoView.text = null
 
         if (isHideInfoView) {
-            videoCallInfoView.visibility = View.GONE
+            audioCallInfoView.visibility = View.GONE
         }
     }
 
     fun setDisabledState(text: String? = null) {
-        videoCallButton.isEnabled = false
+        audioCallButton.isEnabled = false
 
         if (text.isNullOrBlank()) {
-            videoCallInfoView.text = null
+            audioCallInfoView.text = null
         } else {
-            videoCallInfoView.text = text
-            videoCallInfoView.visibility = View.VISIBLE
+            audioCallInfoView.text = text
+            audioCallInfoView.visibility = View.VISIBLE
         }
     }
 
     fun setOnCallClickListener(callback: () -> Unit) {
-        videoCallButton.setOnClickListener { callback() }
+        audioCallButton.setOnClickListener { callback() }
     }
 
 }

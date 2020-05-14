@@ -10,6 +10,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
-import kotlinx.android.synthetic.main.kenes_activity_video_call.*
+import kotlinx.android.synthetic.main.kenes_activity_main.*
 import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
@@ -40,11 +41,13 @@ import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
+import q19.kenes_widget.views.AudioCallView
+import q19.kenes_widget.views.AudioDialogView
 import q19.kenes_widget.views.VideoCallView
 import q19.kenes_widget.views.VideoDialogView
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
-class KenesVideoCallActivity : AppCompatActivity() {
+class KenesWidgetV2Activity : AppCompatActivity() {
 
     companion object {
         const val TAG = "LOL"
@@ -65,7 +68,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         @JvmStatic
         fun newIntent(context: Context): Intent {
-            return Intent(context, KenesVideoCallActivity::class.java)
+            return Intent(context, KenesWidgetV2Activity::class.java)
         }
     }
 
@@ -84,9 +87,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
     private var videoCallView: VideoCallView? = null
 
     /**
+     * Audio call screen view variables: [audioCallView]
+     */
+    private var audioCallView: AudioCallView? = null
+
+    /**
      * Footer view variables: [footerView], [inputView], [attachmentButton]
      */
-    private var footerView: LinearLayout? = null
+    private var footerView: RelativeLayout? = null
+    private var goToActiveDialogButton: AppCompatButton? = null
     private var inputView: AppCompatEditText? = null
     private var attachmentButton: AppCompatImageButton? = null
 
@@ -116,7 +125,16 @@ class KenesVideoCallActivity : AppCompatActivity() {
      */
     private var videoDialogView: VideoDialogView? = null
 
+    /**
+     * Audio dialog view variables: [audioDialogView]
+     */
+    private var audioDialogView: AudioDialogView? = null
+
     private var activeNavButtonIndex = 0
+        set(value) {
+            field = value
+            updateActiveNavButtonTintColor(value)
+        }
 
     private val navButtons
         get() = listOf(homeNavButton, videoNavButton, audioNavButton, infoNavButton)
@@ -159,11 +177,17 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
     private var isInitiator = false
 
-    private var viewState: ViewState = ViewState.IDLE
+    private var viewState: ViewState = ViewState.ChatBot
+        set(value) {
+            field = value
+            runOnUiThread {
+                updateViewState(value)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.kenes_activity_video_call)
+        setContentView(R.layout.kenes_activity_main)
 
         // TODO: Remove later, exhaustive on PROD
         UrlUtil.setHostname("https://kenes.vlx.kz")
@@ -194,10 +218,17 @@ class KenesVideoCallActivity : AppCompatActivity() {
         videoCallView = findViewById(R.id.videoCallView)
 
         /**
-         * Bind [R.id.footerView] views: [R.id.inputView], [R.id.attachmentButton].
+         * Bind [R.id.audioCallView] view
+         */
+        audioCallView = findViewById(R.id.audioCallView)
+
+        /**
+         * Bind [R.id.footerView] views: [R.id.goToActiveDialogButton], [R.id.inputView],
+         * [R.id.attachmentButton].
          * Footer view for messenger.
          */
         footerView = findViewById(R.id.footerView)
+        goToActiveDialogButton = findViewById(R.id.goToActiveDialogButton)
         inputView = findViewById(R.id.inputView)
         attachmentButton = findViewById(R.id.attachmentButton)
 
@@ -231,6 +262,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
          */
         videoDialogView = findViewById(R.id.videoDialogView)
 
+        /**
+         * Bind [R.id.audioDialogView] view
+         */
+        audioDialogView = findViewById(R.id.audioDialogView)
+
         // ------------------------------------------------------------------------
 
 
@@ -249,20 +285,15 @@ class KenesVideoCallActivity : AppCompatActivity() {
         /**
          * Default states of views
          */
+        // TODO: Remove after attachment upload ability realization
+        attachmentButton?.visibility = View.GONE
+
         rateButton?.isEnabled = false
         bindOpponentData(Configs())
         inputView?.text?.clear()
         activeDialog = null
 
-        // TODO: Remove after attachment upload ability realization
-        attachmentButton?.visibility = View.GONE
-
-        videoDialogView?.visibility = View.GONE
-
-        feedbackView?.visibility = View.GONE
-        videoCallView?.visibility = View.GONE
-        recyclerView?.visibility = View.VISIBLE
-        footerView?.visibility = View.VISIBLE
+        viewState = ViewState.ChatBot
 
         // ------------------------------------------------------------------------
 
@@ -273,59 +304,69 @@ class KenesVideoCallActivity : AppCompatActivity() {
         homeNavButton?.setOnClickListener {
             if (feedbackView?.visibility == View.VISIBLE) {
                 return@setOnClickListener
-            } else {
-                activeNavButtonIndex = 0
-                updateActiveNavButtonTintColor()
-
-                chatAdapter.clearMessages()
-                scrollToTop()
-
-                messages.clear()
-
-                activeCategoryChild = null
-
-                videoCallView?.setDefaultState()
-
-                videoCallView?.visibility = View.GONE
-                feedbackView?.visibility = View.GONE
-                recyclerView?.visibility = View.VISIBLE
-                footerView?.visibility = View.VISIBLE
-
-                val userDashboard = JSONObject()
-                userDashboard.put("action", "get_category_list")
-                userDashboard.put("parent_id", 0)
-                socket?.emit("user_dashboard", userDashboard)
             }
+
+            if (viewState.isOnLiveCall) {
+                return@setOnClickListener
+            }
+
+            activeNavButtonIndex = 0
+
+            viewState = ViewState.ChatBot
+
+            chatAdapter.clearMessages()
+            scrollToTop()
+
+            messages.clear()
+
+            activeCategoryChild = null
+
+            socket?.emit("user_dashboard", jsonObject {
+                put("action", "get_category_list")
+                put("parent_id", 0)
+            })
         }
 
         videoNavButton?.setOnClickListener {
+            if (feedbackView?.visibility == View.VISIBLE) {
+                return@setOnClickListener
+            }
+
+            if (viewState.isOnLiveCall) {
+                return@setOnClickListener
+            }
+
             activeNavButtonIndex = 1
-            updateActiveNavButtonTintColor()
 
-            videoCallView?.setDefaultState()
-
-            footerView?.visibility = View.GONE
-            feedbackView?.visibility = View.GONE
-            recyclerView?.visibility = View.GONE
-            videoCallView?.visibility = View.VISIBLE
+            viewState = ViewState.VideoDialog(State.IDLE)
         }
 
         audioNavButton?.setOnClickListener {
             if (feedbackView?.visibility == View.VISIBLE) {
                 return@setOnClickListener
-            } else {
-                activeNavButtonIndex = 2
-                updateActiveNavButtonTintColor()
             }
+
+            if (viewState.isOnLiveCall) {
+                return@setOnClickListener
+            }
+
+            activeNavButtonIndex = 2
+
+            viewState = ViewState.AudioDialog(State.IDLE)
         }
 
         infoNavButton?.setOnClickListener {
             if (feedbackView?.visibility == View.VISIBLE) {
                 return@setOnClickListener
-            } else {
-                activeNavButtonIndex = 3
-                updateActiveNavButtonTintColor()
             }
+
+            if (viewState.isOnLiveCall) {
+                return@setOnClickListener
+            }
+
+            activeNavButtonIndex = 3
+
+            viewState = ViewState.Info
         }
 
         /**
@@ -334,15 +375,26 @@ class KenesVideoCallActivity : AppCompatActivity() {
         videoCallView?.setOnCallClickListener {
             isInitiator = true
 
-            inputView?.text?.clear()
-            chatAdapter.clearMessages()
+            viewState = ViewState.VideoDialog(State.PENDING)
 
             socket?.emit("initialize", jsonObject { put("video", true) })
-
-            videoCallView?.setDisabledState()
         }
 
-        start()
+        audioCallView?.setOnCallClickListener {
+            isInitiator = true
+
+            viewState = ViewState.AudioDialog(State.PENDING)
+
+            socket?.emit("initialize", jsonObject { put("audio", true) })
+        }
+
+        goToActiveDialogButton?.setOnClickListener {
+            if (viewState is ViewState.VideoDialog) {
+                viewState = ViewState.VideoDialog(State.SHOWN)
+            } else if (viewState is ViewState.VideoDialog) {
+                viewState = ViewState.AudioDialog(State.SHOWN)
+            }
+        }
 
         attachmentButton?.setOnClickListener {
             AlertDialog.Builder(this)
@@ -369,7 +421,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     chatAdapter.clearMessages()
                 }
 
-                sendUserTextMessage(text)
+                sendUserMessage(text)
                 inputView?.text?.clear()
                 chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
                 scrollToBottom()
@@ -390,7 +442,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
         videoDialogView?.callback = object : VideoDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                videoDialogView?.visibility = View.INVISIBLE
+                viewState = ViewState.VideoDialog(State.HIDDEN)
             }
 
             override fun onHangUpButtonClicked() {
@@ -398,22 +450,38 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                 sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
 
-                closeVideoCall()
+                closeLiveCall()
 
                 socket?.close()
 
-                videoDialogView?.visibility = View.GONE
-                recyclerView?.visibility = View.GONE
-
-                videoCallView?.setDefaultState(false)
-                videoCallView?.visibility = View.VISIBLE
+                viewState = ViewState.VideoDialog(State.USER_DISCONNECT)
 
                 activeNavButtonIndex = 0
-                updateActiveNavButtonTintColor()
                 connectToSignallingServer()
             }
 
             override fun onSwitchSourceButtonClicked() {
+            }
+        }
+
+        audioDialogView?.callback = object : AudioDialogView.Callback {
+            override fun onGoToChatButtonClicked() {
+                viewState = ViewState.AudioDialog(State.HIDDEN)
+            }
+
+            override fun onHangUpButtonClicked() {
+                isInitiator = false
+
+                sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
+
+                closeLiveCall()
+
+                socket?.close()
+
+                viewState = ViewState.AudioDialog(State.USER_DISCONNECT)
+
+                activeNavButtonIndex = 0
+                connectToSignallingServer()
             }
         }
 
@@ -432,7 +500,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 //                val isPreviousIsAHome = previous.all { it.category?.home == true }
 
 //                if (isPreviousIsAHome) {
-                chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
+                chatAdapter.setNewMessages(this@KenesWidgetV2Activity.messages)
                 scrollToTop()
 //                } else {
 //                    chatAdapter.setNewMessages(previous)
@@ -444,22 +512,22 @@ class KenesVideoCallActivity : AppCompatActivity() {
                 activeCategoryChild = category
 
                 if (category.responses.isNotEmpty()) {
-                    val userDashboard = JSONObject()
-                    userDashboard.put("action", "get_response")
-                    userDashboard.put("id", category.responses.first())
-                    socket?.emit("user_dashboard", userDashboard)
+                    socket?.emit("user_dashboard", jsonObject {
+                        put("action", "get_response")
+                        put("id", category.responses.first())
+                    })
                 } else {
-                    val userDashboard = JSONObject()
-                    userDashboard.put("action", "get_category_list")
-                    userDashboard.put("parent_id", category.id)
-                    socket?.emit("user_dashboard", userDashboard)
+                    socket?.emit("user_dashboard", jsonObject {
+                        put("action", "get_category_list")
+                        put("parent_id", category.id)
+                    })
                 }
             }
 
             override fun onGoToHomeClicked() {
                 activeCategoryChild = null
 
-                chatAdapter.setNewMessages(this@KenesVideoCallActivity.messages)
+                chatAdapter.setNewMessages(this@KenesWidgetV2Activity.messages)
                 scrollToTop()
             }
         })
@@ -470,6 +538,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, REQUEST_CODE_PERMISSIONS)
         }
+
+        start()
     }
 
     override fun onBackPressed() {
@@ -493,31 +563,41 @@ class KenesVideoCallActivity : AppCompatActivity() {
         connectToSignallingServer()
     }
 
-    private fun videoCallInitialize() {
+    private fun initializeCallConnection(isVideoCall: Boolean = true) {
         rootEglBase = EglBase.create()
 
-        runOnUiThread {
-            videoDialogView?.localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
-            videoDialogView?.localSurfaceView?.setEnableHardwareScaler(true)
-            videoDialogView?.localSurfaceView?.setMirror(true)
+        if (isVideoCall) {
+            runOnUiThread {
+                videoDialogView?.localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
+                videoDialogView?.localSurfaceView?.setEnableHardwareScaler(true)
+                videoDialogView?.localSurfaceView?.setMirror(true)
 
-            videoDialogView?.remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
-            videoDialogView?.remoteSurfaceView?.setEnableHardwareScaler(true)
-            videoDialogView?.remoteSurfaceView?.setMirror(true)
+                videoDialogView?.remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
+                videoDialogView?.remoteSurfaceView?.setEnableHardwareScaler(true)
+                videoDialogView?.remoteSurfaceView?.setMirror(true)
+            }
         }
 
         PeerConnectionFactory.initializeAndroidGlobals(this, true, true, true)
         peerConnectionFactory = PeerConnectionFactory(null)
-        peerConnectionFactory?.setVideoHwAccelerationOptions(
-            rootEglBase?.eglBaseContext,
-            rootEglBase?.eglBaseContext
-        )
+
+        if (isVideoCall) {
+            peerConnectionFactory?.setVideoHwAccelerationOptions(
+                rootEglBase?.eglBaseContext,
+                rootEglBase?.eglBaseContext
+            )
+        }
 
         peerConnection = peerConnectionFactory?.let { createPeerConnection(it) }
 
         localMediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
-        localMediaStream?.addTrack(createVideoTrack())
+
+        if (isVideoCall) {
+            localMediaStream?.addTrack(createVideoTrack())
+        }
+
         localMediaStream?.addTrack(createAudioTrack())
+
         peerConnection?.addStream(localMediaStream)
     }
 
@@ -644,7 +724,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
     }
 
     private fun bindOpponentData(configs: Configs) {
-        if (!configs.opponent.avatarUrl.isNullOrBlank()) {
+        if (opponentAvatarView != null && !configs.opponent.avatarUrl.isNullOrBlank()) {
             Picasso.get()
                 .load(configs.opponent.avatarUrl)
                 .fit()
@@ -689,6 +769,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
             logD("JSONObject call: $call")
 
             val type = call.optString("type")
+            val media = call.optString("media")
 
             if (type == "accept") {
                 activeDialog = Dialog(
@@ -697,14 +778,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     media = call.optString("media")
                 )
 
-                runOnUiThread {
-                    videoCallView?.setDisabledState()
-                    videoCallView?.visibility = View.GONE
-
-                    feedbackView?.visibility = View.GONE
-
-                    recyclerView?.visibility = View.VISIBLE
+                if (media == "audio") {
+                    viewState = ViewState.AudioDialog(State.PREPARATION)
+                } else if (media == "video") {
+                    viewState = ViewState.VideoDialog(State.PREPARATION)
                 }
+
+                logD("viewState: $viewState")
             }
 
         }?.on("category_list") { args ->
@@ -756,17 +836,17 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         activeCategoryChild?.children?.add(category)
                     }
 
-//                        messages.forEach { message ->
-//                            if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
-//                                message.category?.children?.add(category)
-//                            } else {
-//                                message.category?.sections?.forEach { section ->
-//                                    if (section.id == category.parentId) {
-//                                        section.sections.add(Section.from(category))
-//                                    }
+//                    messages.forEach { message ->
+//                        if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
+//                            message.category?.children?.add(category)
+//                        } else {
+//                            message.category?.sections?.forEach { section ->
+//                                if (section.id == category.parentId) {
+//                                    section.sections.add(Section.from(category))
 //                                }
 //                            }
 //                        }
+//                    }
 
                     if (activeCategoryChild == null) {
                         messages.forEach { message ->
@@ -855,6 +935,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
             logD("photoUrl: $photoUrl")
 
+            logD("viewState: $viewState")
+
             text = text.replace("{}", fullName)
 
             runOnUiThread {
@@ -865,6 +947,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         avatarUrl = photoUrl
                     )
                 ))
+
+                if (viewState is ViewState.AudioDialog) {
+                    audioDialogView?.showAvatar(photoUrl)
+                    audioDialogView?.showName(fullName)
+                }
 
                 chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
                 scrollToBottom()
@@ -908,17 +995,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
                     ))
                 }
 
+                viewState = ViewState.CallFeedback
+
                 runOnUiThread {
-                    videoCallView?.setDisabledState()
-                    videoCallView?.visibility = View.GONE
-
-                    recyclerView?.visibility = View.GONE
-
                     inputView?.let { hideKeyboard(it) }
-
-                    footerView?.visibility = View.GONE
-
-                    feedbackView?.visibility = View.VISIBLE
 
                     titleView?.text = text
 
@@ -942,16 +1022,9 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         selectedRatingButton = null
 
                         rateButton?.isEnabled = false
-
                         ratingView?.adapter = null
 
-                        videoCallView?.visibility = View.GONE
-
-                        feedbackView?.visibility = View.GONE
-
-                        recyclerView?.visibility = View.VISIBLE
-
-                        footerView?.visibility = View.VISIBLE
+                        viewState = ViewState.ChatBot
 
                         bindOpponentData(this.configs)
                     }
@@ -990,10 +1063,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                             bindOpponentData(this.configs)
 
-                            recyclerView?.visibility = View.GONE
-
-                            videoCallView?.setDefaultState()
-                            videoCallView?.visibility = View.VISIBLE
+                            viewState = ViewState.VideoDialog(State.IDLE)
 
                             dialog.dismiss()
                         }
@@ -1004,18 +1074,13 @@ class KenesVideoCallActivity : AppCompatActivity() {
             }
 
             if (action == "operator_disconnect") {
-//                activeDialog = null
+                activeDialog = null
 
-                closeVideoCall()
+                closeLiveCall()
+
+                viewState = ViewState.VideoDialog(State.OPPONENT_DISCONNECT)
 
                 runOnUiThread {
-                    videoCallView?.setDefaultState()
-                    videoCallView?.visibility = View.GONE
-
-                    feedbackView?.visibility = View.GONE
-
-                    recyclerView?.visibility = View.VISIBLE
-
                     chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
                     scrollToBottom()
                 }
@@ -1026,37 +1091,47 @@ class KenesVideoCallActivity : AppCompatActivity() {
             rtc?.let {
                 when (rtc.getNullableString("type")) {
                     Rtc.Type.START?.value -> {
+                        logD("viewState (Rtc.Type.START?.value): $viewState")
+
                         sendMessage(userMessage { rtc { type = Rtc.Type.PREPARE } })
                     }
                     Rtc.Type.PREPARE?.value -> {
-                        videoCallInitialize()
+                        logD("viewState (Rtc.Type.PREPARE?.value): $viewState")
 
-                        runOnUiThread {
-                            videoCallView?.setDisabledState()
-                            videoCallView?.visibility = View.GONE
+                        if (viewState is ViewState.VideoDialog) {
+                            viewState = ViewState.VideoDialog(State.PREPARATION)
 
-                            recyclerView?.visibility = View.VISIBLE
+                            initializeCallConnection(isVideoCall = true)
 
-                            videoDialogView?.visibility = View.VISIBLE
+                            sendMessage(userMessage { rtc { type = Rtc.Type.READY } })
+                        } else if (viewState is ViewState.AudioDialog) {
+                            viewState = ViewState.AudioDialog(State.PREPARATION)
+
+                            initializeCallConnection(isVideoCall = false)
+
+                            sendMessage(userMessage { rtc { type = Rtc.Type.READY } })
                         }
-
-                        sendMessage(userMessage { rtc { type = Rtc.Type.READY } })
                     }
                     Rtc.Type.READY?.value -> {
-                        videoCallInitialize()
+                        logD("viewState (Rtc.Type.READY?.value): $viewState")
 
-                        runOnUiThread {
-                            videoCallView?.setDisabledState()
-                            videoCallView?.visibility = View.GONE
+                        if (viewState is ViewState.VideoDialog) {
+                            viewState = ViewState.VideoDialog(State.LIVE)
 
-                            recyclerView?.visibility = View.VISIBLE
+                            initializeCallConnection(isVideoCall = true)
 
-                            videoDialogView?.visibility = View.VISIBLE
+                            sendOffer()
+                        } else if (viewState is ViewState.AudioDialog) {
+                            viewState = ViewState.AudioDialog(State.LIVE)
+
+                            initializeCallConnection(isVideoCall = false)
+
+                            sendOffer()
                         }
-
-                        sendOffer()
                     }
                     Rtc.Type.ANSWER?.value -> {
+                        logD("viewState (Rtc.Type.ANSWER?.value): $viewState")
+
                         peerConnection?.setRemoteDescription(
                             SimpleSdpObserver(),
                             SessionDescription(
@@ -1066,6 +1141,8 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         )
                     }
                     Rtc.Type.CANDIDATE?.value -> {
+                        logD("viewState (Rtc.Type.CANDIDATE?.value): $viewState")
+
                         peerConnection?.addIceCandidate(
                             IceCandidate(
                                 rtc.getString("id"),
@@ -1075,39 +1152,47 @@ class KenesVideoCallActivity : AppCompatActivity() {
                         )
                     }
                     Rtc.Type.OFFER?.value -> {
-                        peerConnection?.setRemoteDescription(
-                            SimpleSdpObserver(),
-                            SessionDescription(
-                                SessionDescription.Type.OFFER,
-                                rtc.getString("sdp")
+                        logD("viewState (Rtc.Type.OFFER?.value): $viewState")
+
+                        if (viewState is ViewState.VideoDialog) {
+                            viewState = ViewState.VideoDialog(State.LIVE)
+
+                            peerConnection?.setRemoteDescription(
+                                SimpleSdpObserver(),
+                                SessionDescription(
+                                    SessionDescription.Type.OFFER,
+                                    rtc.getString("sdp")
+                                )
                             )
-                        )
 
-                        sendAnswer()
+                            sendAnswer()
+                        } else if (viewState is ViewState.AudioDialog) {
+                            viewState = ViewState.AudioDialog(State.LIVE)
 
-                        runOnUiThread {
-                            videoCallView?.setDisabledState()
-                            videoCallView?.visibility = View.GONE
+                            peerConnection?.setRemoteDescription(
+                                SimpleSdpObserver(),
+                                SessionDescription(
+                                    SessionDescription.Type.OFFER,
+                                    rtc.getString("sdp")
+                                )
+                            )
 
-                            recyclerView?.visibility = View.VISIBLE
-
-                            videoDialogView?.visibility = View.VISIBLE
+                            sendAnswer()
                         }
                     }
                     Rtc.Type.HANGUP?.value -> {
+                        logD("viewState (Rtc.Type.HANGUP?.value): $viewState")
+
                         isInitiator = false
                         activeDialog = null
 
-                        closeVideoCall()
-
-                        runOnUiThread {
-                            videoDialogView?.visibility = View.GONE
-
-                            recyclerView?.visibility = View.GONE
-
-                            videoCallView?.setDefaultState()
-                            videoCallView?.visibility = View.VISIBLE
+                        if (viewState is ViewState.VideoDialog) {
+                            viewState = ViewState.VideoDialog(State.IDLE)
+                        } else if (viewState is ViewState.AudioDialog) {
+                            viewState = ViewState.AudioDialog(State.IDLE)
                         }
+
+                        closeLiveCall()
                     }
                     else -> {
                         return@on
@@ -1133,22 +1218,25 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                 if (from == "operator" && sender.isNullOrBlank() && action.isNullOrBlank()) {
                     runOnUiThread {
-                        videoCallView?.setDisabledState(text)
+                        if (viewState is ViewState.VideoDialog) {
+                            videoCallView?.setDisabledState(text)
 
-                        chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                        scrollToBottom()
+                            chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                            scrollToBottom()
+                        } else if (viewState is ViewState.AudioDialog) {
+                            audioCallView?.setDisabledState(text)
+
+                            chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                            scrollToBottom()
+                        }
                     }
                 } else {
                     runOnUiThread {
                         if (activeCategoryChild != null) {
-                            chatAdapter.setNewMessages(listOf(
-                                Message(Message.Type.RESPONSE, text, time, activeCategoryChild)
-                            ))
+                            chatAdapter.setNewMessages(listOf(Message(Message.Type.RESPONSE, text, time, activeCategoryChild)))
                             scrollToBottom()
                         } else {
-                            chatAdapter.addNewMessage(
-                                Message(Message.Type.OPPONENT, text, time)
-                            )
+                            chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                             scrollToBottom()
                         }
                     }
@@ -1156,22 +1244,17 @@ class KenesVideoCallActivity : AppCompatActivity() {
             }
 
         }?.on(Socket.EVENT_DISCONNECT) {
-
             logD("event [EVENT_DISCONNECT]")
 
             isInitiator = false
 
             activeDialog = null
 
+            viewState = ViewState.ChatBot
+
             runOnUiThread {
                 bindOpponentData(this.configs)
-
-                recyclerView?.visibility = View.GONE
-
-                videoCallView?.setDefaultState()
-                videoCallView?.visibility = View.VISIBLE
             }
-
         }
 
         socket?.connect()
@@ -1204,15 +1287,12 @@ class KenesVideoCallActivity : AppCompatActivity() {
         peerConnection?.createOffer(object : SimpleSdpObserver() {
             override fun onCreateSuccess(sessionDescription: SessionDescription) {
                 logD("onCreateSuccess: " + sessionDescription.description)
+
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
                 sendMessage(userMessage {
                     rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description }
                 })
-
-                runOnUiThread {
-                    chatAdapter.clearMessages()
-                }
             }
 
             override fun onCreateFailure(s: String) {
@@ -1244,13 +1324,10 @@ class KenesVideoCallActivity : AppCompatActivity() {
 
                 when (iceConnectionState) {
                     IceConnectionState.CLOSED, IceConnectionState.FAILED -> {
-                        runOnUiThread {
-                            recyclerView?.visibility = View.GONE
-
-                            videoDialogView?.visibility = View.GONE
-
-                            videoCallView?.setDefaultState()
-                            videoCallView?.visibility = View.VISIBLE
+                        if (viewState is ViewState.VideoDialog) {
+                            viewState = ViewState.VideoDialog(State.IDLE)
+                        } else if (viewState is ViewState.AudioDialog) {
+                            viewState = ViewState.AudioDialog(State.IDLE)
                         }
                     }
                     else -> {
@@ -1284,17 +1361,20 @@ class KenesVideoCallActivity : AppCompatActivity() {
             }
 
             override fun onAddStream(mediaStream: MediaStream) {
-                logD("onAddStream: " + mediaStream.videoTracks.size)
+                logD("onAddStream -> mediaStream.audioTracks.size: " + mediaStream.audioTracks.size)
+                logD("onAddStream -> mediaStream.videoTracks.size: " + mediaStream.videoTracks.size)
 
                 if (mediaStream.audioTracks.isNotEmpty()) {
                     remoteAudioTrack = mediaStream.audioTracks[0]
                     remoteAudioTrack?.setEnabled(true)
                 }
 
-                if (mediaStream.videoTracks.isNotEmpty()) {
-                    remoteVideoTrack = mediaStream.videoTracks[0]
-                    remoteVideoTrack?.setEnabled(true)
-                    remoteVideoTrack?.addRenderer(VideoRenderer(videoDialogView?.remoteSurfaceView))
+                if (viewState is ViewState.VideoDialog) {
+                    if (mediaStream.videoTracks.isNotEmpty()) {
+                        remoteVideoTrack = mediaStream.videoTracks[0]
+                        remoteVideoTrack?.setEnabled(true)
+                        remoteVideoTrack?.addRenderer(VideoRenderer(videoDialogView?.remoteSurfaceView))
+                    }
                 }
             }
 
@@ -1318,7 +1398,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
         return factory.createPeerConnection(rtcConfig, peerConnectionConstraints, peerConnectionObserver)
     }
 
-    private fun sendUserTextMessage(text: String) {
+    private fun sendUserMessage(text: String) {
         val userMessage = JSONObject()
         try {
             userMessage.put("text", text)
@@ -1348,12 +1428,204 @@ class KenesVideoCallActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateActiveNavButtonTintColor() {
-        if (activeNavButtonIndex >= 0 && activeNavButtonIndex < navButtons.size) {
+    private fun updateViewState(viewState: ViewState) {
+        when (viewState) {
+            is ViewState.VideoDialog -> {
+                when (viewState.state) {
+                    State.IDLE, State.USER_DISCONNECT -> {
+                        goToActiveDialogButton?.text = null
+                        goToActiveDialogButton?.visibility = View.GONE
+
+                        audioCallView?.visibility = View.GONE
+                        videoDialogView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.GONE
+
+                        footerView?.visibility = View.GONE
+
+                        videoCallView?.setDefaultState()
+                        videoCallView?.visibility = View.VISIBLE
+                    }
+                    State.PENDING -> {
+                        videoCallView?.setDisabledState()
+
+                        chatAdapter.clearMessages()
+                    }
+                    State.PREPARATION -> {
+                        videoCallView?.setDisabledState()
+                        videoCallView?.visibility = View.GONE
+
+                        feedbackView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.VISIBLE
+                    }
+                    State.LIVE -> {
+                        videoCallView?.setDisabledState()
+                        videoCallView?.visibility = View.GONE
+
+                        feedbackView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.VISIBLE
+
+                        footerView?.visibility = View.VISIBLE
+
+                        videoDialogView?.visibility = View.VISIBLE
+                    }
+                    State.OPPONENT_DISCONNECT -> {
+                        goToActiveDialogButton?.text = null
+                        goToActiveDialogButton?.visibility = View.GONE
+
+                        videoCallView?.setDefaultState()
+                        videoCallView?.visibility = View.GONE
+
+                        feedbackView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.VISIBLE
+                    }
+                    State.HIDDEN -> {
+                        recyclerView?.visibility = View.VISIBLE
+
+                        scrollToBottom()
+
+                        goToActiveDialogButton?.setText(R.string.kenes_return_to_video_call)
+                        goToActiveDialogButton?.visibility = View.VISIBLE
+
+                        videoDialogView?.visibility = View.INVISIBLE
+                    }
+                    State.SHOWN -> {
+                        goToActiveDialogButton?.text = null
+                        goToActiveDialogButton?.visibility = View.GONE
+
+                        videoDialogView?.visibility = View.VISIBLE
+                    }
+                }
+            }
+            is ViewState.AudioDialog -> {
+                when (viewState.state) {
+                    State.IDLE, State.USER_DISCONNECT -> {
+                        goToActiveDialogButton?.text = null
+                        goToActiveDialogButton?.visibility = View.GONE
+
+                        audioCallView?.setDefaultState()
+
+                        footerView?.visibility = View.GONE
+                        feedbackView?.visibility = View.GONE
+                        recyclerView?.visibility = View.GONE
+
+                        videoCallView?.visibility = View.GONE
+
+                        audioCallView?.visibility = View.VISIBLE
+                    }
+                    State.PENDING -> {
+                        audioCallView?.setDisabledState()
+
+                        chatAdapter.clearMessages()
+                    }
+                    State.PREPARATION -> {
+                        audioCallView?.setDisabledState()
+                        audioCallView?.visibility = View.GONE
+
+                        feedbackView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.VISIBLE
+                    }
+                    State.LIVE -> {
+                        audioCallView?.setDisabledState()
+                        audioCallView?.visibility = View.GONE
+
+                        feedbackView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.VISIBLE
+
+                        footerView?.visibility = View.VISIBLE
+
+                        audioDialogView?.visibility = View.VISIBLE
+                    }
+                    State.OPPONENT_DISCONNECT -> {
+                        goToActiveDialogButton?.text = null
+                        goToActiveDialogButton?.visibility = View.GONE
+
+                        audioCallView?.setDefaultState()
+                        audioCallView?.visibility = View.GONE
+
+                        feedbackView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.VISIBLE
+                    }
+                    State.HIDDEN -> {
+                        recyclerView?.visibility = View.VISIBLE
+
+                        scrollToBottom()
+
+                        goToActiveDialogButton?.setText(R.string.kenes_return_to_audio_call)
+                        goToActiveDialogButton?.visibility = View.VISIBLE
+
+                        audioDialogView?.visibility = View.INVISIBLE
+                    }
+                    State.SHOWN -> {
+                        goToActiveDialogButton?.text = null
+                        goToActiveDialogButton?.visibility = View.GONE
+
+                        audioDialogView?.visibility = View.VISIBLE
+                    }
+                }
+            }
+            ViewState.CallFeedback -> {
+                audioCallView?.setDisabledState()
+                audioCallView?.visibility = View.GONE
+
+                videoCallView?.setDisabledState()
+                videoCallView?.visibility = View.GONE
+
+                recyclerView?.visibility = View.GONE
+
+                footerView?.visibility = View.GONE
+
+                feedbackView?.visibility = View.VISIBLE
+            }
+            ViewState.ChatBot -> {
+                videoCallView?.setDefaultState()
+                videoCallView?.visibility = View.GONE
+
+                audioCallView?.setDefaultState()
+                audioCallView?.visibility = View.GONE
+
+                videoDialogView?.visibility = View.GONE
+
+                audioDialogView?.visibility = View.GONE
+
+                feedbackView?.visibility = View.GONE
+
+                recyclerView?.visibility = View.VISIBLE
+
+                footerView?.visibility = View.VISIBLE
+            }
+            ViewState.Info -> {
+                videoCallView?.setDefaultState()
+                videoCallView?.visibility = View.GONE
+
+                audioCallView?.setDefaultState()
+                audioCallView?.visibility = View.GONE
+
+                videoDialogView?.visibility = View.GONE
+
+                audioDialogView?.visibility = View.GONE
+
+                feedbackView?.visibility = View.GONE
+
+                recyclerView?.visibility = View.GONE
+
+                footerView?.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun updateActiveNavButtonTintColor(index: Int) {
+        if (index >= 0 && index < navButtons.size) {
             navButtons.forEach {
                 setInactiveNavButtonTintColor(it)
             }
-            setActiveNavButtonTintColor(navButtons[activeNavButtonIndex])
+            setActiveNavButtonTintColor(navButtons[index])
         }
     }
 
@@ -1365,7 +1637,7 @@ class KenesVideoCallActivity : AppCompatActivity() {
         appCompatImageButton?.setColorFilter(ContextCompat.getColor(this, R.color.kenes_gray))
     }
 
-    private fun closeVideoCall() {
+    private fun closeLiveCall() {
         peerConnection?.dispose()
         peerConnection = null
 
@@ -1409,9 +1681,11 @@ class KenesVideoCallActivity : AppCompatActivity() {
         super.onDestroy()
 
         activeDialog = null
+        viewState = ViewState.ChatBot
+
         messages.clear()
 
-        closeVideoCall()
+        closeLiveCall()
 
         socket?.disconnect()
         socket = null

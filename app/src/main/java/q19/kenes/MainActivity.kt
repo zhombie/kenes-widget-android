@@ -2,7 +2,7 @@ package q19.kenes
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import q19.kenes_widget.KenesVideoCallActivity
+import q19.kenes_widget.KenesWidgetV2Activity
 
 
 class MainActivity : AppCompatActivity() {
@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        startActivity(KenesVideoCallActivity.newIntent(this))
+        startActivity(KenesWidgetV2Activity.newIntent(this))
     }
 
 }
