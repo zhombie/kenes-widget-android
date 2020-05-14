@@ -7,18 +7,18 @@
     <string name="kenes_cancel">Жою</string>
 
     <string name="kenes_message">Хабарлама</string>
-    <string name="kenes_video_call">Видеозвонок</string>
-    <string name="kenes_audio_call">Аудиозвонок</string>
+    <string name="kenes_video_call">Бейне қоңырау</string>
+    <string name="kenes_audio_call">Аудио қоңырау</string>
     <string name="kenes_call_agent">Оператор</string>
     <string name="kenes_send">Жіберу</string>
     <string name="kenes_satisfied_with_call">Сіз оператордың жауабына қанағаттанасыз ба?</string>
     <string name="kenes_typing">Теруде…</string>
     <string name="kenes_all">Барлығы</string>
     <string name="kenes_go_to_home">Бастапқы бетке</string>
-    <string name="kenes_return_to_audio_call">Аудиозвонокқа оралу</string>
-    <string name="kenes_return_to_video_call">Видеозвонокқа оралу</string>
-    <string name="kenes_info">Қосымша ақпарат</string>
-    <string name="kenes_chat_bot">%s чат-боты</string>
-    <string name="kenes_change_language">Тілді өзгерту</string>
+    <string name="kenes_return_to_audio_call">Аудио қоңырауға оралу</string>
+    <string name="kenes_return_to_video_call">Бейне қоңырауға оралу</string>
+    <string name="kenes_info">Ақпарат</string>
+    <string name="kenes_chat_bot">%s чат-бот</string>
+    <string name="kenes_change_language">Тілді ауыстыру</string>
     <string name="kenes_select_language_from_list">Өтінеміз, тізімнен тілді таңдаңыз</string>
 </resources>

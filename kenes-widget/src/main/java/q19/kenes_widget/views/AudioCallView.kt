@@ -21,7 +21,7 @@ internal class AudioCallView @JvmOverloads constructor(
     private val audioCallInfoView: TextView
 
     init {
-        val view = inflate(context, R.layout.kenes_audio_call_view, this)
+        val view = inflate(context, R.layout.kenes_view_audio_call, this)
 
         audioCallButton = view.findViewById(R.id.audioCallButton)
         audioCallInfoView = view.findViewById(R.id.audioCallInfoView)

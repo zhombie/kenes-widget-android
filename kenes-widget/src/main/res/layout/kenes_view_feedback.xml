@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/feedbackView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/kenes_white"
+    android:gravity="center_vertical"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/titleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="15dp"
+        android:fontFamily="sans-serif-medium"
+        android:lineSpacingExtra="3sp"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        tools:text="Удовлетворены ли вы ответом оператора?" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ratingView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical"
+        android:overScrollMode="never"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="3"
+        tools:listitem="@layout/kenes_cell_rating" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/rateButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/kenes_bg_button_white_rounded_4dp"
+        android:enabled="false"
+        android:paddingStart="15dp"
+        android:paddingTop="9dp"
+        android:paddingEnd="15dp"
+        android:paddingBottom="9dp"
+        android:text="@string/kenes_send"
+        android:textAllCaps="false"
+        android:textColor="@color/kenes_selector_button_text" />
+
+</LinearLayout>

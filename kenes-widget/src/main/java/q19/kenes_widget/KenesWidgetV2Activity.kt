@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -31,7 +30,6 @@ import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
-import q19.kenes_widget.adapter.RatingAdapter
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.HttpRequestHandler
@@ -109,12 +107,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var recyclerView: RecyclerView? = null
 
     /**
-     * User feedback after dialog view variables: [feedbackView], [titleView], [ratingView], [rateButton]
+     * User feedback after dialog view variables: [feedbackView]
      */
-    private var feedbackView: LinearLayout? = null
-    private var titleView: TextView? = null
-    private var ratingView: RecyclerView? = null
-    private var rateButton: AppCompatButton? = null
+    private var feedbackView: FeedbackView? = null
 
     /**
      * Bottom navigation view variables: [bottomNavigationView]
@@ -236,13 +231,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
 
         /**
-         * Bind [R.id.feedbackView] views: [R.id.titleView], [R.id.ratingView], [R.id.rateButton].
+         * Bind [R.id.feedbackView] view.
          * Big screen view for user feedback after dialogue with a call agent.
          */
         feedbackView = findViewById(R.id.feedbackView)
-        titleView = findViewById(R.id.titleView)
-        ratingView = findViewById(R.id.ratingView)
-        rateButton = findViewById(R.id.rateButton)
 
         /**
          * Bind [R.id.bottomNavigationView] view
@@ -275,7 +267,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         // TODO: Remove after attachment upload ability realization
         attachmentButton?.visibility = View.GONE
 
-        rateButton?.isEnabled = false
+        feedbackView?.setDefaultState()
         bindOpponentData(Configs())
         inputView?.text?.clear()
         activeDialog = null
@@ -290,10 +282,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          */
         bottomNavigationView?.callback = object : BottomNavigationView.Callback {
             override fun onHomeNavButtonClicked() {
-                if (feedbackView?.visibility == View.VISIBLE) {
-                    return
-                }
-
                 viewState = ViewState.ChatBot
 
                 chatAdapter.clearMessages()
@@ -310,26 +298,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onVideoNavButtonClicked() {
-                if (feedbackView?.visibility == View.VISIBLE) {
-                    return
-                }
-
                 viewState = ViewState.VideoDialog(State.IDLE)
             }
 
             override fun onAudioNavButtonClicked() {
-                if (feedbackView?.visibility == View.VISIBLE) {
-                    return
-                }
-
                 viewState = ViewState.AudioDialog(State.IDLE)
             }
 
             override fun onInfoNavButtonClicked() {
-                if (feedbackView?.visibility == View.VISIBLE) {
-                    return
-                }
-
                 viewState = ViewState.Info
             }
         }
@@ -471,7 +447,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 AlertDialog.Builder(this@KenesWidgetV2Activity)
                     .setTitle(R.string.kenes_select_language_from_list)
                     .setSingleChoiceItems(languages.map { it.value }.toTypedArray(), -1) { dialog, which ->
-                        updateLocale(languages[which].locale)
+                        val selected = languages[which]
+                        socket?.emit("user_language", jsonObject { put("language", selected.key) })
+                        updateLocale(selected.locale)
                         dialog.dismiss()
                     }
                     .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
@@ -1006,29 +984,13 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 runOnUiThread {
                     inputView?.let { hideKeyboard(it) }
 
-                    titleView?.text = text
-
-                    var selectedRatingButton: RatingButton? = null
-                    val ratingAdapter = RatingAdapter(ratingButtons) {
-                        selectedRatingButton = it
-
-                        if (selectedRatingButton != null) {
-                            rateButton?.isEnabled = true
-                        }
-                    }
-                    ratingView?.adapter = ratingAdapter
-                    ratingAdapter.notifyDataSetChanged()
-
-                    rateButton?.setOnClickListener {
+                    feedbackView?.setTitle(text)
+                    feedbackView?.setRatingButtons(ratingButtons)
+                    feedbackView?.setOnRateButtonClickListener { ratingButton ->
                         socket?.emit("user_feedback", jsonObject {
-                            put("r", selectedRatingButton?.rating)
-                            put("chat_id", selectedRatingButton?.chatId)
+                            put("r", ratingButton.rating)
+                            put("chat_id", ratingButton.chatId)
                         })
-
-                        selectedRatingButton = null
-
-                        rateButton?.isEnabled = false
-                        ratingView?.adapter = null
 
                         viewState = ViewState.ChatBot
 

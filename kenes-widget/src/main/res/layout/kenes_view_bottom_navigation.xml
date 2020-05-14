@@ -37,7 +37,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_camera" />
+            android:src="@drawable/kenes_ic_camera_gray" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/audioButton"
@@ -47,7 +47,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_headphones" />
+            android:src="@drawable/kenes_ic_headphones_gray" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/infoButton"
