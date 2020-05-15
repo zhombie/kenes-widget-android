@@ -14,7 +14,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentBottom="true"
+        android:translationZ="1dp" />
 
     <org.webrtc.SurfaceViewRenderer
         android:id="@+id/localSurfaceView"
@@ -22,7 +23,8 @@
         android:layout_height="213.3dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:elevation="10dp" />
+        android:elevation="10dp"
+        android:translationZ="5dp" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/goToChatButton"
@@ -36,7 +38,8 @@
         android:elevation="10dp"
         android:focusable="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/kenes_selector_chat_message" />
+        android:src="@drawable/kenes_selector_chat_message"
+        android:translationZ="5dp" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/hangupButton"
@@ -53,7 +56,8 @@
         android:elevation="10dp"
         android:focusable="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/kenes_selector_phone" />
+        android:src="@drawable/kenes_selector_phone"
+        android:translationZ="5dp" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/switchSourceButton"
@@ -67,6 +71,7 @@
         android:elevation="10dp"
         android:focusable="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/kenes_selector_display" />
+        android:src="@drawable/kenes_selector_display"
+        android:translationZ="5dp" />
 
 </RelativeLayout>

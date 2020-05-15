@@ -2,8 +2,6 @@ package q19.kenes_widget.adapter
 
 import android.content.Context
 import android.graphics.Rect
-import android.text.method.LinkMovementMethod
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +10,9 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.model.Message
 import q19.kenes_widget.model.Category
+import q19.kenes_widget.model.Message
+import q19.kenes_widget.util.HtmlTextViewManager
 
 internal class ChatAdapter(
     private val callback: Callback
@@ -161,13 +160,21 @@ internal class ChatAdapter(
         private var textView: TextView? = null
         private var timeView: TextView? = null
 
+        private var htmlTextViewManager = HtmlTextViewManager()
+
         init {
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
         }
 
         fun bind(message: Message) {
-            textView?.text = message.text
+            htmlTextViewManager.setHtmlText(textView, message.htmlText)
+            htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
+                override fun onUrlClicked(view: View, url: String) {
+                    callback.onUrlInTextClicked(url)
+                }
+            }
+
             timeView?.text = message.time
         }
     }
@@ -301,20 +308,29 @@ internal class ChatAdapter(
         private var textView: TextView? = null
         private var timeView: TextView? = null
 
+        private var htmlTextViewManager = HtmlTextViewManager()
+
         init {
             titleView = view.findViewById(R.id.titleView)
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
 
-            textView?.movementMethod = LinkMovementMethod.getInstance()
+//            textView?.movementMethod = LinkMovementMethod.getInstance()
         }
 
         fun bind(message: Message) {
             val category = message.category
 
             if (category != null) {
+                htmlTextViewManager.setHtmlText(textView, message.htmlText)
+                htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
+                    override fun onUrlClicked(view: View, url: String) {
+                        callback.onUrlInTextClicked(url)
+                    }
+                }
+
                 titleView?.text = message.category?.title
-                textView?.setText(message.htmlText, TextView.BufferType.SPANNABLE)
+//                textView?.setText(message.htmlText, TextView.BufferType.SPANNABLE)
                 timeView?.text = message.time
 
                 titleView?.setOnClickListener {
@@ -328,6 +344,7 @@ internal class ChatAdapter(
         fun onCategoryChildClicked(category: Category)
         fun onGoToHomeClicked()
         fun onReturnBackClicked(category: Category)
+        fun onUrlInTextClicked(url: String)
     }
 
 }

@@ -11,12 +11,8 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -94,12 +90,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var infoView: InfoView? = null
 
     /**
-     * Footer view variables: [footerView], [inputView], [attachmentButton]
+     * Footer view variables: [footerView]
      */
-    private var footerView: RelativeLayout? = null
-    private var goToActiveDialogButton: AppCompatButton? = null
-    private var inputView: AppCompatEditText? = null
-    private var attachmentButton: AppCompatImageButton? = null
+    private var footerView: FooterView? = null
 
     /**
      * Chat view variables: [recyclerView]
@@ -215,14 +208,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         infoView = findViewById(R.id.infoView)
 
         /**
-         * Bind [R.id.footerView] views: [R.id.goToActiveDialogButton], [R.id.inputView],
-         * [R.id.attachmentButton].
+         * Bind [R.id.footerView] view.
          * Footer view for messenger.
          */
         footerView = findViewById(R.id.footerView)
-        goToActiveDialogButton = findViewById(R.id.goToActiveDialogButton)
-        inputView = findViewById(R.id.inputView)
-        attachmentButton = findViewById(R.id.attachmentButton)
 
         /**
          * Bind [R.id.recyclerView] view.
@@ -264,13 +253,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         /**
          * Default states of views
          */
-        // TODO: Remove after attachment upload ability realization
-        attachmentButton?.visibility = View.GONE
-
-        feedbackView?.setDefaultState()
-        bindOpponentData(Configs())
-        inputView?.text?.clear()
         activeDialog = null
+
+        bindOpponentData(Configs())
+        feedbackView?.setDefaultState()
+        footerView?.setDefaultState()
 
         viewState = ViewState.ChatBot
 
@@ -329,31 +316,35 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             socket?.emit("initialize", jsonObject { put("audio", true) })
         }
 
-        goToActiveDialogButton?.setOnClickListener {
-            if (viewState is ViewState.VideoDialog) {
-                viewState = ViewState.VideoDialog(State.SHOWN)
-            } else if (viewState is ViewState.VideoDialog) {
-                viewState = ViewState.AudioDialog(State.SHOWN)
+        footerView?.callback = object : FooterView.Callback {
+            override fun onGoToActiveDialogButtonClicked() {
+                setNewStateByPreviousState(State.SHOWN)
+            }
+
+            override fun onAttachmentButtonClicked() {
+                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                    .setMessage("Не реализовано")
+                    .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+
+            override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
+                if (hasFocus) scrollToBottom()
+            }
+
+            override fun onInputViewClicked() {
+                scrollToBottom()
             }
         }
 
-        attachmentButton?.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setMessage("Не реализовано")
-                .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .show()
-        }
-
-        inputView?.setOnEditorActionListener { v, actionId, keyEvent ->
-            logD("setOnEditorActionListener: $actionId, $keyEvent")
-
-            if (actionId == EditorInfo.IME_ACTION_SEND || keyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                val text = v.text.toString()
+        footerView?.setOnInputViewFocusChangeListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEND || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+                val text = v?.text.toString()
 
                 if (text.isBlank()) {
-                    return@setOnEditorActionListener false
+                    return@setOnInputViewFocusChangeListener false
                 }
 
                 activeCategoryChild = null
@@ -363,22 +354,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
 
                 sendUserMessage(text)
-                inputView?.text?.clear()
+                footerView?.clearInputViewText()
                 chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
                 scrollToBottom()
-                return@setOnEditorActionListener true
+                return@setOnInputViewFocusChangeListener true
             }
-            return@setOnEditorActionListener false
-        }
-
-        inputView?.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                scrollToBottom()
-            }
-        }
-
-        inputView?.setOnClickListener {
-            scrollToBottom()
+            return@setOnInputViewFocusChangeListener false
         }
 
         videoDialogView?.callback = object : VideoDialogView.Callback {
@@ -504,7 +485,26 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 chatAdapter.setNewMessages(this@KenesWidgetV2Activity.messages)
                 scrollToTop()
             }
+
+            override fun onUrlInTextClicked(url: String) {
+                if (url.startsWith("#")) {
+                    val text = url.removePrefix("#")
+
+                    sendUserMessage(text)
+
+                    chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
+                    scrollToBottom()
+                } else {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        e.printStackTrace()
+                    }
+                }
+            }
         })
+
         recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView?.adapter = chatAdapter
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
@@ -982,7 +982,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 viewState = ViewState.CallFeedback
 
                 runOnUiThread {
-                    inputView?.let { hideKeyboard(it) }
+                    footerView?.getInputView()?.let { hideKeyboard(it) }
 
                     feedbackView?.setTitle(text)
                     feedbackView?.setRatingButtons(ratingButtons)
@@ -1031,9 +1031,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                             bindOpponentData(this.configs)
 
-                            viewState = ViewState.VideoDialog(State.IDLE)
+                            setNewStateByPreviousState(State.IDLE)
 
                             dialog.dismiss()
+                        }
+                        .setOnCancelListener {
+                            setNewStateByPreviousState(State.IDLE)
                         }
                         .show()
                 }
@@ -1122,31 +1125,17 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     Rtc.Type.OFFER?.value -> {
                         logD("viewState (Rtc.Type.OFFER?.value): $viewState")
 
-                        if (viewState is ViewState.VideoDialog) {
-                            viewState = ViewState.VideoDialog(State.LIVE)
+                        setNewStateByPreviousState(State.LIVE)
 
-                            peerConnection?.setRemoteDescription(
-                                SimpleSdpObserver(),
-                                SessionDescription(
-                                    SessionDescription.Type.OFFER,
-                                    rtc.getString("sdp")
-                                )
+                        peerConnection?.setRemoteDescription(
+                            SimpleSdpObserver(),
+                            SessionDescription(
+                                SessionDescription.Type.OFFER,
+                                rtc.getString("sdp")
                             )
+                        )
 
-                            sendAnswer()
-                        } else if (viewState is ViewState.AudioDialog) {
-                            viewState = ViewState.AudioDialog(State.LIVE)
-
-                            peerConnection?.setRemoteDescription(
-                                SimpleSdpObserver(),
-                                SessionDescription(
-                                    SessionDescription.Type.OFFER,
-                                    rtc.getString("sdp")
-                                )
-                            )
-
-                            sendAnswer()
-                        }
+                        sendAnswer()
                     }
                     Rtc.Type.HANGUP?.value -> {
                         logD("viewState (Rtc.Type.HANGUP?.value): $viewState")
@@ -1154,11 +1143,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         isInitiator = false
                         activeDialog = null
 
-                        if (viewState is ViewState.VideoDialog) {
-                            viewState = ViewState.VideoDialog(State.IDLE)
-                        } else if (viewState is ViewState.AudioDialog) {
-                            viewState = ViewState.AudioDialog(State.IDLE)
-                        }
+                        setNewStateByPreviousState(State.IDLE)
 
                         closeLiveCall()
                     }
@@ -1219,6 +1204,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             activeDialog = null
 
             viewState = ViewState.ChatBot
+
+            closeLiveCall()
 
             runOnUiThread {
                 bindOpponentData(this.configs)
@@ -1292,11 +1279,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 when (iceConnectionState) {
                     IceConnectionState.CLOSED, IceConnectionState.FAILED -> {
-                        if (viewState is ViewState.VideoDialog) {
-                            viewState = ViewState.VideoDialog(State.IDLE)
-                        } else if (viewState is ViewState.AudioDialog) {
-                            viewState = ViewState.AudioDialog(State.IDLE)
-                        }
+                        setNewStateByPreviousState(State.IDLE)
                     }
                     else -> {
                     }
@@ -1396,6 +1379,22 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         }
     }
 
+    private fun setNewStateByPreviousState(state: State): Boolean {
+        return when (viewState) {
+            is ViewState.VideoDialog -> {
+                viewState = ViewState.VideoDialog(state)
+                true
+            }
+            is ViewState.AudioDialog -> {
+                viewState = ViewState.AudioDialog(state)
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
     private fun updateViewState(viewState: ViewState) {
         when (viewState) {
             is ViewState.VideoDialog -> {
@@ -1405,10 +1404,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     State.IDLE, State.USER_DISCONNECT -> {
                         bottomNavigationView?.setNavButtonsEnabled()
 
-                        goToActiveDialogButton?.text = null
-                        goToActiveDialogButton?.visibility = View.GONE
+                        footerView?.setGoToActiveDialogButtonState(null)
 
                         audioCallView?.visibility = View.GONE
+
                         videoDialogView?.visibility = View.GONE
 
                         recyclerView?.visibility = View.GONE
@@ -1448,8 +1447,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     State.OPPONENT_DISCONNECT -> {
                         bottomNavigationView?.setNavButtonsEnabled()
 
-                        goToActiveDialogButton?.text = null
-                        goToActiveDialogButton?.visibility = View.GONE
+                        footerView?.setGoToActiveDialogButtonState(null)
 
                         videoCallView?.setDefaultState()
                         videoCallView?.visibility = View.GONE
@@ -1463,14 +1461,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         scrollToBottom()
 
-                        goToActiveDialogButton?.setText(R.string.kenes_return_to_video_call)
-                        goToActiveDialogButton?.visibility = View.VISIBLE
+                        footerView?.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
 
                         videoDialogView?.visibility = View.INVISIBLE
                     }
                     State.SHOWN -> {
-                        goToActiveDialogButton?.text = null
-                        goToActiveDialogButton?.visibility = View.GONE
+                        footerView?.getInputView()?.let { hideKeyboard(it) }
+
+                        footerView?.setGoToActiveDialogButtonState(null)
 
                         videoDialogView?.visibility = View.VISIBLE
                     }
@@ -1483,8 +1481,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     State.IDLE, State.USER_DISCONNECT -> {
                         bottomNavigationView?.setNavButtonsEnabled()
 
-                        goToActiveDialogButton?.text = null
-                        goToActiveDialogButton?.visibility = View.GONE
+                        footerView?.setGoToActiveDialogButtonState(null)
 
                         audioCallView?.setDefaultState()
 
@@ -1526,8 +1523,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     State.OPPONENT_DISCONNECT -> {
                         bottomNavigationView?.setNavButtonsEnabled()
 
-                        goToActiveDialogButton?.text = null
-                        goToActiveDialogButton?.visibility = View.GONE
+                        footerView?.setGoToActiveDialogButtonState(null)
 
                         audioCallView?.setDefaultState()
                         audioCallView?.visibility = View.GONE
@@ -1541,14 +1537,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         scrollToBottom()
 
-                        goToActiveDialogButton?.setText(R.string.kenes_return_to_audio_call)
-                        goToActiveDialogButton?.visibility = View.VISIBLE
+                        footerView?.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
 
                         audioDialogView?.visibility = View.INVISIBLE
                     }
                     State.SHOWN -> {
-                        goToActiveDialogButton?.text = null
-                        goToActiveDialogButton?.visibility = View.GONE
+                        footerView?.getInputView()?.let { hideKeyboard(it) }
+
+                        footerView?.setGoToActiveDialogButtonState(null)
 
                         audioDialogView?.visibility = View.VISIBLE
                     }
@@ -1570,6 +1566,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 feedbackView?.visibility = View.VISIBLE
             }
             ViewState.ChatBot -> {
+                bottomNavigationView?.setNavButtonsEnabled()
+
                 videoCallView?.setDefaultState()
                 videoCallView?.visibility = View.GONE
 
@@ -1586,6 +1584,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 recyclerView?.visibility = View.VISIBLE
 
+                footerView?.setDefaultState()
                 footerView?.visibility = View.VISIBLE
             }
             ViewState.Info -> {
@@ -1669,9 +1668,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         videoCallView = null
 
+        footerView?.setDefaultState()
         footerView = null
-        inputView = null
-        attachmentButton = null
 
         chatAdapter.clearMessages()
         recyclerView?.adapter = null

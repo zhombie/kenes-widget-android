@@ -8,13 +8,7 @@ sealed class ViewState {
     object Info : ViewState()
 
     override fun toString(): String {
-        return when (this) {
-            is VideoDialog -> "VideoDialog"
-            is AudioDialog -> "AudioDialog"
-            ChatBot -> "ChatBot"
-            CallFeedback -> "CallFeedback"
-            Info -> "Info"
-        }
+        return this.javaClass.simpleName
     }
 }
 
@@ -26,7 +20,11 @@ enum class State {
     OPPONENT_DISCONNECT,
     USER_DISCONNECT,
     HIDDEN,
-    SHOWN
+    SHOWN;
+
+    override fun toString(): String {
+        return this.name
+    }
 }
 
 

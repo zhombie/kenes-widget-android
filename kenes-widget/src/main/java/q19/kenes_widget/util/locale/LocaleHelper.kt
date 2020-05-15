@@ -46,7 +46,7 @@ object LocaleHelper {
         val preferences = getPreferences(context)
         val language = preferences.getString(SELECTED_LANGUAGE, Locale.getDefault().language)
         val country = preferences.getString(SELECTED_COUNTRY, Locale.getDefault().country)
-        return Locale(language ?: "", country ?: "")
+        return Locale(language ?: return Locale.getDefault(), country ?: "")
     }
 
     @TargetApi(Build.VERSION_CODES.N)

@@ -57,10 +57,10 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="15dp"
             android:layout_weight="1"
             android:clipToPadding="false"
             android:orientation="vertical"
+            android:paddingTop="15dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="5"
             tools:listitem="@layout/kenes_cell_my_message" />
@@ -93,70 +93,10 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <RelativeLayout
+        <q19.kenes_widget.views.FooterView
             android:id="@+id/footerView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/kenes_white"
-            android:paddingStart="15dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="15dp"
-            android:paddingBottom="15dp">
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/goToActiveDialogButton"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginBottom="10dp"
-                android:background="@drawable/kenes_bg_button_blue_rounded_15dp"
-                android:fontFamily="sans-serif"
-                android:gravity="center"
-                android:text="@string/kenes_return_to_video_call"
-                android:textAllCaps="false"
-                android:textColor="@color/kenes_selector_button_text"
-                android:textSize="15sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/inputView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/goToActiveDialogButton"
-                android:layout_alignParentStart="true"
-                android:layout_toStartOf="@id/attachmentButton"
-                android:background="@drawable/kenes_bg_message"
-                android:fontFamily="sans-serif"
-                android:gravity="center_vertical"
-                android:hint="@string/kenes_message"
-                android:imeOptions="actionSend"
-                android:maxLength="500"
-                android:maxLines="1"
-                android:minHeight="56dp"
-                android:paddingStart="15dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="15dp"
-                android:paddingBottom="10dp"
-                android:singleLine="true"
-                android:textColor="@color/kenes_black"
-                android:textSize="16sp" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/attachmentButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/inputView"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="10dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="5dp"
-                android:src="@drawable/kenes_ic_attachment" />
-
-        </RelativeLayout>
+            android:layout_height="wrap_content" />
 
         <q19.kenes_widget.views.BottomNavigationView
             android:id="@+id/bottomNavigationView"
