@@ -3,9 +3,9 @@
 
     <item
         android:state_pressed="true"
-        android:drawable="@drawable/kenes_ic_chat_message_round_gray" />
+        android:drawable="@drawable/kenes_ic_chat_message_circle_gray" />
 
     <item
-        android:drawable="@drawable/kenes_ic_chat_message_round_white" />
+        android:drawable="@drawable/kenes_ic_chat_message_circle_white" />
 
 </selector>

@@ -20,7 +20,6 @@ import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
@@ -337,6 +336,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             override fun onInputViewClicked() {
                 scrollToBottom()
             }
+
+            override fun onSendMessageButtonClicked(message: String) {
+                if (message.isNotBlank()) {
+                    sendUserMessage(message, true)
+                }
+            }
         }
 
         footerView?.setOnInputViewFocusChangeListener { v, actionId, event ->
@@ -353,13 +358,19 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     chatAdapter.clearMessages()
                 }
 
-                sendUserMessage(text)
-                footerView?.clearInputViewText()
-                chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
-                scrollToBottom()
+                sendUserMessage(text, true)
+
                 return@setOnInputViewFocusChangeListener true
             }
             return@setOnInputViewFocusChangeListener false
+        }
+
+        footerView?.setOnTextChangedListener { s, _, _, _ ->
+            if (s.isNullOrBlank()) {
+                footerView?.disableSendMessageButton()
+            } else {
+                footerView?.enableSendMessageButton()
+            }
         }
 
         videoDialogView?.callback = object : VideoDialogView.Callback {
@@ -489,11 +500,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             override fun onUrlInTextClicked(url: String) {
                 if (url.startsWith("#")) {
                     val text = url.removePrefix("#")
-
-                    sendUserMessage(text)
-
-                    chatAdapter.addNewMessage(Message(Message.Type.SELF, text))
-                    scrollToBottom()
+                    sendUserMessage(text, false)
                 } else {
                     try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -1349,20 +1356,22 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         return factory.createPeerConnection(rtcConfig, peerConnectionConstraints, peerConnectionObserver)
     }
 
-    private fun sendUserMessage(text: String) {
-        val userMessage = JSONObject()
-        try {
-            userMessage.put("text", text)
-        } catch (e: JSONException) {
-            e.printStackTrace()
-            logD("sendUserTextMessage: $e")
-        }
-        socket?.emit("user_message", userMessage)
-    }
-
     private fun sendMessage(message: JSONObject) {
         logD("sendMessage: $message")
         socket?.emit("message", message)
+    }
+
+    private fun sendUserMessage(message: String, isInputClearText: Boolean = true) {
+        socket?.emit("user_message", jsonObject {
+            put("text", message)
+        })
+
+        if (isInputClearText) {
+            footerView?.clearInputViewText()
+        }
+
+        chatAdapter.addNewMessage(Message(Message.Type.SELF, message))
+        scrollToBottom()
     }
 
     private fun scrollToTop() {

@@ -1,6 +1,8 @@
 package q19.kenes_widget.views
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
@@ -24,6 +26,7 @@ internal class FooterView @JvmOverloads constructor(
     private val goToActiveDialogButton: AppCompatButton
     private val inputView: AppCompatEditText
     private val attachmentButton: AppCompatImageButton
+    private val sendMessageButton: AppCompatImageButton
 
     var callback: Callback? = null
 
@@ -33,12 +36,18 @@ internal class FooterView @JvmOverloads constructor(
         goToActiveDialogButton = view.findViewById(R.id.goToActiveDialogButton)
         inputView = view.findViewById(R.id.inputView)
         attachmentButton = view.findViewById(R.id.attachmentButton)
+        sendMessageButton = view.findViewById(R.id.sendMessageButton)
 
         // TODO: Remove after attachment upload ability realization
         attachmentButton.visibility = View.GONE
 
         goToActiveDialogButton.setOnClickListener { callback?.onGoToActiveDialogButtonClicked() }
+
         attachmentButton.setOnClickListener { callback?.onAttachmentButtonClicked() }
+
+        sendMessageButton.setOnClickListener {
+            callback?.onSendMessageButtonClicked(inputView?.text?.toString() ?: return@setOnClickListener)
+        }
 
         inputView.setOnFocusChangeListener { v, hasFocus ->
             callback?.onInputViewFocusChangeListener(v, hasFocus)
@@ -51,6 +60,8 @@ internal class FooterView @JvmOverloads constructor(
         setGoToActiveDialogButtonState(null)
 
         clearInputViewText()
+
+        disableSendMessageButton()
     }
 
     fun setGoToActiveDialogButtonState(@StringRes stringRes: Int? = null) {
@@ -67,6 +78,18 @@ internal class FooterView @JvmOverloads constructor(
         inputView.text?.clear()
     }
 
+    fun enableSendMessageButton() {
+        setSendMessageButtonEnabled(true)
+    }
+
+    fun disableSendMessageButton() {
+        setSendMessageButtonEnabled(false)
+    }
+
+    private fun setSendMessageButtonEnabled(isEnabled: Boolean) {
+        sendMessageButton.isEnabled = isEnabled
+    }
+
     fun getInputView(): AppCompatEditText {
         return inputView
     }
@@ -79,11 +102,26 @@ internal class FooterView @JvmOverloads constructor(
         }
     }
 
+    fun setOnTextChangedListener(
+        callback: (s: CharSequence?, start: Int, before: Int, count: Int) -> Unit
+    ) {
+        inputView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                callback(s, start, before, count)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+    }
+
     interface Callback {
         fun onGoToActiveDialogButtonClicked()
         fun onAttachmentButtonClicked()
         fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean)
         fun onInputViewClicked()
+        fun onSendMessageButtonClicked(message: String)
     }
 
 }

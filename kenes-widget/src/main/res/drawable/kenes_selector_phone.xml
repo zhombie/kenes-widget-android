@@ -3,11 +3,10 @@
 
     <item
         android:state_pressed="true"
-        android:drawable="@drawable/kenes_ic_phone_round_red">
+        android:drawable="@drawable/kenes_ic_phone_circle_red">
     </item>
 
     <item
-        android:drawable="@drawable/kenes_ic_phone_round_white">
-    </item>
+        android:drawable="@drawable/kenes_ic_phone_circle_white" />
 
 </selector>

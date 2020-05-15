@@ -3,7 +3,7 @@
 
     <item
         android:state_enabled="false"
-        android:color="#8CC5FF" />
+        android:color="@color/kenes_light_blue" />
 
     <item
         android:state_pressed="true"

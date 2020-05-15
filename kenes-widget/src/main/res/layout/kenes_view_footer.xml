@@ -29,13 +29,24 @@
         android:visibility="gone"
         tools:visibility="visible" />
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/attachmentButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/inputView"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="5dp"
+        android:src="@drawable/kenes_ic_attachment" />
+
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/inputView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/goToActiveDialogButton"
-        android:layout_alignParentStart="true"
-        android:layout_toStartOf="@id/attachmentButton"
+        android:layout_toStartOf="@id/sendMessageButton"
+        android:layout_toEndOf="@id/attachmentButton"
         android:background="@drawable/kenes_bg_message"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
@@ -43,24 +54,22 @@
         android:imeOptions="actionSend"
         android:maxLength="500"
         android:maxLines="1"
-        android:minHeight="56dp"
+        android:minHeight="50dp"
         android:paddingStart="15dp"
-        android:paddingTop="10dp"
         android:paddingEnd="15dp"
-        android:paddingBottom="10dp"
         android:singleLine="true"
         android:textColor="@color/kenes_black"
         android:textSize="16sp" />
 
     <androidx.appcompat.widget.AppCompatImageButton
-        android:id="@+id/attachmentButton"
+        android:id="@+id/sendMessageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/inputView"
+        android:layout_alignBottom="@id/inputView"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="10dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="5dp"
-        android:src="@drawable/kenes_ic_attachment" />
+        android:background="@null"
+        android:src="@drawable/kenes_selector_arrow_up" />
 
 </RelativeLayout>
