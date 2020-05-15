@@ -21,7 +21,7 @@ internal class VideoCallView @JvmOverloads constructor(
     private val videoCallInfoView: TextView
 
     init {
-        val view = inflate(context, R.layout.kenes_video_call_view, this)
+        val view = inflate(context, R.layout.kenes_view_video_call, this)
 
         videoCallButton = view.findViewById(R.id.videoCallButton)
         videoCallInfoView = view.findViewById(R.id.videoCallInfoView)

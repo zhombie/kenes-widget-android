@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/kenes_bg_button_white_rounded_4dp"
-        android:drawableStart="@drawable/kenes_ic_headphones_blue"
+        android:drawableStart="@drawable/kenes_selector_headphones"
         android:drawablePadding="5dp"
         android:paddingStart="20dp"
         android:paddingTop="12dp"
