@@ -42,21 +42,14 @@ internal class VideoDialogView @JvmOverloads constructor(
         remoteSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
         localSurfaceView.setZOrderMediaOverlay(true)
 
-        remoteSurfaceView.setOnClickListener {
-            callback?.onRemoteFrameClicked()
-        }
+        remoteSurfaceView.setOnClickListener { callback?.onRemoteFrameClicked() }
+        goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
+        hangupButton.setOnClickListener { callback?.onHangUpButtonClicked() }
+        switchSourceButton.setOnClickListener { callback?.onSwitchSourceButtonClicked() }
+    }
 
-        goToChatButton.setOnClickListener {
-            callback?.onGoToChatButtonClicked()
-        }
-
-        hangupButton.setOnClickListener {
-            callback?.onHangUpButtonClicked()
-        }
-
-        switchSourceButton.setOnClickListener {
-            callback?.onSwitchSourceButtonClicked()
-        }
+    fun setDefaultState() {
+        showControlButtons()
     }
 
     fun isControlButtonsVisible(): Boolean {

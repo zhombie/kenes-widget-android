@@ -34,16 +34,16 @@ internal class AudioDialogView @JvmOverloads constructor(
         goToChatButton = view.findViewById(R.id.goToChatButton)
         hangupButton = view.findViewById(R.id.hangupButton)
 
-        goToChatButton.setOnClickListener {
-            callback?.onGoToChatButtonClicked()
-        }
-
-        hangupButton.setOnClickListener {
-            callback?.onHangUpButtonClicked()
-        }
+        goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
+        hangupButton.setOnClickListener { callback?.onHangUpButtonClicked() }
     }
 
-    fun showAvatar(photoUrl: String?) {
+    fun setDefaultState() {
+        setAvatar(null)
+        setName(null)
+    }
+
+    fun setAvatar(photoUrl: String?) {
         if (!photoUrl.isNullOrBlank()) {
             Picasso.get()
                 .load(photoUrl)
@@ -56,7 +56,7 @@ internal class AudioDialogView @JvmOverloads constructor(
         }
     }
 
-    fun showName(name: String) {
+    fun setName(name: String?) {
         nameView.text = name
     }
 

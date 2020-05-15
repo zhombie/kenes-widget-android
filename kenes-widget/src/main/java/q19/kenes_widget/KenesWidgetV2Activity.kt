@@ -11,9 +11,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
@@ -28,7 +26,6 @@ import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.HttpRequestHandler
-import q19.kenes_widget.util.CircleTransformation
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
@@ -67,11 +64,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var palette = intArrayOf()
 
     /**
-     * Opponent info view variables: [opponentAvatarView], [opponentNameView], [opponentSecondNameView]
+     * Opponent info view variables: [headerView]
      */
-    private var opponentAvatarView: AppCompatImageView? = null
-    private var opponentNameView: TextView? = null
-    private var opponentSecondNameView: TextView? = null
+    private var headerView: HeaderView? = null
 
     /**
      * Video call screen view variables: [videoCallView]
@@ -140,7 +135,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var localVideoTrack: VideoTrack? = null
     private var remoteVideoTrack: VideoTrack? = null
 
-    private var configs: Configs = Configs()
+    private var configs = Configs()
 
     @get:Synchronized
     @set:Synchronized
@@ -183,13 +178,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         // -------------------------- Binding views -----------------------------------
         /**
-         * Bind [R.id.headerView] views: [R.id.opponentAvatarView], [R.id.opponentNameView],
-         * [R.id.opponentSecondNameView].
+         * Bind [R.id.headerView] view.
          * Header view for opponent info display.
          */
-        opponentAvatarView = findViewById(R.id.opponentAvatarView)
-        opponentNameView = findViewById(R.id.opponentNameView)
-        opponentSecondNameView = findViewById(R.id.opponentSecondNameView)
+        headerView = findViewById(R.id.headerView)
 
         /**
          * Bind [R.id.videoCallView] view
@@ -254,9 +246,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          */
         activeDialog = null
 
-        bindOpponentData(Configs())
+        headerView?.setDefaultState()
         feedbackView?.setDefaultState()
         footerView?.setDefaultState()
+        videoCallView?.setDefaultState()
+        audioCallView?.setDefaultState()
 
         viewState = ViewState.ChatBot
 
@@ -299,6 +293,23 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         /**
          * Configuration of other button action listeners (click/touch)
          */
+        headerView?.callback = object : HeaderView.Callback {
+            override fun onHangUpButtonClicked() {
+                isInitiator = false
+
+                sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
+
+                closeLiveCall()
+
+                socket?.close()
+
+                setNewStateByPreviousState(State.USER_DISCONNECT)
+
+                bottomNavigationView?.setHomeNavButtonActive()
+                connectToSignallingServer()
+            }
+        }
+
         videoCallView?.setOnCallClickListener {
             isInitiator = true
 
@@ -330,11 +341,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
-                if (hasFocus) scrollToBottom()
+//                if (hasFocus) scrollToBottom()
             }
 
             override fun onInputViewClicked() {
-                scrollToBottom()
+//                scrollToBottom()
             }
 
             override fun onSendMessageButtonClicked(message: String) {
@@ -656,9 +667,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
             this.configs.opponent = Configs.Opponent(
-                name = configs?.optString("default_operator") ?: "",
-                secondName = configs?.optString("title") ?: "",
-                avatarUrl = UrlUtil.getStaticUrl(configs?.optString("image")) ?: ""
+                name = configs?.optString("default_operator"),
+                secondName = configs?.optString("title"),
+                avatarUrl = UrlUtil.getStaticUrl(configs?.optString("image"))
             )
 
             contacts?.keys()?.forEach { key ->
@@ -680,10 +691,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 configs?.optString("message_ru")
             )
 
-            bindOpponentData(this.configs)
+            headerView?.setOpponentInfo(this.configs.opponent)
         } catch (e: Exception) {
 //            e.printStackTrace()
-            logD("ERROR! $e")
+            logDebug("ERROR! $e")
         }
     }
 
@@ -713,29 +724,13 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
 
                 this.iceServers.forEach { iceServer ->
-                    logD("iceServer: $iceServer")
+                    logDebug("iceServer: $iceServer")
                 }
             }
         } catch (e: Exception) {
 //            e.printStackTrace()
-            logD("ERROR! $e")
+            logDebug("ERROR! $e")
         }
-    }
-
-    private fun bindOpponentData(configs: Configs) {
-        if (opponentAvatarView != null && !configs.opponent.avatarUrl.isNullOrBlank()) {
-            Picasso.get()
-                .load(configs.opponent.avatarUrl)
-                .fit()
-                .centerCrop()
-                .transform(CircleTransformation())
-                .into(opponentAvatarView)
-        } else {
-            opponentAvatarView?.setImageDrawable(null)
-        }
-
-        opponentNameView?.text = configs.opponent.name
-        opponentSecondNameView?.text = configs.opponent.secondName
     }
 
     private fun connectToSignallingServer() {
@@ -748,7 +743,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         socket?.on(Socket.EVENT_CONNECT) { args ->
             
-            logD("event [EVENT_CONNECT]: $args")
+            logDebug("event [EVENT_CONNECT]: $args")
 
             socket?.emit("user_dashboard", jsonObject {
                 put("action", "get_category_list")
@@ -757,7 +752,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         }?.on("call") { args ->
 
-            logD("event [CALL]: $args")
+            logDebug("event [CALL]: $args")
 
             if (args.size != 1) {
                 return@on
@@ -765,7 +760,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             val call = args[0] as? JSONObject? ?: return@on
 
-            logD("JSONObject call: $call")
+            logDebug("JSONObject call: $call")
 
             val type = call.optString("type")
             val media = call.optString("media")
@@ -783,7 +778,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     viewState = ViewState.VideoDialog(State.PREPARATION)
                 }
 
-                logD("viewState: $viewState")
+                logDebug("viewState: $viewState")
             }
 
         }?.on("category_list") { args ->
@@ -883,39 +878,39 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         }?.on("form_init") { args ->
 
-            logD("event [FORM_INIT]: $args")
+            logDebug("event [FORM_INIT]: $args")
 
             if (args.size != 1) {
                 return@on
             }
 
             val formInitJson = args[0] as? JSONObject? ?: return@on
-            logD("formInitJson: $formInitJson")
+            logDebug("formInitJson: $formInitJson")
 
         }?.on("form_final") { args ->
 
-            logD("event [FORM_FINAL]: $args")
+            logDebug("event [FORM_FINAL]: $args")
 
             if (args.size != 1) {
                 return@on
             }
 
             val formFinalJson = args[0] as? JSONObject? ?: return@on
-            logD("formFinalJson: $formFinalJson")
+            logDebug("formFinalJson: $formFinalJson")
 
         }?.on("send_configs") { args ->
 
-            logD("event [SEND_CONFIGS]: $args")
+            logDebug("event [SEND_CONFIGS]: $args")
 
             if (args.size != 1) {
                 return@on
             }
 
             val configsJson = args[0] as? JSONObject? ?: return@on
-            logD("configsJson: $configsJson")
+            logDebug("configsJson: $configsJson")
 
         }?.on("operator_greet") { args ->
-            logD("event [OPERATOR_GREET]: $args")
+            logDebug("event [OPERATOR_GREET]: $args")
 
             if (args.size != 1) {
                 return@on
@@ -923,7 +918,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             val operatorGreetJson = args[0] as? JSONObject? ?: return@on
 
-            logD("JSONObject operatorGreetJson: $operatorGreetJson")
+            logDebug("JSONObject operatorGreetJson: $operatorGreetJson")
 
 //            val name = operatorGreet.optString("name")
             val fullName = operatorGreetJson.optString("full_name")
@@ -932,24 +927,22 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             val photoUrl = UrlUtil.getStaticUrl(photo)
 
-            logD("photoUrl: $photoUrl")
+            logDebug("photoUrl: $photoUrl")
 
-            logD("viewState: $viewState")
+            logDebug("viewState: $viewState")
 
             text = text.replace("{}", fullName)
 
             runOnUiThread {
-                bindOpponentData(Configs(
-                    opponent = Configs.Opponent(
-                        name = fullName,
-                        secondName = getString(R.string.kenes_call_agent),
-                        avatarUrl = photoUrl
-                    )
+                headerView?.setOpponentInfo(Configs.Opponent(
+                    name = fullName,
+                    secondName = getString(R.string.kenes_call_agent),
+                    avatarUrl = photoUrl
                 ))
 
                 if (viewState is ViewState.AudioDialog) {
-                    audioDialogView?.showAvatar(photoUrl)
-                    audioDialogView?.showName(fullName)
+                    audioDialogView?.setAvatar(photoUrl)
+                    audioDialogView?.setName(fullName)
                 }
 
                 chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
@@ -958,18 +951,18 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         }?.on("operator_typing") { args ->
 
-            logD("event [OPERATOR_TYPING]: $args")
+            logDebug("event [OPERATOR_TYPING]: $args")
 
             if (args.size != 1) {
                 return@on
             }
 
             val operatorTypingJson = args[0] as? JSONObject? ?: return@on
-            logD("JSONObject operatorTypingJson: $operatorTypingJson")
+            logDebug("JSONObject operatorTypingJson: $operatorTypingJson")
 
         }?.on("feedback") { args ->
 
-            logD("event [FEEDBACK]: $args")
+            logDebug("event [FEEDBACK]: $args")
 
             if (args.size != 1) {
                 return@on
@@ -977,7 +970,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             val feedbackJson = args[0] as? JSONObject? ?: return@on
 
-            logD("JSONObject feedbackJson: $feedbackJson")
+            logDebug("JSONObject feedbackJson: $feedbackJson")
 
             val buttonsJson = feedbackJson.optJSONArray("buttons")
 
@@ -1009,22 +1002,22 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         viewState = ViewState.ChatBot
 
-                        bindOpponentData(this.configs)
+                        headerView?.setOpponentInfo(this.configs.opponent)
                     }
                 }
             }
 
         }?.on("message") { args ->
-            logD("event [MESSAGE]: $args")
+            logDebug("event [MESSAGE]: $args")
 
             if (args.size != 1) {
-                logD("ERROR! Strange message args behaviour.")
+                logDebug("ERROR! Strange message args behaviour.")
                 return@on
             }
 
             val message = args[0] as? JSONObject? ?: return@on
 
-            logD("message: $message")
+            logDebug("message: $message")
 
             val text = message.getNullableString("text")
             val noOnline = message.optBoolean("no_online")
@@ -1042,9 +1035,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         .setTitle("Внимание")
                         .setMessage(text)
                         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-//                            closeVideoCall()
-
-                            bindOpponentData(this.configs)
+                            headerView?.setOpponentInfo(this.configs.opponent)
 
                             setNewStateByPreviousState(State.IDLE)
 
@@ -1077,12 +1068,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             rtc?.let {
                 when (rtc.getNullableString("type")) {
                     Rtc.Type.START?.value -> {
-                        logD("viewState (Rtc.Type.START?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.START?.value): $viewState")
 
                         sendMessage(userMessage { rtc { type = Rtc.Type.PREPARE } })
                     }
                     Rtc.Type.PREPARE?.value -> {
-                        logD("viewState (Rtc.Type.PREPARE?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.PREPARE?.value): $viewState")
 
                         if (viewState is ViewState.VideoDialog) {
                             viewState = ViewState.VideoDialog(State.PREPARATION)
@@ -1099,7 +1090,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         }
                     }
                     Rtc.Type.READY?.value -> {
-                        logD("viewState (Rtc.Type.READY?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.READY?.value): $viewState")
 
                         if (viewState is ViewState.VideoDialog) {
                             viewState = ViewState.VideoDialog(State.LIVE)
@@ -1116,7 +1107,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         }
                     }
                     Rtc.Type.ANSWER?.value -> {
-                        logD("viewState (Rtc.Type.ANSWER?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.ANSWER?.value): $viewState")
 
                         peerConnection?.setRemoteDescription(
                             SimpleSdpObserver(),
@@ -1127,7 +1118,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         )
                     }
                     Rtc.Type.CANDIDATE?.value -> {
-                        logD("viewState (Rtc.Type.CANDIDATE?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.CANDIDATE?.value): $viewState")
 
                         peerConnection?.addIceCandidate(
                             IceCandidate(
@@ -1138,7 +1129,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         )
                     }
                     Rtc.Type.OFFER?.value -> {
-                        logD("viewState (Rtc.Type.OFFER?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.OFFER?.value): $viewState")
 
                         setNewStateByPreviousState(State.LIVE)
 
@@ -1153,7 +1144,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         sendAnswer()
                     }
                     Rtc.Type.HANGUP?.value -> {
-                        logD("viewState (Rtc.Type.HANGUP?.value): $viewState")
+                        logDebug("viewState (Rtc.Type.HANGUP?.value): $viewState")
 
                         isInitiator = false
                         activeDialog = null
@@ -1182,7 +1173,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     scrollToBottom()
                 }
             } else {
-                logD("text: $text")
+                logDebug("text: $text")
 
                 if (from == "operator" && sender.isNullOrBlank() && action.isNullOrBlank()) {
                     runOnUiThread {
@@ -1212,7 +1203,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
         }?.on(Socket.EVENT_DISCONNECT) {
-            logD("event [EVENT_DISCONNECT]")
+            logDebug("event [EVENT_DISCONNECT]")
 
             isInitiator = false
 
@@ -1223,7 +1214,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             closeLiveCall()
 
             runOnUiThread {
-                bindOpponentData(this.configs)
+                headerView?.setOpponentInfo(this.configs.opponent)
             }
         }
 
@@ -1238,7 +1229,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         peerConnection?.createAnswer(object : SimpleSdpObserver() {
             override fun onCreateSuccess(sessionDescription: SessionDescription) {
-                logD("onCreateSuccess: " + sessionDescription.description)
+                logDebug("onCreateSuccess: " + sessionDescription.description)
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
                 sendMessage(userMessage {
@@ -1256,7 +1247,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         peerConnection?.createOffer(object : SimpleSdpObserver() {
             override fun onCreateSuccess(sessionDescription: SessionDescription) {
-                logD("onCreateSuccess: " + sessionDescription.description)
+                logDebug("onCreateSuccess: " + sessionDescription.description)
 
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
@@ -1267,7 +1258,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onCreateFailure(s: String) {
                 super.onCreateFailure(s)
-                logD("onCreateFailure: $s")
+                logDebug("onCreateFailure: $s")
             }
         }, mediaConstraints)
     }
@@ -1286,11 +1277,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         val peerConnectionConstraints = MediaConstraints()
         val peerConnectionObserver = object : Observer {
             override fun onSignalingChange(signalingState: SignalingState) {
-                logD("onSignalingChange: $signalingState")
+                logDebug("onSignalingChange: $signalingState")
             }
 
             override fun onIceConnectionChange(iceConnectionState: IceConnectionState) {
-                logD("onIceConnectionChange: $iceConnectionState")
+                logDebug("onIceConnectionChange: $iceConnectionState")
 
                 when (iceConnectionState) {
                     IceConnectionState.CLOSED, IceConnectionState.FAILED -> {
@@ -1302,15 +1293,15 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onIceConnectionReceivingChange(b: Boolean) {
-                logD("onIceConnectionReceivingChange: $b")
+                logDebug("onIceConnectionReceivingChange: $b")
             }
 
             override fun onIceGatheringChange(iceGatheringState: IceGatheringState) {
-                logD("onIceGatheringChange: $iceGatheringState")
+                logDebug("onIceGatheringChange: $iceGatheringState")
             }
 
             override fun onIceCandidate(iceCandidate: IceCandidate) {
-                logD("onIceCandidate: " + iceCandidate.sdp)
+                logDebug("onIceCandidate: " + iceCandidate.sdp)
 
                 sendMessage(userMessage {
                     rtc {
@@ -1323,12 +1314,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onIceCandidatesRemoved(iceCandidates: Array<IceCandidate>) {
-                logD("onIceCandidatesRemoved: " + iceCandidates.contentToString())
+                logDebug("onIceCandidatesRemoved: " + iceCandidates.contentToString())
             }
 
             override fun onAddStream(mediaStream: MediaStream) {
-                logD("onAddStream -> mediaStream.audioTracks.size: " + mediaStream.audioTracks.size)
-                logD("onAddStream -> mediaStream.videoTracks.size: " + mediaStream.videoTracks.size)
+                logDebug("onAddStream -> mediaStream.audioTracks.size: " + mediaStream.audioTracks.size)
+                logDebug("onAddStream -> mediaStream.videoTracks.size: " + mediaStream.videoTracks.size)
 
                 if (mediaStream.audioTracks.isNotEmpty()) {
                     remoteAudioTrack = mediaStream.audioTracks[0]
@@ -1345,15 +1336,15 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onRemoveStream(mediaStream: MediaStream) {
-                logD("onRemoveStream: $mediaStream")
+                logDebug("onRemoveStream: $mediaStream")
             }
 
             override fun onDataChannel(dataChannel: DataChannel) {
-                logD("onDataChannel: $dataChannel")
+                logDebug("onDataChannel: $dataChannel")
             }
 
             override fun onRenegotiationNeeded() {
-                logD("onRenegotiationNeeded")
+                logDebug("onRenegotiationNeeded")
                 if (isInitiator) {
                     sendOffer()
                 } else {
@@ -1365,7 +1356,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun sendMessage(message: JSONObject) {
-        logD("sendMessage: $message")
+        logDebug("sendMessage: $message")
         socket?.emit("message", message)
     }
 
@@ -1406,9 +1397,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 viewState = ViewState.AudioDialog(state)
                 true
             }
-            else -> {
-                false
-            }
+            else -> false
         }
     }
 
@@ -1419,41 +1408,55 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
-                        bottomNavigationView?.setNavButtonsEnabled()
+                        headerView?.hideHangupButton()
 
-                        footerView?.setGoToActiveDialogButtonState(null)
-
+                        audioCallView?.setDefaultState()
                         audioCallView?.visibility = View.GONE
 
+                        audioDialogView?.setDefaultState()
+                        audioDialogView?.visibility = View.GONE
+
+                        videoDialogView?.setDefaultState()
                         videoDialogView?.visibility = View.GONE
 
                         recyclerView?.visibility = View.GONE
 
+                        footerView?.setGoToActiveDialogButtonState(null)
                         footerView?.visibility = View.GONE
+
+                        bottomNavigationView?.setNavButtonsEnabled()
 
                         videoCallView?.setDefaultState()
                         videoCallView?.visibility = View.VISIBLE
                     }
                     State.PENDING -> {
+                        headerView?.hideHangupButton()
+
                         videoCallView?.setDisabledState()
 
                         chatAdapter.clearMessages()
                     }
                     State.PREPARATION -> {
+                        headerView?.hideHangupButton()
+
                         videoCallView?.setDisabledState()
                         videoCallView?.visibility = View.GONE
 
+                        feedbackView?.setDefaultState()
                         feedbackView?.visibility = View.GONE
 
                         recyclerView?.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
-                        bottomNavigationView?.setNavButtonsDisabled()
+                        headerView?.showHangupButton()
 
                         videoCallView?.setDisabledState()
                         videoCallView?.visibility = View.GONE
 
+                        feedbackView?.setDefaultState()
                         feedbackView?.visibility = View.GONE
+
+                        bottomNavigationView?.setNavButtonsDisabled()
 
                         recyclerView?.visibility = View.VISIBLE
 
@@ -1462,20 +1465,23 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         videoDialogView?.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT -> {
-                        bottomNavigationView?.setNavButtonsEnabled()
-
-                        footerView?.setGoToActiveDialogButtonState(null)
+                        headerView?.hideHangupButton()
 
                         videoCallView?.setDefaultState()
                         videoCallView?.visibility = View.GONE
 
                         feedbackView?.visibility = View.GONE
 
+                        footerView?.setGoToActiveDialogButtonState(null)
+
+                        bottomNavigationView?.setNavButtonsEnabled()
+
                         recyclerView?.visibility = View.VISIBLE
                     }
                     State.HIDDEN -> {
-                        recyclerView?.visibility = View.VISIBLE
+                        headerView?.showHangupButton()
 
+                        recyclerView?.visibility = View.VISIBLE
                         scrollToBottom()
 
                         footerView?.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
@@ -1483,6 +1489,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         videoDialogView?.visibility = View.INVISIBLE
                     }
                     State.SHOWN -> {
+                        headerView?.hideHangupButton()
+
                         footerView?.getInputView()?.let { hideKeyboard(it) }
 
                         footerView?.setGoToActiveDialogButtonState(null)
@@ -1496,40 +1504,54 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
-                        bottomNavigationView?.setNavButtonsEnabled()
+                        headerView?.hideHangupButton()
 
-                        footerView?.setGoToActiveDialogButtonState(null)
-
-                        audioCallView?.setDefaultState()
-
-                        footerView?.visibility = View.GONE
-                        feedbackView?.visibility = View.GONE
-                        recyclerView?.visibility = View.GONE
-
+                        videoCallView?.setDefaultState()
                         videoCallView?.visibility = View.GONE
 
+                        audioDialogView?.setDefaultState()
+                        audioDialogView?.visibility = View.GONE
+
+                        videoDialogView?.setDefaultState()
+                        videoDialogView?.visibility = View.GONE
+
+                        recyclerView?.visibility = View.GONE
+
+                        footerView?.setGoToActiveDialogButtonState(null)
+                        footerView?.visibility = View.GONE
+
+                        bottomNavigationView?.setNavButtonsEnabled()
+
+                        audioCallView?.setDefaultState()
                         audioCallView?.visibility = View.VISIBLE
                     }
                     State.PENDING -> {
+                        headerView?.hideHangupButton()
+
                         audioCallView?.setDisabledState()
 
                         chatAdapter.clearMessages()
                     }
                     State.PREPARATION -> {
+                        headerView?.hideHangupButton()
+
                         audioCallView?.setDisabledState()
                         audioCallView?.visibility = View.GONE
 
+                        feedbackView?.setDefaultState()
                         feedbackView?.visibility = View.GONE
 
                         recyclerView?.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
-                        bottomNavigationView?.setNavButtonsDisabled()
+                        headerView?.showHangupButton()
 
                         audioCallView?.setDisabledState()
                         audioCallView?.visibility = View.GONE
 
                         feedbackView?.visibility = View.GONE
+
+                        bottomNavigationView?.setNavButtonsDisabled()
 
                         recyclerView?.visibility = View.VISIBLE
 
@@ -1538,20 +1560,23 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         audioDialogView?.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT -> {
-                        bottomNavigationView?.setNavButtonsEnabled()
-
-                        footerView?.setGoToActiveDialogButtonState(null)
+                        headerView?.hideHangupButton()
 
                         audioCallView?.setDefaultState()
                         audioCallView?.visibility = View.GONE
 
                         feedbackView?.visibility = View.GONE
 
+                        footerView?.setGoToActiveDialogButtonState(null)
+
+                        bottomNavigationView?.setNavButtonsEnabled()
+
                         recyclerView?.visibility = View.VISIBLE
                     }
                     State.HIDDEN -> {
-                        recyclerView?.visibility = View.VISIBLE
+                        headerView?.showHangupButton()
 
+                        recyclerView?.visibility = View.VISIBLE
                         scrollToBottom()
 
                         footerView?.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
@@ -1559,8 +1584,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         audioDialogView?.visibility = View.INVISIBLE
                     }
                     State.SHOWN -> {
-                        footerView?.getInputView()?.let { hideKeyboard(it) }
+                        headerView?.hideHangupButton()
 
+                        footerView?.getInputView()?.let { hideKeyboard(it) }
                         footerView?.setGoToActiveDialogButtonState(null)
 
                         audioDialogView?.visibility = View.VISIBLE
@@ -1568,36 +1594,50 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
             }
             ViewState.CallFeedback -> {
+                headerView?.hideHangupButton()
+
                 audioCallView?.setDisabledState()
                 audioCallView?.visibility = View.GONE
 
                 videoCallView?.setDisabledState()
                 videoCallView?.visibility = View.GONE
 
+                audioDialogView?.setDefaultState()
+                audioDialogView?.visibility = View.GONE
+
+                videoDialogView?.setDefaultState()
+                videoDialogView?.visibility = View.GONE
+
                 infoView?.visibility = View.GONE
 
                 recyclerView?.visibility = View.GONE
 
+                footerView?.setDefaultState()
                 footerView?.visibility = View.GONE
 
                 feedbackView?.visibility = View.VISIBLE
             }
             ViewState.ChatBot -> {
-                bottomNavigationView?.setNavButtonsEnabled()
-
-                videoCallView?.setDefaultState()
-                videoCallView?.visibility = View.GONE
+                headerView?.hideHangupButton()
 
                 audioCallView?.setDefaultState()
                 audioCallView?.visibility = View.GONE
 
-                infoView?.visibility = View.GONE
+                videoCallView?.setDefaultState()
+                videoCallView?.visibility = View.GONE
 
-                videoDialogView?.visibility = View.GONE
-
+                audioDialogView?.setDefaultState()
                 audioDialogView?.visibility = View.GONE
 
+                videoDialogView?.setDefaultState()
+                videoDialogView?.visibility = View.GONE
+
+                feedbackView?.setDefaultState()
                 feedbackView?.visibility = View.GONE
+
+                infoView?.visibility = View.GONE
+
+                bottomNavigationView?.setNavButtonsEnabled()
 
                 recyclerView?.visibility = View.VISIBLE
 
@@ -1605,20 +1645,26 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 footerView?.visibility = View.VISIBLE
             }
             ViewState.Info -> {
-                videoCallView?.setDefaultState()
-                videoCallView?.visibility = View.GONE
+                headerView?.hideHangupButton()
 
                 audioCallView?.setDefaultState()
                 audioCallView?.visibility = View.GONE
 
-                videoDialogView?.visibility = View.GONE
+                videoCallView?.setDefaultState()
+                videoCallView?.visibility = View.GONE
 
+                audioDialogView?.setDefaultState()
                 audioDialogView?.visibility = View.GONE
 
+                videoDialogView?.setDefaultState()
+                videoDialogView?.visibility = View.GONE
+
+                feedbackView?.setDefaultState()
                 feedbackView?.visibility = View.GONE
 
                 recyclerView?.visibility = View.GONE
 
+                footerView?.setDefaultState()
                 footerView?.visibility = View.GONE
 
                 infoView?.visibility = View.VISIBLE
@@ -1630,7 +1676,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         peerConnection?.dispose()
         peerConnection = null
 
-        logD("Stopping capture.")
+        logDebug("Stopping capture.")
         try {
             localVideoCapturer?.stopCapture()
         } catch (e: Exception) {
@@ -1639,18 +1685,18 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         localVideoCapturer?.dispose()
         localVideoCapturer = null
 
-        logD("Closing video source.")
+        logDebug("Closing video source.")
 //        localVideoSource?.dispose()
         localVideoSource = null
 
 //        localMediaStream?.dispose()
         localMediaStream = null
 
-        logD("Closing peer connection factory.")
+        logDebug("Closing peer connection factory.")
         peerConnectionFactory?.dispose()
         peerConnectionFactory = null
 
-        logD("Closing peer connection done.")
+        logDebug("Closing peer connection done.")
 
 //        PeerConnectionFactory.stopInternalTracingCapture()
 //        PeerConnectionFactory.shutdownInternalTracer()
@@ -1679,9 +1725,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         socket?.disconnect()
         socket = null
 
-        opponentAvatarView = null
-        opponentNameView = null
-        opponentSecondNameView = null
+        headerView = null
 
         videoCallView = null
 
@@ -1693,11 +1737,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         recyclerView = null
     }
 
-    private fun logD(message: String) {
+    private fun logDebug(message: String) {
 //        Log.d(TAG, message)
         if (message.length > 4000) {
             Log.d(TAG, message.substring(0, 4000))
-            logD(message.substring(4000))
+            logDebug(message.substring(4000))
         } else {
             Log.d(TAG, message)
         }
