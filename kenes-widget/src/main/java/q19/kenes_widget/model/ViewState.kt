@@ -19,6 +19,7 @@ enum class State {
     LIVE,
     OPPONENT_DISCONNECT,
     USER_DISCONNECT,
+    FINISHED,
     HIDDEN,
     SHOWN;
 

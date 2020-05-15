@@ -299,18 +299,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     .setTitle(R.string.kenes_attention)
                     .setMessage(R.string.kenes_end_dialog)
                     .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        isInitiator = false
-
-                        sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
-
-                        closeLiveCall()
-
-                        socket?.close()
-
-                        setNewStateByPreviousState(State.USER_DISCONNECT)
-
-                        bottomNavigationView?.setHomeNavButtonActive()
-                        connectToSignallingServer()
+                        hangupLiveCall()
 
                         dialog.dismiss()
                     }
@@ -405,18 +394,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     .setTitle(R.string.kenes_attention)
                     .setMessage(R.string.kenes_end_dialog)
                     .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        isInitiator = false
-
-                        sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
-
-                        closeLiveCall()
-
-                        socket?.close()
-
-                        viewState = ViewState.VideoDialog(State.USER_DISCONNECT)
-
-                        bottomNavigationView?.setHomeNavButtonActive()
-                        connectToSignallingServer()
+                        hangupLiveCall()
 
                         dialog.dismiss()
                     }
@@ -448,18 +426,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     .setTitle(R.string.kenes_attention)
                     .setMessage(R.string.kenes_end_dialog)
                     .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        isInitiator = false
-
-                        sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
-
-                        closeLiveCall()
-
-                        socket?.close()
-
-                        viewState = ViewState.AudioDialog(State.USER_DISCONNECT)
-
-                        bottomNavigationView?.setHomeNavButtonActive()
-                        connectToSignallingServer()
+                        hangupLiveCall()
 
                         dialog.dismiss()
                     }
@@ -1033,7 +1000,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                             put("chat_id", ratingButton.chatId)
                         })
 
-                        viewState = ViewState.ChatBot
+                        viewState = ViewState.VideoDialog(State.FINISHED)
 
                         headerView?.setOpponentInfo(this.configs.opponent)
                     }
@@ -1065,7 +1032,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             if (noOnline) {
                 runOnUiThread {
                     AlertDialog.Builder(this)
-                        .setTitle("Внимание")
+                        .setTitle(R.string.kenes_attention)
                         .setMessage(text)
                         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
                             headerView?.setOpponentInfo(this.configs.opponent)
@@ -1103,7 +1070,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     Rtc.Type.START?.value -> {
                         logDebug("viewState (Rtc.Type.START?.value): $viewState")
 
-                        sendMessage(userMessage { rtc { type = Rtc.Type.PREPARE } })
+                        sendMessage(rtc { type = Rtc.Type.PREPARE })
                     }
                     Rtc.Type.PREPARE?.value -> {
                         logDebug("viewState (Rtc.Type.PREPARE?.value): $viewState")
@@ -1113,13 +1080,13 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                             initializeCallConnection(isVideoCall = true)
 
-                            sendMessage(userMessage { rtc { type = Rtc.Type.READY } })
+                            sendMessage(rtc { type = Rtc.Type.READY })
                         } else if (viewState is ViewState.AudioDialog) {
                             viewState = ViewState.AudioDialog(State.PREPARATION)
 
                             initializeCallConnection(isVideoCall = false)
 
-                            sendMessage(userMessage { rtc { type = Rtc.Type.READY } })
+                            sendMessage(rtc { type = Rtc.Type.READY })
                         }
                     }
                     Rtc.Type.READY?.value -> {
@@ -1265,9 +1232,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 logDebug("onCreateSuccess: " + sessionDescription.description)
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
-                sendMessage(userMessage {
-                    rtc { type = Rtc.Type.ANSWER; sdp = sessionDescription.description }
-                })
+                sendMessage(rtc { type = Rtc.Type.ANSWER; sdp = sessionDescription.description })
             }
         }, mediaConstraints)
     }
@@ -1284,9 +1249,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 peerConnection?.setLocalDescription(SimpleSdpObserver(), sessionDescription)
 
-                sendMessage(userMessage {
-                    rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description }
-                })
+                sendMessage(rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description })
             }
 
             override fun onCreateFailure(s: String) {
@@ -1336,13 +1299,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             override fun onIceCandidate(iceCandidate: IceCandidate) {
                 logDebug("onIceCandidate: " + iceCandidate.sdp)
 
-                sendMessage(userMessage {
-                    rtc {
-                        type = Rtc.Type.CANDIDATE
-                        id = iceCandidate.sdpMid
-                        label = iceCandidate.sdpMLineIndex
-                        candidate = iceCandidate.sdp
-                    }
+                sendMessage(rtc {
+                    type = Rtc.Type.CANDIDATE
+                    id = iceCandidate.sdpMid
+                    label = iceCandidate.sdpMLineIndex
+                    candidate = iceCandidate.sdp
                 })
             }
 
@@ -1388,15 +1349,26 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         return factory.createPeerConnection(rtcConfig, peerConnectionConstraints, peerConnectionObserver)
     }
 
-    private fun sendMessage(message: JSONObject) {
-        logDebug("sendMessage: $message")
-        socket?.emit("message", message)
+    private fun hangupLiveCall() {
+        isInitiator = false
+
+        sendMessage(rtc { type = Rtc.Type.HANGUP })
+        sendMessage(UserMessage.Action.FINISH)
+
+        chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
+    }
+
+    private fun sendMessage(action: UserMessage.Action) {
+        sendMessage(rtc = null, action = action)
+    }
+
+    private fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null) {
+        logDebug("sendMessage: $rtc; $action")
+        socket?.emit("message", UserMessage(rtc, action).toJsonObject())
     }
 
     private fun sendUserMessage(message: String, isInputClearText: Boolean = true) {
-        socket?.emit("user_message", jsonObject {
-            put("text", message)
-        })
+        socket?.emit("user_message", jsonObject { put("text", message) })
 
         if (isInputClearText) {
             footerView?.clearInputViewText()
@@ -1497,7 +1469,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         videoDialogView?.visibility = View.VISIBLE
                     }
-                    State.OPPONENT_DISCONNECT -> {
+                    State.OPPONENT_DISCONNECT, State.FINISHED -> {
                         headerView?.hideHangupButton()
 
                         videoCallView?.setDefaultState()
@@ -1593,7 +1565,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         audioDialogView?.visibility = View.VISIBLE
                     }
-                    State.OPPONENT_DISCONNECT -> {
+                    State.OPPONENT_DISCONNECT, State.FINISHED -> {
                         headerView?.hideHangupButton()
 
                         audioCallView?.setDefaultState()
@@ -1673,6 +1645,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 infoView?.visibility = View.GONE
 
                 bottomNavigationView?.setNavButtonsEnabled()
+                bottomNavigationView?.setHomeNavButtonActive()
 
                 recyclerView?.visibility = View.VISIBLE
 

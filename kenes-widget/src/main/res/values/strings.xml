@@ -25,4 +25,5 @@
     <string name="kenes_select_language_from_list">Please, select a language from the list</string>
     <string name="kenes_attention">Attention</string>
     <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
+    <string name="kenes_user_disconnected">User disconnected</string>
 </resources>

@@ -3,39 +3,58 @@ package q19.kenes_widget.model
 import org.json.JSONObject
 
 internal class UserMessage(
-    var rtc: Rtc? = null
+    var rtc: Rtc? = null,
+    var action: Action? = null
 ) {
+
+    enum class Action(val value: String) {
+        FINISH("finish");
+
+        override fun toString(): String {
+            return value
+        }
+    }
 
     fun toJsonObject(): JSONObject {
         val messageObject = JSONObject()
 
-        val rtcObject = JSONObject()
+        rtc?.let { rtc ->
+            val rtcObject = JSONObject()
 
-        try {
-            rtcObject.put("type", rtc?.type?.value)
+            try {
+                rtcObject.put("type", rtc.type.value)
 
-            if (!rtc?.sdp.isNullOrBlank()) {
-                rtcObject.put("sdp", rtc?.sdp)
+                if (!rtc.sdp.isNullOrBlank()) {
+                    rtcObject.put("sdp", rtc.sdp)
+                }
+
+                if (!rtc.id.isNullOrBlank()) {
+                    rtcObject.put("id", rtc.id)
+                }
+
+                rtc.label?.let { label ->
+                    rtcObject.put("label", label)
+                }
+
+                if (!rtc.candidate.isNullOrBlank()) {
+                    rtcObject.put("candidate", rtc.candidate)
+                }
+
+                messageObject.put("rtc", rtcObject)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
+        }
 
-            if (!rtc?.id.isNullOrBlank()) {
-                rtcObject.put("id", rtc?.id)
-            }
-
-            rtc?.label?.let {
-                rtcObject.put("label", it)
-            }
-
-            if (!rtc?.candidate.isNullOrBlank()) {
-                rtcObject.put("candidate", rtc?.candidate)
-            }
-
-            messageObject.put("rtc", rtcObject)
-        } catch (e: Exception) {
-            e.printStackTrace()
+        action?.let { action ->
+            messageObject.put("action", action.value)
         }
 
         return messageObject
+    }
+
+    override fun toString(): String {
+        return "UserMessage(rtc = $rtc, $action = $action)"
     }
 
 }
@@ -55,7 +74,15 @@ internal class Rtc(
         ANSWER("answer"),
         CANDIDATE("candidate"),
         OFFER("offer"),
-        HANGUP("hangup")
+        HANGUP("hangup");
+
+        override fun toString(): String {
+            return value
+        }
+    }
+
+    override fun toString(): String {
+        return "Rtc(type = $type, sdp = $sdp, id = $id, label = $label, candidate = $candidate)"
     }
 
 }
@@ -69,20 +96,10 @@ internal class RtcBuilder {
 
     fun build() =
         Rtc(type ?: throw IllegalStateException("Unknown RTC type"), sdp, id, label, candidate)
-}
-
-internal class UserMessageBuilder {
-
-    private var rtc: Rtc? = null
-
-    fun rtc(lambda: RtcBuilder.() -> Unit) {
-        rtc = RtcBuilder().apply(lambda).build()
-    }
-
-    fun build() = UserMessage(rtc)
 
 }
 
-internal inline fun userMessage(lambda: UserMessageBuilder.() -> Unit): JSONObject {
-    return UserMessageBuilder().apply(lambda).build().toJsonObject()
+
+internal inline fun rtc(lambda: RtcBuilder.() -> Unit): Rtc {
+    return RtcBuilder().apply(lambda).build()
 }

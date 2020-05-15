@@ -42,7 +42,6 @@ internal class ChatAdapter(
     }
 
     fun setNewMessages(messages: List<Message>) {
-//        Log.d("LOL", "setNewMessages(messages: $messages)")
         if (messages.isNotEmpty()) {
             this.messages.clear()
         }
