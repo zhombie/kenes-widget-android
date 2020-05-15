@@ -1001,8 +1001,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         })
 
                         viewState = ViewState.VideoDialog(State.FINISHED)
-
-                        headerView?.setOpponentInfo(this.configs.opponent)
                     }
                 }
             }
@@ -1035,8 +1033,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         .setTitle(R.string.kenes_attention)
                         .setMessage(text)
                         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-                            headerView?.setOpponentInfo(this.configs.opponent)
-
                             setNewStateByPreviousState(State.IDLE)
 
                             dialog.dismiss()
@@ -1206,16 +1202,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             logDebug("event [EVENT_DISCONNECT]")
 
             isInitiator = false
-
             activeDialog = null
 
             viewState = ViewState.ChatBot
 
             closeLiveCall()
-
-            runOnUiThread {
-                headerView?.setOpponentInfo(this.configs.opponent)
-            }
         }
 
         socket?.connect()
@@ -1280,7 +1271,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 logDebug("onIceConnectionChange: $iceConnectionState")
 
                 when (iceConnectionState) {
-                    IceConnectionState.CLOSED, IceConnectionState.FAILED -> {
+                    IceConnectionState.CLOSED -> {
+                        isInitiator = false
+                        activeDialog = null
+
                         setNewStateByPreviousState(State.IDLE)
                     }
                     else -> {
@@ -1351,6 +1345,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
     private fun hangupLiveCall() {
         isInitiator = false
+        activeDialog = null
 
         sendMessage(rtc { type = Rtc.Type.HANGUP })
         sendMessage(UserMessage.Action.FINISH)
@@ -1414,6 +1409,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
                         headerView?.hideHangupButton()
+                        headerView?.setOpponentInfo(configs.opponent)
 
                         audioCallView?.setDefaultState()
                         audioCallView?.visibility = View.GONE
@@ -1471,6 +1467,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     }
                     State.OPPONENT_DISCONNECT, State.FINISHED -> {
                         headerView?.hideHangupButton()
+                        headerView?.setOpponentInfo(configs.opponent)
 
                         videoCallView?.setDefaultState()
                         videoCallView?.visibility = View.GONE
@@ -1511,6 +1508,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
                         headerView?.hideHangupButton()
+                        headerView?.setOpponentInfo(configs.opponent)
 
                         videoCallView?.setDefaultState()
                         videoCallView?.visibility = View.GONE
@@ -1567,6 +1565,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     }
                     State.OPPONENT_DISCONNECT, State.FINISHED -> {
                         headerView?.hideHangupButton()
+                        headerView?.setOpponentInfo(configs.opponent)
 
                         audioCallView?.setDefaultState()
                         audioCallView?.visibility = View.GONE
@@ -1626,6 +1625,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
             ViewState.ChatBot -> {
                 headerView?.hideHangupButton()
+                headerView?.setOpponentInfo(configs.opponent)
 
                 audioCallView?.setDefaultState()
                 audioCallView?.visibility = View.GONE
@@ -1654,6 +1654,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
             ViewState.Info -> {
                 headerView?.hideHangupButton()
+                headerView?.setOpponentInfo(configs.opponent)
 
                 audioCallView?.setDefaultState()
                 audioCallView?.visibility = View.GONE
