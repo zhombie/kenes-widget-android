@@ -294,19 +294,30 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          * Configuration of other button action listeners (click/touch)
          */
         headerView?.callback = object : HeaderView.Callback {
-            override fun onHangUpButtonClicked() {
-                isInitiator = false
+            override fun onHangupButtonClicked() {
+                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                    .setTitle(R.string.kenes_attention)
+                    .setMessage(R.string.kenes_end_dialog)
+                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                        isInitiator = false
 
-                sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
+                        sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
 
-                closeLiveCall()
+                        closeLiveCall()
 
-                socket?.close()
+                        socket?.close()
 
-                setNewStateByPreviousState(State.USER_DISCONNECT)
+                        setNewStateByPreviousState(State.USER_DISCONNECT)
 
-                bottomNavigationView?.setHomeNavButtonActive()
-                connectToSignallingServer()
+                        bottomNavigationView?.setHomeNavButtonActive()
+                        connectToSignallingServer()
+
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
 
@@ -389,19 +400,30 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 viewState = ViewState.VideoDialog(State.HIDDEN)
             }
 
-            override fun onHangUpButtonClicked() {
-                isInitiator = false
+            override fun onHangupButtonClicked() {
+                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                    .setTitle(R.string.kenes_attention)
+                    .setMessage(R.string.kenes_end_dialog)
+                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                        isInitiator = false
 
-                sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
+                        sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
 
-                closeLiveCall()
+                        closeLiveCall()
 
-                socket?.close()
+                        socket?.close()
 
-                viewState = ViewState.VideoDialog(State.USER_DISCONNECT)
+                        viewState = ViewState.VideoDialog(State.USER_DISCONNECT)
 
-                bottomNavigationView?.setHomeNavButtonActive()
-                connectToSignallingServer()
+                        bottomNavigationView?.setHomeNavButtonActive()
+                        connectToSignallingServer()
+
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
 
             override fun onSwitchSourceButtonClicked() {
@@ -421,19 +443,30 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 viewState = ViewState.AudioDialog(State.HIDDEN)
             }
 
-            override fun onHangUpButtonClicked() {
-                isInitiator = false
+            override fun onHangupButtonClicked() {
+                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                    .setTitle(R.string.kenes_attention)
+                    .setMessage(R.string.kenes_end_dialog)
+                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                        isInitiator = false
 
-                sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
+                        sendMessage(userMessage { rtc { type = Rtc.Type.HANGUP } })
 
-                closeLiveCall()
+                        closeLiveCall()
 
-                socket?.close()
+                        socket?.close()
 
-                viewState = ViewState.AudioDialog(State.USER_DISCONNECT)
+                        viewState = ViewState.AudioDialog(State.USER_DISCONNECT)
 
-                bottomNavigationView?.setHomeNavButtonActive()
-                connectToSignallingServer()
+                        bottomNavigationView?.setHomeNavButtonActive()
+                        connectToSignallingServer()
+
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
 
@@ -1495,6 +1528,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         footerView?.setGoToActiveDialogButtonState(null)
 
+                        videoDialogView?.showControlButtons()
                         videoDialogView?.visibility = View.VISIBLE
                     }
                 }
@@ -1587,6 +1621,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         headerView?.hideHangupButton()
 
                         footerView?.getInputView()?.let { hideKeyboard(it) }
+
                         footerView?.setGoToActiveDialogButtonState(null)
 
                         audioDialogView?.visibility = View.VISIBLE

@@ -23,4 +23,6 @@
     <string name="kenes_chat_bot">%s сhat-bot</string>
     <string name="kenes_change_language">Change language</string>
     <string name="kenes_select_language_from_list">Please, select a language from the list</string>
+    <string name="kenes_attention">Attention</string>
+    <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
 </resources>

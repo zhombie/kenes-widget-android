@@ -44,7 +44,7 @@ internal class VideoDialogView @JvmOverloads constructor(
 
         remoteSurfaceView.setOnClickListener { callback?.onRemoteFrameClicked() }
         goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
-        hangupButton.setOnClickListener { callback?.onHangUpButtonClicked() }
+        hangupButton.setOnClickListener { callback?.onHangupButtonClicked() }
         switchSourceButton.setOnClickListener { callback?.onSwitchSourceButtonClicked() }
     }
 
@@ -87,7 +87,7 @@ internal class VideoDialogView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onHangUpButtonClicked()
+        fun onHangupButtonClicked()
         fun onGoToChatButtonClicked()
         fun onSwitchSourceButtonClicked()
         fun onRemoteFrameClicked()

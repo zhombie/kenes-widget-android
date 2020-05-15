@@ -35,7 +35,7 @@ internal class AudioDialogView @JvmOverloads constructor(
         hangupButton = view.findViewById(R.id.hangupButton)
 
         goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
-        hangupButton.setOnClickListener { callback?.onHangUpButtonClicked() }
+        hangupButton.setOnClickListener { callback?.onHangupButtonClicked() }
     }
 
     fun setDefaultState() {
@@ -61,7 +61,7 @@ internal class AudioDialogView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onHangUpButtonClicked()
+        fun onHangupButtonClicked()
         fun onGoToChatButtonClicked()
     }
 

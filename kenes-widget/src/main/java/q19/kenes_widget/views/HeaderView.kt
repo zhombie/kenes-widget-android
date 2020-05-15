@@ -36,7 +36,7 @@ internal class HeaderView @JvmOverloads constructor(
         opponentSecondNameView = view.findViewById(R.id.opponentSecondNameView)
         hangupButton = view.findViewById(R.id.hangupButton)
 
-        hangupButton.setOnClickListener { callback?.onHangUpButtonClicked() }
+        hangupButton.setOnClickListener { callback?.onHangupButtonClicked() }
     }
 
     fun setDefaultState() {
@@ -84,7 +84,7 @@ internal class HeaderView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onHangUpButtonClicked()
+        fun onHangupButtonClicked()
     }
 
 }
