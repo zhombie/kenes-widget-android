@@ -1,6 +1,10 @@
 package q19.kenes_widget.views
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -47,6 +51,7 @@ internal class InfoView @JvmOverloads constructor(
                 callback?.onLanguageChangeClicked(language)
             }
         })
+        recyclerView.addItemDecoration(MenuAdapter.ItemDecoration())
         recyclerView.adapter = adapter
     }
 
@@ -156,6 +161,41 @@ private class MenuAdapter(
         fun onPhoneNumberClicked(phoneNumber: String)
         fun onSocialClicked(contact: Configs.Contact)
         fun onLanguageChangeClicked(language: Language)
+    }
+
+    class ItemDecoration : RecyclerView.ItemDecoration() {
+
+        private var paint: Paint = Paint()
+
+        init {
+            paint.color = Color.parseColor("#BFF3F3F3")
+            paint.strokeWidth = 2F
+        }
+
+        override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            val startX = parent.paddingLeft + 100
+            val stopX = parent.width - parent.paddingRight - 35
+
+            val childCount = parent.childCount
+            for (i in 0 until childCount - 1) {
+                val child = parent.getChildAt(i)
+                val params = child.layoutParams as RecyclerView.LayoutParams
+                val y = child.bottom + params.bottomMargin
+                c.drawLine(startX.toFloat(), y.toFloat(), stopX.toFloat(), y.toFloat(), paint)
+            }
+        }
+
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            super.getItemOffsets(outRect, view, parent, state)
+
+            outRect.bottom = 2
+        }
+
     }
 
 }
