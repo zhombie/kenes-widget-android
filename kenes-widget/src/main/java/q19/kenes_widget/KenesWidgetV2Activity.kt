@@ -405,6 +405,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onSwitchSourceButtonClicked() {
+                (localVideoCapturer as? CameraVideoCapturer?)?.switchCamera(null)
             }
 
             override fun onRemoteFrameClicked() {
@@ -1156,7 +1157,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             if (activeDialog != null) {
 //                if (!sender.isNullOrBlank() && !activeDialog?.operatorId.isNullOrBlank() && sender == activeDialog?.operatorId) {
 //                    if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
-//
 //                    }
 //                } else {
 //                    Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
@@ -1731,8 +1731,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         viewState = ViewState.ChatBot
 
-        messages.clear()
-
         closeLiveCall()
 
         socket?.disconnect()
@@ -1767,69 +1765,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             logDebug(message.substring(4000))
         } else {
             Log.d(TAG, message)
-        }
-    }
-
-    private fun treeByChildren(category: Category?): List<Category> {
-        fun inner(children: MutableList<Category>): List<Category> {
-            val categories = children.filter {
-                it.id == category?.id
-            }
-            return if (categories.isEmpty()) {
-                children.flatMap { inner(it.children) }
-            } else {
-                categories
-            }
-        }
-
-        return messages.flatMap { message ->
-            val children = message.category?.children
-            return when {
-                children.isNullOrEmpty() -> {
-                    listOf()
-                }
-                message.category?.id == category?.id -> {
-                    children
-                }
-                else -> {
-                    inner(children)
-                }
-            }
-        }
-    }
-
-    private fun treeByParent(category: Category?): List<Category> {
-        fun inner(children: MutableList<Category>): List<Category> {
-            val categories = children.filter {
-                it.id == category?.parentId
-            }
-            return if (categories.isEmpty()) {
-                children.flatMap { inner(it.children) }
-            } else {
-                categories
-            }
-//            return children.flatMap {
-//                if (it.id == category?.parentId) {
-//                    it.children
-//                } else {
-//                    inner(it.children)
-//                }
-//            }
-        }
-
-        return messages.flatMap { message ->
-            val children = message.category?.children
-            return when {
-                children.isNullOrEmpty() -> {
-                    listOf()
-                }
-                message.category?.id == category?.parentId -> {
-                    children
-                }
-                else -> {
-                    inner(children)
-                }
-            }
         }
     }
 
