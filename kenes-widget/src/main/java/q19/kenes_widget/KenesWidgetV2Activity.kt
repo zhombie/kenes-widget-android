@@ -395,6 +395,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onSwitchSourceButtonClicked() {
             }
+
+            override fun onRemoteFrameClicked() {
+                if (videoDialogView?.isControlButtonsVisible() == true) {
+                    videoDialogView?.hideControlButtons()
+                } else {
+                    videoDialogView?.showControlButtons()
+                }
+            }
         }
 
         audioDialogView?.callback = object : AudioDialogView.Callback {
