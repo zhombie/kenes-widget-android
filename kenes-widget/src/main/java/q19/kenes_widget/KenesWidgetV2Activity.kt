@@ -968,6 +968,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 return@on
             }
 
+            closeLiveCall()
+
             val feedbackJson = args[0] as? JSONObject? ?: return@on
 
             logDebug("JSONObject feedbackJson: $feedbackJson")
@@ -1047,8 +1049,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             if (action == "operator_disconnect") {
-                activeDialog = null
-
                 closeLiveCall()
 
                 viewState = ViewState.VideoDialog(State.OPPONENT_DISCONNECT)
@@ -1142,12 +1142,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     Rtc.Type.HANGUP?.value -> {
                         logDebug("viewState (Rtc.Type.HANGUP?.value): $viewState")
 
-                        isInitiator = false
-                        activeDialog = null
+                        closeLiveCall()
 
                         setNewStateByPreviousState(State.IDLE)
-
-                        closeLiveCall()
                     }
                     else -> {
                         return@on
@@ -1201,12 +1198,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         }?.on(Socket.EVENT_DISCONNECT) {
             logDebug("event [EVENT_DISCONNECT]")
 
-            isInitiator = false
-            activeDialog = null
+            closeLiveCall()
 
             viewState = ViewState.ChatBot
-
-            closeLiveCall()
         }
 
         socket?.connect()
@@ -1682,6 +1676,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun closeLiveCall() {
+        isInitiator = false
+        activeDialog = null
+
         peerConnection?.dispose()
         peerConnection = null
 
@@ -1694,9 +1691,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         localVideoCapturer?.dispose()
         localVideoCapturer = null
 
-        logDebug("Closing video source.")
 //        localVideoSource?.dispose()
         localVideoSource = null
+
+//        localVideoSource?.dispose()
+        localAudioSource = null
 
 //        localMediaStream?.dispose()
         localMediaStream = null
@@ -1718,13 +1717,18 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 //        remoteVideoTrack?.dispose()
         remoteVideoTrack = null
 
+//        localAudioTrack?.dispose()
+        localAudioTrack = null
+
+//        remoteAudioTrack?.dispose()
+        remoteAudioTrack = null
+
         videoDialogView?.release()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        activeDialog = null
         viewState = ViewState.ChatBot
 
         messages.clear()
@@ -1736,7 +1740,17 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         headerView = null
 
+        audioCallView?.setDefaultState()
+        audioCallView = null
+
+        audioDialogView?.setDefaultState()
+        audioDialogView = null
+
+        videoCallView?.setDefaultState()
         videoCallView = null
+
+        videoDialogView?.setDefaultState()
+        videoDialogView = null
 
         footerView?.setDefaultState()
         footerView = null
