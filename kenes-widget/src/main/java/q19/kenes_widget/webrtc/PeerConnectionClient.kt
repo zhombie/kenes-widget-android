@@ -948,6 +948,9 @@ class PeerConnectionClient private constructor() {
 
     // Implementation detail: observe ICE & stream changes and react accordingly.
     private inner class PCObserver : Observer {
+        override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {
+        }
+
         override fun onIceCandidate(candidate: IceCandidate) {
             executor.execute { events?.onIceCandidate(candidate) }
         }

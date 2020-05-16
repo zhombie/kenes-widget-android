@@ -579,7 +579,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
         }
 
-        PeerConnectionFactory.initializeAndroidGlobals(this, true, true, true)
+        PeerConnectionFactory.initializeAndroidGlobals(this, true)
         peerConnectionFactory = PeerConnectionFactory(null)
 
         if (isVideoCall) {
@@ -1257,6 +1257,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         rtcConfig.iceTransportsType = IceTransportsType.RELAY
         val peerConnectionConstraints = MediaConstraints()
         val peerConnectionObserver = object : Observer {
+            override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {}
+
             override fun onSignalingChange(signalingState: SignalingState) {
                 logDebug("onSignalingChange: $signalingState")
             }
@@ -1759,7 +1761,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun logDebug(message: String) {
-//        Log.d(TAG, message)
         if (message.length > 4000) {
             Log.d(TAG, message.substring(0, 4000))
             logDebug(message.substring(4000))
