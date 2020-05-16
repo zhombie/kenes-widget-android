@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -135,6 +136,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var localVideoTrack: VideoTrack? = null
     private var remoteVideoTrack: VideoTrack? = null
 
+    private var audioManager: AudioManager? = null
+
     private var configs = Configs()
 
     @get:Synchronized
@@ -253,6 +256,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         audioCallView?.setDefaultState()
 
         viewState = ViewState.ChatBot
+
+        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
 
         // ------------------------------------------------------------------------
 
@@ -1308,6 +1313,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 if (mediaStream.audioTracks.isNotEmpty()) {
                     remoteAudioTrack = mediaStream.audioTracks[0]
                     remoteAudioTrack?.setEnabled(true)
+                    setSpeakerphoneOn(true)
                 }
 
                 if (viewState is ViewState.VideoDialog) {
@@ -1337,6 +1343,13 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
         }
         return factory.createPeerConnection(rtcConfig, peerConnectionConstraints, peerConnectionObserver)
+    }
+
+    private fun setSpeakerphoneOn(on: Boolean) {
+        if (audioManager?.isSpeakerphoneOn == on) {
+            return
+        }
+        audioManager?.isSpeakerphoneOn = on
     }
 
     private fun hangupLiveCall() {
@@ -1680,6 +1693,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private fun closeLiveCall() {
         isInitiator = false
         activeDialog = null
+
+        setSpeakerphoneOn(false)
 
         peerConnection?.dispose()
         peerConnection = null
