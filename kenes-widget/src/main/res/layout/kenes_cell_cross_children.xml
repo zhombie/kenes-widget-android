@@ -13,7 +13,7 @@
         android:layout_marginBottom="15dp"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
-        android:drawableStart="@drawable/kenes_ic_back_black"
+        android:drawableStart="@drawable/kenes_ic_arrow_left_black"
         android:drawablePadding="8dp"
         android:focusable="true"
         android:fontFamily="sans-serif-black"
@@ -37,21 +37,6 @@
         tools:itemCount="5"
         tools:listitem="@layout/kenes_cell_cross_child" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/goToHomeButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/kenes_bg_button_white_rounded_15dp"
-        android:drawableStart="@drawable/kenes_ic_back_blue"
-        android:drawablePadding="7dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:text="@string/kenes_go_to_home"
-        android:textAllCaps="false"
-        android:textColor="@color/kenes_selector_button_text"
-        android:textSize="13sp" />
+    <include layout="@layout/kenes_button_go_to_home" />
 
 </LinearLayout>

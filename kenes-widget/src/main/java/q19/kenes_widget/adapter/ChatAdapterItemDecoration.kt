@@ -28,7 +28,7 @@ internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDe
                     outRect.bottom = verticalSpacing
                 }
                 else ->
-                    outRect.bottom = verticalSpacing
+                    outRect.bottom = verticalSpacing * 2
             }
         }
     }

@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/kenes_white"
@@ -27,7 +28,7 @@
             android:paddingTop="15dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="5"
-            tools:listitem="@layout/kenes_cell_my_message" />
+            tools:listitem="@layout/kenes_cell_user_message" />
 
         <q19.kenes_widget.views.VideoCallView
             android:id="@+id/videoCallView"
@@ -52,6 +53,13 @@
 
         <q19.kenes_widget.views.FeedbackView
             android:id="@+id/feedbackView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <q19.kenes_widget.views.ProgressView
+            android:id="@+id/progressView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

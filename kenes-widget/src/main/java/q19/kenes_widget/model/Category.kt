@@ -4,9 +4,12 @@ import android.content.res.Resources
 import android.graphics.drawable.GradientDrawable
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import org.json.JSONObject
 import q19.kenes_widget.R
+import q19.kenes_widget.util.JsonUtil.getNullableLong
+import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 
-internal class Category(
+internal data class Category(
     var id: Long,
     var title: String,
     var lang: Int,
@@ -16,7 +19,7 @@ internal class Category(
     var responses: MutableList<Int> = mutableListOf(),
 
 //    Local system variables
-    var home: Boolean = false,
+//    var home: Boolean = false,
     @ColorInt var color: Int = 0
 ) {
 
@@ -61,8 +64,31 @@ internal class Category(
         ))
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is Category) return false
+        if (id == other.id && parentId == other.parentId) return true
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     override fun toString(): String {
         return "Category(id=$id, title=\"$title\", parentId=$parentId, children=$children, responses=$responses)"
     }
 
+}
+
+
+internal fun parse(jsonObject: JSONObject): Category {
+    return Category(
+        id = jsonObject.optLong("id"),
+        title = jsonObject.optString("title").trim(),
+        lang = jsonObject.optInt("lang"),
+        parentId = jsonObject.getNullableLong("parent_id"),
+        photo = jsonObject.optString("photo"),
+        responses = jsonObject.optJSONArrayAsList("responses")
+    )
 }

@@ -24,7 +24,11 @@ object JsonUtil {
     }
 
     fun JSONObject.getNullableString(key: String): String? {
-        return if (isNull(key)) null else optString(key)
+        return if (isNull(key)) null else getString(key)
+    }
+
+    fun JSONObject.getNullableLong(key: String): Long? {
+        return if (isNull(key)) null else getLong(key)
     }
 
     fun jsonObject(lambda: JSONObject.() -> Unit): JSONObject {

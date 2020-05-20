@@ -36,14 +36,14 @@ internal data class Message(
         type: Type,
         text: String?,
         date: Long
-    ) : this(type, text ?: "", fromTimestamp(date))
+    ) : this(type, text?.trim() ?: "", fromTimestamp(date))
 
     constructor(
         type: Type,
         text: String?,
         date: Long,
         category: Category?
-    ) : this(type, text ?: "", fromTimestamp(date), category)
+    ) : this(type, text?.trim() ?: "", fromTimestamp(date), category)
 
     constructor(
         type: Type,
@@ -66,7 +66,7 @@ internal data class Message(
         }
 
     enum class Type {
-        SELF,
+        USER,
         OPPONENT,
 
         NOTIFICATION,
@@ -79,7 +79,7 @@ internal data class Message(
     }
 
     override fun toString(): String {
-        return "Message(text=\"$text\", category=$category)"
+        return "Message(type=$type, text=\"$text\", category=$category)"
     }
 
 }

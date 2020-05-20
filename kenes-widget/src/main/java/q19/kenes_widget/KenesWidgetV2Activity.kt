@@ -4,20 +4,24 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
+import io.socket.emitter.Emitter
 import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.*
@@ -29,7 +33,6 @@ import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.HttpRequestHandler
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
-import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
@@ -63,6 +66,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private var palette = intArrayOf()
+
+    private var rootView: FrameLayout? = null
 
     /**
      * Opponent info view variables: [headerView]
@@ -99,6 +104,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
      */
     private var feedbackView: FeedbackView? = null
 
+    private var progressView: ProgressView? = null
+
     /**
      * Bottom navigation view variables: [bottomNavigationView]
      */
@@ -114,14 +121,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
      */
     private var audioDialogView: AudioDialogView? = null
 
-    private lateinit var chatAdapter: ChatAdapter
+    private var chatAdapter: ChatAdapter? = null
 
     private var socket: Socket? = null
     private var peerConnection: PeerConnection? = null
     private var peerConnectionFactory: PeerConnectionFactory? = null
     private var rootEglBase: EglBase? = null
-
-    private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
 
     private var localAudioSource: AudioSource? = null
     private var localVideoSource: VideoSource? = null
@@ -139,20 +144,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var audioManager: AudioManager? = null
 
     private var configs = Configs()
+    private var chatBot = ChatBot()
+    private var dialog = Dialog()
 
-    @get:Synchronized
-    @set:Synchronized
-    private var messages: MutableList<Message> = mutableListOf()
-
-    @get:Synchronized
-    @set:Synchronized
-    private var activeCategoryChild: Category? = null
-
-    @get:Synchronized
-    @set:Synchronized
-    private var activeDialog: Dialog? = null
-
-    private var isInitiator = false
+    private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
 
     private var viewState: ViewState = ViewState.ChatBot
         set(value) {
@@ -161,6 +156,46 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 updateViewState(value)
             }
         }
+
+    private var isUserPromptMode: Boolean = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+
+            field = value
+
+            if (value) {
+                runOnUiThread {
+//                    chatAdapter?.clearMessages(false)
+                    chatAdapter?.clearCategoryMessages()
+                }
+
+                chatBot.activeCategory = null
+            }
+
+            chatBot.isLocked = value
+        }
+
+    private var isLoading: Boolean = false
+        set(value) {
+            if (field == value) return
+            if (dialog.isOnLive) return
+
+            field = value
+
+            runOnUiThread {
+                if (value) {
+                    recyclerView?.visibility = View.GONE
+                    progressView?.show()
+                } else {
+                    recyclerView?.visibility = View.VISIBLE
+                    progressView?.hide()
+                }
+            }
+        }
+
+    private var chatRecyclerState: Parcelable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -180,6 +215,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
 
         // -------------------------- Binding views -----------------------------------
+        rootView = findViewById(R.id.rootView)
+
         /**
          * Bind [R.id.headerView] view.
          * Header view for opponent info display.
@@ -219,6 +256,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          */
         feedbackView = findViewById(R.id.feedbackView)
 
+        progressView = findViewById(R.id.progressView)
+
         /**
          * Bind [R.id.bottomNavigationView] view
          */
@@ -247,9 +286,17 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         /**
          * Default states of views
          */
-        activeDialog = null
+        dialog.clear()
 
-        headerView?.setDefaultState()
+        isUserPromptMode = false
+
+        headerView?.hideHangupButton()
+        headerView?.setOpponentInfo(Configs.Opponent(
+            "Kenes",
+            "Smart Bot",
+            drawableRes = R.drawable.kenes_ic_robot
+        ))
+
         feedbackView?.setDefaultState()
         footerView?.setDefaultState()
         videoCallView?.setDefaultState()
@@ -259,6 +306,26 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
 
+        chatBot.callback = object : ChatBot.Callback {
+            override fun onBasicCategoriesLoaded(categories: List<Category>) {
+                isLoading = false
+
+                val messages = categories
+                    .sortedBy { it.id }
+                    .mapIndexed { index, category ->
+                        if (palette.isNotEmpty()) {
+                            category.color = palette[index % palette.size]
+                        }
+                        Message(Message.Type.CATEGORY, category)
+                    }
+
+                runOnUiThread {
+                    chatAdapter?.setNewMessages(messages)
+                    scrollToTop()
+                }
+            }
+        }
+
         // ------------------------------------------------------------------------
 
 
@@ -267,30 +334,35 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          */
         bottomNavigationView?.callback = object : BottomNavigationView.Callback {
             override fun onHomeNavButtonClicked() {
-                viewState = ViewState.ChatBot
+                isUserPromptMode = false
 
-                chatAdapter.clearMessages()
+                isLoading = true
+
+                chatBot.reset()
+
+                chatAdapter?.clearMessages()
                 scrollToTop()
 
-                messages.clear()
-
-                activeCategoryChild = null
-
-                socket?.emit("user_dashboard", jsonObject {
+                sendUserDashboard(jsonObject {
                     put("action", "get_category_list")
                     put("parent_id", 0)
                 })
+
+                viewState = ViewState.ChatBot
             }
 
             override fun onVideoNavButtonClicked() {
+                isUserPromptMode = false
                 viewState = ViewState.VideoDialog(State.IDLE)
             }
 
             override fun onAudioNavButtonClicked() {
+                isUserPromptMode = false
                 viewState = ViewState.AudioDialog(State.IDLE)
             }
 
             override fun onInfoNavButtonClicked() {
+                isUserPromptMode = false
                 viewState = ViewState.Info
             }
         }
@@ -316,7 +388,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         }
 
         videoCallView?.setOnCallClickListener {
-            isInitiator = true
+            dialog.isInitiator = true
 
             viewState = ViewState.VideoDialog(State.PENDING)
 
@@ -324,11 +396,28 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         }
 
         audioCallView?.setOnCallClickListener {
-            isInitiator = true
+            dialog.isInitiator = true
 
             viewState = ViewState.AudioDialog(State.PENDING)
 
             socket?.emit("initialize", jsonObject { put("audio", true) })
+        }
+
+        rootView?.viewTreeObserver?.addOnGlobalLayoutListener {
+            val rec = Rect()
+            rootView?.getWindowVisibleDisplayFrame(rec)
+
+            // finding screen height
+            val screenHeight = rootView?.rootView?.height ?: 0
+
+            // finding keyboard height
+            val keypadHeight = screenHeight - rec.bottom
+
+            if (keypadHeight > screenHeight * 0.15) {
+                bottomNavigationView?.hideButtons()
+            } else {
+                bottomNavigationView?.showButtons()
+            }
         }
 
         footerView?.callback = object : FooterView.Callback {
@@ -355,7 +444,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onSendMessageButtonClicked(message: String) {
                 if (message.isNotBlank()) {
+                    isLoading = true
+
+                    isUserPromptMode = true
                     sendUserMessage(message, true)
+                    chatAdapter?.notifyDataSetChanged()
                 }
             }
         }
@@ -368,13 +461,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     return@setOnInputViewFocusChangeListener false
                 }
 
-                activeCategoryChild = null
+                isLoading = true
 
-                if (chatAdapter.isAllMessagesAreCategory()) {
-                    chatAdapter.clearMessages()
-                }
-
+                isUserPromptMode = true
                 sendUserMessage(text, true)
+                chatAdapter?.notifyDataSetChanged()
 
                 return@setOnInputViewFocusChangeListener true
             }
@@ -478,37 +569,43 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
             override fun onReturnBackClicked(category: Category) {
-                activeCategoryChild = null
+//                logDebug("onReturnBackClicked: $category")
 
-//                val previous = treeByParent(category)
+                val categories = chatBot.allCategories.filter { it.id == category.parentId }
 
-//                val previous = messages.filter {
-//                    it.category?.id == category.parentId
-//                }
-//
-//                logD("previous: $previous")
-//
-//                val isPreviousIsAHome = previous.all { it.category?.home == true }
+//                logDebug("onReturnBackClicked: $categories")
 
-//                if (isPreviousIsAHome) {
-                chatAdapter.setNewMessages(this@KenesWidgetV2Activity.messages)
-                scrollToTop()
-//                } else {
-//                    chatAdapter.setNewMessages(previous)
-//                    scrollToTop()
-//                }
+                val messages = if (categories.all { it.parentId == null }) {
+                    chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
+                } else {
+                    categories.map { Message(Message.Type.CROSS_CHILDREN, it) }
+                }
+
+                chatBot.activeCategory = null
+
+                runOnUiThread {
+                    chatAdapter?.setNewMessages(messages)
+                }
+
+                chatRecyclerState?.let { chatRecyclerState ->
+                    recyclerView?.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                }
             }
 
             override fun onCategoryChildClicked(category: Category) {
-                activeCategoryChild = category
+                isLoading = true
+
+                chatBot.activeCategory = category
+
+                chatRecyclerState = recyclerView?.layoutManager?.onSaveInstanceState()
 
                 if (category.responses.isNotEmpty()) {
-                    socket?.emit("user_dashboard", jsonObject {
+                    sendUserDashboard(jsonObject {
                         put("action", "get_response")
                         put("id", category.responses.first())
                     })
                 } else {
-                    socket?.emit("user_dashboard", jsonObject {
+                    sendUserDashboard(jsonObject {
                         put("action", "get_category_list")
                         put("parent_id", category.id)
                     })
@@ -516,16 +613,37 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onGoToHomeClicked() {
-                activeCategoryChild = null
+                isUserPromptMode = false
 
-                chatAdapter.setNewMessages(this@KenesWidgetV2Activity.messages)
-                scrollToTop()
+                val messages = chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
+
+                runOnUiThread {
+                    chatAdapter?.setNewMessages(messages)
+                }
+
+                chatRecyclerState?.let { chatRecyclerState ->
+                    recyclerView?.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                }
+
+//                chatBot.reset()
+//
+//                chatAdapter?.clearMessages()
+//                scrollToTop()
+//
+//                sendUserDashboard(jsonObject {
+//                    put("action", "get_category_list")
+//                    put("parent_id", 0)
+//                })
             }
 
             override fun onUrlInTextClicked(url: String) {
                 if (url.startsWith("#")) {
+                    isLoading = true
+
                     val text = url.removePrefix("#")
+                    isUserPromptMode = true
                     sendUserMessage(text, false)
+                    chatAdapter?.notifyDataSetChanged()
                 } else {
                     try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -751,7 +869,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             
             logDebug("event [EVENT_CONNECT]: $args")
 
-            socket?.emit("user_dashboard", jsonObject {
+            sendUserDashboard(jsonObject {
                 put("action", "get_category_list")
                 put("parent_id", 0)
             })
@@ -772,11 +890,17 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             val media = call.optString("media")
 
             if (type == "accept") {
-                activeDialog = Dialog(
+                dialog = Dialog(
                     operatorId = call.optString("operator"),
                     instance = call.optString("instance"),
                     media = call.optString("media")
                 )
+
+                runOnUiThread {
+                    if (chatAdapter?.clearCategoryMessages() == true) {
+                        chatAdapter?.notifyDataSetChanged()
+                    }
+                }
 
                 if (media == "audio") {
                     viewState = ViewState.AudioDialog(State.PREPARATION)
@@ -785,101 +909,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
 
                 logDebug("viewState: $viewState")
-            }
-
-        }?.on("category_list") { args ->
-
-            if (args.size != 1) {
-                return@on
-            }
-
-            val categoryList = args[0] as? JSONObject? ?: return@on
-//            logD("categoryListJson: $categoryList")
-
-            val categoryListJson = categoryList.optJSONArray("category_list") ?: return@on
-
-            var categories = mutableListOf<Category>()
-            for (i in 0 until categoryListJson.length()) {
-                val categoryJson = categoryListJson[i] as JSONObject
-                var parentId: Long? = categoryJson.optLong("parent_id", -1L)
-                if (parentId == -1L) {
-                    parentId = null
-                }
-                categories.add(Category(
-                    id = categoryJson.optLong("id"),
-                    title = categoryJson.optString("title"),
-                    lang = categoryJson.optInt("lang"),
-                    parentId = parentId,
-                    photo = categoryJson.optString("photo"),
-                    responses = categoryJson.optJSONArrayAsList("responses")
-                ))
-            }
-
-            categories = categories.sortedBy { it.id }.toMutableList()
-
-            categories.forEachIndexed { index, category ->
-//            logD("category: $category")
-
-                if (category.parentId == null) {
-                    if (palette.isNotEmpty()) {
-                        category.color = palette[index]
-                    }
-                    category.home = true
-                    messages.add(Message(Message.Type.CATEGORY, category))
-
-                    socket?.emit("user_dashboard", jsonObject {
-                        put("action", "get_category_list")
-                        put("parent_id", category.id)
-                    })
-                } else {
-                    if (category.parentId == activeCategoryChild?.id && activeCategoryChild?.children?.any { it.id == category.id } == false) {
-                        activeCategoryChild?.children?.add(category)
-                    }
-
-//                    messages.forEach { message ->
-//                        if (message.category?.id == category.parentId && message.category?.children?.contains(category) == false) {
-//                            message.category?.children?.add(category)
-//                        } else {
-//                            message.category?.sections?.forEach { section ->
-//                                if (section.id == category.parentId) {
-//                                    section.sections.add(Section.from(category))
-//                                }
-//                            }
-//                        }
-//                    }
-
-                    if (activeCategoryChild == null) {
-                        messages.forEach { message ->
-                            if (message.category?.id == category.parentId) {
-                                message.category?.children?.add(category)
-                            }
-                        }
-                    } else {
-//                        val message = Message(Message.Type.CROSS_CHILDREN, category)
-//                            if (!messages.contains(message)) {
-//                            messages.add(message)
-//                        }
-                    }
-                }
-            }
-
-            if (!messages.isNullOrEmpty() && messages.all { !it.category?.children.isNullOrEmpty() } && activeCategoryChild == null) {
-                runOnUiThread {
-                    feedbackView?.visibility = View.GONE
-                    videoCallView?.visibility = View.GONE
-                    recyclerView?.visibility = View.VISIBLE
-                    footerView?.visibility = View.VISIBLE
-
-                    chatAdapter.setNewMessages(messages)
-                    scrollToTop()
-                }
-            } else {
-                val activeCategoryChildMessage = Message(Message.Type.CROSS_CHILDREN, activeCategoryChild)
-
-                runOnUiThread {
-                    chatAdapter.setNewMessages(listOf(activeCategoryChildMessage))
-                    scrollToTop()
-                }
             }
 
         }?.on("form_init") { args ->
@@ -951,7 +980,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     audioDialogView?.setName(fullName)
                 }
 
-                chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text))
+                chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text))
                 scrollToBottom()
             }
 
@@ -1025,7 +1054,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             logDebug("message: $message")
 
-            val text = message.getNullableString("text")
+            val text = message.getNullableString("text")?.trim()
             val noOnline = message.optBoolean("no_online")
             val noResults = message.optBoolean("no_results")
             val id = message.optString("id")
@@ -1034,6 +1063,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             val sender = message.getNullableString("sender")
             val from = message.getNullableString("from")
             val rtc = message.optJSONObject("rtc")
+
+            isLoading = false
 
             if (noOnline) {
                 runOnUiThread {
@@ -1060,10 +1091,18 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 viewState = ViewState.VideoDialog(State.OPPONENT_DISCONNECT)
 
                 runOnUiThread {
-                    chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
+                    chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
                     scrollToBottom()
                 }
 
+                return@on
+            }
+
+            if (chatBot.activeCategory != null) {
+                val messages = listOf(Message(Message.Type.RESPONSE, text, time, chatBot.activeCategory))
+                runOnUiThread {
+                    chatAdapter?.setNewMessages(messages)
+                }
                 return@on
             }
 
@@ -1071,6 +1110,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 when (rtc.getNullableString("type")) {
                     Rtc.Type.START?.value -> {
                         logDebug("viewState (Rtc.Type.START?.value): $viewState")
+
+                        runOnUiThread {
+                            headerView?.showHangupButton()
+                            footerView?.visibility = View.VISIBLE
+                        }
 
                         sendMessage(rtc { type = Rtc.Type.PREPARE })
                     }
@@ -1159,7 +1203,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 return@on
             }
 
-            if (activeDialog != null) {
+            if (dialog.isOnLive) {
 //                if (!sender.isNullOrBlank() && !activeDialog?.operatorId.isNullOrBlank() && sender == activeDialog?.operatorId) {
 //                    if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
 //                    }
@@ -1167,36 +1211,79 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 //                    Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
 //                }
                 runOnUiThread {
-                    chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                     scrollToBottom()
                 }
             } else {
-                logDebug("text: $text")
+                logDebug("fetched text: $text")
 
-                if (from == "operator" && sender.isNullOrBlank() && action.isNullOrBlank()) {
-                    runOnUiThread {
-                        if (viewState is ViewState.VideoDialog) {
-                            videoCallView?.setDisabledState(text)
-
-                            chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                            scrollToBottom()
-                        } else if (viewState is ViewState.AudioDialog) {
-                            audioCallView?.setDisabledState(text)
-
-                            chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                            scrollToBottom()
-                        }
+                runOnUiThread {
+                    if (viewState is ViewState.VideoDialog) {
+                        videoCallView?.setDisabledState(text)
+                    } else if (viewState is ViewState.AudioDialog) {
+                        audioCallView?.setDisabledState(text)
                     }
-                } else {
-                    runOnUiThread {
-                        if (activeCategoryChild != null) {
-                            chatAdapter.setNewMessages(listOf(Message(Message.Type.RESPONSE, text, time, activeCategoryChild)))
-                            scrollToBottom()
-                        } else {
-                            chatAdapter.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                            scrollToBottom()
-                        }
+
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    scrollToBottom()
+                }
+            }
+
+        }?.on("category_list") { args ->
+
+            if (args.size != 1) {
+                return@on
+            }
+
+            val categoryList = args[0] as? JSONObject? ?: return@on
+
+            val categoryListJson = categoryList.optJSONArray("category_list") ?: return@on
+
+            logDebug("categoryList: $categoryList")
+
+            if (chatBot.isLocked) return@on
+
+            isLoading = false
+
+            var currentCategories = mutableListOf<Category>()
+            for (i in 0 until categoryListJson.length()) {
+                (categoryListJson[i] as? JSONObject?)?.let { categoryJson ->
+                    val parsed = parse(categoryJson)
+                    currentCategories.add(parsed)
+                }
+            }
+
+            currentCategories = currentCategories.sortedBy { it.id }.toMutableList()
+            chatBot.allCategories.addAll(currentCategories)
+
+            if (!chatBot.isBasicCategoriesFilled) {
+                chatBot.allCategories.forEach { category ->
+//                    logDebug("category: $category, ${category.parentId == null}")
+
+                    if (category.parentId == null) {
+                        sendUserDashboard(jsonObject {
+                            put("action", "get_category_list")
+                            put("parent_id", category.id)
+                        })
                     }
+                }
+
+                chatBot.isBasicCategoriesFilled = true
+            }
+
+//            logDebug("------------------------------------------------------------")
+//
+//            logDebug("categories: ${chatBot.allCategories}")
+//
+//            logDebug("------------------------------------------------------------")
+
+            if (chatBot.activeCategory != null) {
+                if (chatBot.activeCategory?.children?.containsAll(currentCategories) == false) {
+                    chatBot.activeCategory?.children?.addAll(currentCategories)
+                }
+                val messages = listOf(Message(Message.Type.CROSS_CHILDREN, chatBot.activeCategory))
+                runOnUiThread {
+                    chatAdapter?.setNewMessages(messages)
                 }
             }
 
@@ -1273,8 +1360,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 when (iceConnectionState) {
                     IceConnectionState.CLOSED -> {
-                        isInitiator = false
-                        activeDialog = null
+                        dialog.clear()
 
                         setNewStateByPreviousState(State.IDLE)
                     }
@@ -1335,7 +1421,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onRenegotiationNeeded() {
                 logDebug("onRenegotiationNeeded")
-                if (isInitiator) {
+                if (dialog.isInitiator) {
                     sendOffer()
                 } else {
                     sendAnswer()
@@ -1353,37 +1439,42 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun hangupLiveCall() {
-        isInitiator = false
-        activeDialog = null
+        dialog.clear()
 
         sendMessage(rtc { type = Rtc.Type.HANGUP })
         sendMessage(UserMessage.Action.FINISH)
 
-        chatAdapter.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
+        chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
     }
 
-    private fun sendMessage(action: UserMessage.Action) {
-        sendMessage(rtc = null, action = action)
+    private fun sendUserDashboard(jsonObject: JSONObject): Emitter? {
+        return socket?.emit("user_dashboard", jsonObject)
     }
 
-    private fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null) {
+    private fun sendMessage(action: UserMessage.Action): Emitter? {
+        return sendMessage(rtc = null, action = action)
+    }
+
+    private fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null): Emitter? {
         logDebug("sendMessage: $rtc; $action")
-        socket?.emit("message", UserMessage(rtc, action).toJsonObject())
+        return socket?.emit("message", UserMessage(rtc, action).toJsonObject())
     }
 
-    private fun sendUserMessage(message: String, isInputClearText: Boolean = true) {
-        socket?.emit("user_message", jsonObject { put("text", message) })
+    private fun sendUserMessage(message: String, isInputClearText: Boolean = true): Emitter? {
+        val emitter = socket?.emit("user_message", jsonObject { put("text", message) })
 
         if (isInputClearText) {
             footerView?.clearInputViewText()
         }
 
-        chatAdapter.addNewMessage(Message(Message.Type.SELF, message))
+        chatAdapter?.addNewMessage(Message(Message.Type.USER, message), false)
         scrollToBottom()
+
+        return emitter
     }
 
     private fun scrollToTop() {
-        recyclerView?.scrollToPosition(0)
+        recyclerView?.scrollTo(0, 0)
     }
 
     private fun scrollToBottom() {
@@ -1414,6 +1505,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         when (viewState) {
             is ViewState.VideoDialog -> {
                 infoView?.visibility = View.GONE
+                chatAdapter?.isGoToHomeButtonEnabled = false
+
+                if (isLoading) {
+                    isLoading = false
+                }
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
@@ -1444,7 +1540,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         videoCallView?.setDisabledState()
 
-                        chatAdapter.clearMessages()
+//                        chatAdapter?.clearMessages()
                     }
                     State.PREPARATION -> {
                         headerView?.hideHangupButton()
@@ -1513,6 +1609,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
             is ViewState.AudioDialog -> {
                 infoView?.visibility = View.GONE
+                chatAdapter?.isGoToHomeButtonEnabled = false
+
+                if (isLoading) {
+                    isLoading = false
+                }
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
@@ -1543,7 +1644,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                         audioCallView?.setDisabledState()
 
-                        chatAdapter.clearMessages()
+//                        chatAdapter?.clearMessages()
                     }
                     State.PREPARATION -> {
                         headerView?.hideHangupButton()
@@ -1609,6 +1710,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
             }
             ViewState.CallFeedback -> {
+                chatAdapter?.isGoToHomeButtonEnabled = false
+
                 headerView?.hideHangupButton()
 
                 audioCallView?.setDisabledState()
@@ -1633,6 +1736,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 feedbackView?.visibility = View.VISIBLE
             }
             ViewState.ChatBot -> {
+                chatAdapter?.isGoToHomeButtonEnabled = true
+
                 headerView?.hideHangupButton()
                 headerView?.setOpponentInfo(configs.opponent)
 
@@ -1656,12 +1761,20 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 bottomNavigationView?.setNavButtonsEnabled()
                 bottomNavigationView?.setHomeNavButtonActive()
 
-                recyclerView?.visibility = View.VISIBLE
+                if (!isLoading) {
+                    recyclerView?.visibility = View.VISIBLE
+                }
 
                 footerView?.setDefaultState()
                 footerView?.visibility = View.VISIBLE
             }
             ViewState.Info -> {
+                if (isLoading) {
+                    isLoading = false
+                }
+
+                chatAdapter?.isGoToHomeButtonEnabled = false
+
                 headerView?.hideHangupButton()
                 headerView?.setOpponentInfo(configs.opponent)
 
@@ -1691,8 +1804,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun closeLiveCall() {
-        isInitiator = false
-        activeDialog = null
+        dialog.clear()
 
         setSpeakerphoneOn(false)
 
@@ -1770,7 +1882,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         footerView?.setDefaultState()
         footerView = null
 
-        chatAdapter.clearMessages()
+        chatAdapter?.clearMessages()
         recyclerView?.adapter = null
         recyclerView = null
     }
