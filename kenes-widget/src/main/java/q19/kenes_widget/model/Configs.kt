@@ -13,8 +13,18 @@ internal data class Configs(
     data class Opponent(
         var name: String? = null,
         var secondName: String? = null,
-        var avatarUrl: String? = null
-    )
+        var avatarUrl: String? = null,
+
+        @DrawableRes
+        var drawableRes: Int = UNDEFINED_DRAWABLE_RES
+    ) {
+        companion object {
+            private const val UNDEFINED_DRAWABLE_RES = -1
+        }
+
+        val isDrawableResAvailable: Boolean
+            get() = drawableRes != UNDEFINED_DRAWABLE_RES
+    }
 
     data class Contact(
         var key: String,

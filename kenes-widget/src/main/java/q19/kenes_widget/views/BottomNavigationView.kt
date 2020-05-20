@@ -2,12 +2,14 @@ package q19.kenes_widget.views
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
+import q19.kenes_widget.util.DebouncedOnClickListener
 
 internal class BottomNavigationView @JvmOverloads constructor(
     context: Context,
@@ -16,6 +18,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
+    private var bottomNavigationView: LinearLayout? = null
     private var homeNavButton: AppCompatImageButton? = null
     private var videoNavButton: AppCompatImageButton? = null
     private var audioNavButton: AppCompatImageButton? = null
@@ -41,30 +44,39 @@ internal class BottomNavigationView @JvmOverloads constructor(
     init {
         val view = inflate(context, R.layout.kenes_view_bottom_navigation, this)
 
+        bottomNavigationView = view.findViewById(R.id.bottomNavigationView)
         homeNavButton = view.findViewById(R.id.homeButton)
         videoNavButton = view.findViewById(R.id.videoButton)
         audioNavButton = view.findViewById(R.id.audioButton)
         infoNavButton = view.findViewById(R.id.infoButton)
 
-        homeNavButton?.setOnClickListener {
-            setHomeNavButtonActive()
-            callback?.onHomeNavButtonClicked()
-        }
+        homeNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                setHomeNavButtonActive()
+                callback?.onHomeNavButtonClicked()
+            }
+        })
 
-        videoNavButton?.setOnClickListener {
-            setVideoNavButtonActive()
-            callback?.onVideoNavButtonClicked()
-        }
+        videoNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                setVideoNavButtonActive()
+                callback?.onVideoNavButtonClicked()
+            }
+        })
 
-        audioNavButton?.setOnClickListener {
-            setAudioNavButtonActive()
-            callback?.onAudioNavButtonClicked()
-        }
+        audioNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                setAudioNavButtonActive()
+                callback?.onAudioNavButtonClicked()
+            }
+        })
 
-        infoNavButton?.setOnClickListener {
-            setInfoNavButtonActive()
-            callback?.onInfoNavButtonClicked()
-        }
+        infoNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                setInfoNavButtonActive()
+                callback?.onInfoNavButtonClicked()
+            }
+        })
     }
 
     fun setHomeNavButtonActive() {
@@ -116,6 +128,18 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     private fun setInactiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
         appCompatImageButton?.setColorFilter(ContextCompat.getColor(context, R.color.kenes_gray))
+    }
+
+    fun showButtons() {
+        setButtonsVisibility(true)
+    }
+
+    fun hideButtons() {
+        setButtonsVisibility(false)
+    }
+
+    private fun setButtonsVisibility(isEnabled: Boolean) {
+        bottomNavigationView?.visibility = if (isEnabled) View.VISIBLE else View.GONE
     }
 
     interface Callback {

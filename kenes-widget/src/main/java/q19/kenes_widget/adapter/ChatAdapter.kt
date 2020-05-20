@@ -19,7 +19,7 @@ internal class ChatAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        val LAYOUT_SELF_MESSAGE = R.layout.kenes_cell_my_message
+        val LAYOUT_USER_MESSAGE = R.layout.kenes_cell_user_message
         val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
         val LAYOUT_TYPING = R.layout.kenes_cell_typing
@@ -30,35 +30,55 @@ internal class ChatAdapter(
 
     private var messages: MutableList<Message> = mutableListOf()
 
-    fun addNewMessage(message: Message) {
+    var isGoToHomeButtonEnabled: Boolean = true
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    fun addNewMessage(message: Message, isNotifyEnabled: Boolean = true) {
         messages.add(message)
-        notifyItemInserted(messages.size - 1)
+        if (isNotifyEnabled) {
+            notifyItemInserted(messages.size - 1)
+        }
     }
 
-    fun addNewMessages(messages: List<Message>) {
+    fun addNewMessages(messages: List<Message>, isNotifyEnabled: Boolean = true) {
+        if (messages.isEmpty()) return
         val last = this.messages.size - 1
         this.messages.addAll(last, messages)
-        notifyItemRangeInserted(last, messages.size)
+        if (isNotifyEnabled) {
+            notifyItemRangeInserted(last, messages.size)
+        }
     }
 
-    fun setNewMessages(messages: List<Message>) {
-        if (messages.isNotEmpty()) {
+    fun setNewMessages(messages: List<Message>, isNotifyEnabled: Boolean = true) {
+        if (messages.isEmpty()) return
+        if (this.messages.isNotEmpty()) {
             this.messages.clear()
         }
         this.messages.addAll(messages)
-        notifyDataSetChanged()
-//        notifyItemRangeInserted(0, messages.size - 1)
+        if (isNotifyEnabled) {
+            notifyDataSetChanged()
+        }
     }
 
-    fun removeLastMessage() {
+    fun removeLastMessage(isNotifyEnabled: Boolean) {
         messages.dropLast(1)
-        notifyItemRemoved(messages.size - 1)
+        if (isNotifyEnabled) {
+            notifyItemRemoved(messages.size - 1)
+        }
     }
 
-    fun clearMessages() {
+    fun clearMessages(isNotifyEnabled: Boolean = true) {
         messages.clear()
-        notifyDataSetChanged()
-//        notifyItemRangeRemoved(0, messages.size - 1)
+        if (isNotifyEnabled) {
+            notifyDataSetChanged()
+        }
+    }
+
+    fun clearCategoryMessages(): Boolean {
+        return messages.removeAll { it.category != null }
     }
 
     fun hasMessages(): Boolean {
@@ -66,15 +86,17 @@ internal class ChatAdapter(
     }
 
     fun isAllMessagesAreCategory(): Boolean {
-        return messages.all { it.type == Message.Type.CATEGORY || it.type == Message.Type.CROSS_CHILDREN || it.type == Message.Type.RESPONSE }
+        return messages.all {
+            it.type == Message.Type.CATEGORY || it.type == Message.Type.CROSS_CHILDREN || it.type == Message.Type.RESPONSE
+        }
     }
 
     override fun getItemCount(): Int = messages.size
 
     override fun getItemViewType(position: Int): Int {
         return when (messages[position].type) {
-            Message.Type.SELF ->
-                LAYOUT_SELF_MESSAGE
+            Message.Type.USER ->
+                LAYOUT_USER_MESSAGE
             Message.Type.NOTIFICATION ->
                 LAYOUT_NOTIFICATION
             Message.Type.TYPING ->
@@ -85,7 +107,7 @@ internal class ChatAdapter(
                 LAYOUT_CROSS_CHILDREN
             Message.Type.RESPONSE ->
                 LAYOUT_RESPONSE
-            else ->
+            Message.Type.OPPONENT ->
                 LAYOUT_OPPONENT_MESSAGE
         }
     }
@@ -96,51 +118,39 @@ internal class ChatAdapter(
         val view = inflater.inflate(viewType, parent, false)
 
         return when (viewType) {
-            LAYOUT_SELF_MESSAGE -> SelfMessageViewHolder(view)
+            LAYOUT_USER_MESSAGE -> UserMessageViewHolder(view)
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
             LAYOUT_CATEGORY -> CategoryViewHolder(view)
             LAYOUT_CROSS_CHILDREN -> CrossChildrenViewHolder(view)
             LAYOUT_RESPONSE -> ResponseViewHolder(view)
-            else -> OpponentMessageViewHolder(view)
+            LAYOUT_OPPONENT_MESSAGE -> OpponentMessageViewHolder(view)
+            else -> throw IllegalStateException("There is no ViewHolder for viewType: $viewType")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val message = messages[position]
 
-        if (message.type == Message.Type.SELF) {
-            if (holder is SelfMessageViewHolder) {
-                holder.bind(message)
-            }
-        } else if (message.type == Message.Type.NOTIFICATION) {
-            if (holder is NotificationViewHolder) {
-                holder.bind(message)
-            }
-        } else if (message.type == Message.Type.TYPING) {
-            if (holder is TypingViewHolder) {
-                holder.bind()
-            }
-        } else if (message.type == Message.Type.CATEGORY) {
-            if (holder is CategoryViewHolder) {
-                holder.bind(message)
-            }
-        } else if (message.type == Message.Type.CROSS_CHILDREN) {
-            if (holder is CrossChildrenViewHolder) {
-                holder.bind(message)
-            }
-        } else if (message.type == Message.Type.RESPONSE) {
-            if (holder is ResponseViewHolder) {
-                holder.bind(message)
-            }
-        } else if (message.type == Message.Type.OPPONENT) {
-            if (holder is OpponentMessageViewHolder) {
-                holder.bind(message)
-            }
+        when (message.type) {
+            Message.Type.USER ->
+                if (holder is UserMessageViewHolder) holder.bind(message)
+            Message.Type.NOTIFICATION ->
+                if (holder is NotificationViewHolder) holder.bind(message)
+            Message.Type.TYPING ->
+                if (holder is TypingViewHolder) holder.bind()
+            Message.Type.CATEGORY ->
+                if (holder is CategoryViewHolder) holder.bind(message)
+            Message.Type.CROSS_CHILDREN ->
+                if (holder is CrossChildrenViewHolder) holder.bind(message)
+            Message.Type.RESPONSE ->
+                if (holder is ResponseViewHolder) holder.bind(message)
+            Message.Type.OPPONENT ->
+                if (holder is OpponentMessageViewHolder) holder.bind(message)
         }
     }
 
-    private inner class SelfMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class UserMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView: TextView? = null
         private var timeView: TextView? = null
 
@@ -158,12 +168,18 @@ internal class ChatAdapter(
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView: TextView? = null
         private var timeView: TextView? = null
+        private var goToHomeButton: AppCompatButton? = null
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
         init {
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
+            goToHomeButton = view.findViewById(R.id.goToHomeButton)
+
+            goToHomeButton?.setOnClickListener {
+                callback.onGoToHomeClicked()
+            }
         }
 
         fun bind(message: Message) {
@@ -175,6 +191,10 @@ internal class ChatAdapter(
             }
 
             timeView?.text = message.time
+
+            goToHomeButton?.visibility =
+                if (adapterPosition == itemCount - 1 && isGoToHomeButtonEnabled) View.VISIBLE
+                else View.GONE
         }
     }
 
@@ -203,12 +223,13 @@ internal class ChatAdapter(
         private var recyclerView: RecyclerView? = null
 
         private var categoryAdapter: CategoryAdapter
+        private var layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
 
         init {
             titleView = view.findViewById(R.id.titleView)
             recyclerView = view.findViewById(R.id.recyclerView)
 
-            recyclerView?.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+            recyclerView?.layoutManager = layoutManager
             categoryAdapter = CategoryAdapter(this)
             recyclerView?.adapter = categoryAdapter
             recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
@@ -251,17 +272,19 @@ internal class ChatAdapter(
         private var goToHomeButton: AppCompatButton? = null
 
         private var crossChildrenAdapter: CrossChildrenAdapter
+        private var layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
 
         init {
             titleView = view.findViewById(R.id.titleView)
             recyclerView = view.findViewById(R.id.recyclerView)
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
 
-            recyclerView?.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
+            recyclerView?.layoutManager = layoutManager
             crossChildrenAdapter = CrossChildrenAdapter(this)
             recyclerView?.adapter = crossChildrenAdapter
             recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
 
+            goToHomeButton?.visibility = View.VISIBLE
             goToHomeButton?.setOnClickListener {
                 callback.onGoToHomeClicked()
             }
@@ -306,6 +329,7 @@ internal class ChatAdapter(
         private var titleView: TextView? = null
         private var textView: TextView? = null
         private var timeView: TextView? = null
+        private var goToHomeButton: AppCompatButton? = null
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
@@ -313,6 +337,12 @@ internal class ChatAdapter(
             titleView = view.findViewById(R.id.titleView)
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
+            goToHomeButton = view.findViewById(R.id.goToHomeButton)
+
+            goToHomeButton?.visibility = View.VISIBLE
+            goToHomeButton?.setOnClickListener {
+                callback.onGoToHomeClicked()
+            }
 
 //            textView?.movementMethod = LinkMovementMethod.getInstance()
         }
@@ -321,15 +351,16 @@ internal class ChatAdapter(
             val category = message.category
 
             if (category != null) {
+                titleView?.text = message.category?.title
+
                 htmlTextViewManager.setHtmlText(textView, message.htmlText)
                 htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
                     override fun onUrlClicked(view: View, url: String) {
                         callback.onUrlInTextClicked(url)
                     }
                 }
-
-                titleView?.text = message.category?.title
 //                textView?.setText(message.htmlText, TextView.BufferType.SPANNABLE)
+
                 timeView?.text = message.time
 
                 titleView?.setOnClickListener {

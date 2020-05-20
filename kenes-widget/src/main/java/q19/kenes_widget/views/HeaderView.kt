@@ -3,12 +3,13 @@ package q19.kenes_widget.views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.AttrRes
+import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import androidx.appcompat.widget.AppCompatImageView
 import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Configs
@@ -21,7 +22,7 @@ internal class HeaderView @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val opponentAvatarView: AppCompatImageView
+    private val opponentAvatarView: ImageView
     private val opponentNameView: TextView
     private val opponentSecondNameView: TextView
     private val hangupButton: AppCompatImageButton
@@ -45,7 +46,12 @@ internal class HeaderView @JvmOverloads constructor(
     }
 
     fun setOpponentInfo(opponent: Configs.Opponent?) {
-        setOpponentAvatar(opponent?.avatarUrl)
+        if (opponent?.isDrawableResAvailable == true) {
+            setOpponentAvatar(opponent.drawableRes)
+        } else {
+            setOpponentAvatar(opponent?.avatarUrl)
+        }
+
         setOpponentName(opponent?.name)
         setOpponentSecondName(opponent?.secondName)
     }
@@ -61,6 +67,10 @@ internal class HeaderView @JvmOverloads constructor(
         } else {
             opponentAvatarView.setImageDrawable(null)
         }
+    }
+
+    fun setOpponentAvatar(@DrawableRes drawableRes: Int) {
+        opponentAvatarView.setImageResource(drawableRes)
     }
 
     fun setOpponentName(name: String?) {

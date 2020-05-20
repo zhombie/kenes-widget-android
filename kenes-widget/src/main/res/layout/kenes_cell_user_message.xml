@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:background="@drawable/kenes_bg_my_message"
+        android:background="@drawable/kenes_bg_user_message"
         android:lineSpacingExtra="2.5sp"
         android:paddingStart="20dp"
         android:paddingTop="12dp"
