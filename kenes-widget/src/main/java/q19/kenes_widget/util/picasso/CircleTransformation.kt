@@ -1,4 +1,4 @@
-package q19.kenes_widget.util
+package q19.kenes_widget.util.picasso
 
 import android.graphics.*
 import com.squareup.picasso.Transformation

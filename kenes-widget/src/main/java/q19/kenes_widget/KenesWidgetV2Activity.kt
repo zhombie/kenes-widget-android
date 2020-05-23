@@ -37,7 +37,13 @@ import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
-import q19.kenes_widget.views.*
+import q19.kenes_widget.ui.components.*
+import q19.kenes_widget.ui.components.AudioCallView
+import q19.kenes_widget.ui.components.AudioDialogView
+import q19.kenes_widget.ui.components.BottomNavigationView
+import q19.kenes_widget.ui.components.FeedbackView
+import q19.kenes_widget.ui.components.FooterView
+import q19.kenes_widget.ui.components.InfoView
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
 class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
@@ -282,6 +288,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          * Default active navigation button of [bottomNavigationView]
          */
         bottomNavigationView?.setHomeNavButtonActive()
+        isLoading = true
 
         /**
          * Default states of views
@@ -1088,6 +1095,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             val time = message.optLong("time")
             val sender = message.getNullableString("sender")
             val from = message.getNullableString("from")
+            val media = message.optJSONObject("media")
             val rtc = message.optJSONObject("rtc")
 
             if (noOnline) {
@@ -1228,41 +1236,58 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 return@on
             }
 
-            if (dialog.isOnLive) {
-//                if (!sender.isNullOrBlank() && !activeDialog?.operatorId.isNullOrBlank() && sender == activeDialog?.operatorId) {
-//                    if (!id.isNullOrBlank() && !action.isNullOrBlank()) {
-//                    }
-//                } else {
-//                    Log.w(TAG, "WTF? Sender and call agent ids are DIFFERENT! sender: $sender, id: ${activeDialog?.operatorId}")
-//                }
-                runOnUiThread {
-                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                    scrollToBottom()
-                }
-            } else {
-                logDebug("fetched text: $text")
+            if (!text.isNullOrBlank()) {
+                if (dialog.isOnLive) {
+                    runOnUiThread {
+                        chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                        scrollToBottom()
+                    }
+                } else {
+                    logDebug("fetched text: $text")
 
-                runOnUiThread {
                     if (viewState is ViewState.VideoDialog) {
                         val queued = message.optInt("queued")
 
-                        videoCallView?.setInfoText(text ?: "")
+                        runOnUiThread {
+                            videoCallView?.setInfoText(text)
+                        }
 
                         if (queued > 1) {
-                            videoCallView?.setPendingQueueCount(queued)
+                            runOnUiThread {
+                                videoCallView?.setPendingQueueCount(queued)
+                            }
                         }
                     } else if (viewState is ViewState.AudioDialog) {
                         val queued = message.optInt("queued")
 
-                        audioCallView?.setInfoText(text ?: "")
+                        runOnUiThread {
+                            audioCallView?.setInfoText(text)
+                        }
 
                         if (queued > 1) {
-                            audioCallView?.setPendingQueueCount(queued)
+                            runOnUiThread {
+                                audioCallView?.setPendingQueueCount(queued)
+                            }
                         }
                     }
 
-                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                    scrollToBottom()
+                    runOnUiThread {
+                        chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                        scrollToBottom()
+                    }
+                }
+            }
+
+            if (media != null) {
+                val image = media.getNullableString("image")
+                val name = media.getNullableString("name")
+                val ext = media.getNullableString("ext")
+
+                if (!image.isNullOrBlank() && !ext.isNullOrBlank()) {
+                    runOnUiThread {
+                        chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, Media(image, name, ext), time))
+                        scrollToBottom()
+                    }
                 }
             }
 

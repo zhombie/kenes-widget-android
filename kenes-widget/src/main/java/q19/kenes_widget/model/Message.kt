@@ -9,6 +9,7 @@ import java.util.*
 internal data class Message(
     var type: Type = Type.OPPONENT,
     var text: String,
+    var media: Media? = null,
     var date: Calendar = now(),
     var category: Category? = null
 ) {
@@ -35,20 +36,26 @@ internal data class Message(
     constructor(
         type: Type,
         text: String?,
-        date: Long
-    ) : this(type, text?.trim() ?: "", fromTimestamp(date))
+        timestamp: Long
+    ) : this(type, text?.trim() ?: "", null, fromTimestamp(timestamp), null)
 
     constructor(
         type: Type,
         text: String?,
-        date: Long,
+        timestamp: Long,
         category: Category?
-    ) : this(type, text?.trim() ?: "", fromTimestamp(date), category)
+    ) : this(type, text?.trim() ?: "", null, fromTimestamp(timestamp), category)
 
     constructor(
         type: Type,
         category: Category?
-    ) : this(type, "", now(), category)
+    ) : this(type, "", null, now(), category)
+
+    constructor(
+        type: Type,
+        media: Media,
+        timestamp: Long
+    ) : this(type, "", media, fromTimestamp(timestamp), null)
 
     val time: String
         get() = parse(date)

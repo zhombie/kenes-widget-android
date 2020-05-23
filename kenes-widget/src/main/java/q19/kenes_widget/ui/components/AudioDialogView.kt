@@ -1,4 +1,4 @@
-package q19.kenes_widget.views
+package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
@@ -10,7 +10,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
-import q19.kenes_widget.util.CircleTransformation
+import q19.kenes_widget.util.picasso.CircleTransformation
 
 internal class AudioDialogView @JvmOverloads constructor(
     context: Context,

@@ -1,7 +1,9 @@
 package q19.kenes_widget.adapter
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +11,14 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.util.HtmlTextViewManager
+import q19.kenes_widget.util.picasso.RoundedTransformation
+import q19.kenes_widget.util.picasso.Target
+import q19.kenes_widget.ui.widgets.DynamicHeightImageView
 
 internal class ChatAdapter(
     private val callback: Callback
@@ -166,13 +172,17 @@ internal class ChatAdapter(
     }
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private var imageView: DynamicHeightImageView? = null
         private var textView: TextView? = null
         private var timeView: TextView? = null
         private var goToHomeButton: AppCompatButton? = null
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
+        private val targets = HashSet<Target>()
+
         init {
+            imageView = view.findViewById(R.id.imageView)
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
@@ -182,12 +192,51 @@ internal class ChatAdapter(
             }
         }
 
-        fun bind(message: Message) {
-            htmlTextViewManager.setHtmlText(textView, message.htmlText)
-            htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
-                override fun onUrlClicked(view: View, url: String) {
-                    callback.onUrlInTextClicked(url)
+        private val target = object : Target() {
+            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                bitmap?.let {
+                    val ratio = bitmap.height / bitmap.width
+                    imageView?.heightRatio = ratio.toDouble()
+                    imageView?.setImageBitmap(bitmap)
+                    imageView?.visibility = View.VISIBLE
+
+                    targets.clear()
                 }
+            }
+
+            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+                super.onBitmapFailed(e, errorDrawable)
+                targets.clear()
+            }
+        }
+
+        fun bind(message: Message) {
+            if (message.media?.isImage == true) {
+                Picasso.get()
+                    .load(message.media?.imageUrl)
+                    .transform(RoundedTransformation(
+                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_image_corner_radius),
+                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_image_corner_radius)
+                    ))
+                    .into(target)
+
+                imageView?.tag = this
+
+                targets.add(target)
+            } else {
+                imageView?.visibility = View.GONE
+            }
+
+            if (message.text.isNotBlank()) {
+                htmlTextViewManager.setHtmlText(textView, message.htmlText)
+                htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
+                    override fun onUrlClicked(view: View, url: String) {
+                        callback.onUrlInTextClicked(url)
+                    }
+                }
+                textView?.visibility = View.VISIBLE
+            } else {
+                textView?.visibility = View.GONE
             }
 
             timeView?.text = message.time
@@ -195,6 +244,16 @@ internal class ChatAdapter(
             goToHomeButton?.visibility =
                 if (adapterPosition == itemCount - 1 && isGoToHomeButtonEnabled) View.VISIBLE
                 else View.GONE
+        }
+
+        fun clear() {
+            imageView?.tag = null
+            targets.clear()
+
+            imageView = null
+            textView = null
+            timeView = null
+            goToHomeButton = null
         }
     }
 

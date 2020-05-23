@@ -8,7 +8,7 @@ import android.text.style.URLSpan
 import android.view.View
 import android.widget.TextView
 
-class HtmlTextViewManager {
+internal class HtmlTextViewManager {
 
     var callback: Callback? = null
 

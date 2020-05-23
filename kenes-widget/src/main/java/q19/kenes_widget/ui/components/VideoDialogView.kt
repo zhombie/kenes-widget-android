@@ -1,4 +1,4 @@
-package q19.kenes_widget.views
+package q19.kenes_widget.ui.components
 
 import android.animation.Animator
 import android.content.Context

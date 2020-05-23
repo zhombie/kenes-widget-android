@@ -1,4 +1,4 @@
-package q19.kenes_widget.views
+package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
@@ -13,7 +13,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Configs
-import q19.kenes_widget.util.CircleTransformation
+import q19.kenes_widget.util.picasso.CircleTransformation
 
 internal class HeaderView @JvmOverloads constructor(
     context: Context,

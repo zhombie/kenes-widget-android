@@ -1,4 +1,4 @@
-package q19.kenes_widget.views
+package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
@@ -10,30 +10,30 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import q19.kenes_widget.R
 
-internal class AudioCallView @JvmOverloads constructor(
+internal class VideoCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val audioCallButton: AppCompatButton
-    private val audioCallInfoView: TextView
+    private val videoCallButton: AppCompatButton
+    private val videoCallInfoView: TextView
     private val queueCountView: TextView
 
     init {
-        val view = inflate(context, R.layout.kenes_view_audio_call, this)
+        val view = inflate(context, R.layout.kenes_view_video_call, this)
 
-        audioCallButton = view.findViewById(R.id.audioCallButton)
-        audioCallInfoView = view.findViewById(R.id.audioCallInfoView)
+        videoCallButton = view.findViewById(R.id.videoCallButton)
+        videoCallInfoView = view.findViewById(R.id.videoCallInfoView)
         queueCountView = view.findViewById(R.id.queueCountView)
     }
 
     fun setDefaultState() {
         setEnabledState()
 
-        audioCallInfoView.text = null
-        audioCallInfoView.visibility = View.GONE
+        videoCallInfoView.text = null
+        videoCallInfoView.visibility = View.GONE
 
         queueCountView.text = null
         queueCountView.visibility = View.GONE
@@ -48,21 +48,21 @@ internal class AudioCallView @JvmOverloads constructor(
     }
 
     private fun setState(isEnabled: Boolean) {
-        audioCallButton.isEnabled = isEnabled
+        videoCallButton.isEnabled = isEnabled
     }
 
     fun setInfoText(text: String) {
-        audioCallInfoView.text = text
-        audioCallInfoView.visibility = View.VISIBLE
+        videoCallInfoView.text = text
+        videoCallInfoView.visibility = View.VISIBLE
     }
 
     fun setPendingQueueCount(count: Int) {
-        queueCountView.text = "В очереди ($count)"
+        queueCountView.text = "В очереди $count"
         queueCountView.visibility = View.VISIBLE
     }
 
     fun setOnCallClickListener(callback: () -> Unit) {
-        audioCallButton.setOnClickListener { callback() }
+        videoCallButton.setOnClickListener { callback() }
     }
 
 }
