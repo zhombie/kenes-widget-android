@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="@color/kenes_white"
     android:orientation="horizontal"
-    android:padding="15dp">
+    android:padding="@dimen/kenes_horizontal_spacing">
 
     <RelativeLayout
         android:id="@+id/opponentInfo"
@@ -22,8 +22,8 @@
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginEnd="10dp"
-            tools:src="@tools:sample/avatars"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            tools:src="@tools:sample/avatars" />
 
         <TextView
             android:id="@+id/opponentNameView"

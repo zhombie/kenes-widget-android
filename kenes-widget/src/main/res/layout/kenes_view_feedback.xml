@@ -8,14 +8,12 @@
     android:background="@color/kenes_white"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="@dimen/kenes_horizontal_spacing">
 
     <TextView
         android:id="@+id/titleView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginBottom="15dp"
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="3sp"
@@ -40,8 +38,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         android:background="@drawable/kenes_bg_button_white_rounded_4dp"
         android:enabled="false"
         android:paddingStart="15dp"

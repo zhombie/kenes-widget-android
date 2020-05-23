@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="kenes_horizontal_spacing">15dp</dimen>
+
     <dimen name="kenes_message_vertical_spacing">10dp</dimen>
     <dimen name="kenes_message_horizontal_spacing">10dp</dimen>
 

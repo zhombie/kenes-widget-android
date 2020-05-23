@@ -18,8 +18,8 @@
         android:focusable="true"
         android:fontFamily="sans-serif-black"
         android:gravity="center_vertical"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
+        android:paddingStart="@dimen/kenes_horizontal_spacing"
+        android:paddingEnd="@dimen/kenes_horizontal_spacing"
         android:textColor="@color/black"
         android:textSize="20sp"
         tools:text="Бизнесу" />
@@ -31,8 +31,8 @@
         android:layout_marginBottom="20dp"
         android:clipToPadding="false"
         android:orientation="vertical"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
+        android:paddingStart="@dimen/kenes_horizontal_spacing"
+        android:paddingEnd="@dimen/kenes_horizontal_spacing"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="5"
         tools:listitem="@layout/kenes_cell_cross_child" />

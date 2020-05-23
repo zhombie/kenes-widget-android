@@ -189,8 +189,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     recyclerView?.visibility = View.GONE
                     progressView?.show()
                 } else {
-                    recyclerView?.visibility = View.VISIBLE
                     progressView?.hide()
+                    recyclerView?.visibility = View.VISIBLE
                 }
             }
         }
@@ -308,8 +308,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         chatBot.callback = object : ChatBot.Callback {
             override fun onBasicCategoriesLoaded(categories: List<Category>) {
-                isLoading = false
-
                 val messages = categories
                     .sortedBy { it.id }
                     .mapIndexed { index, category ->
@@ -323,6 +321,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     chatAdapter?.setNewMessages(messages)
                     scrollToTop()
                 }
+
+                isLoading = false
             }
         }
 
@@ -336,8 +336,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             override fun onHomeNavButtonClicked() {
                 isUserPromptMode = false
 
-                isLoading = true
-
                 chatBot.reset()
 
                 chatAdapter?.clearMessages()
@@ -347,6 +345,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     put("action", "get_category_list")
                     put("parent_id", 0)
                 })
+
+                isLoading = true
 
                 viewState = ViewState.ChatBot
             }
@@ -444,11 +444,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onSendMessageButtonClicked(message: String) {
                 if (message.isNotBlank()) {
-                    isLoading = true
-
                     isUserPromptMode = true
                     sendUserMessage(message, true)
                     chatAdapter?.notifyDataSetChanged()
+
+                    isLoading = true
                 }
             }
         }
@@ -461,11 +461,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     return@setOnInputViewFocusChangeListener false
                 }
 
-                isLoading = true
-
                 isUserPromptMode = true
                 sendUserMessage(text, true)
                 chatAdapter?.notifyDataSetChanged()
+
+                isLoading = true
 
                 return@setOnInputViewFocusChangeListener true
             }
@@ -593,8 +593,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onCategoryChildClicked(category: Category) {
-                isLoading = true
-
                 chatBot.activeCategory = category
 
                 chatRecyclerState = recyclerView?.layoutManager?.onSaveInstanceState()
@@ -610,6 +608,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         put("parent_id", category.id)
                     })
                 }
+
+                isLoading = true
             }
 
             override fun onGoToHomeClicked() {
@@ -638,12 +638,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onUrlInTextClicked(url: String) {
                 if (url.startsWith("#")) {
-                    isLoading = true
-
                     val text = url.removePrefix("#")
                     isUserPromptMode = true
                     sendUserMessage(text, false)
                     chatAdapter?.notifyDataSetChanged()
+
+                    isLoading = true
                 } else {
                     try {
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -1042,6 +1042,32 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
             }
 
+        }?.on("user_queue") { args ->
+            logDebug("event [USER_QUEUE]: $args")
+
+            if (args.size != 1) {
+                return@on
+            }
+
+            val userQueue = args[0] as? JSONObject? ?: return@on
+
+            logDebug("userQueue: $userQueue")
+
+            val count = userQueue.getInt("count")
+//            val channel = userQueue.getInt("channel")
+
+//            logDebug("userQueue -> count: $count")
+
+            if (count > 1) {
+                runOnUiThread {
+                    if (viewState is ViewState.VideoDialog) {
+                        videoCallView?.setPendingQueueCount(count)
+                    } else if (viewState is ViewState.AudioDialog) {
+                        audioCallView?.setPendingQueueCount(count)
+                    }
+                }
+            }
+
         }?.on("message") { args ->
             logDebug("event [MESSAGE]: $args")
 
@@ -1063,8 +1089,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             val sender = message.getNullableString("sender")
             val from = message.getNullableString("from")
             val rtc = message.optJSONObject("rtc")
-
-            isLoading = false
 
             if (noOnline) {
                 runOnUiThread {
@@ -1103,6 +1127,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 runOnUiThread {
                     chatAdapter?.setNewMessages(messages)
                 }
+                isLoading = false
                 return@on
             }
 
@@ -1219,9 +1244,21 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                 runOnUiThread {
                     if (viewState is ViewState.VideoDialog) {
-                        videoCallView?.setDisabledState(text)
+                        val queued = message.optInt("queued")
+
+                        videoCallView?.setInfoText(text ?: "")
+
+                        if (queued > 1) {
+                            videoCallView?.setPendingQueueCount(queued)
+                        }
                     } else if (viewState is ViewState.AudioDialog) {
-                        audioCallView?.setDisabledState(text)
+                        val queued = message.optInt("queued")
+
+                        audioCallView?.setInfoText(text ?: "")
+
+                        if (queued > 1) {
+                            audioCallView?.setPendingQueueCount(queued)
+                        }
                     }
 
                     chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
@@ -1242,8 +1279,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             logDebug("categoryList: $categoryList")
 
             if (chatBot.isLocked) return@on
-
-            isLoading = false
 
             var currentCategories = mutableListOf<Category>()
             for (i in 0 until categoryListJson.length()) {
@@ -1286,6 +1321,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                     chatAdapter?.setNewMessages(messages)
                 }
             }
+
+            isLoading = false
 
         }?.on(Socket.EVENT_DISCONNECT) {
             logDebug("event [EVENT_DISCONNECT]")

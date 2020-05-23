@@ -19,32 +19,46 @@ internal class AudioCallView @JvmOverloads constructor(
 
     private val audioCallButton: AppCompatButton
     private val audioCallInfoView: TextView
+    private val queueCountView: TextView
 
     init {
         val view = inflate(context, R.layout.kenes_view_audio_call, this)
 
         audioCallButton = view.findViewById(R.id.audioCallButton)
         audioCallInfoView = view.findViewById(R.id.audioCallInfoView)
+        queueCountView = view.findViewById(R.id.queueCountView)
     }
 
-    fun setDefaultState(isHideInfoView: Boolean = true) {
-        audioCallButton.isEnabled = true
+    fun setDefaultState() {
+        setEnabledState()
+
         audioCallInfoView.text = null
+        audioCallInfoView.visibility = View.GONE
 
-        if (isHideInfoView) {
-            audioCallInfoView.visibility = View.GONE
-        }
+        queueCountView.text = null
+        queueCountView.visibility = View.GONE
     }
 
-    fun setDisabledState(text: String? = null) {
-        audioCallButton.isEnabled = false
+    fun setEnabledState() {
+        setState(true)
+    }
 
-        if (text.isNullOrBlank()) {
-            audioCallInfoView.text = null
-        } else {
-            audioCallInfoView.text = text
-            audioCallInfoView.visibility = View.VISIBLE
-        }
+    fun setDisabledState() {
+        setState(false)
+    }
+
+    private fun setState(isEnabled: Boolean) {
+        audioCallButton.isEnabled = isEnabled
+    }
+
+    fun setInfoText(text: String) {
+        audioCallInfoView.text = text
+        audioCallInfoView.visibility = View.VISIBLE
+    }
+
+    fun setPendingQueueCount(count: Int) {
+        queueCountView.text = "В очереди ($count)"
+        queueCountView.visibility = View.VISIBLE
     }
 
     fun setOnCallClickListener(callback: () -> Unit) {

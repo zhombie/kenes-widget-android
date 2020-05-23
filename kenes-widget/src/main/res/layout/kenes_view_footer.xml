@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/kenes_white"
-    android:paddingStart="15dp"
+    android:paddingStart="@dimen/kenes_horizontal_spacing"
     android:paddingTop="10dp"
-    android:paddingEnd="15dp"
+    android:paddingEnd="@dimen/kenes_horizontal_spacing"
     android:paddingBottom="15dp">
 
     <androidx.appcompat.widget.AppCompatButton
