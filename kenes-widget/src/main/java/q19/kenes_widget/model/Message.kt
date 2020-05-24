@@ -7,6 +7,7 @@ import android.text.format.DateFormat
 import java.util.*
 
 internal data class Message(
+    var id: String? = null,
     var type: Type = Type.OPPONENT,
     var text: String,
     var media: Media? = null,
@@ -36,26 +37,33 @@ internal data class Message(
     constructor(
         type: Type,
         text: String?,
-        timestamp: Long
-    ) : this(type, text?.trim() ?: "", null, fromTimestamp(timestamp), null)
+        timestamp: Long? = null
+    ) : this(
+        null,
+        type,
+        text?.trim() ?: "",
+        null,
+        timestamp?.let { fromTimestamp(it) } ?: now(),
+        null
+    )
 
     constructor(
         type: Type,
         text: String?,
         timestamp: Long,
         category: Category?
-    ) : this(type, text?.trim() ?: "", null, fromTimestamp(timestamp), category)
+    ) : this(null, type, text?.trim() ?: "", null, fromTimestamp(timestamp), category)
 
     constructor(
         type: Type,
         category: Category?
-    ) : this(type, "", null, now(), category)
+    ) : this(null, type, "", null, now(), category)
 
     constructor(
         type: Type,
         media: Media,
         timestamp: Long
-    ) : this(type, "", media, fromTimestamp(timestamp), null)
+    ) : this(null, type, "", media, fromTimestamp(timestamp), null)
 
     val time: String
         get() = parse(date)

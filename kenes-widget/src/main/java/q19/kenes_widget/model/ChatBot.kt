@@ -40,7 +40,7 @@ internal class ChatBot {
         allCategories.callback = listCallback
     }
 
-    fun reset() {
+    fun clear() {
         activeCategory = null
         isBasicCategoriesFilled = false
         initialize()

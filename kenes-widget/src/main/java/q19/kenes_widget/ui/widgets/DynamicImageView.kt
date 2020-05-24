@@ -10,25 +10,33 @@ internal class DynamicHeightImageView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ): AppCompatImageView(context, attrs, defStyleAttr) {
 
-    private var mHeightRatio = 0.0
+    private var mHeightRatio = 0F
 
-    var heightRatio: Double
+    var heightRatio: Float
         get() = mHeightRatio
-        set(ratio) {
-            if (ratio != mHeightRatio) {
-                mHeightRatio = ratio
+        set(value) {
+            if (value != mHeightRatio) {
+                mHeightRatio = value
                 requestLayout()
             }
         }
 
+    private var listener: ((width: Int, height: Int) -> Unit)? = null
+
+    fun setMeasureChangeListener(listener: (width: Int, height: Int) -> Unit) {
+        this.listener = listener
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        if (mHeightRatio > 0.0) {
+        if (mHeightRatio > 0) {
             // set the image views size
             val width = MeasureSpec.getSize(widthMeasureSpec)
             val height = (width * mHeightRatio).toInt()
+            listener?.invoke(width, height)
             setMeasuredDimension(width, height)
         } else {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         }
     }
+
 }

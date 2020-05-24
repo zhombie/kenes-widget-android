@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+        <!--title color-->
+        <item name="android:textColorPrimary">@color/kenes_black</item>
+
+        <!--list item color-->
+        <item name="textColorAlertDialogListItem">@color/kenes_black</item>
+
+        <!--dialog background-->
+        <item name="popupMenuBackground">@drawable/kenes_bg_dialog</item>
+        <item name="android:windowBackground">@drawable/kenes_bg_dialog</item>
+
+        <!--item RadioButton or CheckBox color-->
+        <item name="colorControlNormal">#7b797a</item>
+        <item name="colorControlActivated">@color/kenes_blue</item>
+
+        <!--positive button style-->
+        <item name="buttonBarPositiveButtonStyle">@style/Alert.Button.Positive</item>
+
+        <!--negative button style-->
+        <item name="buttonBarNegativeButtonStyle">@style/Alert.Button.Negative</item>
+
+        <!--size-->
+        <item name="windowMinWidthMinor">80%</item>
+        <item name="windowMinWidthMajor">80%</item>
+        <item name="android:windowMinWidthMajor">80%</item>
+        <item name="android:windowMinWidthMinor">80%</item>
+    </style>
+
+    <style name="Alert.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/kenes_blue</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="backgroundTint">@color/kenes_transparent</item>
+        <item name="rippleColor">@color/kenes_gray</item>
+    </style>
+
+    <style name="Alert.Button.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:minWidth">0dp</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/kenes_blue</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="backgroundTint">@color/kenes_transparent</item>
+        <item name="rippleColor">@color/kenes_gray</item>
+    </style>
+
+</resources>

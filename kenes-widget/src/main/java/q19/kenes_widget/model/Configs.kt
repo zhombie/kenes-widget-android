@@ -5,8 +5,8 @@ import q19.kenes_widget.R
 
 internal data class Configs(
     var opponent: Opponent = Opponent(),
-    var contacts: MutableList<Contact> = mutableListOf(),
-    var phones: MutableList<String> = mutableListOf(),
+    var contacts: List<Contact> = listOf(),
+    var phones: List<String> = listOf(),
     var workingHours: WorkingHours = WorkingHours()
 ) {
 
@@ -24,6 +24,12 @@ internal data class Configs(
 
         val isDrawableResAvailable: Boolean
             get() = drawableRes != UNDEFINED_DRAWABLE_RES
+
+        fun clear() {
+            name = null
+            secondName = null
+            avatarUrl = null
+        }
     }
 
     data class Contact(
@@ -61,6 +67,16 @@ internal data class Configs(
     data class WorkingHours(
         var messageKk: String? = null,
         var messageRu: String? = null
-    )
+    ) {
+        fun clear() {
+            messageKk = null
+            messageRu = null
+        }
+    }
+
+    fun clear() {
+        opponent.clear()
+        workingHours.clear()
+    }
 
 }

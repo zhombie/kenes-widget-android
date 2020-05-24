@@ -12,14 +12,20 @@
         android:id="@+id/contentView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="50dp"
         android:background="@drawable/kenes_bg_opponent_message"
         android:orientation="vertical">
 
-        <q19.kenes_widget.ui.widgets.DynamicHeightImageView
+        <ImageView
             android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:maxWidth="250dp"
+            android:maxHeight="250dp"
+            android:minWidth="150dp"
+            android:minHeight="150dp"
+            android:scaleType="centerInside"
             android:visibility="gone"
             tools:srcCompat="@tools:sample/backgrounds/scenic"
             tools:visibility="visible" />
@@ -30,7 +36,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:drawableStart="@drawable/ic_file"
+            android:drawableStart="@drawable/kenes_ic_file"
             android:drawablePadding="7dp"
             android:focusable="true"
             android:fontFamily="sans-serif"

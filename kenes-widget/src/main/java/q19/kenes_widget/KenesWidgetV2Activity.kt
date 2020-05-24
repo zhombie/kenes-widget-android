@@ -19,7 +19,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
@@ -40,6 +39,7 @@ import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.UrlUtil
+import q19.kenes_widget.util.AlertDialogBuilder
 import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
 import q19.kenes_widget.util.showFullscreenImage
@@ -343,7 +343,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             override fun onHomeNavButtonClicked() {
                 isUserPromptMode = false
 
-                chatBot.reset()
+                chatBot.clear()
 
                 chatAdapter?.clearMessages()
                 scrollToTop()
@@ -379,7 +379,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          */
         headerView?.callback = object : HeaderView.Callback {
             override fun onHangupButtonClicked() {
-                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                AlertDialogBuilder
                     .setTitle(R.string.kenes_attention)
                     .setMessage(R.string.kenes_end_dialog)
                     .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -433,7 +433,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onAttachmentButtonClicked() {
-                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                AlertDialogBuilder
                     .setMessage("Не реализовано")
                     .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
                         dialog.dismiss()
@@ -493,7 +493,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onHangupButtonClicked() {
-                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                AlertDialogBuilder
                     .setTitle(R.string.kenes_attention)
                     .setMessage(R.string.kenes_end_dialog)
                     .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -526,7 +526,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onHangupButtonClicked() {
-                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                AlertDialogBuilder
                     .setTitle(R.string.kenes_attention)
                     .setMessage(R.string.kenes_end_dialog)
                     .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -559,7 +559,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             override fun onLanguageChangeClicked(language: Language) {
                 val languages = Language.AllLanguages
 
-                AlertDialog.Builder(this@KenesWidgetV2Activity)
+                AlertDialogBuilder
                     .setTitle(R.string.kenes_select_language_from_list)
                     .setSingleChoiceItems(languages.map { it.value }.toTypedArray(), -1) { dialog, which ->
                         val selected = languages[which]
@@ -652,12 +652,22 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                     isLoading = true
                 } else {
-                    try {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                        startActivity(intent)
-                    } catch (e: ActivityNotFoundException) {
-                        e.printStackTrace()
-                    }
+                    AlertDialogBuilder
+                        .setTitle(R.string.kenes_open_link)
+                        .setMessage(url)
+                        .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                            try {
+                                dialog.dismiss()
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                startActivity(intent)
+                            } catch (e: ActivityNotFoundException) {
+                                e.printStackTrace()
+                            }
+                        }
+                        .setNegativeButton(R.string.kenes_no) { dialog, which ->
+                            dialog.dismiss()
+                        }
+                        .show()
                 }
             }
 
@@ -667,6 +677,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onImageClicked(imageView: ImageView, bitmap: Bitmap) {
                 imageView.showFullscreenImage(bitmap)
+            }
+
+            override fun onImageLoadCompleted() {
             }
 
             override fun onFileClicked(fileUrl: String) {
@@ -693,7 +706,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView?.adapter = chatAdapter
-        recyclerView?.setHasFixedSize(true)
         recyclerView?.isNestedScrollingEnabled = false
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
 
@@ -705,7 +717,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     override fun onBackPressed() {
-        AlertDialog.Builder(this)
+        AlertDialogBuilder
             .setTitle(R.string.kenes_exit_widget_title)
             .setMessage(R.string.kenes_exit_widget_text)
             .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -1075,7 +1087,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             if (noOnline) {
                 runOnUiThread {
-                    AlertDialog.Builder(this)
+                    AlertDialogBuilder
                         .setTitle(R.string.kenes_attention)
                         .setMessage(text)
                         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
@@ -1914,9 +1926,23 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
+        chatRecyclerState = null
+
+        isLoading = false
+
+        isUserPromptMode = false
+
         viewState = ViewState.ChatBot
 
         closeLiveCall()
+
+        iceServers = emptyList()
+
+        configs.clear()
+        chatBot.clear()
+        dialog.clear()
+
+        audioManager = null
 
         socket?.disconnect()
         socket = null
@@ -1941,6 +1967,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         chatAdapter?.clearMessages()
         recyclerView?.adapter = null
         recyclerView = null
+
+        progressView = null
+
+        rootView = null
     }
 
     private fun logDebug(message: String) {

@@ -23,34 +23,40 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                 JSONObject(response)
             }
 
-            val configs = json?.optJSONObject("configs")
-            val contacts = json?.optJSONObject("contacts")
+            val configsJson = json?.optJSONObject("configs")
+            val contactsJson = json?.optJSONObject("contacts")
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-            val data = Configs()
+            val configs = Configs()
 
-            data.opponent = Configs.Opponent(
-                name = configs?.optString("default_operator"),
-                secondName = configs?.optString("title"),
-                avatarUrl = UrlUtil.getStaticUrl(configs?.optString("image"))
+            configs.opponent = Configs.Opponent(
+                name = configsJson?.optString("default_operator"),
+                secondName = configsJson?.optString("title"),
+                avatarUrl = UrlUtil.getStaticUrl(configsJson?.optString("image"))
             )
 
-            contacts?.keys()?.forEach { key ->
-                val value = contacts[key]
+            if (contactsJson != null) {
+                val contacts = mutableListOf<Configs.Contact>()
 
-                if (value is String) {
-                    data.contacts.add(Configs.Contact(key, value))
-                } else if (value is JSONArray) {
-                    data.phones = value.parse()
+                for (key in contactsJson.keys()) {
+                    val value = contactsJson[key]
+
+                    if (value is String) {
+                        contacts.add(Configs.Contact(key, value))
+                    } else if (value is JSONArray) {
+                        configs.phones = value.parse()
+                    }
                 }
+
+                configs.contacts = contacts
             }
 
-            data.workingHours = Configs.WorkingHours(
-                configs?.optString("message_kk"),
-                configs?.optString("message_ru")
+            configs.workingHours = Configs.WorkingHours(
+                configsJson?.optString("message_kk"),
+                configsJson?.optString("message_ru")
             )
 
-            return data
+            return configs
         } catch (e: Exception) {
 //            e.printStackTrace()
             Log.e(tag, "ERROR! $e")

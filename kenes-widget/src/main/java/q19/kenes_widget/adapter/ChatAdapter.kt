@@ -3,11 +3,11 @@ package q19.kenes_widget.adapter
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,8 +18,6 @@ import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.util.HtmlTextViewManager
 import q19.kenes_widget.util.picasso.RoundedTransformation
-import q19.kenes_widget.util.picasso.Target
-import q19.kenes_widget.ui.widgets.DynamicHeightImageView
 
 internal class ChatAdapter(
     private val callback: Callback
@@ -173,7 +171,8 @@ internal class ChatAdapter(
     }
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var imageView: DynamicHeightImageView? = null
+        private var messageView: LinearLayout? = null
+        private var imageView: ImageView? = null
         private var fileView: TextView? = null
         private var textView: TextView? = null
         private var timeView: TextView? = null
@@ -181,9 +180,8 @@ internal class ChatAdapter(
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
-        private val targets = HashSet<Target>()
-
         init {
+            messageView = view.findViewById(R.id.messageView)
             imageView = view.findViewById(R.id.imageView)
             fileView = view.findViewById(R.id.fileView)
             textView = view.findViewById(R.id.textView)
@@ -193,35 +191,32 @@ internal class ChatAdapter(
             goToHomeButton?.setOnClickListener { callback.onGoToHomeClicked() }
         }
 
-        private val target = object : Target() {
-            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                bitmap?.let {
-                    val ratio = bitmap.height / bitmap.width
-                    imageView?.heightRatio = ratio.toDouble()
-                    imageView?.setImageBitmap(bitmap)
-                    imageView?.visibility = View.VISIBLE
-
-                    targets.clear()
-                }
-            }
-
-            override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                super.onBitmapFailed(e, errorDrawable)
-                targets.clear()
-            }
-        }
+//        val target = object : Target() {
+//            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+//                super.onPrepareLoad(placeHolderDrawable)
+//                imageView?.visibility = View.VISIBLE
+//            }
+//
+//            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+//                bitmap?.let {
+//                    val ratio = bitmap.height / bitmap.width
+//                    imageView?.heightRatio = ratio.toFloat()
+//
+//                    imageView?.setImageBitmap(bitmap)
+//                }
+//            }
+//        }
 
         fun bind(message: Message) {
             if (message.media?.isImage == true) {
+                imageView?.visibility = View.VISIBLE
+
                 Picasso.get()
                     .load(message.media?.imageUrl)
-                    .transform(RoundedTransformation(
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius),
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
-                    ))
-                    .into(target)
-
-                imageView?.tag = this
+                    .placeholder(R.drawable.kenes_bg_gradient_gray)
+                    .transform(RoundedTransformation(itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)))
+                    .priority(Picasso.Priority.HIGH)
+                    .into(imageView)
 
                 itemView.setOnClickListener {
                     callback.onImageClicked(
@@ -229,8 +224,6 @@ internal class ChatAdapter(
                         message.media?.imageUrl ?: return@setOnClickListener
                     )
                 }
-
-                targets.add(target)
             } else {
                 imageView?.visibility = View.GONE
             }
@@ -249,10 +242,8 @@ internal class ChatAdapter(
 
             if (message.text.isNotBlank()) {
                 htmlTextViewManager.setHtmlText(textView, message.htmlText)
-                htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
-                    override fun onUrlClicked(view: View, url: String) {
-                        callback.onUrlInTextClicked(url)
-                    }
+                htmlTextViewManager.setOnUrlClickListener { _, url ->
+                    callback.onUrlInTextClicked(url)
                 }
                 textView?.visibility = View.VISIBLE
             } else {
@@ -264,16 +255,6 @@ internal class ChatAdapter(
             goToHomeButton?.visibility =
                 if (adapterPosition == itemCount - 1 && isGoToHomeButtonEnabled) View.VISIBLE
                 else View.GONE
-        }
-
-        fun clear() {
-            imageView?.tag = null
-            targets.clear()
-
-            imageView = null
-            textView = null
-            timeView = null
-            goToHomeButton = null
         }
     }
 
@@ -429,10 +410,8 @@ internal class ChatAdapter(
                 titleView?.text = message.category?.title
 
                 htmlTextViewManager.setHtmlText(textView, message.htmlText)
-                htmlTextViewManager.callback = object : HtmlTextViewManager.Callback {
-                    override fun onUrlClicked(view: View, url: String) {
-                        callback.onUrlInTextClicked(url)
-                    }
+                htmlTextViewManager.setOnUrlClickListener { _, url ->
+                    callback.onUrlInTextClicked(url)
                 }
 //                textView?.setText(message.htmlText, TextView.BufferType.SPANNABLE)
 
@@ -450,8 +429,11 @@ internal class ChatAdapter(
         fun onGoToHomeClicked()
         fun onReturnBackClicked(category: Category)
         fun onUrlInTextClicked(url: String)
+
         fun onImageClicked(imageView: ImageView, imageUrl: String)
         fun onImageClicked(imageView: ImageView, bitmap: Bitmap)
+        fun onImageLoadCompleted()
+
         fun onFileClicked(fileUrl: String)
     }
 

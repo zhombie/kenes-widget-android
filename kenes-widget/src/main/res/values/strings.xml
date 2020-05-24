@@ -26,4 +26,5 @@
     <string name="kenes_attention">Attention</string>
     <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
     <string name="kenes_user_disconnected">User disconnected</string>
+    <string name="kenes_open_link">Open link</string>
 </resources>

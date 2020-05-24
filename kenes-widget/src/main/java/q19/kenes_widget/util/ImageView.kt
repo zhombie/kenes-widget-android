@@ -17,16 +17,13 @@ internal fun ImageView.loadCircleImage(photoUrl: String) {
 
 internal fun ImageView.loadRoundedImage(
     photoUrl: String,
-    radius: Int,
-    margin: Int,
-    topCornersOnly: Boolean = RoundedTransformation.ROUNDED_TOP_CORNERS,
-    bottomCornersOnly: Boolean = RoundedTransformation.ROUNDED_BOTTOM_CORNERS
+    radius: Int
 ) {
     loadImage(
         url = photoUrl,
         isFit = true,
         isCenterCrop = true,
-        transformation = RoundedTransformation(radius, margin, topCornersOnly, bottomCornersOnly)
+        transformation = RoundedTransformation(radius)
     )
 }
 

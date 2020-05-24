@@ -10,7 +10,11 @@ import android.widget.TextView
 
 internal class HtmlTextViewManager {
 
-    var callback: Callback? = null
+    private var listener: ((view: View, url: String) -> Unit)? = null
+
+    fun setOnUrlClickListener(listener: (view: View, url: String) -> Unit) {
+        this.listener = listener
+    }
 
     private fun SpannableStringBuilder.setLinkClickable(urlSpan: URLSpan?) {
         val start = getSpanStart(urlSpan)
@@ -18,7 +22,7 @@ internal class HtmlTextViewManager {
         val flags = getSpanFlags(urlSpan)
         val clickableSpan = object : ClickableSpan() {
             override fun onClick(view: View) {
-                callback?.onUrlClicked(view, urlSpan?.url ?: return)
+                listener?.invoke(view, urlSpan?.url ?: return)
             }
         }
         setSpan(clickableSpan, start, end, flags)
@@ -39,10 +43,6 @@ internal class HtmlTextViewManager {
         }
         textView.text = spannableStringBuilder
         textView.movementMethod = LinkMovementMethod.getInstance()
-    }
-
-    interface Callback {
-        fun onUrlClicked(view: View, url: String)
     }
 
 }
