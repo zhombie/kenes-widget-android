@@ -21,6 +21,9 @@ internal class RoundedTransformation(
 ) : Transformation {
 
     companion object {
+        const val ROUNDED_TOP_CORNERS = true
+        const val ROUNDED_BOTTOM_CORNERS = true
+
         /**
          * Prepares a path for rounded corner selectively.
          *
@@ -116,8 +119,8 @@ internal class RoundedTransformation(
     }
 
     private val KEY: String = "rounded_$radius$margin"
-    private var topCorners = true
-    private var bottomCorners = true
+    private var topCorners = ROUNDED_TOP_CORNERS
+    private var bottomCorners = ROUNDED_BOTTOM_CORNERS
 
     override fun transform(source: Bitmap): Bitmap {
         val paint = Paint()

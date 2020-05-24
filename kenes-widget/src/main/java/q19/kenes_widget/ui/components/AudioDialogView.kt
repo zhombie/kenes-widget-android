@@ -8,9 +8,8 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
-import q19.kenes_widget.util.picasso.CircleTransformation
+import q19.kenes_widget.util.loadCircleImage
 
 internal class AudioDialogView @JvmOverloads constructor(
     context: Context,
@@ -45,12 +44,7 @@ internal class AudioDialogView @JvmOverloads constructor(
 
     fun setAvatar(photoUrl: String?) {
         if (!photoUrl.isNullOrBlank()) {
-            Picasso.get()
-                .load(photoUrl)
-                .fit()
-                .centerCrop()
-                .transform(CircleTransformation())
-                .into(avatarView)
+            avatarView.loadCircleImage(photoUrl)
         } else {
             avatarView.setImageDrawable(null)
         }

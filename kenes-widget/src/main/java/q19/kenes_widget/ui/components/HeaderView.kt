@@ -10,10 +10,9 @@ import androidx.annotation.AttrRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Configs
-import q19.kenes_widget.util.picasso.CircleTransformation
+import q19.kenes_widget.util.loadCircleImage
 
 internal class HeaderView @JvmOverloads constructor(
     context: Context,
@@ -58,12 +57,7 @@ internal class HeaderView @JvmOverloads constructor(
 
     fun setOpponentAvatar(photoUrl: String?) {
         if (!photoUrl.isNullOrBlank()) {
-            Picasso.get()
-                .load(photoUrl)
-                .fit()
-                .centerCrop()
-                .transform(CircleTransformation())
-                .into(opponentAvatarView)
+            opponentAvatarView.loadCircleImage(photoUrl)
         } else {
             opponentAvatarView.setImageDrawable(null)
         }
