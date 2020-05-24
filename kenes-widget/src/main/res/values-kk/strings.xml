@@ -25,4 +25,8 @@
     <string name="kenes_end_dialog">Диалогты аяқтағыңыз келе ме?</string>
     <string name="kenes_user_disconnected">Пайдаланушы ажыратылды</string>
     <string name="kenes_open_link">Сілтемеге өту</string>
+    <string name="kenes_permissions_necessity_info">
+        Өтініш, барлық көрсетілген рұқсаттарды\n\n1. Бейнекамера\n2. Микрофон\n\nберуіңізді сұраймыз, виджеттің дұрыс жұмыс істеуі үшін қажет
+    </string>
+    <string name="kenes_to_settings">Баптауларға</string>
 </resources>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="kenes_app_name" translatable="false">kenes-widget</string>
+    <string name="kenes_app_name" translatable="false">Kenes Widget</string>
 
     <string name="kenes_exit_widget_title">Exit widget</string>
     <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
@@ -27,4 +27,8 @@
     <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
     <string name="kenes_user_disconnected">User disconnected</string>
     <string name="kenes_open_link">Open link</string>
+    <string name="kenes_permissions_necessity_info">
+        Please, provide all those permissions\n\n1. Camera\n2. Record audio\n\nthey are needed for widget proper work
+    </string>
+    <string name="kenes_to_settings">To Settings</string>
 </resources>

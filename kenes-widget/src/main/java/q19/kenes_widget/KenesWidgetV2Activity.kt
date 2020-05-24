@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.media.AudioManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
@@ -17,10 +16,13 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.fondesa.kpermissions.*
+import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.fondesa.kpermissions.request.PermissionRequest
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -36,21 +38,19 @@ import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.IceServersTask
 import q19.kenes_widget.network.WidgetConfigsTask
 import q19.kenes_widget.ui.components.*
+import q19.kenes_widget.util.*
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.UrlUtil
-import q19.kenes_widget.util.AlertDialogBuilder
 import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
 import q19.kenes_widget.util.showFullscreenImage
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
-class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
+class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Listener {
 
     companion object {
         const val TAG = "LOL"
-
-        private const val REQUEST_CODE_PERMISSIONS = 111
 
         const val VIDEO_RESOLUTION_WIDTH = 1280
         const val VIDEO_RESOLUTION_HEIGHT = 720
@@ -58,12 +58,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         const val AUDIO_TRACK_ID = "ARDAMSa0"
         const val VIDEO_TRACK_ID = "ARDAMSv0"
-
-        private var permissions = arrayOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        )
 
         @JvmStatic
         fun newIntent(context: Context): Intent {
@@ -73,7 +67,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
     private var palette = intArrayOf()
 
-    private var rootView: FrameLayout? = null
+    private var rootView: CoordinatorLayout? = null
 
     /**
      * Opponent info view variables: [headerView]
@@ -149,6 +143,13 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
     private var audioManager: AudioManager? = null
 
+    private val permissionsRequest by lazy {
+        permissionsBuilder(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        ).build()
+    }
+
     private var configs = Configs()
     private var chatBot = ChatBot()
     private var dialog = Dialog()
@@ -206,6 +207,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_widget_v2)
+
+        permissionsRequest.addListener(this)
+        permissionsRequest.send()
 
         // TODO: Remove later, exhaustive on PROD
         UrlUtil.setHostname("https://kenes.vlx.kz")
@@ -379,18 +383,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
          */
         headerView?.callback = object : HeaderView.Callback {
             override fun onHangupButtonClicked() {
-                AlertDialogBuilder
-                    .setTitle(R.string.kenes_attention)
-                    .setMessage(R.string.kenes_end_dialog)
-                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        hangupLiveCall()
-
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+                showHangupConfirmAlert { hangupLiveCall() }
             }
         }
 
@@ -433,12 +426,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onAttachmentButtonClicked() {
-                AlertDialogBuilder
-                    .setMessage("Не реализовано")
-                    .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+                showUnrealizedErrorAlert()
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
@@ -493,18 +481,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onHangupButtonClicked() {
-                AlertDialogBuilder
-                    .setTitle(R.string.kenes_attention)
-                    .setMessage(R.string.kenes_end_dialog)
-                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        hangupLiveCall()
-
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+                showHangupConfirmAlert { hangupLiveCall() }
             }
 
             override fun onSwitchSourceButtonClicked() {
@@ -526,18 +503,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
             }
 
             override fun onHangupButtonClicked() {
-                AlertDialogBuilder
-                    .setTitle(R.string.kenes_attention)
-                    .setMessage(R.string.kenes_end_dialog)
-                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        hangupLiveCall()
-
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+                showHangupConfirmAlert { hangupLiveCall() }
             }
         }
 
@@ -558,19 +524,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             override fun onLanguageChangeClicked(language: Language) {
                 val languages = Language.AllLanguages
-
-                AlertDialogBuilder
-                    .setTitle(R.string.kenes_select_language_from_list)
-                    .setSingleChoiceItems(languages.map { it.value }.toTypedArray(), -1) { dialog, which ->
-                        val selected = languages[which]
-                        socket?.emit("user_language", jsonObject { put("language", selected.key) })
-                        updateLocale(selected.locale)
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+                val items = languages.map { it.value }.toTypedArray()
+                showLanguageSelectionAlert(items) { which ->
+                    val selected = languages[which]
+                    socket?.emit("user_language", jsonObject { put("language", selected.key) })
+                    updateLocale(selected.locale)
+                }
             }
         }
 
@@ -652,22 +611,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
                     isLoading = true
                 } else {
-                    AlertDialogBuilder
-                        .setTitle(R.string.kenes_open_link)
-                        .setMessage(url)
-                        .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                            try {
-                                dialog.dismiss()
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                                startActivity(intent)
-                            } catch (e: ActivityNotFoundException) {
-                                e.printStackTrace()
-                            }
+                    showOpenLinkConfirmAlert(url) {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            e.printStackTrace()
                         }
-                        .setNegativeButton(R.string.kenes_no) { dialog, which ->
-                            dialog.dismiss()
-                        }
-                        .show()
+                    }
                 }
             }
 
@@ -709,25 +660,38 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
         recyclerView?.isNestedScrollingEnabled = false
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(permissions, REQUEST_CODE_PERMISSIONS)
-        }
-
         start()
     }
 
-    override fun onBackPressed() {
-        AlertDialogBuilder
-            .setTitle(R.string.kenes_exit_widget_title)
-            .setMessage(R.string.kenes_exit_widget_text)
-            .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                dialog.dismiss()
+    override fun onResume() {
+        super.onResume()
+        checkPermissions()
+    }
+
+    private fun checkPermissions() {
+        val permissions = permissionsRequest.checkStatus()
+        if (permissions.anyShouldShowRationale() || permissions.anyDenied() || permissions.anyPermanentlyDenied()) {
+            permissionsRequest.send()
+        }
+    }
+
+    override fun onPermissionsResult(result: List<PermissionStatus>) {
+        showPermanentlyDeniedDialog(getString(R.string.kenes_permissions_necessity_info)) { isPositive ->
+            if (isPositive) {
+                if (result.anyPermanentlyDenied()) {
+                    val intent = createAppSettingsIntent()
+                    startActivity(intent)
+                } else if (result.anyShouldShowRationale()) {
+                    permissionsRequest.send()
+                }
+            } else {
                 finish()
             }
-            .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
+        }
+    }
+
+    override fun onBackPressed() {
+        showWidgetCloseConfirmDialog { finish() }
     }
 
     private fun start() {
@@ -1087,18 +1051,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             if (noOnline) {
                 runOnUiThread {
-                    AlertDialogBuilder
-                        .setTitle(R.string.kenes_attention)
-                        .setMessage(text)
-                        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-                            setNewStateByPreviousState(State.IDLE)
-
-                            dialog.dismiss()
-                        }
-                        .setOnCancelListener {
-                            setNewStateByPreviousState(State.IDLE)
-                        }
-                        .show()
+                    showNoOnlineCallAgents(text) {
+                        setNewStateByPreviousState(State.IDLE)
+                    }
                 }
 
                 return@on

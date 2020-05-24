@@ -53,5 +53,7 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
 
+    api 'com.github.fondesa:kpermissions:3.1.2'
+
     api files('libs/libwebrtc.aar')
 }

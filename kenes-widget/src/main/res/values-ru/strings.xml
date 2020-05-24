@@ -25,4 +25,8 @@
     <string name="kenes_end_dialog">Вы действительно хотите завершить диалог?</string>
     <string name="kenes_user_disconnected">Пользователь отключился</string>
     <string name="kenes_open_link">Открыть ссылку</string>
+    <string name="kenes_permissions_necessity_info">
+        Пожалуйста, предоставьте все эти разрешения\n\n1. Камера\n2. Микрофон\n\nтак как они необходимы для правильной работы виджета
+    </string>
+    <string name="kenes_to_settings">В Настройки</string>
 </resources>
