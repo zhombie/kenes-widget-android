@@ -174,6 +174,7 @@ internal class ChatAdapter(
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var imageView: DynamicHeightImageView? = null
+        private var fileView: TextView? = null
         private var textView: TextView? = null
         private var timeView: TextView? = null
         private var goToHomeButton: AppCompatButton? = null
@@ -184,6 +185,7 @@ internal class ChatAdapter(
 
         init {
             imageView = view.findViewById(R.id.imageView)
+            fileView = view.findViewById(R.id.fileView)
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
@@ -198,10 +200,6 @@ internal class ChatAdapter(
                     imageView?.heightRatio = ratio.toDouble()
                     imageView?.setImageBitmap(bitmap)
                     imageView?.visibility = View.VISIBLE
-
-                    itemView.setOnClickListener {
-                        callback.onImageClicked(imageView ?: return@setOnClickListener, bitmap)
-                    }
 
                     targets.clear()
                 }
@@ -218,16 +216,35 @@ internal class ChatAdapter(
                 Picasso.get()
                     .load(message.media?.imageUrl)
                     .transform(RoundedTransformation(
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_image_corner_radius),
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_image_corner_radius)
+                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius),
+                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     ))
                     .into(target)
 
                 imageView?.tag = this
 
+                itemView.setOnClickListener {
+                    callback.onImageClicked(
+                        imageView ?: return@setOnClickListener,
+                        message.media?.imageUrl ?: return@setOnClickListener
+                    )
+                }
+
                 targets.add(target)
             } else {
                 imageView?.visibility = View.GONE
+            }
+
+            if (message.media?.isFile == true) {
+                fileView?.text = message.media?.name
+
+                fileView?.setOnClickListener {
+                    callback.onFileClicked(message.media?.fileUrl ?: return@setOnClickListener)
+                }
+
+                fileView?.visibility = View.VISIBLE
+            } else {
+                fileView?.visibility = View.GONE
             }
 
             if (message.text.isNotBlank()) {
@@ -433,7 +450,9 @@ internal class ChatAdapter(
         fun onGoToHomeClicked()
         fun onReturnBackClicked(category: Category)
         fun onUrlInTextClicked(url: String)
+        fun onImageClicked(imageView: ImageView, imageUrl: String)
         fun onImageClicked(imageView: ImageView, bitmap: Bitmap)
+        fun onFileClicked(fileUrl: String)
     }
 
 }

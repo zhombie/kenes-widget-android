@@ -11,5 +11,5 @@
     <dimen name="kenes_send_message_icon_size">40dp</dimen>
     <dimen name="kenes_send_message_icon_arrow_size">18dp</dimen>
 
-    <dimen name="kenes_image_corner_radius">4dp</dimen>
+    <dimen name="kenes_message_background_corner_radius">20dp</dimen>
 </resources>

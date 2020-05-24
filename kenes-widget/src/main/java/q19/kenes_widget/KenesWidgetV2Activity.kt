@@ -1,6 +1,7 @@
 package q19.kenes_widget
 
 import android.Manifest
+import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Parcelable
 import android.util.Log
 import android.view.KeyEvent
@@ -25,7 +27,6 @@ import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.kenes_activity_widget_v2.*
-import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
@@ -33,11 +34,11 @@ import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
-import q19.kenes_widget.network.HttpRequestHandler
+import q19.kenes_widget.network.IceServersTask
+import q19.kenes_widget.network.WidgetConfigsTask
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
-import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
@@ -60,7 +61,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
         private var permissions = arrayOf(
             Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
 
         @JvmStatic
@@ -151,7 +153,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private var chatBot = ChatBot()
     private var dialog = Dialog()
 
-    private var iceServers: MutableList<WidgetIceServer> = mutableListOf()
+    private var iceServers = listOf<WidgetIceServer>()
 
     private var viewState: ViewState = ViewState.ChatBot
         set(value) {
@@ -659,13 +661,40 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                 }
             }
 
+            override fun onImageClicked(imageView: ImageView, imageUrl: String) {
+                imageView.showFullscreenImage(imageUrl)
+            }
+
             override fun onImageClicked(imageView: ImageView, bitmap: Bitmap) {
                 imageView.showFullscreenImage(bitmap)
+            }
+
+            override fun onFileClicked(fileUrl: String) {
+                val downloadmanager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                val uri = Uri.parse(fileUrl)
+                val request = DownloadManager.Request(uri)
+                request.setTitle(fileUrl)
+                request.setDescription("Downloading")
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileUrl.split("/").last())
+                downloadmanager.enqueue(request)
+
+//                val onComplete = object : BroadcastReceiver() {
+//                    override fun onReceive(context: Context?, intent: Intent?) {
+//                        val install = Intent(Intent.ACTION_VIEW)
+//                        install.data = Uri.fromFile(File(Environment.DIRECTORY_DOWNLOADS + "/" + fileUrl.split("/").last()))
+//                        startActivity(install)
+//                    }
+//                }
+//
+//                registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
             }
         })
 
         recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView?.adapter = chatAdapter
+        recyclerView?.setHasFixedSize(true)
+        recyclerView?.isNestedScrollingEnabled = false
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -785,84 +814,28 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     private fun useCamera2(): Boolean = Camera2Enumerator.isSupported(this)
 
     private fun fetchWidgetConfigs() {
-        try {
-            val asyncTask = HttpRequestHandler(url = UrlUtil.getHostname() + "/configs")
-            val response = asyncTask.execute().get()
+        val task = WidgetConfigsTask(UrlUtil.getHostname() + "/configs")
 
-            val json = if (response.isNullOrBlank()) {
-                null
-            } else {
-                JSONObject(response)
-            }
+        val data = task.run()
 
-            val configs = json?.optJSONObject("configs")
-            val contacts = json?.optJSONObject("contacts")
-//            val localBotConfigs = json.optJSONObject("local_bot_configs")
+        data?.let {
+            configs = data
 
-            this.configs.opponent = Configs.Opponent(
-                name = configs?.optString("default_operator"),
-                secondName = configs?.optString("title"),
-                avatarUrl = UrlUtil.getStaticUrl(configs?.optString("image"))
-            )
-
-            contacts?.keys()?.forEach { key ->
-                val value = contacts[key]
-
-                if (value is String) {
-                    this.configs.contacts.add(Configs.Contact(key, value))
-                } else if (value is JSONArray) {
-                    this.configs.phones = value.parse()
-                }
-            }
-
-            infoView?.setContacts(this.configs.contacts)
-            infoView?.setPhones(this.configs.phones)
+            infoView?.setContacts(configs.contacts)
+            infoView?.setPhones(configs.phones)
             infoView?.setLanguage(Language.DEFAULT)
 
-            this.configs.workingHours = Configs.WorkingHours(
-                configs?.optString("message_kk"),
-                configs?.optString("message_ru")
-            )
-
-            headerView?.setOpponentInfo(this.configs.opponent)
-        } catch (e: Exception) {
-//            e.printStackTrace()
-            logDebug("ERROR! $e")
+            headerView?.setOpponentInfo(configs.opponent)
         }
     }
 
     private fun fetchIceServers() {
-        try {
-            val asyncTask = HttpRequestHandler(url = UrlUtil.getHostname() + "/ice_servers")
-            val response = asyncTask.execute().get()
+        val task = IceServersTask(UrlUtil.getHostname() + "/ice_servers")
 
-            val json = if (response.isNullOrBlank()) {
-                null
-            } else {
-                JSONObject(response)
-            }
+        val data = task.run()
 
-            val iceServersJson = json?.optJSONArray("ice_servers")
-
-            if (iceServersJson != null) {
-                for (i in 0 until iceServersJson.length()) {
-                    val iceServerJson = iceServersJson[i] as? JSONObject?
-
-                    this.iceServers.add(WidgetIceServer(
-                        url = iceServerJson?.optString("url"),
-                        username = iceServerJson?.optString("username"),
-                        urls = iceServerJson?.optString("urls"),
-                        credential = iceServerJson?.optString("credential")
-                    ))
-                }
-
-                this.iceServers.forEach { iceServer ->
-                    logDebug("iceServer: $iceServer")
-                }
-            }
-        } catch (e: Exception) {
-//            e.printStackTrace()
-            logDebug("ERROR! $e")
+        data?.let {
+            iceServers = data
         }
     }
 
@@ -1282,12 +1255,28 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
 
             if (media != null) {
                 val image = media.getNullableString("image")
+                val file = media.getNullableString("file")
                 val name = media.getNullableString("name")
                 val ext = media.getNullableString("ext")
 
                 if (!image.isNullOrBlank() && !ext.isNullOrBlank()) {
                     runOnUiThread {
-                        chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, Media(image, name, ext), time))
+                        chatAdapter?.addNewMessage(Message(
+                            Message.Type.OPPONENT,
+                            Media(imageUrl = image, name = name, ext = ext),
+                            time
+                        ))
+                        scrollToBottom()
+                    }
+                }
+
+                if (!file.isNullOrBlank() && !ext.isNullOrBlank()) {
+                    runOnUiThread {
+                        chatAdapter?.addNewMessage(Message(
+                            Message.Type.OPPONENT,
+                            Media(fileUrl = file, name = name, ext = ext),
+                            time
+                        ))
                         scrollToBottom()
                     }
                 }
@@ -1401,17 +1390,17 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun createPeerConnection(factory: PeerConnectionFactory): PeerConnection? {
-        val iceServers = ArrayList<IceServer>()
-        if (!this.iceServers.isNullOrEmpty()) {
-            this.iceServers.forEach {
-                iceServers.add(IceServer(it.url, it.username, it.credential))
-            }
-        } else {
-            iceServers.add(IceServer("stun:stun.l.google.com:19302"))
+        var iceServers = iceServers.map { IceServer(it.url, it.username, it.credential) }
+
+        if (iceServers.isNullOrEmpty()) {
+            iceServers = listOf(IceServer("stun:stun.l.google.com:19302"))
         }
+
         val rtcConfig = RTCConfiguration(iceServers)
         rtcConfig.iceTransportsType = IceTransportsType.RELAY
+
         val peerConnectionConstraints = MediaConstraints()
+
         val peerConnectionObserver = object : Observer {
             override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {}
 
@@ -1538,7 +1527,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
     }
 
     private fun scrollToTop() {
-        recyclerView?.scrollTo(0, 0)
+        if ((recyclerView?.layoutManager as? LinearLayoutManager?)?.findFirstCompletelyVisibleItemPosition() == 0) {
+            return
+        }
+        recyclerView?.scrollToPosition(0)
     }
 
     private fun scrollToBottom() {

@@ -5,18 +5,23 @@ import android.widget.ImageView
 import q19.imageviewer.ImageViewer
 
 internal fun ImageView.showFullscreenImage(bitmap: Bitmap) {
-    ImageViewer.Builder(context, listOf(bitmap)) { imageView, bm ->
-        imageView.setImageBitmap(bm)
+    showFullScreenImage(bitmap) { imageView, innerBitmap ->
+        imageView.setImageBitmap(innerBitmap)
     }
-        .allowZooming(true)
-        .allowSwipeToDismiss(true)
-        .withHiddenStatusBar(true)
-        .show()
 }
 
 internal fun ImageView.showFullscreenImage(imageUrl: String) {
-    ImageViewer.Builder(context, listOf(imageUrl)) { imageView, url ->
+    showFullScreenImage(imageUrl) { imageView, url ->
         imageView.loadImage(url)
+    }
+}
+
+private fun <T> ImageView.showFullScreenImage(
+    anything: T,
+    callback: (imageView: ImageView, anything: T) -> Unit
+) {
+    ImageViewer.Builder(context, listOf(anything)) { imageView, any ->
+        callback(imageView, any)
     }
         .allowZooming(true)
         .allowSwipeToDismiss(true)

@@ -4,6 +4,8 @@
 
     <solid android:color="#F5F5F5" />
 
-    <corners android:radius="20dp" android:bottomLeftRadius="0dp" />
+    <corners
+        android:radius="@dimen/kenes_message_background_corner_radius"
+        android:bottomLeftRadius="0dp" />
 
 </shape>
