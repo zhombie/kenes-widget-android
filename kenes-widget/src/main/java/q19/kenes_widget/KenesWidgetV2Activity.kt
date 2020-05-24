@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.media.AudioManager
 import android.net.Uri
@@ -15,6 +16,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +24,7 @@ import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import kotlinx.android.synthetic.main.kenes_activity_widget_v2.*
 import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.*
@@ -31,19 +34,14 @@ import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.HttpRequestHandler
+import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
-import q19.kenes_widget.ui.components.*
-import q19.kenes_widget.ui.components.AudioCallView
-import q19.kenes_widget.ui.components.AudioDialogView
-import q19.kenes_widget.ui.components.BottomNavigationView
-import q19.kenes_widget.ui.components.FeedbackView
-import q19.kenes_widget.ui.components.FooterView
-import q19.kenes_widget.ui.components.InfoView
+import q19.kenes_widget.util.showFullscreenImage
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 
 class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
@@ -659,6 +657,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity() {
                         e.printStackTrace()
                     }
                 }
+            }
+
+            override fun onImageClicked(imageView: ImageView, bitmap: Bitmap) {
+                imageView.showFullscreenImage(bitmap)
             }
         })
 

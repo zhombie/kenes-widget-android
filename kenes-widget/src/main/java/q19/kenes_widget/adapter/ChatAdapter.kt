@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -187,9 +188,7 @@ internal class ChatAdapter(
             timeView = view.findViewById(R.id.timeView)
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
 
-            goToHomeButton?.setOnClickListener {
-                callback.onGoToHomeClicked()
-            }
+            goToHomeButton?.setOnClickListener { callback.onGoToHomeClicked() }
         }
 
         private val target = object : Target() {
@@ -199,6 +198,10 @@ internal class ChatAdapter(
                     imageView?.heightRatio = ratio.toDouble()
                     imageView?.setImageBitmap(bitmap)
                     imageView?.visibility = View.VISIBLE
+
+                    itemView.setOnClickListener {
+                        callback.onImageClicked(imageView ?: return@setOnClickListener, bitmap)
+                    }
 
                     targets.clear()
                 }
@@ -344,9 +347,7 @@ internal class ChatAdapter(
             recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
 
             goToHomeButton?.visibility = View.VISIBLE
-            goToHomeButton?.setOnClickListener {
-                callback.onGoToHomeClicked()
-            }
+            goToHomeButton?.setOnClickListener { callback.onGoToHomeClicked() }
         }
 
         fun bind(message: Message) {
@@ -399,9 +400,7 @@ internal class ChatAdapter(
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
 
             goToHomeButton?.visibility = View.VISIBLE
-            goToHomeButton?.setOnClickListener {
-                callback.onGoToHomeClicked()
-            }
+            goToHomeButton?.setOnClickListener { callback.onGoToHomeClicked() }
 
 //            textView?.movementMethod = LinkMovementMethod.getInstance()
         }
@@ -434,6 +433,7 @@ internal class ChatAdapter(
         fun onGoToHomeClicked()
         fun onReturnBackClicked(category: Category)
         fun onUrlInTextClicked(url: String)
+        fun onImageClicked(imageView: ImageView, bitmap: Bitmap)
     }
 
 }
