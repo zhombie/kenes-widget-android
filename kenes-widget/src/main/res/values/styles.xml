@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="AlertDialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <!--title color-->
 <!--        <item name="android:textColorPrimary">@color/kenes_black</item>-->
 
@@ -31,7 +31,7 @@
 <!--        <item name="android:windowMinWidthMinor">80%</item>-->
     </style>
 
-    <style name="Alert.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <style name="Alert.Button.Positive" parent="TextAppearance.AppCompat.Widget.Button">
 <!--        <item name="android:minWidth">0dp</item>-->
         <item name="android:letterSpacing">0</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -39,10 +39,13 @@
         <item name="android:textSize">15sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="backgroundTint">@color/kenes_transparent</item>
-        <item name="rippleColor">@color/kenes_gray</item>
+<!--        <item name="rippleColor">@color/kenes_gray</item>-->
+
+        <item name="background">@null</item>
+        <item name="android:background">@null</item>
     </style>
 
-    <style name="Alert.Button.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <style name="Alert.Button.Negative" parent="TextAppearance.AppCompat.Widget.Button">
 <!--        <item name="android:minWidth">0dp</item>-->
         <item name="android:letterSpacing">0</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -50,7 +53,10 @@
         <item name="android:textSize">15sp</item>
         <item name="android:textAllCaps">true</item>
         <item name="backgroundTint">@color/kenes_transparent</item>
-        <item name="rippleColor">@color/kenes_gray</item>
+<!--        <item name="rippleColor">@color/kenes_gray</item>-->
+
+        <item name="background">@null</item>
+        <item name="android:background">@null</item>
     </style>
 
 </resources>

@@ -1,11 +1,11 @@
 package q19.kenes_widget.util
 
 import android.content.Context
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 import q19.kenes_widget.R
 
 internal val Context.AlertDialogBuilder
-    get() = MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme)
+    get() = AlertDialog.Builder(this, R.style.AlertDialogTheme)
 
 
 internal fun Context.showHangupConfirmAlert(callback: () -> Unit) {

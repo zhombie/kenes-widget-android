@@ -29,4 +29,11 @@
         Пожалуйста, предоставьте все эти разрешения\n\n1. Камера\n2. Микрофон\n\nтак как они необходимы для правильной работы виджета
     </string>
     <string name="kenes_to_settings">В Настройки</string>
+
+    <string name="kenes_text_file">Текстовый файл</string>
+    <string name="kenes_pdf_file">PDF документ</string>
+    <string name="kenes_microsoft_word_document">Документ Microsoft Word</string>
+    <string name="kenes_microsoft_excel_document">Документ Microsoft Excel</string>
+    <string name="kenes_html_text">HTML текст</string>
+    <string name="kenes_file">Файл</string>
 </resources>

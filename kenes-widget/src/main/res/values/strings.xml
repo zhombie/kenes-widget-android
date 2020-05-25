@@ -31,4 +31,11 @@
         Please, provide all those permissions\n\n1. Camera\n2. Record audio\n\nthey are needed for widget proper work
     </string>
     <string name="kenes_to_settings">To Settings</string>
+
+    <string name="kenes_text_file">Text file</string>
+    <string name="kenes_pdf_file">PDF document</string>
+    <string name="kenes_microsoft_word_document">Microsoft Word document</string>
+    <string name="kenes_microsoft_excel_document">Microsoft Excel document</string>
+    <string name="kenes_html_text">HTML text</string>
+    <string name="kenes_file">File</string>
 </resources>

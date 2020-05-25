@@ -1,7 +1,6 @@
 package q19.kenes_widget
 
 import android.Manifest
-import android.app.DownloadManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -10,14 +9,13 @@ import android.graphics.Rect
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.os.Parcelable
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fondesa.kpermissions.*
@@ -35,17 +33,18 @@ import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
+import q19.kenes_widget.network.DownloadFileTask
 import q19.kenes_widget.network.IceServersTask
 import q19.kenes_widget.network.WidgetConfigsTask
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
+import q19.kenes_widget.util.FileUtil.getRootDirPath
+import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
-import q19.kenes_widget.util.UrlUtil
-import q19.kenes_widget.util.hideKeyboard
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
-import q19.kenes_widget.util.showFullscreenImage
 import q19.kenes_widget.webrtc.SimpleSdpObserver
+import java.io.File
 
 class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Listener {
 
@@ -67,7 +66,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
     private var palette = intArrayOf()
 
-    private var rootView: CoordinatorLayout? = null
+    private var rootView: FrameLayout? = null
 
     /**
      * Opponent info view variables: [headerView]
@@ -146,7 +145,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
     private val permissionsRequest by lazy {
         permissionsBuilder(
             Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
         ).build()
     }
 
@@ -633,25 +634,16 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             override fun onImageLoadCompleted() {
             }
 
-            override fun onFileClicked(fileUrl: String) {
-                val downloadmanager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                val uri = Uri.parse(fileUrl)
-                val request = DownloadManager.Request(uri)
-                request.setTitle(fileUrl)
-                request.setDescription("Downloading")
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileUrl.split("/").last())
-                downloadmanager.enqueue(request)
-
-//                val onComplete = object : BroadcastReceiver() {
-//                    override fun onReceive(context: Context?, intent: Intent?) {
-//                        val install = Intent(Intent.ACTION_VIEW)
-//                        install.data = Uri.fromFile(File(Environment.DIRECTORY_DOWNLOADS + "/" + fileUrl.split("/").last()))
-//                        startActivity(install)
-//                    }
-//                }
-//
-//                registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+            override fun onFileClicked(media: Media) {
+                val file = File(getRootDirPath() + "/" + media.name)
+                if (file.exists()) {
+                    openFile(file)
+                } else {
+                    DownloadFileTask(this@KenesWidgetV2Activity, media.name ?: "temp") {
+                        openFile(it)
+                    }
+                        .execute(media.fileUrl)
+                }
             }
         })
 
@@ -676,6 +668,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
     }
 
     override fun onPermissionsResult(result: List<PermissionStatus>) {
+        if (result.allGranted()) {
+            return
+        }
         showPermanentlyDeniedDialog(getString(R.string.kenes_permissions_necessity_info)) { isPositive ->
             if (isPositive) {
                 if (result.anyPermanentlyDenied()) {
@@ -1048,6 +1043,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             val from = message.getNullableString("from")
             val media = message.optJSONObject("media")
             val rtc = message.optJSONObject("rtc")
+
+            if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
+                isLoading = false
+                return@on
+            }
 
             if (noOnline) {
                 runOnUiThread {

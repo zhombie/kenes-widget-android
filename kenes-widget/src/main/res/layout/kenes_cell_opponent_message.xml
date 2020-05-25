@@ -34,7 +34,7 @@
             android:id="@+id/fileView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/kenes_bg_file"
             android:clickable="true"
             android:drawableStart="@drawable/kenes_ic_file"
             android:drawablePadding="7dp"
@@ -46,7 +46,8 @@
             android:paddingBottom="12dp"
             android:textColor="#60626A"
             android:textSize="14sp"
-            android:visibility="visible"
+            android:visibility="gone"
+            tools:visibility="visible"
             tools:text="file.txt" />
 
         <TextView

@@ -29,4 +29,11 @@
         Өтініш, барлық көрсетілген рұқсаттарды\n\n1. Бейнекамера\n2. Микрофон\n\nберуіңізді сұраймыз, виджеттің дұрыс жұмыс істеуі үшін қажет
     </string>
     <string name="kenes_to_settings">Баптауларға</string>
+
+    <string name="kenes_text_file">Мәтіндік файл</string>
+    <string name="kenes_pdf_file">PDF құжаты</string>
+    <string name="kenes_microsoft_word_document">Microsoft Word құжаты</string>
+    <string name="kenes_microsoft_excel_document">Microsoft Excel құжаты</string>
+    <string name="kenes_html_text">HTML мәтіні</string>
+    <string name="kenes_file">Файл</string>
 </resources>

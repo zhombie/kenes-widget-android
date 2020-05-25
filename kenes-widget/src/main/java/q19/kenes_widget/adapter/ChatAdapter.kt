@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Category
+import q19.kenes_widget.model.Media
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.util.HtmlTextViewManager
 import q19.kenes_widget.util.picasso.RoundedTransformation
@@ -208,36 +209,44 @@ internal class ChatAdapter(
 //        }
 
         fun bind(message: Message) {
-            if (message.media?.isImage == true) {
-                imageView?.visibility = View.VISIBLE
+            message.media?.let { media ->
+                if (media.isImage) {
+                    imageView?.visibility = View.VISIBLE
 
-                Picasso.get()
-                    .load(message.media?.imageUrl)
-                    .placeholder(R.drawable.kenes_bg_gradient_gray)
-                    .transform(RoundedTransformation(itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)))
-                    .priority(Picasso.Priority.HIGH)
-                    .into(imageView)
+                    Picasso.get()
+                        .load(media.imageUrl)
+                        .placeholder(R.drawable.kenes_bg_gradient_gray)
+                        .transform(RoundedTransformation(
+                            itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
+                        ))
+                        .priority(Picasso.Priority.HIGH)
+                        .into(imageView)
 
-                itemView.setOnClickListener {
-                    callback.onImageClicked(
-                        imageView ?: return@setOnClickListener,
-                        message.media?.imageUrl ?: return@setOnClickListener
-                    )
-                }
-            } else {
-                imageView?.visibility = View.GONE
-            }
-
-            if (message.media?.isFile == true) {
-                fileView?.text = message.media?.name
-
-                fileView?.setOnClickListener {
-                    callback.onFileClicked(message.media?.fileUrl ?: return@setOnClickListener)
+                    itemView.setOnClickListener {
+                        callback.onImageClicked(
+                            imageView ?: return@setOnClickListener,
+                            media.imageUrl ?: return@setOnClickListener
+                        )
+                    }
+                } else {
+                    imageView?.visibility = View.GONE
                 }
 
-                fileView?.visibility = View.VISIBLE
-            } else {
-                fileView?.visibility = View.GONE
+                if (media.isFile) {
+                    if (media.fileTypeStringRes != null) {
+                        fileView?.text = media.name + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
+                    } else {
+                        fileView?.text = media.name
+                    }
+
+                    fileView?.setOnClickListener {
+                        callback.onFileClicked(media)
+                    }
+
+                    fileView?.visibility = View.VISIBLE
+                } else {
+                    fileView?.visibility = View.GONE
+                }
             }
 
             if (message.text.isNotBlank()) {
@@ -434,7 +443,7 @@ internal class ChatAdapter(
         fun onImageClicked(imageView: ImageView, bitmap: Bitmap)
         fun onImageLoadCompleted()
 
-        fun onFileClicked(fileUrl: String)
+        fun onFileClicked(media: Media)
     }
 
 }
