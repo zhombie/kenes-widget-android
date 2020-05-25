@@ -34,10 +34,19 @@ internal class ChatAdapter(
         val LAYOUT_RESPONSE = R.layout.kenes_cell_response
     }
 
-    private var messages: MutableList<Message> = mutableListOf()
+    private var messages = mutableListOf<Message>()
 
     var isGoToHomeButtonEnabled: Boolean = true
         set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var isActionButtonEnabled: Boolean = false
+        set(value) {
+            if (field == value) {
+                return
+            }
             field = value
             notifyDataSetChanged()
         }
@@ -103,6 +112,8 @@ internal class ChatAdapter(
         return when (messages[position].type) {
             Message.Type.USER ->
                 LAYOUT_USER_MESSAGE
+            Message.Type.OPPONENT ->
+                LAYOUT_OPPONENT_MESSAGE
             Message.Type.NOTIFICATION ->
                 LAYOUT_NOTIFICATION
             Message.Type.TYPING ->
@@ -113,8 +124,6 @@ internal class ChatAdapter(
                 LAYOUT_CROSS_CHILDREN
             Message.Type.RESPONSE ->
                 LAYOUT_RESPONSE
-            Message.Type.OPPONENT ->
-                LAYOUT_OPPONENT_MESSAGE
         }
     }
 
@@ -125,12 +134,12 @@ internal class ChatAdapter(
 
         return when (viewType) {
             LAYOUT_USER_MESSAGE -> UserMessageViewHolder(view)
+            LAYOUT_OPPONENT_MESSAGE -> OpponentMessageViewHolder(view)
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
             LAYOUT_CATEGORY -> CategoryViewHolder(view)
             LAYOUT_CROSS_CHILDREN -> CrossChildrenViewHolder(view)
             LAYOUT_RESPONSE -> ResponseViewHolder(view)
-            LAYOUT_OPPONENT_MESSAGE -> OpponentMessageViewHolder(view)
             else -> throw IllegalStateException("There is no ViewHolder for viewType: $viewType")
         }
     }
@@ -141,6 +150,8 @@ internal class ChatAdapter(
         when (message.type) {
             Message.Type.USER ->
                 if (holder is UserMessageViewHolder) holder.bind(message)
+            Message.Type.OPPONENT ->
+                if (holder is OpponentMessageViewHolder) holder.bind(message)
             Message.Type.NOTIFICATION ->
                 if (holder is NotificationViewHolder) holder.bind(message)
             Message.Type.TYPING ->
@@ -151,8 +162,6 @@ internal class ChatAdapter(
                 if (holder is CrossChildrenViewHolder) holder.bind(message)
             Message.Type.RESPONSE ->
                 if (holder is ResponseViewHolder) holder.bind(message)
-            Message.Type.OPPONENT ->
-                if (holder is OpponentMessageViewHolder) holder.bind(message)
         }
     }
 
@@ -178,6 +187,7 @@ internal class ChatAdapter(
         private var textView: TextView? = null
         private var timeView: TextView? = null
         private var goToHomeButton: AppCompatButton? = null
+        private var actionButton: AppCompatButton? = null
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
@@ -188,8 +198,10 @@ internal class ChatAdapter(
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
             goToHomeButton = view.findViewById(R.id.goToHomeButton)
+            actionButton = view.findViewById(R.id.actionButton)
 
             goToHomeButton?.setOnClickListener { callback.onGoToHomeClicked() }
+            actionButton?.setOnClickListener { callback.onSwitchToCallAgentClicked() }
         }
 
 //        val target = object : Target() {
@@ -263,6 +275,10 @@ internal class ChatAdapter(
 
             goToHomeButton?.visibility =
                 if (adapterPosition == itemCount - 1 && isGoToHomeButtonEnabled) View.VISIBLE
+                else View.GONE
+
+            actionButton?.visibility =
+                if (adapterPosition == itemCount - 1 && isActionButtonEnabled) View.VISIBLE
                 else View.GONE
         }
     }
@@ -444,6 +460,8 @@ internal class ChatAdapter(
         fun onImageLoadCompleted()
 
         fun onFileClicked(media: Media)
+
+        fun onSwitchToCallAgentClicked()
     }
 
 }

@@ -5,10 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/kenes_white"
-    android:paddingStart="@dimen/kenes_horizontal_spacing"
+    android:paddingStart="10dp"
     android:paddingTop="10dp"
     android:paddingEnd="@dimen/kenes_horizontal_spacing"
-    android:paddingBottom="15dp">
+    android:paddingBottom="10dp">
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/goToActiveDialogButton"
@@ -34,10 +34,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/inputView"
+        android:layout_alignBottom="@id/inputView"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="5dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:padding="5dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         android:src="@drawable/kenes_ic_attachment" />
 
     <androidx.appcompat.widget.AppCompatEditText
@@ -48,6 +50,7 @@
         android:layout_toStartOf="@id/sendMessageButton"
         android:layout_toEndOf="@id/attachmentButton"
         android:background="@drawable/kenes_bg_message"
+        android:cursorVisible="true"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
         android:hint="@string/kenes_message"
@@ -59,6 +62,7 @@
         android:paddingEnd="15dp"
         android:singleLine="true"
         android:textColor="@color/kenes_black"
+        android:textCursorDrawable="@drawable/kenes_cursor"
         android:textSize="16sp" />
 
     <androidx.appcompat.widget.AppCompatImageButton

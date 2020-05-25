@@ -80,4 +80,6 @@
 
     <include layout="@layout/kenes_button_go_to_home" />
 
+    <include layout="@layout/kenes_cell_switch_to_call_agent" />
+
 </LinearLayout>

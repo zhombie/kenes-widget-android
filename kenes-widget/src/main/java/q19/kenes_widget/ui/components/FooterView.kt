@@ -38,9 +38,6 @@ internal class FooterView @JvmOverloads constructor(
         attachmentButton = view.findViewById(R.id.attachmentButton)
         sendMessageButton = view.findViewById(R.id.sendMessageButton)
 
-        // TODO: Remove after attachment upload ability realization
-        attachmentButton.visibility = View.GONE
-
         goToActiveDialogButton.setOnClickListener { callback?.onGoToActiveDialogButtonClicked() }
 
         attachmentButton.setOnClickListener { callback?.onAttachmentButtonClicked() }

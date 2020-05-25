@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/actionButton"
+    style="@style/Widget.AppCompat.Button.Borderless"
+    android:layout_width="wrap_content"
+    android:layout_height="30dp"
+    android:layout_gravity="center_horizontal"
+    android:layout_marginTop="10dp"
+    android:background="@drawable/kenes_bg_button_white_rounded_15dp"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
+    android:text="@string/kenes_switch_to_call_agent"
+    android:textAllCaps="false"
+    android:textColor="@color/kenes_selector_button_text"
+    android:textSize="13sp"
+    android:visibility="gone"
+    tools:visibility="visible" />

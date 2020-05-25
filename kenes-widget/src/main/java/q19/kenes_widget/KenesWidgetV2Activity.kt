@@ -203,6 +203,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
         }
 
+    private var isSwitchToCallAgentClicked: Boolean = false
+
     private var chatRecyclerState: Parcelable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -389,19 +391,29 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
         }
 
         videoCallView?.setOnCallClickListener {
-            dialog.isInitiator = true
+            val isPermissionRequestSent = checkPermissions()
+            if (isPermissionRequestSent) {
+                return@setOnCallClickListener
+            } else {
+                dialog.isInitiator = true
 
-            viewState = ViewState.VideoDialog(State.PENDING)
+                viewState = ViewState.VideoDialog(State.PENDING)
 
-            socket?.emit("initialize", jsonObject { put("video", true) })
+                socket?.emit("initialize", jsonObject { put("video", true) })
+            }
         }
 
         audioCallView?.setOnCallClickListener {
-            dialog.isInitiator = true
+            val isPermissionRequestSent = checkPermissions()
+            if (isPermissionRequestSent) {
+                return@setOnCallClickListener
+            } else {
+                dialog.isInitiator = true
 
-            viewState = ViewState.AudioDialog(State.PENDING)
+                viewState = ViewState.AudioDialog(State.PENDING)
 
-            socket?.emit("initialize", jsonObject { put("audio", true) })
+                socket?.emit("initialize", jsonObject { put("audio", true) })
+            }
         }
 
         rootView?.viewTreeObserver?.addOnGlobalLayoutListener {
@@ -427,7 +439,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
 
             override fun onAttachmentButtonClicked() {
-                showUnrealizedErrorAlert()
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
@@ -641,9 +652,16 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                 } else {
                     DownloadFileTask(this@KenesWidgetV2Activity, media.name ?: "temp") {
                         openFile(it)
-                    }
-                        .execute(media.fileUrl)
+                    }.execute(media.fileUrl)
                 }
+            }
+
+            override fun onSwitchToCallAgentClicked() {
+                dialog.isInitiator = true
+                isSwitchToCallAgentClicked = true
+                chatAdapter?.isActionButtonEnabled = false
+                chatAdapter?.isGoToHomeButtonEnabled = false
+                socket?.emit("initialize", jsonObject { put("video", false) })
             }
         })
 
@@ -660,11 +678,13 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
         checkPermissions()
     }
 
-    private fun checkPermissions() {
+    private fun checkPermissions(): Boolean {
         val permissions = permissionsRequest.checkStatus()
         if (permissions.anyShouldShowRationale() || permissions.anyDenied() || permissions.anyPermanentlyDenied()) {
             permissionsRequest.send()
+            return true
         }
+        return false
     }
 
     override fun onPermissionsResult(result: List<PermissionStatus>) {
@@ -703,7 +723,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             runOnUiThread {
                 videoDialogView?.localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
                 videoDialogView?.localSurfaceView?.setEnableHardwareScaler(true)
-                videoDialogView?.localSurfaceView?.setMirror(true)
+                videoDialogView?.localSurfaceView?.setMirror(false)
 
                 videoDialogView?.remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
                 videoDialogView?.remoteSurfaceView?.setEnableHardwareScaler(true)
@@ -915,7 +935,16 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
             val photoUrl = UrlUtil.getStaticUrl(photo)
 
-            logDebug("photoUrl: $photoUrl")
+            if (isSwitchToCallAgentClicked) {
+                dialog = Dialog(
+                    operatorId = fullName,
+                    media = "text"
+                )
+
+                runOnUiThread {
+                    headerView?.showHangupButton()
+                }
+            }
 
             logDebug("viewState: $viewState")
 
@@ -1045,7 +1074,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             val rtc = message.optJSONObject("rtc")
 
             if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
+                runOnUiThread {
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time), isNotifyEnabled = false)
+                    chatAdapter?.isActionButtonEnabled = true
+                    scrollToBottom()
+                }
+
                 isLoading = false
+
                 return@on
             }
 
@@ -1217,6 +1253,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                         chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                         scrollToBottom()
                     }
+
+                    isLoading = false
                 }
             }
 
@@ -1247,6 +1285,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                         scrollToBottom()
                     }
                 }
+            }
+
+            runOnUiThread {
+                chatAdapter?.isActionButtonEnabled = false
             }
 
         }?.on("category_list") { args ->
@@ -1459,12 +1501,26 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
     }
 
     private fun hangupLiveCall() {
-        dialog.clear()
+        if (dialog.media == "text") {
+            isSwitchToCallAgentClicked = false
 
-        sendMessage(rtc { type = Rtc.Type.HANGUP })
-        sendMessage(UserMessage.Action.FINISH)
+            dialog.clear()
 
-        chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
+            sendMessage(UserMessage.Action.FINISH)
+
+            chatAdapter?.addNewMessage(
+                Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected))
+            )
+        } else {
+            dialog.clear()
+
+            sendMessage(rtc { type = Rtc.Type.HANGUP })
+            sendMessage(UserMessage.Action.FINISH)
+
+            chatAdapter?.addNewMessage(
+                Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected))
+            )
+        }
     }
 
     private fun sendUserDashboard(jsonObject: JSONObject): Emitter? {
@@ -1529,6 +1585,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             is ViewState.VideoDialog -> {
                 infoView?.visibility = View.GONE
                 chatAdapter?.isGoToHomeButtonEnabled = false
+                chatAdapter?.isActionButtonEnabled = false
 
                 if (isLoading) {
                     isLoading = false
@@ -1633,6 +1690,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             is ViewState.AudioDialog -> {
                 infoView?.visibility = View.GONE
                 chatAdapter?.isGoToHomeButtonEnabled = false
+                chatAdapter?.isActionButtonEnabled = false
 
                 if (isLoading) {
                     isLoading = false
@@ -1734,6 +1792,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
             ViewState.CallFeedback -> {
                 chatAdapter?.isGoToHomeButtonEnabled = false
+                chatAdapter?.isActionButtonEnabled = false
 
                 headerView?.hideHangupButton()
 
@@ -1760,6 +1819,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
             ViewState.ChatBot -> {
                 chatAdapter?.isGoToHomeButtonEnabled = true
+                chatAdapter?.isActionButtonEnabled = false
 
                 headerView?.hideHangupButton()
                 headerView?.setOpponentInfo(configs.opponent)
@@ -1797,6 +1857,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                 }
 
                 chatAdapter?.isGoToHomeButtonEnabled = false
+                chatAdapter?.isActionButtonEnabled = false
 
                 headerView?.hideHangupButton()
                 headerView?.setOpponentInfo(configs.opponent)

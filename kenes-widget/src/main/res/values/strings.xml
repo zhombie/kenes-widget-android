@@ -38,4 +38,6 @@
     <string name="kenes_microsoft_excel_document">Microsoft Excel document</string>
     <string name="kenes_html_text">HTML text</string>
     <string name="kenes_file">File</string>
+
+    <string name="kenes_switch_to_call_agent">Switch to call agent</string>
 </resources>

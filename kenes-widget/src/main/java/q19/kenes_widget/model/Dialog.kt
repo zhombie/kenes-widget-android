@@ -9,7 +9,7 @@ data class Dialog(
     var isInitiator = false
 
     val isOnLive: Boolean
-        get() = !operatorId.isNullOrBlank() && !instance.isNullOrBlank() && !media.isNullOrBlank()
+        get() = !operatorId.isNullOrBlank() && !media.isNullOrBlank()
 
     fun clear() {
         operatorId = null
