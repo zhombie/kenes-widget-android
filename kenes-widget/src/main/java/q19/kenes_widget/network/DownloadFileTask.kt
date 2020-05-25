@@ -17,7 +17,7 @@ import java.io.OutputStream
 import java.net.URL
 import kotlin.math.min
 
-class DownloadFileTask(
+internal class DownloadFileTask(
     private val context: Context,
     private val filename: String,
     private val callback: (file: File) -> Unit

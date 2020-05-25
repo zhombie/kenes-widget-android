@@ -1,6 +1,6 @@
 package q19.kenes_widget.model
 
-data class Dialog(
+internal data class Dialog(
     var operatorId: String? = null,
     var instance: String? = null,
     var media: String? = null

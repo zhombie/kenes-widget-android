@@ -1,6 +1,7 @@
 package q19.kenes_widget
 
 import android.Manifest
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -21,7 +22,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.fondesa.kpermissions.*
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
+import com.loopj.android.http.AsyncHttpClient
+import com.loopj.android.http.JsonHttpResponseHandler
+import com.loopj.android.http.RequestParams
+import com.nbsp.materialfilepicker.MaterialFilePicker
+import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
+import cz.msebera.android.httpclient.Header
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -45,18 +52,21 @@ import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 import java.io.File
+import java.io.FileNotFoundException
 
 class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Listener {
 
     companion object {
-        const val TAG = "LOL"
+        private const val TAG = "LOL"
 
-        const val VIDEO_RESOLUTION_WIDTH = 1280
-        const val VIDEO_RESOLUTION_HEIGHT = 720
-        const val FPS = 30
+        private const val VIDEO_RESOLUTION_WIDTH = 1280
+        private const val VIDEO_RESOLUTION_HEIGHT = 720
+        private const val FPS = 30
 
-        const val AUDIO_TRACK_ID = "ARDAMSa0"
-        const val VIDEO_TRACK_ID = "ARDAMSv0"
+        private const val AUDIO_TRACK_ID = "ARDAMSa0"
+        private const val VIDEO_TRACK_ID = "ARDAMSv0"
+
+        private const val FILE_PICKER_REQUEST_CODE = 101
 
         @JvmStatic
         fun newIntent(context: Context): Intent {
@@ -439,6 +449,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
 
             override fun onAttachmentButtonClicked() {
+                MaterialFilePicker()
+                    .withActivity(this@KenesWidgetV2Activity)
+                    .withCloseMenu(true)
+                    .withRequestCode(FILE_PICKER_REQUEST_CODE)
+                    .start()
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
@@ -702,6 +717,78 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             } else {
                 finish()
             }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH)
+            logDebug("filePath: $filePath")
+            
+            if (filePath == null) {
+                return
+            }
+            
+            val client = AsyncHttpClient()
+
+            val params = RequestParams()
+
+            val type: String?
+
+            try {
+                val file = File(filePath)
+                params.put("file", file)
+
+                type = when {
+                    filePath.endsWith("jpg") || filePath.endsWith("jpeg") || filePath.endsWith("png") ->
+                        "image"
+                    filePath.endsWith("mp3") || filePath.endsWith("wav") || filePath.endsWith("opus") || filePath.endsWith("ogg") ->
+                        "audio"
+                    filePath.endsWith("mp4") || filePath.endsWith("mov") || filePath.endsWith("webm") || filePath.endsWith("mkv") || filePath.endsWith("avi") ->
+                        "video"
+//                    filePath.endsWith("doc") || filePath.endsWith("docx") || filePath.endsWith("xls") || filePath.endsWith("xlsx") || filePath.endsWith("pdf") ->
+//                        "document"
+                    else ->
+                        "file"
+                }
+
+                params.put("type", type)
+            } catch (e: FileNotFoundException) {
+                Log.e(TAG, e.message ?: "")
+                return
+            }
+
+            client.post(UrlUtil.getHostname() + "/upload", params, object : JsonHttpResponseHandler() {
+                override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
+                    super.onSuccess(statusCode, headers, response)
+
+                    val hash = response?.optString("hash")
+                    var url = response?.optString("url")
+
+                    if (hash.isNullOrBlank() || url.isNullOrBlank()) {
+                        return
+                    }
+
+                    socket?.emit("user_message", jsonObject { put(type, url) })
+
+                    if (url.startsWith(UrlUtil.STATIC_PATH)) {
+                        url = UrlUtil.getHostname() + url
+                    }
+
+                    val media = if (type == "image") {
+                        Media(imageUrl = url, name = hash, ext = hash.split(".").last())
+                    } else {
+                        Media(fileUrl = url, name = hash, ext = hash.split(".").last())
+                    }
+
+                    runOnUiThread {
+                        chatAdapter?.addNewMessage(Message(Message.Type.USER, media))
+                        scrollToBottom()
+                    }
+                }
+            })
         }
     }
 
@@ -1087,6 +1174,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
             if (noOnline) {
                 runOnUiThread {
+                    chatAdapter?.isGoToHomeButtonEnabled = true
+
                     showNoOnlineCallAgents(text) {
                         setNewStateByPreviousState(State.IDLE)
                     }

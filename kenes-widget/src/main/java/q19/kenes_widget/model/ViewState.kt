@@ -1,6 +1,6 @@
 package q19.kenes_widget.model
 
-sealed class ViewState {
+internal sealed class ViewState {
     object ChatBot : ViewState()
     object CallFeedback : ViewState()
     class VideoDialog(var state: State) : ViewState()
@@ -12,7 +12,7 @@ sealed class ViewState {
     }
 }
 
-enum class State {
+internal enum class State {
     IDLE,
     PENDING,
     PREPARATION,
@@ -29,7 +29,7 @@ enum class State {
 }
 
 
-val ViewState.isOnLiveCall: Boolean
+internal val ViewState.isOnLiveCall: Boolean
     get() = when (this) {
         is ViewState.VideoDialog -> state == State.LIVE
         is ViewState.AudioDialog -> state == State.LIVE

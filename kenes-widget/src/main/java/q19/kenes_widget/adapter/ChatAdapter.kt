@@ -166,16 +166,68 @@ internal class ChatAdapter(
     }
 
     private inner class UserMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private var messageView: LinearLayout? = null
+        private var imageView: ImageView? = null
+        private var fileView: TextView? = null
         private var textView: TextView? = null
         private var timeView: TextView? = null
 
         init {
+            messageView = view.findViewById(R.id.messageView)
+            imageView = view.findViewById(R.id.imageView)
+            fileView = view.findViewById(R.id.fileView)
             textView = view.findViewById(R.id.textView)
             timeView = view.findViewById(R.id.timeView)
         }
 
         fun bind(message: Message) {
-            textView?.text = message.text
+            message.media?.let { media ->
+                if (media.isImage) {
+                    imageView?.visibility = View.VISIBLE
+
+                    Picasso.get()
+                        .load(media.imageUrl)
+                        .placeholder(R.drawable.kenes_bg_gradient_gray)
+                        .transform(RoundedTransformation(
+                            itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
+                        ))
+                        .priority(Picasso.Priority.HIGH)
+                        .into(imageView)
+
+                    itemView.setOnClickListener {
+                        callback.onImageClicked(
+                            imageView ?: return@setOnClickListener,
+                            media.imageUrl ?: return@setOnClickListener
+                        )
+                    }
+                } else {
+                    imageView?.visibility = View.GONE
+                }
+
+                if (media.isFile) {
+                    if (media.fileTypeStringRes != null) {
+                        fileView?.text = media.name + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
+                    } else {
+                        fileView?.text = media.name
+                    }
+
+                    fileView?.setOnClickListener {
+                        callback.onFileClicked(media)
+                    }
+
+                    fileView?.visibility = View.VISIBLE
+                } else {
+                    fileView?.visibility = View.GONE
+                }
+            }
+
+            if (message.text.isNotBlank()) {
+                textView?.text = message.text
+                textView?.visibility = View.VISIBLE
+            } else {
+                textView?.visibility = View.GONE
+            }
+
             timeView?.text = message.time
         }
     }

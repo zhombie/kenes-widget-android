@@ -6,7 +6,7 @@ internal object UrlUtil {
 
     private var HOSTNAME: String? = null
 
-    private const val STATIC_PATH = "/static/uploads/"
+    const val STATIC_PATH = "/static/uploads/"
 
     fun getStaticUrl(path: String?): String? {
         if (path == null) {

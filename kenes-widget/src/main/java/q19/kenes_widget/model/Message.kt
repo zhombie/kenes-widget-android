@@ -62,8 +62,15 @@ internal data class Message(
     constructor(
         type: Type,
         media: Media,
-        timestamp: Long
-    ) : this(null, type, "", media, fromTimestamp(timestamp), null)
+        timestamp: Long? = null
+    ) : this(
+        null,
+        type,
+        "",
+        media,
+        timestamp?.let { fromTimestamp(it) } ?: now(),
+        null
+    )
 
     val time: String
         get() = parse(date)
