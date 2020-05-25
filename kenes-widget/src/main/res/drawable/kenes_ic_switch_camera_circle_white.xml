@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <solid android:color="#F4F4F5" />
+            <size android:width="28dp" android:height="28dp" />
+        </shape>
+    </item>
+
+    <item
+        android:drawable="@drawable/kenes_ic_switch_camera_gray"
+        android:gravity="center"
+        android:width="12.5dp"
+        android:height="12.5dp" />
+
+    <item android:gravity="center">
+        <shape android:shape="oval">
+            <size android:width="28.5dp" android:height="28.5dp" />
+            <stroke android:color="#D3D4D6" android:width="0.5dp" />
+        </shape>
+    </item>
+
+</layer-list>

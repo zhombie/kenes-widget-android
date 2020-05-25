@@ -15,8 +15,10 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.EdgeEffect
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.fondesa.kpermissions.*
@@ -719,6 +721,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         })
 
+        recyclerView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+                return EdgeEffect(view.context)
+                    .apply { color = ContextCompat.getColor(this@KenesWidgetV2Activity, R.color.kenes_light_blue) }
+            }
+        }
         recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView?.adapter = chatAdapter
         recyclerView?.isNestedScrollingEnabled = false
@@ -1225,6 +1233,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }
 
                     showNoOnlineCallAgents(text) {
+                        isLoading = false
                         setNewStateByPreviousState(State.IDLE)
                     }
                 }
@@ -1674,7 +1683,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun sendUserDashboard(jsonObject: JSONObject): Emitter? {
-        jsonObject.put("lang", getCurrentLanguage().language)
+        jsonObject.put("lang", currentLanguage)
         return socket?.emit("user_dashboard", jsonObject)
     }
 
@@ -1684,11 +1693,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null): Emitter? {
         logDebug("sendMessage: $rtc; $action")
-        return socket?.emit("message", UserMessage(rtc, action).toJsonObject())
+        val userMessage = UserMessage(rtc, action).toJsonObject()
+        userMessage.put("lang", currentLanguage)
+        return socket?.emit("message", userMessage)
     }
 
     private fun sendUserMessage(message: String, isInputClearText: Boolean = true): Emitter? {
-        val emitter = socket?.emit("user_message", jsonObject { put("text", message) })
+        val emitter = socket?.emit("user_message", jsonObject { 
+            put("text", message) 
+            put("lang", currentLanguage)
+        })
 
         if (isInputClearText) {
             footerView?.clearInputViewText()

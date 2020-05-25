@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/textView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/kenes_bg_button_white_rounded_10dp"
-        android:clickable="true"
-        android:ellipsize="end"
-        android:focusable="true"
-        android:maxWidth="150dp"
-        android:maxHeight="90dp"
-        android:maxLines="3"
-        android:minWidth="150dp"
-        android:minHeight="90dp"
-        android:padding="10dp"
-        android:singleLine="false"
-        android:textColor="@color/kenes_blue"
-        tools:text="Регистрация бизнеса" />
-
-</LinearLayout>
+    android:background="@drawable/kenes_bg_button_white_rounded_10dp"
+    android:clickable="true"
+    android:ellipsize="end"
+    android:focusable="true"
+    android:maxWidth="150dp"
+    android:maxHeight="90dp"
+    android:maxLines="3"
+    android:minWidth="150dp"
+    android:minHeight="90dp"
+    android:padding="10dp"
+    android:singleLine="false"
+    android:textColor="@color/kenes_blue"
+    tools:text="Регистрация бизнеса" />

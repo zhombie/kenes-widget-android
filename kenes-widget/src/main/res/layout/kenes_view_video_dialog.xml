@@ -65,7 +65,7 @@
             android:elevation="10dp"
             android:focusable="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/kenes_selector_display" />
+            android:src="@drawable/kenes_selector_switch_camera" />
 
     </LinearLayout>
 

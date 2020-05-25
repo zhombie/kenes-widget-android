@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:id="@+id/textView"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/kenes_ripple_bg"
-        android:clickable="true"
-        android:drawableStart="@drawable/kenes_selector_radio"
-        android:drawablePadding="10dp"
-        android:focusable="true"
-        android:fontFamily="sans-serif"
-        android:gravity="center_vertical"
-        android:minWidth="200dp"
-        android:paddingHorizontal="10dp"
-        android:paddingVertical="15dp"
-        android:textColor="@color/kenes_selector_text_color"
-        android:textSize="14sp"
-        tools:text="Хорошо" />
-
-</LinearLayout>
+    android:background="@drawable/kenes_ripple_bg"
+    android:clickable="true"
+    android:drawableStart="@drawable/kenes_selector_radio"
+    android:drawablePadding="10dp"
+    android:focusable="true"
+    android:fontFamily="sans-serif"
+    android:gravity="center_vertical"
+    android:minWidth="200dp"
+    android:paddingHorizontal="10dp"
+    android:paddingVertical="15dp"
+    android:textColor="@color/kenes_selector_text_color"
+    android:textSize="14sp"
+    tools:text="Хорошо" />
