@@ -8,13 +8,12 @@ internal val Context.AlertDialogBuilder
     get() = AlertDialog.Builder(this, R.style.AlertDialogTheme)
 
 
-internal fun Context.showHangupConfirmAlert(callback: () -> Unit) {
-    AlertDialogBuilder
+internal fun Context.showHangupConfirmAlert(callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_end_dialog)
         .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
             callback()
-
             dialog.dismiss()
         }
         .setNegativeButton(R.string.kenes_no) { dialog, _ ->
@@ -23,8 +22,8 @@ internal fun Context.showHangupConfirmAlert(callback: () -> Unit) {
         .show()
 }
 
-internal fun Context.showLanguageSelectionAlert(items: Array<String>, callback: (which: Int) -> Unit) {
-    AlertDialogBuilder
+internal fun Context.showLanguageSelectionAlert(items: Array<String>, callback: (which: Int) -> Unit): AlertDialog? {
+    return AlertDialogBuilder
         .setTitle(R.string.kenes_select_language_from_list)
         .setSingleChoiceItems(items, -1) { dialog, which ->
             callback(which)
@@ -36,8 +35,8 @@ internal fun Context.showLanguageSelectionAlert(items: Array<String>, callback: 
         .show()
 }
 
-internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> Unit) {
-    AlertDialogBuilder
+internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
         .setTitle(R.string.kenes_open_link)
         .setMessage(message)
         .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -49,8 +48,8 @@ internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> U
         .show()
 }
 
-internal fun Context.showPermanentlyDeniedDialog(message: String, callback: (isPositive: Boolean) -> Unit) {
-    AlertDialogBuilder
+internal fun Context.showPermanentlyDeniedDialog(message: String, callback: (isPositive: Boolean) -> Unit): AlertDialog? {
+    return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(message)
         .setCancelable(false)
@@ -65,8 +64,8 @@ internal fun Context.showPermanentlyDeniedDialog(message: String, callback: (isP
         .show()
 }
 
-internal fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit) {
-    AlertDialogBuilder
+internal fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
         .setTitle(R.string.kenes_exit_widget_title)
         .setMessage(R.string.kenes_exit_widget_text)
         .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -79,8 +78,8 @@ internal fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit) {
         .show()
 }
 
-internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Unit) {
-    AlertDialogBuilder
+internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(message)
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
@@ -96,11 +95,25 @@ internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Un
         .show()
 }
 
-internal fun Context.showUnrealizedErrorAlert() {
-    AlertDialogBuilder
+internal fun Context.showUnrealizedErrorAlert(): AlertDialog? {
+    return AlertDialogBuilder
         .setMessage("Не реализовано")
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
             dialog.dismiss()
+        }
+        .show()
+}
+
+internal fun Context.showAlreadyCallingAlert(callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
+        .setTitle(R.string.kenes_attention)
+        .setMessage(R.string.kenes_already_calling_to_agent)
+        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+            dialog.dismiss()
+        }
+        .setNegativeButton(R.string.kenes_cancel_call) { dialog, _ ->
+            dialog.dismiss()
+            callback()
         }
         .show()
 }

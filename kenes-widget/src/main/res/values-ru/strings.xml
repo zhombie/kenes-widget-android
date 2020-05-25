@@ -38,4 +38,6 @@
     <string name="kenes_file">Файл</string>
 
     <string name="kenes_switch_to_call_agent">Переключиться на оператора</string>
+    <string name="kenes_already_calling_to_agent">Извините, но Ваш прошлый звонок все еще в ожидании</string>
+    <string name="kenes_cancel_call">Отменить звонок</string>
 </resources>

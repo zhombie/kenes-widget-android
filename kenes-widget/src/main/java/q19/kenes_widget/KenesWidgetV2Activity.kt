@@ -59,9 +59,9 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
     companion object {
         private const val TAG = "LOL"
 
-        private const val VIDEO_RESOLUTION_WIDTH = 1280
-        private const val VIDEO_RESOLUTION_HEIGHT = 720
-        private const val FPS = 30
+        private const val VIDEO_RESOLUTION_WIDTH = 1024
+        private const val VIDEO_RESOLUTION_HEIGHT = 768
+        private const val FPS = 24
 
         private const val AUDIO_TRACK_ID = "ARDAMSa0"
         private const val VIDEO_TRACK_ID = "ARDAMSv0"
@@ -363,7 +363,6 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                 chatBot.clear()
 
                 chatAdapter?.clearMessages()
-                scrollToTop()
 
                 sendUserDashboard(jsonObject {
                     put("action", "get_category_list")
@@ -377,16 +376,25 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
             override fun onVideoNavButtonClicked() {
                 isUserPromptMode = false
+
+                chatAdapter?.clearMessages()
+
                 viewState = ViewState.VideoDialog(State.IDLE)
             }
 
             override fun onAudioNavButtonClicked() {
                 isUserPromptMode = false
+
+                chatAdapter?.clearMessages()
+
                 viewState = ViewState.AudioDialog(State.IDLE)
             }
 
             override fun onInfoNavButtonClicked() {
                 isUserPromptMode = false
+
+                chatAdapter?.clearMessages()
+
                 viewState = ViewState.Info
             }
         }
@@ -405,6 +413,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             if (isPermissionRequestSent) {
                 return@setOnCallClickListener
             } else {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+                        dialog.isInitiator = false
+                    }
+                    return@setOnCallClickListener
+                }
+
                 dialog.isInitiator = true
 
                 viewState = ViewState.VideoDialog(State.PENDING)
@@ -418,6 +434,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             if (isPermissionRequestSent) {
                 return@setOnCallClickListener
             } else {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+                        dialog.isInitiator = false
+                    }
+                    return@setOnCallClickListener
+                }
+
                 dialog.isInitiator = true
 
                 viewState = ViewState.AudioDialog(State.PENDING)
@@ -672,10 +696,23 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
 
             override fun onSwitchToCallAgentClicked() {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+                        dialog.isInitiator = false
+                    }
+                    return
+                }
+
                 dialog.isInitiator = true
+
                 isSwitchToCallAgentClicked = true
+
                 chatAdapter?.isActionButtonEnabled = false
                 chatAdapter?.isGoToHomeButtonEnabled = false
+
+                footerView?.enableAttachmentButton()
+
                 socket?.emit("initialize", jsonObject { put("video", false) })
             }
         })
@@ -960,6 +997,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                     if (chatAdapter?.clearCategoryMessages() == true) {
                         chatAdapter?.notifyDataSetChanged()
                     }
+
+                    footerView?.disableAttachmentButton()
                 }
 
                 if (media == "audio") {
@@ -1030,6 +1069,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
                 runOnUiThread {
                     headerView?.showHangupButton()
+                    footerView?.enableAttachmentButton()
                 }
             }
 
@@ -1173,8 +1213,14 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
             }
 
             if (noOnline) {
+                dialog.isInitiator = false
+
                 runOnUiThread {
                     chatAdapter?.isGoToHomeButtonEnabled = true
+
+                    if (viewState is ViewState.ChatBot && chatBot.activeCategory == null) {
+                        chatAdapter?.isActionButtonEnabled = true
+                    }
 
                     showNoOnlineCallAgents(text) {
                         setNewStateByPreviousState(State.IDLE)
@@ -1443,7 +1489,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
             closeLiveCall()
 
-            viewState = ViewState.ChatBot
+            if (viewState is ViewState.VideoDialog || viewState is ViewState.AudioDialog) {
+                setNewStateByPreviousState(State.IDLE)
+            } else {
+                viewState = ViewState.ChatBot
+            }
         }
 
         socket?.connect()
@@ -1510,6 +1560,11 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                 logDebug("onIceConnectionChange: $iceConnectionState")
 
                 when (iceConnectionState) {
+                    IceConnectionState.COMPLETED -> {
+                        runOnUiThread {
+                            footerView?.enableAttachmentButton()
+                        }
+                    }
                     IceConnectionState.CLOSED -> {
                         dialog.clear()
 
@@ -1593,6 +1648,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
         if (dialog.media == "text") {
             isSwitchToCallAgentClicked = false
 
+            footerView?.disableAttachmentButton()
+
             dialog.clear()
 
             sendMessage(UserMessage.Action.FINISH)
@@ -1601,6 +1658,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                 Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected))
             )
         } else {
+            footerView?.disableAttachmentButton()
+
             dialog.clear()
 
             sendMessage(rtc { type = Rtc.Type.HANGUP })
@@ -1748,7 +1807,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
                         feedbackView?.visibility = View.GONE
 
-                        footerView?.setGoToActiveDialogButtonState(null)
+                        footerView?.setDefaultState()
+                        footerView?.visibility = View.GONE
 
                         bottomNavigationView?.setNavButtonsEnabled()
 
@@ -1852,7 +1912,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
                         feedbackView?.visibility = View.GONE
 
-                        footerView?.setGoToActiveDialogButtonState(null)
+                        footerView?.setDefaultState()
+                        footerView?.visibility = View.GONE
 
                         bottomNavigationView?.setNavButtonsEnabled()
 
@@ -1979,6 +2040,12 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
     private fun closeLiveCall() {
         dialog.clear()
 
+        runOnUiThread {
+            footerView?.disableAttachmentButton()
+        }
+
+        isSwitchToCallAgentClicked = false
+
         setSpeakerphoneOn(false)
 
         peerConnection?.dispose()
@@ -2030,6 +2097,8 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
     override fun onDestroy() {
         super.onDestroy()
+
+        footerView?.disableAttachmentButton()
 
         chatRecyclerState = null
 

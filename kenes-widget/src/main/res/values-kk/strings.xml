@@ -38,4 +38,6 @@
     <string name="kenes_file">Файл</string>
 
     <string name="kenes_switch_to_call_agent">Оператормен байланысу</string>
+    <string name="kenes_already_calling_to_agent">Кешіріңіз, бірақ сіздің алдыңғы байланысыңыз желіде</string>
+    <string name="kenes_cancel_call">Байланысты үзу</string>
 </resources>

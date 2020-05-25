@@ -54,6 +54,8 @@ internal class FooterView @JvmOverloads constructor(
     }
 
     fun setDefaultState() {
+        disableAttachmentButton()
+
         setGoToActiveDialogButtonState(null)
 
         clearInputViewText()
@@ -89,6 +91,18 @@ internal class FooterView @JvmOverloads constructor(
 
     fun getInputView(): AppCompatEditText {
         return inputView
+    }
+
+    fun enableAttachmentButton() {
+        setAttachmentButtonEnabled(true)
+    }
+
+    fun disableAttachmentButton() {
+        setAttachmentButtonEnabled(false)
+    }
+
+    private fun setAttachmentButtonEnabled(isEnabled: Boolean) {
+        attachmentButton.isEnabled = isEnabled
     }
 
     fun setOnInputViewFocusChangeListener(

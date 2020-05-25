@@ -181,7 +181,11 @@ internal class ChatAdapter(
         }
 
         fun bind(message: Message) {
-            message.media?.let { media ->
+            val media = message.media
+            if (media == null) {
+                imageView?.visibility = View.GONE
+                fileView?.visibility = View.GONE
+            } else {
                 if (media.isImage) {
                     imageView?.visibility = View.VISIBLE
 
@@ -273,7 +277,11 @@ internal class ChatAdapter(
 //        }
 
         fun bind(message: Message) {
-            message.media?.let { media ->
+            val media = message.media
+            if (media == null) {
+                imageView?.visibility = View.GONE
+                fileView?.visibility = View.GONE
+            } else {
                 if (media.isImage) {
                     imageView?.visibility = View.VISIBLE
 
