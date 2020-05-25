@@ -15,7 +15,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <provider
-            android:name="q19.kenes_widget.core.KenesWidgetFileProvider"
+            android:name="q19.kenes_widget.core.file.KenesWidgetFileProvider"
             android:authorities="q19.kenes"
             android:exported="false"
             android:grantUriPermissions="true">

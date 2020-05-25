@@ -38,6 +38,7 @@ import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
+import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.network.DownloadFileTask
@@ -49,12 +50,11 @@ import q19.kenes_widget.util.FileUtil.getRootDirPath
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
-import q19.kenes_widget.util.locale.LocaleAwareCompatActivity
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 import java.io.File
 import java.io.FileNotFoundException
 
-class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Listener {
+class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener {
 
     companion object {
         private const val TAG = "LOL"
@@ -578,8 +578,10 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
                 val items = languages.map { it.value }.toTypedArray()
                 showLanguageSelectionAlert(items) { which ->
                     val selected = languages[which]
+
                     socket?.emit("user_language", jsonObject { put("language", selected.key) })
-                    updateLocale(selected.locale)
+
+                    setLanguage(selected.locale)
                 }
             }
         }
@@ -938,7 +940,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
 
             infoView?.setContacts(configs.contacts)
             infoView?.setPhones(configs.phones)
-            infoView?.setLanguage(Language.DEFAULT)
+            infoView?.setLanguage(Language.from(getCurrentLanguage()))
 
             headerView?.setOpponentInfo(configs.opponent)
         }
@@ -1672,6 +1674,7 @@ class KenesWidgetV2Activity : LocaleAwareCompatActivity(), PermissionRequest.Lis
     }
 
     private fun sendUserDashboard(jsonObject: JSONObject): Emitter? {
+        jsonObject.put("lang", getCurrentLanguage().language)
         return socket?.emit("user_dashboard", jsonObject)
     }
 

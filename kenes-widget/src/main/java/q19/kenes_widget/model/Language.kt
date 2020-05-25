@@ -2,32 +2,40 @@ package q19.kenes_widget.model
 
 import java.util.*
 
-class Language(val key: String, val value: String) {
+internal class Language(val key: String, val value: String) {
 
     companion object {
-        private const val KAZAKH = "kk"
-        private const val RUSSIAN = "ru"
-        private const val ENGLISH = "en"
+        private const val KEY_KAZAKH = "kk"
+        private const val KEY_RUSSIAN = "ru"
+        private const val KEY_ENGLISH = "en"
 
         val DEFAULT: Language
-            get() = when (Locale.getDefault().language) {
-                KAZAKH -> Kazakh
-                RUSSIAN -> Russian
-                ENGLISH -> English
-                else -> Russian
-            }
+            get() = by(Locale.getDefault().language)
 
         val Kazakh: Language
-            get() = Language(KAZAKH, "Қаз")
+            get() = Language(KEY_KAZAKH, "Қаз")
 
         val Russian: Language
-            get() = Language(RUSSIAN, "Рус")
+            get() = Language(KEY_RUSSIAN, "Рус")
 
         val English: Language
-            get() = Language(ENGLISH, "Eng")
+            get() = Language(KEY_ENGLISH, "Eng")
 
         val AllLanguages: Array<Language>
-            get() = arrayOf(Kazakh, Russian)
+            get() = arrayOf(Kazakh, Russian, English)
+
+        fun from(locale: Locale): Language {
+            return by(locale.language)
+        }
+
+        fun by(language: String): Language {
+            return when (language) {
+                KEY_KAZAKH -> Kazakh
+                KEY_RUSSIAN -> Russian
+                KEY_ENGLISH -> English
+                else -> Russian
+            }
+        }
     }
 
     val locale: Locale
