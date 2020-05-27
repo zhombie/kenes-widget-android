@@ -13,8 +13,10 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.EdgeEffect
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -483,7 +485,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
-//                if (hasFocus) scrollToBottom()
+                if (!hasFocus) hideKeyboard(v)
             }
 
             override fun onInputViewClicked() {
@@ -733,6 +735,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
 
         start()
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        if (currentFocus != null) {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     override fun onResume() {
@@ -1202,7 +1212,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             val text = message.getNullableString("text")?.trim()
             val noOnline = message.optBoolean("no_online")
             val noResults = message.optBoolean("no_results")
-            val id = message.optString("id")
+//            val id = message.optString("id")
             val action = message.getNullableString("action")
             val time = message.optLong("time")
             val sender = message.getNullableString("sender")
