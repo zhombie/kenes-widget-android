@@ -12,7 +12,7 @@ internal fun AppCompatActivity.showSoftKeyboard(view: View) {
     }
 }
 
-internal fun AppCompatActivity.hideKeyboard(view: View) {
+internal fun AppCompatActivity.hideKeyboard(view: View? = null) {
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-    imm?.hideSoftInputFromWindow(view.windowToken, 0)
+    imm?.hideSoftInputFromWindow(currentFocus?.windowToken ?: view?.windowToken, 0)
 }

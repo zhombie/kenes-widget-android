@@ -44,9 +44,7 @@ internal class ChatAdapter(
 
     var isActionButtonEnabled: Boolean = false
         set(value) {
-            if (field == value) {
-                return
-            }
+            if (field == value) return
             field = value
             notifyDataSetChanged()
         }

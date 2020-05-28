@@ -1,6 +1,7 @@
 package q19.kenes_widget
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -16,7 +17,6 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.EdgeEffect
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -592,6 +592,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
             override fun onReturnBackClicked(category: Category) {
+                hideKeyboard()
+
 //                logDebug("onReturnBackClicked: $category")
 
                 val categories = chatBot.allCategories.filter { it.id == category.parentId }
@@ -616,6 +618,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onCategoryChildClicked(category: Category) {
+                hideKeyboard()
+
                 chatBot.activeCategory = category
 
                 chatRecyclerState = recyclerView?.layoutManager?.onSaveInstanceState()
@@ -636,6 +640,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onGoToHomeClicked() {
+                hideKeyboard()
+
                 isUserPromptMode = false
 
                 val messages = chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
@@ -734,15 +740,19 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         recyclerView?.isNestedScrollingEnabled = false
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
 
+        setKeyboardBehavior()
+
         start()
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        if (currentFocus != null) {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setKeyboardBehavior() {
+        recyclerView?.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
+                hideKeyboard()
+            }
+            false
         }
-        return super.dispatchTouchEvent(ev)
     }
 
     override fun onResume() {
@@ -1219,6 +1229,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             val from = message.getNullableString("from")
             val media = message.optJSONObject("media")
             val rtc = message.optJSONObject("rtc")
+            val fuzzyTask = message.optBoolean("fuzzy_task")
 
             if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
                 runOnUiThread {
@@ -1230,6 +1241,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 isLoading = false
 
                 return@on
+            }
+
+            if (fuzzyTask) {
             }
 
             if (noOnline) {
