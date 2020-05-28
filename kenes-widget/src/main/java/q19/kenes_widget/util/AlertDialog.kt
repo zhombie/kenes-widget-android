@@ -1,7 +1,15 @@
 package q19.kenes_widget.util
 
 import android.content.Context
+import android.graphics.Color
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
+import android.util.TypedValue
+import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
 
 internal val Context.AlertDialogBuilder
@@ -36,9 +44,44 @@ internal fun Context.showLanguageSelectionAlert(items: Array<String>, callback: 
 }
 
 internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> Unit): AlertDialog? {
+    val messageView = FrameLayout(this)
+
+    val textView = TextView(this)
+
+    textView.setTextColor(ContextCompat.getColor(this, R.color.kenes_black))
+
+    val colorStateList = ColorStateListBuilder()
+        .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(this, R.color.kenes_light_blue))
+        .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(this, R.color.kenes_light_blue))
+        .addState(intArrayOf(), ContextCompat.getColor(this, R.color.kenes_blue))
+        .build()
+
+    textView.highlightColor = Color.TRANSPARENT
+
+    textView.setLinkTextColor(colorStateList)
+
+    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+
+    textView.linksClickable = true
+
+    textView.layoutParams = FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.WRAP_CONTENT,
+        FrameLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        val margin = resources.getDimensionPixelOffset(R.dimen.kenes_dialog_spacing)
+        setMargins(margin, margin, margin, margin)
+    }
+
+    val spannable = SpannableString(getString(R.string.kenes_open_link_confirm, message))
+    textView.autoLinkMask = Linkify.WEB_URLS
+    textView.text = spannable
+    textView.movementMethod = LinkMovementMethod.getInstance()
+
+    messageView.addView(textView)
+
     return AlertDialogBuilder
         .setTitle(R.string.kenes_open_link)
-        .setMessage(message)
+        .setView(messageView)
         .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
             dialog.dismiss()
         }

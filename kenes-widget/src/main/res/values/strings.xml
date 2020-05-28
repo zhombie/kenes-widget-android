@@ -26,7 +26,10 @@
     <string name="kenes_attention">Attention</string>
     <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
     <string name="kenes_user_disconnected">User disconnected</string>
+
     <string name="kenes_open_link">Open link</string>
+    <string name="kenes_open_link_confirm">Do you want to open %s ?</string>
+
     <string name="kenes_permissions_necessity_info">
         Please, provide all those permissions\n\n1. Camera\n2. Record audio\n\nthey are needed for widget proper work
     </string>
@@ -42,4 +45,6 @@
     <string name="kenes_switch_to_call_agent">Switch to call agent</string>
     <string name="kenes_already_calling_to_agent">Sorry, but your previous call is already on waiting list</string>
     <string name="kenes_cancel_call">Cancel call</string>
+    <string name="kenes_register_appeal">Register appeal</string>
+    <string name="kenes_or">Or</string>
 </resources>

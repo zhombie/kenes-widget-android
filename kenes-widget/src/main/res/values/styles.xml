@@ -24,6 +24,10 @@
         <!--negative button style-->
         <item name="buttonBarNegativeButtonStyle">@style/Alert.Button.Negative</item>
 
+        <!--paddings-->
+        <item name="listPreferredItemPaddingLeft">@dimen/kenes_dialog_spacing</item>
+        <item name="listPreferredItemPaddingRight">@dimen/kenes_dialog_spacing</item>
+
         <!--size-->
 <!--        <item name="windowMinWidthMinor">80%</item>-->
 <!--        <item name="windowMinWidthMajor">80%</item>-->

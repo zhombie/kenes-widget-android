@@ -12,13 +12,13 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.AttrRes
-import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Configs
 import q19.kenes_widget.model.Language
+import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 
 internal class InfoView @JvmOverloads constructor(
     context: Context,
@@ -126,7 +126,7 @@ private class MenuAdapter(
             subView?.visibility = View.VISIBLE
             subView?.text = language.value
 
-            textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_globe)
+            textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_globe, 35)
 
             itemView.setOnClickListener { callback.onLanguageChangeClicked(language) }
         }
@@ -136,7 +136,7 @@ private class MenuAdapter(
 
             textView?.text = phoneNumber
 
-            textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_phone_blue)
+            textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_phone_blue, 35)
 
             itemView.setOnClickListener { callback.onPhoneNumberClicked(phoneNumber) }
         }
@@ -146,14 +146,9 @@ private class MenuAdapter(
 
             textView?.text = itemView.context.getString(R.string.kenes_chat_bot, contact.social?.title)
 
-            textView?.showCompoundDrawableOnfLeft(contact.social?.icon ?: 0)
+            textView?.showCompoundDrawableOnfLeft(contact.social?.icon ?: 0, 35)
 
             itemView.setOnClickListener { callback.onSocialClicked(contact) }
-        }
-
-        private fun TextView.showCompoundDrawableOnfLeft(@DrawableRes drawableRes: Int) {
-            setCompoundDrawablesWithIntrinsicBounds(drawableRes, 0, 0, 0)
-            compoundDrawablePadding = 35
         }
     }
 

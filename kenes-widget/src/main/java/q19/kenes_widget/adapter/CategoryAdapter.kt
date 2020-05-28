@@ -1,19 +1,19 @@
 package q19.kenes_widget.adapter
 
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.model.Category
+import q19.kenes_widget.util.inflate
 
 internal class CategoryAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        val LAYOUT_CATEGORY = R.layout.kenes_cell_category_child
+        private val LAYOUT_CATEGORY = R.layout.kenes_cell_category_child
     }
 
     var category: Category? = null
@@ -21,9 +21,7 @@ internal class CategoryAdapter(
     override fun getItemCount(): Int = category?.children?.size ?: 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(LAYOUT_CATEGORY, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(parent.inflate(LAYOUT_CATEGORY))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

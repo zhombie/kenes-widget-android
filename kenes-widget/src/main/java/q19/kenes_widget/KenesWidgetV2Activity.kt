@@ -22,6 +22,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.fondesa.kpermissions.*
 import com.fondesa.kpermissions.extension.permissionsBuilder
@@ -42,6 +43,7 @@ import org.webrtc.*
 import org.webrtc.PeerConnection.*
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
+import q19.kenes_widget.adapter.ChatFooterAdapter
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
@@ -134,7 +136,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
      */
     private var audioDialogView: AudioDialogView? = null
 
+    private var mergeAdapter: MergeAdapter? = null
     private var chatAdapter: ChatAdapter? = null
+    private var chatFooterAdapter: ChatFooterAdapter? = null
 
     private var socket: Socket? = null
     private var peerConnection: PeerConnection? = null
@@ -346,8 +350,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }
 
                 runOnUiThread {
+                    chatFooterAdapter?.clear()
                     chatAdapter?.setNewMessages(messages)
-                    scrollToTop()
                 }
 
                 isLoading = false
@@ -366,7 +370,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 chatBot.clear()
 
-                chatAdapter?.clearMessages()
+                chatAdapter?.clear()
+                chatFooterAdapter?.clear()
 
                 sendUserDashboard(jsonObject {
                     put("action", "get_category_list")
@@ -381,7 +386,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onVideoNavButtonClicked() {
                 isUserPromptMode = false
 
-                chatAdapter?.clearMessages()
+                chatBot.clear()
+
+                chatAdapter?.clear()
+                chatFooterAdapter?.clear()
 
                 viewState = ViewState.VideoDialog(State.IDLE)
             }
@@ -389,7 +397,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onAudioNavButtonClicked() {
                 isUserPromptMode = false
 
-                chatAdapter?.clearMessages()
+                chatBot.clear()
+
+                chatAdapter?.clear()
+                chatFooterAdapter?.clear()
 
                 viewState = ViewState.AudioDialog(State.IDLE)
             }
@@ -397,7 +408,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onInfoNavButtonClicked() {
                 isUserPromptMode = false
 
-                chatAdapter?.clearMessages()
+                chatBot.clear()
+
+                chatAdapter?.clear()
+                chatFooterAdapter?.clear()
 
                 viewState = ViewState.Info
             }
@@ -590,6 +604,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
+        setupRecyclerView()
+
+        setKeyboardBehavior()
+
+        fetchWidgetConfigs()
+        fetchIceServers()
+
+        connectToSignallingServer()
+    }
+
+    private fun setupRecyclerView() {
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
             override fun onReturnBackClicked(category: Category) {
                 hideKeyboard()
@@ -601,6 +626,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //                logDebug("onReturnBackClicked: $categories")
 
                 val messages = if (categories.all { it.parentId == null }) {
+                    runOnUiThread {
+                        chatFooterAdapter?.clear()
+                    }
+
                     chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
                 } else {
                     categories.map { Message(Message.Type.CROSS_CHILDREN, it) }
@@ -624,6 +653,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 chatRecyclerState = recyclerView?.layoutManager?.onSaveInstanceState()
 
+                chatFooterAdapter?.showGoToHomeButton()
+
                 if (category.responses.isNotEmpty()) {
                     sendUserDashboard(jsonObject {
                         put("action", "get_response")
@@ -639,34 +670,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 isLoading = true
             }
 
-            override fun onGoToHomeClicked() {
-                hideKeyboard()
-
-                isUserPromptMode = false
-
-                val messages = chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
-
-                runOnUiThread {
-                    chatAdapter?.setNewMessages(messages)
-                }
-
-                chatRecyclerState?.let { chatRecyclerState ->
-                    recyclerView?.layoutManager?.onRestoreInstanceState(chatRecyclerState)
-                }
-
-//                chatBot.reset()
-//
-//                chatAdapter?.clearMessages()
-//                scrollToTop()
-//
-//                sendUserDashboard(jsonObject {
-//                    put("action", "get_category_list")
-//                    put("parent_id", 0)
-//                })
-            }
-
             override fun onUrlInTextClicked(url: String) {
                 if (url.startsWith("#")) {
+                    chatFooterAdapter?.showGoToHomeButton()
+
                     val text = url.removePrefix("#")
                     isUserPromptMode = true
                     sendUserMessage(text, false)
@@ -706,6 +713,35 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }.execute(media.fileUrl)
                 }
             }
+        })
+
+        recyclerView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+                return EdgeEffect(view.context)
+                    .apply { color = ContextCompat.getColor(this@KenesWidgetV2Activity, R.color.kenes_light_blue) }
+            }
+        }
+        recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView?.isNestedScrollingEnabled = false
+
+        chatFooterAdapter = ChatFooterAdapter()
+        chatFooterAdapter?.callback = object : ChatFooterAdapter.Callback {
+            override fun onGoToHomeClicked() {
+                hideKeyboard()
+
+                isUserPromptMode = false
+
+                val messages = chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
+
+                runOnUiThread {
+                    chatFooterAdapter?.clear()
+                    chatAdapter?.setNewMessages(messages)
+                }
+
+                chatRecyclerState?.let { chatRecyclerState ->
+                    recyclerView?.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                }
+            }
 
             override fun onSwitchToCallAgentClicked() {
                 if (dialog.isInitiator) {
@@ -720,29 +756,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 isSwitchToCallAgentClicked = true
 
-                chatAdapter?.isActionButtonEnabled = false
-                chatAdapter?.isGoToHomeButtonEnabled = false
+//                chatAdapter?.isActionButtonEnabled = false
+//                chatAdapter?.isGoToHomeButtonEnabled = false
 
                 footerView?.enableAttachmentButton()
 
                 socket?.emit("initialize", jsonObject { put("video", false) })
             }
-        })
 
-        recyclerView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
-            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
-                return EdgeEffect(view.context)
-                    .apply { color = ContextCompat.getColor(this@KenesWidgetV2Activity, R.color.kenes_light_blue) }
+            override fun onRegisterAppealClicked() {
+                logDebug("onRegisterAppealClicked")
             }
         }
-        recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        recyclerView?.adapter = chatAdapter
-        recyclerView?.isNestedScrollingEnabled = false
+
+        mergeAdapter = MergeAdapter(chatAdapter, chatFooterAdapter)
+
+        recyclerView?.adapter = mergeAdapter
+
         recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
-
-        setKeyboardBehavior()
-
-        start()
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -861,13 +892,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     override fun onBackPressed() {
         showWidgetCloseConfirmDialog { finish() }
-    }
-
-    private fun start() {
-        fetchWidgetConfigs()
-        fetchIceServers()
-
-        connectToSignallingServer()
     }
 
     private fun initializeCallConnection(isVideoCall: Boolean = true) {
@@ -1233,8 +1257,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
                 runOnUiThread {
-                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time), isNotifyEnabled = false)
-                    chatAdapter?.isActionButtonEnabled = true
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    chatFooterAdapter?.showSwitchToCallAgentButton()
                     scrollToBottom()
                 }
 
@@ -1250,12 +1274,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 dialog.isInitiator = false
 
                 runOnUiThread {
-                    chatAdapter?.isGoToHomeButtonEnabled = true
-
-                    if (viewState is ViewState.ChatBot && chatBot.activeCategory == null) {
-                        chatAdapter?.isActionButtonEnabled = true
-                    }
-
                     showNoOnlineCallAgents(text) {
                         isLoading = false
                         setNewStateByPreviousState(State.IDLE)
@@ -1281,6 +1299,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             if (chatBot.activeCategory != null) {
                 val messages = listOf(Message(Message.Type.RESPONSE, text, time, chatBot.activeCategory))
                 runOnUiThread {
+                    chatFooterAdapter?.showGoToHomeButton()
                     chatAdapter?.setNewMessages(messages)
                 }
                 isLoading = false
@@ -1385,14 +1404,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             if (!text.isNullOrBlank()) {
+                logDebug("fetched text: $text")
+
                 if (dialog.isOnLive) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                         scrollToBottom()
                     }
                 } else {
-                    logDebug("fetched text: $text")
-
                     if (viewState is ViewState.VideoDialog) {
                         val queued = message.optInt("queued")
 
@@ -1421,6 +1440,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                        chatFooterAdapter?.showGoToHomeButton()
                         scrollToBottom()
                     }
 
@@ -1457,9 +1477,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
 
-            runOnUiThread {
-                chatAdapter?.isActionButtonEnabled = false
-            }
+            isLoading = false
 
         }?.on("category_list") { args ->
 
@@ -1773,8 +1791,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         when (viewState) {
             is ViewState.VideoDialog -> {
                 infoView?.visibility = View.GONE
-                chatAdapter?.isGoToHomeButtonEnabled = false
-                chatAdapter?.isActionButtonEnabled = false
+
+                chatFooterAdapter?.clear()
 
                 if (isLoading) {
                     isLoading = false
@@ -1879,8 +1897,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
             is ViewState.AudioDialog -> {
                 infoView?.visibility = View.GONE
-                chatAdapter?.isGoToHomeButtonEnabled = false
-                chatAdapter?.isActionButtonEnabled = false
+
+                chatFooterAdapter?.clear()
 
                 if (isLoading) {
                     isLoading = false
@@ -1982,8 +2000,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
             ViewState.CallFeedback -> {
-                chatAdapter?.isGoToHomeButtonEnabled = false
-                chatAdapter?.isActionButtonEnabled = false
+                chatFooterAdapter?.clear()
 
                 headerView?.hideHangupButton()
 
@@ -2009,8 +2026,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 feedbackView?.visibility = View.VISIBLE
             }
             ViewState.ChatBot -> {
-                chatAdapter?.isGoToHomeButtonEnabled = true
-                chatAdapter?.isActionButtonEnabled = false
+                chatFooterAdapter?.clear()
 
                 headerView?.hideHangupButton()
                 headerView?.setOpponentInfo(configs.opponent)
@@ -2047,8 +2063,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     isLoading = false
                 }
 
-                chatAdapter?.isGoToHomeButtonEnabled = false
-                chatAdapter?.isActionButtonEnabled = false
+                chatFooterAdapter?.clear()
 
                 headerView?.hideHangupButton()
                 headerView?.setOpponentInfo(configs.opponent)
@@ -2179,7 +2194,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         footerView?.setDefaultState()
         footerView = null
 
-        chatAdapter?.clearMessages()
+        chatAdapter?.callback = null
+        chatAdapter?.clear()
+        chatFooterAdapter?.callback = null
+        chatFooterAdapter?.clear()
+        chatAdapter?.let { mergeAdapter?.removeAdapter(it) }
+        chatFooterAdapter?.let { mergeAdapter?.removeAdapter(it) }
+        mergeAdapter = null
         recyclerView?.adapter = null
         recyclerView = null
 

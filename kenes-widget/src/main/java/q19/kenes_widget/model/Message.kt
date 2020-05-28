@@ -78,6 +78,7 @@ internal data class Message(
     val htmlText: Spanned?
         get() {
             return if (text.isNotBlank()) {
+                val text = text.replace("(<br>|<br/>)*$".toRegex(), "")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT)
                 } else {

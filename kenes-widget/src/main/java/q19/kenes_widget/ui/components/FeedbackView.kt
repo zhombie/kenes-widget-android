@@ -80,7 +80,7 @@ private class RatingAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        val LAYOUT_RATING = R.layout.kenes_cell_rating
+        private val LAYOUT_RATING = R.layout.kenes_cell_rating
     }
 
     init {

@@ -12,4 +12,6 @@
     <dimen name="kenes_send_message_icon_arrow_size">18dp</dimen>
 
     <dimen name="kenes_message_background_corner_radius">20dp</dimen>
+
+    <dimen name="kenes_dialog_spacing">24dp</dimen>
 </resources>
