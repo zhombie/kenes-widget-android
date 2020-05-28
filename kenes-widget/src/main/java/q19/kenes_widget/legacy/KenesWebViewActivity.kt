@@ -10,14 +10,16 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.kenes_activity_webview.*
 import q19.kenes_widget.R
+import q19.kenes_widget.util.bind
 
 internal class KenesWebViewActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_URL = "extraUrl"
     }
+
+    private val webView by bind<WebView>(R.id.webView)
 
     private var url: String? = null
 

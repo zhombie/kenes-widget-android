@@ -24,7 +24,7 @@ internal class FooterView @JvmOverloads constructor(
 ) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     private val goToActiveDialogButton: AppCompatButton
-    private val inputView: AppCompatEditText
+    val inputView: AppCompatEditText
     private val attachmentButton: AppCompatImageButton
     private val sendMessageButton: AppCompatImageButton
 
@@ -87,10 +87,6 @@ internal class FooterView @JvmOverloads constructor(
 
     private fun setSendMessageButtonEnabled(isEnabled: Boolean) {
         sendMessageButton.isEnabled = isEnabled
-    }
-
-    fun getInputView(): AppCompatEditText {
-        return inputView
     }
 
     fun enableAttachmentButton() {

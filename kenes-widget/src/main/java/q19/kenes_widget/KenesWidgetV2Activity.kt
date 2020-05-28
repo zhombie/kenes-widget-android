@@ -37,7 +37,6 @@ import cz.msebera.android.httpclient.Header
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
-import kotlinx.android.synthetic.main.kenes_activity_widget_v2.*
 import org.json.JSONObject
 import org.webrtc.*
 import org.webrtc.PeerConnection.*
@@ -80,61 +79,68 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
     }
 
-    private var palette = intArrayOf()
-
-    private var rootView: FrameLayout? = null
+    // -------------------------- Binding views -----------------------------------
 
     /**
-     * Opponent info view variables: [headerView]
+     * Parent root view [rootView].
      */
-    private var headerView: HeaderView? = null
+    private val rootView by bind<FrameLayout>(R.id.rootView)
 
     /**
-     * Video call screen view variables: [videoCallView]
+     * Header view [headerView] for opponent info display.
      */
-    private var videoCallView: VideoCallView? = null
+    private val headerView by bind<HeaderView>(R.id.headerView)
 
     /**
-     * Audio call screen view variables: [audioCallView]
+     * Video call [videoCallView] screen view.
      */
-    private var audioCallView: AudioCallView? = null
+    private val videoCallView by bind<VideoCallView>(R.id.videoCallView)
 
     /**
-     * Info screen view variables: [infoView]
+     * Audio call [audioCallView] screen view.
      */
-    private var infoView: InfoView? = null
+    private val audioCallView by bind<AudioCallView>(R.id.audioCallView)
 
     /**
-     * Footer view variables: [footerView]
+     * Info screen view [infoView] with extra information & contacts.
      */
-    private var footerView: FooterView? = null
+    private val infoView by bind<InfoView>(R.id.infoView)
 
     /**
-     * Chat view variables: [recyclerView]
+     * Footer view [footerView] for messenger.
      */
-    private var recyclerView: RecyclerView? = null
+    private val footerView by bind<FooterView>(R.id.footerView)
 
     /**
-     * User feedback after dialog view variables: [feedbackView]
+     * View [recyclerView] for chat.
      */
-    private var feedbackView: FeedbackView? = null
+    private val recyclerView by bind<RecyclerView>(R.id.recyclerView)
 
-    private var progressView: ProgressView? = null
+    /**
+     * User feedback view [feedbackView] after dialog view.
+     */
+    private val feedbackView by bind<FeedbackView>(R.id.feedbackView)
+
+    private val progressView by bind<ProgressView>(R.id.progressView)
 
     /**
      * Bottom navigation view variables: [bottomNavigationView]
      */
-    private var bottomNavigationView: BottomNavigationView? = null
+    private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
 
     /**
      * Video dialog view variables: [videoDialogView]
      */
-    private var videoDialogView: VideoDialogView? = null
+    private val videoDialogView by bind<VideoDialogView>(R.id.videoDialogView)
 
     /**
      * Audio dialog view variables: [audioDialogView]
      */
-    private var audioDialogView: AudioDialogView? = null
+    private val audioDialogView by bind<AudioDialogView>(R.id.audioDialogView)
+
+    // ------------------------------------------------------------------------
+
+    private var palette = intArrayOf()
 
     private var mergeAdapter: MergeAdapter? = null
     private var chatAdapter: ChatAdapter? = null
@@ -212,11 +218,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             runOnUiThread {
                 if (value) {
-                    recyclerView?.visibility = View.GONE
-                    progressView?.show()
+                    recyclerView.visibility = View.GONE
+                    progressView.show()
                 } else {
-                    progressView?.hide()
-                    recyclerView?.visibility = View.VISIBLE
+                    progressView.hide()
+                    recyclerView.visibility = View.VISIBLE
                 }
             }
         }
@@ -244,75 +250,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         palette = resources.getIntArray(R.array.kenes_palette)
 
-
-        // -------------------------- Binding views -----------------------------------
-        rootView = findViewById(R.id.rootView)
-
-        /**
-         * Bind [R.id.headerView] view.
-         * Header view for opponent info display.
-         */
-        headerView = findViewById(R.id.headerView)
-
-        /**
-         * Bind [R.id.videoCallView] view
-         */
-        videoCallView = findViewById(R.id.videoCallView)
-
-        /**
-         * Bind [R.id.audioCallView] view
-         */
-        audioCallView = findViewById(R.id.audioCallView)
-
-        /**
-         * Bind [R.id.audioCallView] view
-         */
-        infoView = findViewById(R.id.infoView)
-
-        /**
-         * Bind [R.id.footerView] view.
-         * Footer view for messenger.
-         */
-        footerView = findViewById(R.id.footerView)
-
-        /**
-         * Bind [R.id.recyclerView] view.
-         * View for chat.
-         */
-        recyclerView = findViewById(R.id.recyclerView)
-
-        /**
-         * Bind [R.id.feedbackView] view.
-         * Big screen view for user feedback after dialogue with a call agent.
-         */
-        feedbackView = findViewById(R.id.feedbackView)
-
-        progressView = findViewById(R.id.progressView)
-
-        /**
-         * Bind [R.id.bottomNavigationView] view
-         */
-        bottomNavigationView = findViewById(R.id.bottomNavigationView)
-
-        /**
-         * Bind [R.id.videoDialogView] view
-         */
-        videoDialogView = findViewById(R.id.videoDialogView)
-
-        /**
-         * Bind [R.id.audioDialogView] view
-         */
-        audioDialogView = findViewById(R.id.audioDialogView)
-
-        // ------------------------------------------------------------------------
-
-
         // --------------------- Default screen setups ----------------------------
 
         /**
          * Default active navigation button of [bottomNavigationView]
          */
-        bottomNavigationView?.setHomeNavButtonActive()
+        bottomNavigationView.setHomeNavButtonActive()
         isLoading = true
 
         /**
@@ -322,21 +265,22 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         isUserPromptMode = false
 
-        headerView?.hideHangupButton()
-        headerView?.setOpponentInfo(Configs.Opponent(
+        headerView.hideHangupButton()
+        headerView.setOpponentInfo(Configs.Opponent(
             "Kenes",
             "Smart Bot",
             drawableRes = R.drawable.kenes_ic_robot
         ))
 
-        feedbackView?.setDefaultState()
-        footerView?.setDefaultState()
-        videoCallView?.setDefaultState()
-        audioCallView?.setDefaultState()
+        feedbackView.setDefaultState()
+        footerView.setDefaultState()
+        videoCallView.setDefaultState()
+        audioCallView.setDefaultState()
 
         viewState = ViewState.ChatBot
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+//        audioManager?.mode = AudioManager.MODE_IN_COMMUNICATION
 
         chatBot.callback = object : ChatBot.Callback {
             override fun onBasicCategoriesLoaded(categories: List<Category>) {
@@ -364,7 +308,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         /**
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
-        bottomNavigationView?.callback = object : BottomNavigationView.Callback {
+        bottomNavigationView.callback = object : BottomNavigationView.Callback {
             override fun onHomeNavButtonClicked() {
                 isUserPromptMode = false
 
@@ -420,13 +364,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         /**
          * Configuration of other button action listeners (click/touch)
          */
-        headerView?.callback = object : HeaderView.Callback {
+        headerView.callback = object : HeaderView.Callback {
             override fun onHangupButtonClicked() {
                 showHangupConfirmAlert { hangupLiveCall() }
             }
         }
 
-        videoCallView?.setOnCallClickListener {
+        videoCallView.setOnCallClickListener {
             val isPermissionRequestSent = checkPermissions()
             if (isPermissionRequestSent) {
                 return@setOnCallClickListener
@@ -447,7 +391,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-        audioCallView?.setOnCallClickListener {
+        audioCallView.setOnCallClickListener {
             val isPermissionRequestSent = checkPermissions()
             if (isPermissionRequestSent) {
                 return@setOnCallClickListener
@@ -468,24 +412,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-        rootView?.viewTreeObserver?.addOnGlobalLayoutListener {
+        rootView.viewTreeObserver?.addOnGlobalLayoutListener {
             val rec = Rect()
-            rootView?.getWindowVisibleDisplayFrame(rec)
+            rootView.getWindowVisibleDisplayFrame(rec)
 
             // finding screen height
-            val screenHeight = rootView?.rootView?.height ?: 0
+            val screenHeight = rootView.rootView?.height ?: 0
 
             // finding keyboard height
             val keypadHeight = screenHeight - rec.bottom
 
             if (keypadHeight > screenHeight * 0.15) {
-                bottomNavigationView?.hideButtons()
+                bottomNavigationView.hideButtons()
             } else {
-                bottomNavigationView?.showButtons()
+                bottomNavigationView.showButtons()
             }
         }
 
-        footerView?.callback = object : FooterView.Callback {
+        footerView.callback = object : FooterView.Callback {
             override fun onGoToActiveDialogButtonClicked() {
                 setNewStateByPreviousState(State.SHOWN)
             }
@@ -517,7 +461,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-        footerView?.setOnInputViewFocusChangeListener { v, actionId, event ->
+        footerView.setOnInputViewFocusChangeListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEND || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
                 val text = v?.text.toString()
 
@@ -536,15 +480,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             return@setOnInputViewFocusChangeListener false
         }
 
-        footerView?.setOnTextChangedListener { s, _, _, _ ->
+        footerView.setOnTextChangedListener { s, _, _, _ ->
             if (s.isNullOrBlank()) {
-                footerView?.disableSendMessageButton()
+                footerView.disableSendMessageButton()
             } else {
-                footerView?.enableSendMessageButton()
+                footerView.enableSendMessageButton()
             }
         }
 
-        videoDialogView?.callback = object : VideoDialogView.Callback {
+        videoDialogView.callback = object : VideoDialogView.Callback {
             override fun onGoToChatButtonClicked() {
                 viewState = ViewState.VideoDialog(State.HIDDEN)
             }
@@ -558,15 +502,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onRemoteFrameClicked() {
-                if (videoDialogView?.isControlButtonsVisible() == true) {
-                    videoDialogView?.hideControlButtons()
+                if (videoDialogView.isControlButtonsVisible()) {
+                    videoDialogView.hideControlButtons()
                 } else {
-                    videoDialogView?.showControlButtons()
+                    videoDialogView.showControlButtons()
                 }
             }
         }
 
-        audioDialogView?.callback = object : AudioDialogView.Callback {
+        audioDialogView.callback = object : AudioDialogView.Callback {
             override fun onGoToChatButtonClicked() {
                 viewState = ViewState.AudioDialog(State.HIDDEN)
             }
@@ -576,7 +520,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-        infoView?.callback = object : InfoView.Callback {
+        infoView.callback = object : InfoView.Callback {
             override fun onPhoneNumberClicked(phoneNumber: String) {
                 val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
                 startActivity(intent)
@@ -642,7 +586,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 chatRecyclerState?.let { chatRecyclerState ->
-                    recyclerView?.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                    recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
                 }
             }
 
@@ -651,7 +595,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 chatBot.activeCategory = category
 
-                chatRecyclerState = recyclerView?.layoutManager?.onSaveInstanceState()
+                chatRecyclerState = recyclerView.layoutManager?.onSaveInstanceState()
 
                 chatFooterAdapter?.showGoToHomeButton()
 
@@ -715,14 +659,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         })
 
-        recyclerView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+        recyclerView.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
             override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
                 return EdgeEffect(view.context)
                     .apply { color = ContextCompat.getColor(this@KenesWidgetV2Activity, R.color.kenes_light_blue) }
             }
         }
-        recyclerView?.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        recyclerView?.isNestedScrollingEnabled = false
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.isNestedScrollingEnabled = false
 
         chatFooterAdapter = ChatFooterAdapter()
         chatFooterAdapter?.callback = object : ChatFooterAdapter.Callback {
@@ -739,7 +683,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 chatRecyclerState?.let { chatRecyclerState ->
-                    recyclerView?.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                    recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
                 }
             }
 
@@ -759,7 +703,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //                chatAdapter?.isActionButtonEnabled = false
 //                chatAdapter?.isGoToHomeButtonEnabled = false
 
-                footerView?.enableAttachmentButton()
+                footerView.enableAttachmentButton()
 
                 socket?.emit("initialize", jsonObject { put("video", false) })
             }
@@ -771,14 +715,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         mergeAdapter = MergeAdapter(chatAdapter, chatFooterAdapter)
 
-        recyclerView?.adapter = mergeAdapter
+        recyclerView.adapter = mergeAdapter
 
-        recyclerView?.addItemDecoration(ChatAdapterItemDecoration(this))
+        recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setKeyboardBehavior() {
-        recyclerView?.setOnTouchListener { _, event ->
+        recyclerView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
                 hideKeyboard()
             }
@@ -899,13 +843,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         if (isVideoCall) {
             runOnUiThread {
-                videoDialogView?.localSurfaceView?.init(rootEglBase?.eglBaseContext, null)
-                videoDialogView?.localSurfaceView?.setEnableHardwareScaler(true)
-                videoDialogView?.localSurfaceView?.setMirror(false)
+                videoDialogView.localSurfaceView.init(rootEglBase?.eglBaseContext, null)
+                videoDialogView.localSurfaceView.setEnableHardwareScaler(true)
+                videoDialogView.localSurfaceView.setMirror(false)
 
-                videoDialogView?.remoteSurfaceView?.init(rootEglBase?.eglBaseContext, null)
-                videoDialogView?.remoteSurfaceView?.setEnableHardwareScaler(true)
-                videoDialogView?.remoteSurfaceView?.setMirror(true)
+                videoDialogView.remoteSurfaceView.init(rootEglBase?.eglBaseContext, null)
+                videoDialogView.remoteSurfaceView.setEnableHardwareScaler(true)
+                videoDialogView.remoteSurfaceView.setMirror(true)
             }
         }
 
@@ -939,7 +883,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         localVideoTrack = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
         localVideoTrack?.setEnabled(true)
-        localVideoTrack?.addRenderer(VideoRenderer(videoDialogView?.localSurfaceView))
+        localVideoTrack?.addRenderer(VideoRenderer(videoDialogView.localSurfaceView))
 
         return localVideoTrack
     }
@@ -990,11 +934,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         data?.let {
             configs = data
 
-            infoView?.setContacts(configs.contacts)
-            infoView?.setPhones(configs.phones)
-            infoView?.setLanguage(Language.from(getCurrentLanguage()))
+            infoView.setContacts(configs.contacts)
+            infoView.setPhones(configs.phones)
+            infoView.setLanguage(Language.from(getCurrentLanguage()))
 
-            headerView?.setOpponentInfo(configs.opponent)
+            headerView.setOpponentInfo(configs.opponent)
         }
     }
 
@@ -1052,7 +996,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         chatAdapter?.notifyDataSetChanged()
                     }
 
-                    footerView?.disableAttachmentButton()
+                    footerView.disableAttachmentButton()
                 }
 
                 if (media == "audio") {
@@ -1122,8 +1066,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 )
 
                 runOnUiThread {
-                    headerView?.showHangupButton()
-                    footerView?.enableAttachmentButton()
+                    headerView.showHangupButton()
+                    footerView.enableAttachmentButton()
                 }
             }
 
@@ -1132,15 +1076,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             text = text.replace("{}", fullName)
 
             runOnUiThread {
-                headerView?.setOpponentInfo(Configs.Opponent(
+                headerView.setOpponentInfo(Configs.Opponent(
                     name = fullName,
                     secondName = getString(R.string.kenes_call_agent),
                     avatarUrl = photoUrl
                 ))
 
                 if (viewState is ViewState.AudioDialog) {
-                    audioDialogView?.setAvatar(photoUrl)
-                    audioDialogView?.setName(fullName)
+                    audioDialogView.setAvatar(photoUrl)
+                    audioDialogView.setName(fullName)
                 }
 
                 chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text))
@@ -1190,11 +1134,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 viewState = ViewState.CallFeedback
 
                 runOnUiThread {
-                    footerView?.getInputView()?.let { hideKeyboard(it) }
+                    hideKeyboard(footerView.inputView)
 
-                    feedbackView?.setTitle(text)
-                    feedbackView?.setRatingButtons(ratingButtons)
-                    feedbackView?.setOnRateButtonClickListener { ratingButton ->
+                    feedbackView.setTitle(text)
+                    feedbackView.setRatingButtons(ratingButtons)
+                    feedbackView.setOnRateButtonClickListener { ratingButton ->
                         socket?.emit("user_feedback", jsonObject {
                             put("r", ratingButton.rating)
                             put("chat_id", ratingButton.chatId)
@@ -1224,9 +1168,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             if (count > 1) {
                 runOnUiThread {
                     if (viewState is ViewState.VideoDialog) {
-                        videoCallView?.setPendingQueueCount(count)
+                        videoCallView.setPendingQueueCount(count)
                     } else if (viewState is ViewState.AudioDialog) {
-                        audioCallView?.setPendingQueueCount(count)
+                        audioCallView.setPendingQueueCount(count)
                     }
                 }
             }
@@ -1312,8 +1256,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         logDebug("viewState (Rtc.Type.START?.value): $viewState")
 
                         runOnUiThread {
-                            headerView?.showHangupButton()
-                            footerView?.visibility = View.VISIBLE
+                            headerView.showHangupButton()
+                            footerView.visibility = View.VISIBLE
                         }
 
                         sendMessage(rtc { type = Rtc.Type.PREPARE })
@@ -1416,24 +1360,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         val queued = message.optInt("queued")
 
                         runOnUiThread {
-                            videoCallView?.setInfoText(text)
+                            videoCallView.setInfoText(text)
                         }
 
                         if (queued > 1) {
                             runOnUiThread {
-                                videoCallView?.setPendingQueueCount(queued)
+                                videoCallView.setPendingQueueCount(queued)
                             }
                         }
                     } else if (viewState is ViewState.AudioDialog) {
                         val queued = message.optInt("queued")
 
                         runOnUiThread {
-                            audioCallView?.setInfoText(text)
+                            audioCallView.setInfoText(text)
                         }
 
                         if (queued > 1) {
                             runOnUiThread {
-                                audioCallView?.setPendingQueueCount(queued)
+                                audioCallView.setPendingQueueCount(queued)
                             }
                         }
                     }
@@ -1615,7 +1559,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 when (iceConnectionState) {
                     IceConnectionState.COMPLETED -> {
                         runOnUiThread {
-                            footerView?.enableAttachmentButton()
+                            footerView.enableAttachmentButton()
                         }
                     }
                     IceConnectionState.CLOSED -> {
@@ -1658,14 +1602,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (mediaStream.audioTracks.isNotEmpty()) {
                     remoteAudioTrack = mediaStream.audioTracks[0]
                     remoteAudioTrack?.setEnabled(true)
-                    setSpeakerphoneOn(true)
+//                    setSpeakerphoneOn(true)
                 }
 
                 if (viewState is ViewState.VideoDialog) {
                     if (mediaStream.videoTracks.isNotEmpty()) {
                         remoteVideoTrack = mediaStream.videoTracks[0]
                         remoteVideoTrack?.setEnabled(true)
-                        remoteVideoTrack?.addRenderer(VideoRenderer(videoDialogView?.remoteSurfaceView))
+                        remoteVideoTrack?.addRenderer(VideoRenderer(videoDialogView.remoteSurfaceView))
                     }
                 }
             }
@@ -1691,6 +1635,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun setSpeakerphoneOn(on: Boolean) {
+        return
         if (audioManager?.isSpeakerphoneOn == on) {
             return
         }
@@ -1701,7 +1646,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         if (dialog.media == "text") {
             isSwitchToCallAgentClicked = false
 
-            footerView?.disableAttachmentButton()
+            footerView.disableAttachmentButton()
 
             dialog.clear()
 
@@ -1711,7 +1656,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected))
             )
         } else {
-            footerView?.disableAttachmentButton()
+            footerView.disableAttachmentButton()
 
             dialog.clear()
 
@@ -1747,7 +1692,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         })
 
         if (isInputClearText) {
-            footerView?.clearInputViewText()
+            footerView.clearInputViewText()
         }
 
         chatAdapter?.addNewMessage(Message(Message.Type.USER, message), false)
@@ -1757,17 +1702,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun scrollToTop() {
-        if ((recyclerView?.layoutManager as? LinearLayoutManager?)?.findFirstCompletelyVisibleItemPosition() == 0) {
+        if ((recyclerView.layoutManager as? LinearLayoutManager?)?.findFirstCompletelyVisibleItemPosition() == 0) {
             return
         }
-        recyclerView?.scrollToPosition(0)
+        recyclerView.scrollToPosition(0)
     }
 
     private fun scrollToBottom() {
-        recyclerView?.let {
+        recyclerView.let {
             val adapter = it.adapter
             if (adapter != null) {
-//                logD("scrollTo: " + (adapter.itemCount - 1))
                 it.scrollToPosition(adapter.itemCount - 1)
             }
         }
@@ -1790,7 +1734,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private fun updateViewState(viewState: ViewState) {
         when (viewState) {
             is ViewState.VideoDialog -> {
-                infoView?.visibility = View.GONE
+                infoView.visibility = View.GONE
 
                 chatFooterAdapter?.clear()
 
@@ -1800,103 +1744,103 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
-                        headerView?.hideHangupButton()
-                        headerView?.setOpponentInfo(configs.opponent)
+                        headerView.hideHangupButton()
+                        headerView.setOpponentInfo(configs.opponent)
 
-                        audioCallView?.setDefaultState()
-                        audioCallView?.visibility = View.GONE
+                        audioCallView.setDefaultState()
+                        audioCallView.visibility = View.GONE
 
-                        audioDialogView?.setDefaultState()
-                        audioDialogView?.visibility = View.GONE
+                        audioDialogView.setDefaultState()
+                        audioDialogView.visibility = View.GONE
 
-                        videoDialogView?.setDefaultState()
-                        videoDialogView?.visibility = View.GONE
+                        videoDialogView.setDefaultState()
+                        videoDialogView.visibility = View.GONE
 
-                        recyclerView?.visibility = View.GONE
+                        recyclerView.visibility = View.GONE
 
-                        footerView?.setGoToActiveDialogButtonState(null)
-                        footerView?.visibility = View.GONE
+                        footerView.setGoToActiveDialogButtonState(null)
+                        footerView.visibility = View.GONE
 
-                        bottomNavigationView?.setNavButtonsEnabled()
+                        bottomNavigationView.setNavButtonsEnabled()
 
-                        videoCallView?.setDefaultState()
-                        videoCallView?.visibility = View.VISIBLE
+                        videoCallView.setDefaultState()
+                        videoCallView.visibility = View.VISIBLE
                     }
                     State.PENDING -> {
-                        headerView?.hideHangupButton()
+                        headerView.hideHangupButton()
 
-                        videoCallView?.setDisabledState()
+                        videoCallView.setDisabledState()
 
 //                        chatAdapter?.clearMessages()
                     }
                     State.PREPARATION -> {
-                        headerView?.hideHangupButton()
+                        headerView.hideHangupButton()
 
-                        videoCallView?.setDisabledState()
-                        videoCallView?.visibility = View.GONE
+                        videoCallView.setDisabledState()
+                        videoCallView.visibility = View.GONE
 
-                        feedbackView?.setDefaultState()
-                        feedbackView?.visibility = View.GONE
+                        feedbackView.setDefaultState()
+                        feedbackView.visibility = View.GONE
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
-                        headerView?.showHangupButton()
+                        headerView.showHangupButton()
 
-                        videoCallView?.setDisabledState()
-                        videoCallView?.visibility = View.GONE
+                        videoCallView.setDisabledState()
+                        videoCallView.visibility = View.GONE
 
-                        feedbackView?.setDefaultState()
-                        feedbackView?.visibility = View.GONE
+                        feedbackView.setDefaultState()
+                        feedbackView.visibility = View.GONE
 
-                        bottomNavigationView?.setNavButtonsDisabled()
+                        bottomNavigationView.setNavButtonsDisabled()
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
 
-                        footerView?.visibility = View.VISIBLE
+                        footerView.visibility = View.VISIBLE
 
-                        videoDialogView?.visibility = View.VISIBLE
+                        videoDialogView.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT, State.FINISHED -> {
-                        headerView?.hideHangupButton()
-                        headerView?.setOpponentInfo(configs.opponent)
+                        headerView.hideHangupButton()
+                        headerView.setOpponentInfo(configs.opponent)
 
-                        videoCallView?.setDefaultState()
-                        videoCallView?.visibility = View.GONE
+                        videoCallView.setDefaultState()
+                        videoCallView.visibility = View.GONE
 
-                        feedbackView?.visibility = View.GONE
+                        feedbackView.visibility = View.GONE
 
-                        footerView?.setDefaultState()
-                        footerView?.visibility = View.GONE
+                        footerView.setDefaultState()
+                        footerView.visibility = View.GONE
 
-                        bottomNavigationView?.setNavButtonsEnabled()
+                        bottomNavigationView.setNavButtonsEnabled()
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
                     }
                     State.HIDDEN -> {
-                        headerView?.showHangupButton()
+                        headerView.showHangupButton()
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
                         scrollToBottom()
 
-                        footerView?.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
+                        footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
 
-                        videoDialogView?.visibility = View.INVISIBLE
+                        videoDialogView.visibility = View.INVISIBLE
                     }
                     State.SHOWN -> {
-                        headerView?.hideHangupButton()
+                        headerView.hideHangupButton()
 
-                        footerView?.getInputView()?.let { hideKeyboard(it) }
+                        hideKeyboard(footerView.inputView)
 
-                        footerView?.setGoToActiveDialogButtonState(null)
+                        footerView.setGoToActiveDialogButtonState(null)
 
-                        videoDialogView?.showControlButtons()
-                        videoDialogView?.visibility = View.VISIBLE
+                        videoDialogView.showControlButtons()
+                        videoDialogView.visibility = View.VISIBLE
                     }
                 }
             }
             is ViewState.AudioDialog -> {
-                infoView?.visibility = View.GONE
+                infoView.visibility = View.GONE
 
                 chatFooterAdapter?.clear()
 
@@ -1906,157 +1850,155 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
-                        headerView?.hideHangupButton()
-                        headerView?.setOpponentInfo(configs.opponent)
+                        headerView.hideHangupButton()
+                        headerView.setOpponentInfo(configs.opponent)
 
-                        videoCallView?.setDefaultState()
-                        videoCallView?.visibility = View.GONE
+                        videoCallView.setDefaultState()
+                        videoCallView.visibility = View.GONE
 
-                        audioDialogView?.setDefaultState()
-                        audioDialogView?.visibility = View.GONE
+                        audioDialogView.setDefaultState()
+                        audioDialogView.visibility = View.GONE
 
-                        videoDialogView?.setDefaultState()
-                        videoDialogView?.visibility = View.GONE
+                        videoDialogView.setDefaultState()
+                        videoDialogView.visibility = View.GONE
 
-                        recyclerView?.visibility = View.GONE
+                        recyclerView.visibility = View.GONE
 
-                        footerView?.setGoToActiveDialogButtonState(null)
-                        footerView?.visibility = View.GONE
+                        footerView.setGoToActiveDialogButtonState(null)
+                        footerView.visibility = View.GONE
 
-                        bottomNavigationView?.setNavButtonsEnabled()
+                        bottomNavigationView.setNavButtonsEnabled()
 
-                        audioCallView?.setDefaultState()
-                        audioCallView?.visibility = View.VISIBLE
+                        audioCallView.setDefaultState()
+                        audioCallView.visibility = View.VISIBLE
                     }
                     State.PENDING -> {
-                        headerView?.hideHangupButton()
+                        headerView.hideHangupButton()
 
-                        audioCallView?.setDisabledState()
-
-//                        chatAdapter?.clearMessages()
+                        audioCallView.setDisabledState()
                     }
                     State.PREPARATION -> {
-                        headerView?.hideHangupButton()
+                        headerView.hideHangupButton()
 
-                        audioCallView?.setDisabledState()
-                        audioCallView?.visibility = View.GONE
+                        audioCallView.setDisabledState()
+                        audioCallView.visibility = View.GONE
 
-                        feedbackView?.setDefaultState()
-                        feedbackView?.visibility = View.GONE
+                        feedbackView.setDefaultState()
+                        feedbackView.visibility = View.GONE
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
-                        headerView?.showHangupButton()
+                        headerView.showHangupButton()
 
-                        audioCallView?.setDisabledState()
-                        audioCallView?.visibility = View.GONE
+                        audioCallView.setDisabledState()
+                        audioCallView.visibility = View.GONE
 
-                        feedbackView?.visibility = View.GONE
+                        feedbackView.visibility = View.GONE
 
-                        bottomNavigationView?.setNavButtonsDisabled()
+                        bottomNavigationView.setNavButtonsDisabled()
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
 
-                        footerView?.visibility = View.VISIBLE
+                        footerView.visibility = View.VISIBLE
 
-                        audioDialogView?.visibility = View.VISIBLE
+                        audioDialogView.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT, State.FINISHED -> {
-                        headerView?.hideHangupButton()
-                        headerView?.setOpponentInfo(configs.opponent)
+                        headerView.hideHangupButton()
+                        headerView.setOpponentInfo(configs.opponent)
 
-                        audioCallView?.setDefaultState()
-                        audioCallView?.visibility = View.GONE
+                        audioCallView.setDefaultState()
+                        audioCallView.visibility = View.GONE
 
-                        feedbackView?.visibility = View.GONE
+                        feedbackView.visibility = View.GONE
 
-                        footerView?.setDefaultState()
-                        footerView?.visibility = View.GONE
+                        footerView.setDefaultState()
+                        footerView.visibility = View.GONE
 
-                        bottomNavigationView?.setNavButtonsEnabled()
+                        bottomNavigationView.setNavButtonsEnabled()
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
                     }
                     State.HIDDEN -> {
-                        headerView?.showHangupButton()
+                        headerView.showHangupButton()
 
-                        recyclerView?.visibility = View.VISIBLE
+                        recyclerView.visibility = View.VISIBLE
                         scrollToBottom()
 
-                        footerView?.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
+                        footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
 
-                        audioDialogView?.visibility = View.INVISIBLE
+                        audioDialogView.visibility = View.INVISIBLE
                     }
                     State.SHOWN -> {
-                        headerView?.hideHangupButton()
+                        headerView.hideHangupButton()
 
-                        footerView?.getInputView()?.let { hideKeyboard(it) }
+                        hideKeyboard(footerView.inputView)
 
-                        footerView?.setGoToActiveDialogButtonState(null)
+                        footerView.setGoToActiveDialogButtonState(null)
 
-                        audioDialogView?.visibility = View.VISIBLE
+                        audioDialogView.visibility = View.VISIBLE
                     }
                 }
             }
             ViewState.CallFeedback -> {
                 chatFooterAdapter?.clear()
 
-                headerView?.hideHangupButton()
+                headerView.hideHangupButton()
 
-                audioCallView?.setDisabledState()
-                audioCallView?.visibility = View.GONE
+                audioCallView.setDisabledState()
+                audioCallView.visibility = View.GONE
 
-                videoCallView?.setDisabledState()
-                videoCallView?.visibility = View.GONE
+                videoCallView.setDisabledState()
+                videoCallView.visibility = View.GONE
 
-                audioDialogView?.setDefaultState()
-                audioDialogView?.visibility = View.GONE
+                audioDialogView.setDefaultState()
+                audioDialogView.visibility = View.GONE
 
-                videoDialogView?.setDefaultState()
-                videoDialogView?.visibility = View.GONE
+                videoDialogView.setDefaultState()
+                videoDialogView.visibility = View.GONE
 
-                infoView?.visibility = View.GONE
+                infoView.visibility = View.GONE
 
-                recyclerView?.visibility = View.GONE
+                recyclerView.visibility = View.GONE
 
-                footerView?.setDefaultState()
-                footerView?.visibility = View.GONE
+                footerView.setDefaultState()
+                footerView.visibility = View.GONE
 
-                feedbackView?.visibility = View.VISIBLE
+                feedbackView.visibility = View.VISIBLE
             }
             ViewState.ChatBot -> {
                 chatFooterAdapter?.clear()
 
-                headerView?.hideHangupButton()
-                headerView?.setOpponentInfo(configs.opponent)
+                headerView.hideHangupButton()
+                headerView.setOpponentInfo(configs.opponent)
 
-                audioCallView?.setDefaultState()
-                audioCallView?.visibility = View.GONE
+                audioCallView.setDefaultState()
+                audioCallView.visibility = View.GONE
 
-                videoCallView?.setDefaultState()
-                videoCallView?.visibility = View.GONE
+                videoCallView.setDefaultState()
+                videoCallView.visibility = View.GONE
 
-                audioDialogView?.setDefaultState()
-                audioDialogView?.visibility = View.GONE
+                audioDialogView.setDefaultState()
+                audioDialogView.visibility = View.GONE
 
-                videoDialogView?.setDefaultState()
-                videoDialogView?.visibility = View.GONE
+                videoDialogView.setDefaultState()
+                videoDialogView.visibility = View.GONE
 
-                feedbackView?.setDefaultState()
-                feedbackView?.visibility = View.GONE
+                feedbackView.setDefaultState()
+                feedbackView.visibility = View.GONE
 
-                infoView?.visibility = View.GONE
+                infoView.visibility = View.GONE
 
-                bottomNavigationView?.setNavButtonsEnabled()
-                bottomNavigationView?.setHomeNavButtonActive()
+                bottomNavigationView.setNavButtonsEnabled()
+                bottomNavigationView.setHomeNavButtonActive()
 
                 if (!isLoading) {
-                    recyclerView?.visibility = View.VISIBLE
+                    recyclerView.visibility = View.VISIBLE
                 }
 
-                footerView?.setDefaultState()
-                footerView?.visibility = View.VISIBLE
+                footerView.setDefaultState()
+                footerView.visibility = View.VISIBLE
             }
             ViewState.Info -> {
                 if (isLoading) {
@@ -2065,30 +2007,30 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 chatFooterAdapter?.clear()
 
-                headerView?.hideHangupButton()
-                headerView?.setOpponentInfo(configs.opponent)
+                headerView.hideHangupButton()
+                headerView.setOpponentInfo(configs.opponent)
 
-                audioCallView?.setDefaultState()
-                audioCallView?.visibility = View.GONE
+                audioCallView.setDefaultState()
+                audioCallView.visibility = View.GONE
 
-                videoCallView?.setDefaultState()
-                videoCallView?.visibility = View.GONE
+                videoCallView.setDefaultState()
+                videoCallView.visibility = View.GONE
 
-                audioDialogView?.setDefaultState()
-                audioDialogView?.visibility = View.GONE
+                audioDialogView.setDefaultState()
+                audioDialogView.visibility = View.GONE
 
-                videoDialogView?.setDefaultState()
-                videoDialogView?.visibility = View.GONE
+                videoDialogView.setDefaultState()
+                videoDialogView.visibility = View.GONE
 
-                feedbackView?.setDefaultState()
-                feedbackView?.visibility = View.GONE
+                feedbackView.setDefaultState()
+                feedbackView.visibility = View.GONE
 
-                recyclerView?.visibility = View.GONE
+                recyclerView.visibility = View.GONE
 
-                footerView?.setDefaultState()
-                footerView?.visibility = View.GONE
+                footerView.setDefaultState()
+                footerView.visibility = View.GONE
 
-                infoView?.visibility = View.VISIBLE
+                infoView.visibility = View.VISIBLE
             }
         }
     }
@@ -2097,7 +2039,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         dialog.clear()
 
         runOnUiThread {
-            footerView?.disableAttachmentButton()
+            footerView.disableAttachmentButton()
         }
 
         isSwitchToCallAgentClicked = false
@@ -2148,13 +2090,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //        remoteAudioTrack?.dispose()
         remoteAudioTrack = null
 
-        videoDialogView?.release()
+        videoDialogView.release()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
-        footerView?.disableAttachmentButton()
+        footerView.disableAttachmentButton()
 
         chatRecyclerState = null
 
@@ -2177,22 +2119,25 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         socket?.disconnect()
         socket = null
 
-        headerView = null
+//        headerView = null
 
-        audioCallView?.setDefaultState()
-        audioCallView = null
+        audioCallView.setDefaultState()
+//        audioCallView = null
 
-        audioDialogView?.setDefaultState()
-        audioDialogView = null
+        audioDialogView.setDefaultState()
+        audioDialogView.callback = null
+//        audioDialogView = null
 
-        videoCallView?.setDefaultState()
-        videoCallView = null
+        videoCallView.setDefaultState()
+//        videoCallView = null
 
-        videoDialogView?.setDefaultState()
-        videoDialogView = null
+        videoDialogView.setDefaultState()
+        videoDialogView.callback = null
+//        videoDialogView = null
 
-        footerView?.setDefaultState()
-        footerView = null
+        footerView.setDefaultState()
+        videoDialogView.callback = null
+//        footerView = null
 
         chatAdapter?.callback = null
         chatAdapter?.clear()
@@ -2201,12 +2146,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         chatAdapter?.let { mergeAdapter?.removeAdapter(it) }
         chatFooterAdapter?.let { mergeAdapter?.removeAdapter(it) }
         mergeAdapter = null
-        recyclerView?.adapter = null
-        recyclerView = null
+        recyclerView.adapter = null
+//        recyclerView = null
 
-        progressView = null
+//        progressView = null
 
-        rootView = null
+        bottomNavigationView.callback = null
+
+//        rootView = null
     }
 
     private fun logDebug(message: String) {

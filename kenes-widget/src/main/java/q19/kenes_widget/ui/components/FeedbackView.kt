@@ -2,7 +2,6 @@ package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.model.RatingButton
+import q19.kenes_widget.util.inflate
 
 internal class FeedbackView @JvmOverloads constructor(
     context: Context,
@@ -72,6 +72,10 @@ internal class FeedbackView @JvmOverloads constructor(
         }
     }
 
+    fun clear() {
+        ratingView.adapter = null
+    }
+
 }
 
 private class RatingAdapter(
@@ -105,9 +109,7 @@ private class RatingAdapter(
     override fun getItemCount(): Int = ratingButtons.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val view = inflater.inflate(LAYOUT_RATING, parent, false)
-        return ViewHolder(view)
+        return ViewHolder(parent.inflate(LAYOUT_RATING))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -117,24 +119,20 @@ private class RatingAdapter(
     }
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView: TextView? = null
-
-        init {
-            textView = view.findViewById(R.id.textView)
-        }
+        private var textView = view.findViewById<TextView>(R.id.textView)
 
         fun bind(
             ratingButton: RatingButton,
             callback: (ratingButton: RatingButton) -> Unit
         ) {
-            textView?.isActivated = selectedRatingButtonPosition == adapterPosition
+            textView?.isActivated = selectedRatingButtonPosition == absoluteAdapterPosition
 
             textView?.text = ratingButton.title
 
             textView?.setOnClickListener {
                 val tempPosition = selectedRatingButtonPosition
 
-                selectedRatingButtonPosition = adapterPosition
+                selectedRatingButtonPosition = absoluteAdapterPosition
                 notifyItemChanged(tempPosition)
                 notifyItemChanged(selectedRatingButtonPosition)
                 callback(ratingButton)

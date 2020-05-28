@@ -2,11 +2,13 @@ package q19.kenes_widget.adapter
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
@@ -15,6 +17,7 @@ import q19.kenes_widget.core.errors.ViewHolderViewTypeException
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Media
 import q19.kenes_widget.model.Message
+import q19.kenes_widget.util.ColorStateListBuilder
 import q19.kenes_widget.util.HtmlTextViewManager
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.picasso.RoundedTransformation
@@ -137,6 +140,10 @@ internal class ChatAdapter(
         private var textView = view.findViewById<TextView>(R.id.textView)
         private var timeView = view.findViewById<TextView>(R.id.timeView)
 
+        init {
+            timeView.visibility = View.GONE
+        }
+
         fun bind(message: Message) {
             val media = message.media
             if (media == null) {
@@ -161,6 +168,9 @@ internal class ChatAdapter(
                             media.imageUrl ?: return@setOnClickListener
                         )
                     }
+
+                    timeView?.text = message.time
+                    timeView?.visibility = View.VISIBLE
                 } else {
                     imageView?.visibility = View.GONE
                 }
@@ -177,6 +187,9 @@ internal class ChatAdapter(
                     }
 
                     fileView?.visibility = View.VISIBLE
+
+                    timeView?.text = message.time
+                    timeView?.visibility = View.VISIBLE
                 } else {
                     fileView?.visibility = View.GONE
                 }
@@ -190,7 +203,6 @@ internal class ChatAdapter(
                 timeView?.visibility = View.VISIBLE
             } else {
                 textView?.visibility = View.GONE
-                timeView?.visibility = View.GONE
             }
         }
     }
@@ -202,6 +214,10 @@ internal class ChatAdapter(
         private var timeView = view.findViewById<TextView>(R.id.timeView)
 
         private var htmlTextViewManager = HtmlTextViewManager()
+
+        init {
+            timeView.visibility = View.GONE
+        }
 
 //        val target = object : Target() {
 //            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
@@ -243,6 +259,9 @@ internal class ChatAdapter(
                             media.imageUrl ?: return@setOnClickListener
                         )
                     }
+
+                    timeView?.text = message.time
+                    timeView?.visibility = View.VISIBLE
                 } else {
                     imageView?.visibility = View.GONE
                 }
@@ -259,6 +278,9 @@ internal class ChatAdapter(
                     }
 
                     fileView?.visibility = View.VISIBLE
+
+                    timeView?.text = message.time
+                    timeView?.visibility = View.VISIBLE
                 } else {
                     fileView?.visibility = View.GONE
                 }
@@ -269,13 +291,23 @@ internal class ChatAdapter(
                 htmlTextViewManager.setOnUrlClickListener { _, url ->
                     callback?.onUrlInTextClicked(url)
                 }
+
+                val colorStateList = ColorStateListBuilder()
+                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .addState(intArrayOf(), ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .build()
+
+                textView.highlightColor = Color.TRANSPARENT
+
+                textView.setLinkTextColor(colorStateList)
+
                 timeView?.text = message.time
 
                 textView?.visibility = View.VISIBLE
                 timeView?.visibility = View.VISIBLE
             } else {
                 textView?.visibility = View.GONE
-                timeView?.visibility = View.GONE
             }
         }
     }
@@ -407,6 +439,16 @@ internal class ChatAdapter(
                     htmlTextViewManager.setOnUrlClickListener { _, url ->
                         callback?.onUrlInTextClicked(url)
                     }
+
+                    val colorStateList = ColorStateListBuilder()
+                        .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                        .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                        .addState(intArrayOf(), ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                        .build()
+
+                    textView.highlightColor = Color.TRANSPARENT
+
+                    textView.setLinkTextColor(colorStateList)
 
                     timeView.text = message.time
 

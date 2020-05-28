@@ -31,14 +31,10 @@ internal class CrossChildrenAdapter(
     }
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView: TextView? = null
-
-        init {
-            textView = view.findViewById(R.id.textView)
-        }
+        private var textView = view.findViewById<TextView>(R.id.textView)
 
         fun bind(category: Category) {
-            val crossChild = category.children[adapterPosition]
+            val crossChild = category.children[absoluteAdapterPosition]
 
             textView?.text = crossChild.title
 
