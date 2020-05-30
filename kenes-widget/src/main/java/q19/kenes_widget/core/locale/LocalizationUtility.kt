@@ -30,7 +30,9 @@ internal object LocalizationUtility {
                     context.createConfigurationContext(config)
                 }
                 else -> {
+                    @Suppress("DEPRECATION")
                     config.locale = currentLocale
+                    @Suppress("DEPRECATION")
                     context.resources.updateConfiguration(config, context.resources.displayMetrics)
                     context
                 }
@@ -40,10 +42,11 @@ internal object LocalizationUtility {
         }
     }
 
-    fun getLocaleFromConfiguration(configuration: Configuration): Locale {
+    private fun getLocaleFromConfiguration(configuration: Configuration): Locale {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            configuration.locales.get(0)
+            configuration.locales[0]
         } else {
+            @Suppress("DEPRECATION")
             configuration.locale
         }
     }

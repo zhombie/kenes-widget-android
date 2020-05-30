@@ -3,13 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'maven'
 
 android {
-    sourceSets.main {
-        jniLibs.srcDir 'libs'
-        jni.srcDirs = [] //disable automatic ndk-build call
-    }
-
     compileSdkVersion 29
-
 
     defaultConfig {
         minSdkVersion 21
@@ -28,6 +22,10 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
 }
@@ -59,5 +57,5 @@ dependencies {
 
     implementation 'com.loopj.android:android-async-http:1.4.9'
 
-    implementation files('libs/libwebrtc.aar')
+    implementation 'org.webrtc:google-webrtc:1.0.30039'
 }

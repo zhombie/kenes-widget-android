@@ -7,7 +7,7 @@ internal class Language(val key: String, val value: String) {
     companion object {
         private const val KEY_KAZAKH = "kk"
         private const val KEY_RUSSIAN = "ru"
-        private const val KEY_ENGLISH = "en"
+//        private const val KEY_ENGLISH = "en"
 
         val DEFAULT: Language
             get() = by(Locale.getDefault().language)
@@ -18,11 +18,11 @@ internal class Language(val key: String, val value: String) {
         val Russian: Language
             get() = Language(KEY_RUSSIAN, "Рус")
 
-        val English: Language
-            get() = Language(KEY_ENGLISH, "Eng")
+//        val English: Language
+//            get() = Language(KEY_ENGLISH, "Eng")
 
         val AllLanguages: Array<Language>
-            get() = arrayOf(Kazakh, Russian, English)
+            get() = arrayOf(Kazakh, Russian)
 
         fun from(locale: Locale): Language {
             return by(locale.language)
@@ -32,7 +32,7 @@ internal class Language(val key: String, val value: String) {
             return when (language) {
                 KEY_KAZAKH -> Kazakh
                 KEY_RUSSIAN -> Russian
-                KEY_ENGLISH -> English
+//                KEY_ENGLISH -> English
                 else -> Russian
             }
         }

@@ -2,6 +2,7 @@ package q19.kenes_widget.core.locale
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
+import q19.kenes_widget.model.Language
 import java.util.*
 
 internal object LanguageSetting {
@@ -20,10 +21,10 @@ internal object LanguageSetting {
             when (info.size) {
                 1 -> Locale(info[0])
                 2 -> Locale(info[0], info[1])
-                else -> Locale.ENGLISH
+                else -> Language.Russian.locale
             }
         } ?: run {
-            Locale.ENGLISH
+            Language.Russian.locale
         }
 
     fun setLanguage(context: Context, locale: Locale) {
@@ -44,9 +45,7 @@ internal object LanguageSetting {
         }
 
     fun getLanguageWithDefault(context: Context, default: Locale): Locale {
-        return getLanguage(context)?.let { locale ->
-            locale
-        } ?: run {
+        return getLanguage(context) ?: run {
             setLanguage(context, default)
             default
         }

@@ -83,6 +83,7 @@ internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> U
         .setTitle(R.string.kenes_open_link)
         .setView(messageView)
         .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+            callback()
             dialog.dismiss()
         }
         .setNegativeButton(R.string.kenes_no) { dialog, _ ->
@@ -134,15 +135,6 @@ internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Un
         }
         .setOnDismissListener {
             callback()
-        }
-        .show()
-}
-
-internal fun Context.showUnrealizedErrorAlert(): AlertDialog? {
-    return AlertDialogBuilder
-        .setMessage("Не реализовано")
-        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-            dialog.dismiss()
         }
         .show()
 }

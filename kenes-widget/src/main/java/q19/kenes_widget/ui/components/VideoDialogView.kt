@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import org.webrtc.RendererCommon
 import org.webrtc.SurfaceViewRenderer
 import q19.kenes_widget.R
 
@@ -38,9 +37,6 @@ internal class VideoDialogView @JvmOverloads constructor(
         goToChatButton = view.findViewById(R.id.goToChatButton)
         hangupButton = view.findViewById(R.id.hangupButton)
         switchSourceButton = view.findViewById(R.id.switchSourceButton)
-
-        remoteSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
-        localSurfaceView.setZOrderMediaOverlay(true)
 
         remoteSurfaceView.setOnClickListener { callback?.onRemoteFrameClicked() }
         goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
