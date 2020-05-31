@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="@dimen/kenes_horizontal_spacing">
+
+    <TextView
+        android:id="@+id/titleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="22dp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:text="@string/kenes_leave_contact_details"
+        android:textColor="#000000"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/nameLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleView"
+        android:layout_alignStart="@id/nameEditText"
+        android:layout_alignEnd="@id/nameEditText"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/kenes_name"
+        android:textColor="#000000"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/nameEditText"
+        android:layout_width="@dimen/kenes_form_edit_text_width"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nameLabelView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/kenes_bg_input_view"
+        android:ems="10"
+        android:hint="@string/kenes_name"
+        android:imeOptions="actionNext"
+        android:includeFontPadding="true"
+        android:inputType="textPersonName"
+        android:maxLength="40"
+        android:maxLines="1"
+        android:nextFocusForward="@id/emailEditText"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textColor="#606266"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/emailLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/nameEditText"
+        android:layout_alignStart="@id/emailEditText"
+        android:layout_alignEnd="@id/emailEditText"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/kenes_email"
+        android:textColor="#000000"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="@dimen/kenes_form_edit_text_width"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/emailLabelView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/kenes_bg_input_view"
+        android:ems="10"
+        android:hint="@string/kenes_email"
+        android:imeOptions="actionNext"
+        android:includeFontPadding="true"
+        android:inputType="textEmailAddress"
+        android:maxLength="40"
+        android:maxLines="1"
+        android:nextFocusForward="@id/phoneEditText"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textColor="#606266"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/phoneLabelView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/emailEditText"
+        android:layout_alignStart="@id/phoneEditText"
+        android:layout_alignEnd="@id/phoneEditText"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif-black"
+        android:text="@string/kenes_phone"
+        android:textColor="#000000"
+        android:textSize="15sp" />
+
+    <EditText
+        android:id="@+id/phoneEditText"
+        android:layout_width="@dimen/kenes_form_edit_text_width"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/phoneLabelView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="22dp"
+        android:background="@drawable/kenes_bg_input_view"
+        android:ems="10"
+        android:hint="@string/kenes_phone"
+        android:imeOptions="actionDone"
+        android:inputType="phone"
+        android:maxLength="40"
+        android:maxLines="1"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textColor="#606266"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:id="@+id/buttonsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/phoneEditText"
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cancelButton"
+            style="@style/NormalRoundedButton"
+            android:background="@drawable/kenes_bg_button_white_rounded_4dp"
+            android:text="@string/kenes_cancel"
+            android:textColor="@color/kenes_selector_dark_gray" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/sendButton"
+            style="@style/NormalRoundedButton"
+            android:layout_marginStart="10dp"
+            android:text="@string/kenes_send" />
+
+    </LinearLayout>
+
+</RelativeLayout>

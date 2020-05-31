@@ -47,4 +47,15 @@
     <string name="kenes_or">Или</string>
 
     <string name="kenes_error_invalid_hostname">Неверный адрес</string>
+
+    <string name="kenes_leave_contact_details">Оставьте свои контактные данные</string>
+    <string name="kenes_name">Имя</string>
+    <string name="kenes_email">Email</string>
+    <string name="kenes_phone">Номер телефона</string>
+    <string name="kenes_form_sent_success">Ваше обращение зарегистрировано</string>
+    <string name="kenes_enter_name">Введите имя</string>
+    <string name="kenes_enter_email">Введите email</string>
+    <string name="kenes_enter_phone">Введите телефон</string>
+    <string name="kenes_enter_valid_email">Пожалуйста, введите корректный email</string>
+    <string name="kenes_enter_valid_phone">Пожалуйста, введите корректный телефон</string>
 </resources>

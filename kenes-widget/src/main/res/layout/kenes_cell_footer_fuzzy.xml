@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
@@ -7,19 +8,10 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button1"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        style="@style/SmallRoundedButton"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/kenes_bg_button_white_rounded_15dp"
-        android:drawableStart="@drawable/kenes_selector_arrow_left"
-        android:drawablePadding="7dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:text="@string/kenes_go_to_home"
-        android:textAllCaps="false"
-        android:textColor="@color/kenes_selector_button_text"
-        android:textSize="13sp" />
+        tools:drawableStart="@drawable/kenes_selector_arrow_left"
+        tools:text="@string/kenes_go_to_home" />
 
     <TextView
         android:id="@+id/orView"
@@ -27,6 +19,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
+        android:drawableStart="@drawable/kenes_shape_line"
+        android:drawableEnd="@drawable/kenes_shape_line"
         android:drawablePadding="15dp"
         android:gravity="center_horizontal"
         android:text="@string/kenes_or"
@@ -36,18 +30,9 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button2"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        style="@style/SmallRoundedButton"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/kenes_bg_button_white_rounded_15dp"
-        android:drawableStart="@drawable/kenes_selector_arrow_left"
-        android:drawablePadding="7dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:text="@string/kenes_go_to_home"
-        android:textAllCaps="false"
-        android:textColor="@color/kenes_selector_button_text"
-        android:textSize="13sp" />
+        tools:drawableStart="@drawable/kenes_selector_arrow_left"
+        tools:text="@string/kenes_go_to_home" />
 
 </LinearLayout>

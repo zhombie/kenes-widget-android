@@ -47,4 +47,15 @@
     <string name="kenes_or">немесе</string>
 
     <string name="kenes_error_invalid_hostname">Қате сілтеме</string>
+
+    <string name="kenes_leave_contact_details">Байланыс мәліметтерін қалдырыңыз</string>
+    <string name="kenes_name">Аты</string>
+    <string name="kenes_email">Email</string>
+    <string name="kenes_phone">Телефон нөмірі</string>
+    <string name="kenes_form_sent_success">Сіздің өтінішіңіз тіркелді</string>
+    <string name="kenes_enter_name">Атыңызды енгізіңіз</string>
+    <string name="kenes_enter_email">Email енгізіңіз</string>
+    <string name="kenes_enter_phone">Телефон нөміріңізді енгізіңіз</string>
+    <string name="kenes_enter_valid_email">Өтінеміз, жарамды email енгізіңіз</string>
+    <string name="kenes_enter_valid_phone">Өтінеміз, жарамды телефон нөмірін енгізіңіз</string>
 </resources>

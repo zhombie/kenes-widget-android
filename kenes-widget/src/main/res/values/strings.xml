@@ -49,4 +49,15 @@
     <string name="kenes_or">Or</string>
 
     <string name="kenes_error_invalid_hostname">Invalid hostname</string>
+
+    <string name="kenes_leave_contact_details">Leave your contact details</string>
+    <string name="kenes_name">Name</string>
+    <string name="kenes_email">Email</string>
+    <string name="kenes_phone">Phone</string>
+    <string name="kenes_form_sent_success">Your appeal is registered</string>
+    <string name="kenes_enter_name">Enter name</string>
+    <string name="kenes_enter_email">Enter email</string>
+    <string name="kenes_enter_phone">Enter phone</string>
+    <string name="kenes_enter_valid_email">Please, enter valid email</string>
+    <string name="kenes_enter_valid_phone">Please, enter valid phone</string>
 </resources>

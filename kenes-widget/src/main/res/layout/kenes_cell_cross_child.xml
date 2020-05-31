@@ -4,9 +4,9 @@
     android:id="@+id/textView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@drawable/kenes_bg_button_white_rounded_10dp"
+    android:background="@drawable/kenes_bg_button_light_blue_rounded_10dp"
     android:clickable="true"
     android:focusable="true"
     android:padding="10dp"
-    android:textColor="@color/kenes_selector_button_text"
+    android:textColor="@color/kenes_selector_blue"
     tools:text="Регистрация бизнеса" />

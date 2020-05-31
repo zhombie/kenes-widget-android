@@ -23,20 +23,10 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/audioCallButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        style="@style/NormalRoundedButton"
         android:layout_gravity="center"
-        android:background="@drawable/kenes_bg_button_white_rounded_4dp"
         android:drawableStart="@drawable/kenes_selector_headphones"
-        android:drawablePadding="5dp"
-        android:paddingStart="20dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="12dp"
-        android:text="@string/kenes_audio_call"
-        android:textAllCaps="false"
-        android:textColor="@color/kenes_selector_button_text" />
+        android:text="@string/kenes_audio_call" />
 
     <TextView
         android:id="@+id/audioCallInfoView"

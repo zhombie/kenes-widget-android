@@ -2,6 +2,7 @@ package q19.kenes_widget.adapter
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
@@ -10,6 +11,7 @@ import q19.kenes_widget.model.Footer
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
+import java.util.*
 
 class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -104,6 +106,7 @@ class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private inner class FuzzyFooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val button1 = view.findViewById<AppCompatButton>(R.id.button1)
+        private val orView = view.findViewById<TextView>(R.id.orView)
         private val button2 = view.findViewById<AppCompatButton>(R.id.button2)
 
         fun bind(footer: Footer) {
@@ -111,6 +114,8 @@ class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 button1.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_headphones, 15)
                 button1.setText(R.string.kenes_switch_to_call_agent)
                 button1.setOnClickListener { callback?.onSwitchToCallAgentClicked() }
+
+                orView.text = itemView.context.getString(R.string.kenes_or).toLowerCase(Locale.getDefault())
 
                 button2.removeCompoundDrawables()
                 button2.setText(R.string.kenes_register_appeal)

@@ -54,6 +54,4 @@
         android:textSize="11sp"
         tools:text="04:20" />
 
-    <include layout="@layout/kenes_view_go_to_home" />
-
 </LinearLayout>

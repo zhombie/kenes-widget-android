@@ -126,6 +126,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
      */
     private val feedbackView by bind<FeedbackView>(R.id.feedbackView)
 
+    private val formView by bind<FormView>(R.id.formView)
+
     private val progressView by bind<ProgressView>(R.id.progressView)
 
     /**
@@ -237,7 +239,19 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private var chatRecyclerState: Parcelable? = null
 
-    private val adapterDataObserver: RecyclerView.AdapterDataObserver by lazy {
+    private val chatAdapterDataObserver: RecyclerView.AdapterDataObserver by lazy {
+        object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+
+                recyclerView.adapter?.let { adapter ->
+                    recyclerView.scrollToPosition(adapter.itemCount - 1)
+                }
+            }
+        }
+    }
+
+    private val chatFooterAdapterDataObserver: RecyclerView.AdapterDataObserver by lazy {
         object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
@@ -431,6 +445,26 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 viewState = ViewState.AudioDialog(State.PENDING)
 
                 socket?.emit("initialize", jsonObject { put("audio", true) })
+            }
+        }
+
+        formView.callback = object : FormView.Callback {
+            override fun onCancelClicked() {
+                viewState = ViewState.ChatBot
+            }
+
+            override fun onSendClicked(name: String, email: String, phone: String) {
+                socket?.emit("confirm_fuzzy_task", jsonObject {
+                    put("name", name)
+                    put("email", email)
+                    put("phone", phone)
+                    put("res", '1')
+                })
+
+                showFormSentSuccess {
+                    formView.clearInputViews()
+                    viewState = ViewState.ChatBot
+                }
             }
         }
 
@@ -694,7 +728,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         recyclerView.layoutManager = layoutManager
         recyclerView.isNestedScrollingEnabled = false
 
-        chatAdapter?.registerAdapterDataObserver(adapterDataObserver)
+        chatAdapter?.registerAdapterDataObserver(chatAdapterDataObserver)
+        chatFooterAdapter?.registerAdapterDataObserver(chatFooterAdapterDataObserver)
 
         chatFooterAdapter = ChatFooterAdapter()
         chatFooterAdapter?.callback = object : ChatFooterAdapter.Callback {
@@ -760,7 +795,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onRegisterAppealClicked() {
-                logDebug("onRegisterAppealClicked")
+                viewState = ViewState.RegisterForm
             }
         }
 
@@ -1094,28 +1129,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 logDebug("viewState: $viewState")
             }
 
-        }?.on("form_init") { args ->
-
-            logDebug("event [FORM_INIT]: $args")
-
-            if (args.size != 1) {
-                return@on
-            }
-
-            val formInitJson = args[0] as? JSONObject? ?: return@on
-            logDebug("formInitJson: $formInitJson")
-
-        }?.on("form_final") { args ->
-
-            logDebug("event [FORM_FINAL]: $args")
-
-            if (args.size != 1) {
-                return@on
-            }
-
-            val formFinalJson = args[0] as? JSONObject? ?: return@on
-            logDebug("formFinalJson: $formFinalJson")
-
         }?.on("send_configs") { args ->
 
             logDebug("event [SEND_CONFIGS]: $args")
@@ -1295,6 +1308,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             if (fuzzyTask) {
+                runOnUiThread {
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    chatFooterAdapter?.showFuzzyQuestionButtons()
+                }
+
+                isLoading = false
+
+                return@on
             }
 
             if (noOnline) {
@@ -2070,6 +2091,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 feedbackView.visibility = View.VISIBLE
             }
+            ViewState.RegisterForm -> {
+                recyclerView.visibility = View.GONE
+
+                footerView.visibility = View.GONE
+
+                bottomNavigationView.setNavButtonsDisabled()
+
+                formView.visibility = View.VISIBLE
+            }
             ViewState.ChatBot -> {
                 chatFooterAdapter?.clear()
 
@@ -2090,6 +2120,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 feedbackView.setDefaultState()
                 feedbackView.visibility = View.GONE
+
+                formView.visibility = View.GONE
 
                 infoView.visibility = View.GONE
 
@@ -2237,8 +2269,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         videoDialogView.callback = null
 //        videoDialogView = null
 
+        formView.clear()
+
         footerView.setDefaultState()
-        videoDialogView.callback = null
 //        footerView = null
 
         chatRecyclerState = null
@@ -2255,7 +2288,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         mergeAdapter = null
 
-        chatAdapter?.unregisterAdapterDataObserver(adapterDataObserver)
+        chatAdapter?.unregisterAdapterDataObserver(chatAdapterDataObserver)
+        chatFooterAdapter?.unregisterAdapterDataObserver(chatFooterAdapterDataObserver)
 
         chatAdapter = null
 

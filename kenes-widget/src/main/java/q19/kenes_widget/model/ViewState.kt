@@ -3,6 +3,7 @@ package q19.kenes_widget.model
 internal sealed class ViewState {
     object ChatBot : ViewState()
     object CallFeedback : ViewState()
+    object RegisterForm : ViewState()
     class AudioDialog(var state: State) : ViewState()
     class VideoDialog(var state: State) : ViewState()
     object Info : ViewState()

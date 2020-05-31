@@ -152,3 +152,14 @@ internal fun Context.showAlreadyCallingAlert(callback: () -> Unit): AlertDialog?
         }
         .show()
 }
+
+internal fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
+        .setTitle(R.string.kenes_attention)
+        .setMessage(R.string.kenes_form_sent_success)
+        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+            dialog.dismiss()
+            callback()
+        }
+        .show()
+}

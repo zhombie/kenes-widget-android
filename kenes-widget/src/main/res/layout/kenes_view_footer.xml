@@ -24,7 +24,7 @@
         android:gravity="center"
         android:text="@string/kenes_return_to_video_call"
         android:textAllCaps="false"
-        android:textColor="@color/kenes_selector_button_text"
+        android:textColor="@color/kenes_selector_blue"
         android:textSize="15sp"
         android:visibility="gone"
         tools:visibility="visible" />
@@ -62,7 +62,7 @@
         android:paddingEnd="15dp"
         android:singleLine="true"
         android:textColor="@color/kenes_black"
-        android:textCursorDrawable="@drawable/kenes_cursor"
+        android:textCursorDrawable="@drawable/kenes_shape_cursor"
         android:textSize="16sp" />
 
     <androidx.appcompat.widget.AppCompatImageButton
