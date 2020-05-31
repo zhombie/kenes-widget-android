@@ -1941,6 +1941,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 when (viewState.state) {
                     State.IDLE, State.USER_DISCONNECT -> {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
                         headerView.hideHangupButton()
                         headerView.setOpponentInfo(configs.opponent)
 
@@ -1982,6 +1984,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         recyclerView.visibility = View.VISIBLE
                     }
                     State.LIVE -> {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
                         headerView.showHangupButton()
 
                         videoCallView.setDisabledState()
@@ -1999,6 +2003,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         videoDialogView.visibility = View.VISIBLE
                     }
                     State.OPPONENT_DISCONNECT, State.FINISHED -> {
+                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
                         headerView.hideHangupButton()
                         headerView.setOpponentInfo(configs.opponent)
 
