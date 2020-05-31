@@ -417,7 +417,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
                         socket?.emit("user_disconnect")
+
                         dialog.isInitiator = false
+
+                        bottomNavigationView.setNavButtonsEnabled()
                     }
                     return@setOnCallClickListener
                 }
@@ -438,7 +441,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
                         socket?.emit("user_disconnect")
+
                         dialog.isInitiator = false
+
+                        bottomNavigationView.setNavButtonsEnabled()
                     }
                     return@setOnCallClickListener
                 }
@@ -822,7 +828,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
                         socket?.emit("user_disconnect")
+
                         dialog.isInitiator = false
+
+                        bottomNavigationView.setNavButtonsEnabled()
                     }
                     return
                 }
