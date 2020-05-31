@@ -350,7 +350,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         dialog.isInitiator = false
 
-                        bottomNavigationView.setNavButtonsEnabled()
+                        viewState = ViewState.ChatBot
                     }
                     return false
                 }
@@ -377,6 +377,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
+
+                        viewState = ViewState.VideoDialog(State.IDLE)
                     }
                     return false
                 }
@@ -399,6 +401,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
+
+                        viewState = ViewState.AudioDialog(State.IDLE)
                     }
                     return false
                 }
@@ -421,6 +425,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
+
+                        viewState = ViewState.Info
                     }
                     return false
                 }
@@ -458,7 +464,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         dialog.isInitiator = false
 
-                        bottomNavigationView.setNavButtonsEnabled()
+                        viewState = ViewState.VideoDialog(State.IDLE)
                     }
                     return@setOnCallClickListener
                 }
@@ -482,7 +488,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         dialog.isInitiator = false
 
-                        bottomNavigationView.setNavButtonsEnabled()
+                        viewState = ViewState.AudioDialog(State.IDLE)
                     }
                     return@setOnCallClickListener
                 }
@@ -858,7 +864,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         dialog.isInitiator = false
 
-                        bottomNavigationView.setNavButtonsEnabled()
+                        viewState = ViewState.ChatBot
                     }
                     return
                 }
@@ -1780,6 +1786,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         footerView.visibility = View.GONE
 
                         bottomNavigationView.setNavButtonsEnabled()
+                        bottomNavigationView.setVideoNavButtonActive()
 
                         videoCallView.setDefaultState()
                         videoCallView.visibility = View.VISIBLE
@@ -1890,6 +1897,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         footerView.visibility = View.GONE
 
                         bottomNavigationView.setNavButtonsEnabled()
+                        bottomNavigationView.setAudioNavButtonActive()
 
                         audioCallView.setDefaultState()
                         audioCallView.visibility = View.VISIBLE
@@ -2075,6 +2083,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 footerView.setDefaultState()
                 footerView.visibility = View.GONE
+
+                bottomNavigationView.setInfoNavButtonActive()
 
                 infoView.visibility = View.VISIBLE
             }
