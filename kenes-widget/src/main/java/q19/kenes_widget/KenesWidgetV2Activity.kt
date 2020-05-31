@@ -36,9 +36,6 @@ import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
 import cz.msebera.android.httpclient.Header
-import io.socket.client.IO
-import io.socket.client.Socket
-import io.socket.emitter.Emitter
 import org.json.JSONObject
 import org.webrtc.*
 import q19.kenes_widget.adapter.ChatAdapter
@@ -54,8 +51,6 @@ import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
 import q19.kenes_widget.util.FileUtil.getRootDirPath
 import q19.kenes_widget.util.FileUtil.openFile
-import q19.kenes_widget.util.JsonUtil.getNullableString
-import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.webrtc.AppRTCAudioManager
 import q19.kenes_widget.webrtc.ProxyVideoSink
 import q19.kenes_widget.webrtc.SimpleSdpObserver
@@ -156,7 +151,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private var chatAdapter: ChatAdapter? = null
     private var chatFooterAdapter: ChatFooterAdapter? = null
 
-    private var socket: Socket? = null
+    private var socketClient: SocketClient? = null
     private var peerConnection: PeerConnection? = null
     private var peerConnectionFactory: PeerConnectionFactory? = null
     private var rootEglBase: EglBase? = null
@@ -351,7 +346,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onHomeNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
 
@@ -367,10 +362,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.clear()
                 chatFooterAdapter?.clear()
 
-                sendUserDashboard(jsonObject {
-                    put("action", "get_category_list")
-                    put("parent_id", 0)
-                })
+                socketClient?.requestCategories(0, currentLanguage)
 
                 isLoading = true
 
@@ -382,7 +374,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onVideoNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
                     }
@@ -404,7 +396,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onAudioNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
                     }
@@ -426,7 +418,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onInfoNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
                     }
@@ -462,7 +454,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             } else {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
 
@@ -475,7 +467,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 viewState = ViewState.VideoDialog(State.PENDING)
 
-                socket?.emit("initialize", jsonObject { put("video", true) })
+                socketClient?.videoCallToCallAgent(currentLanguage)
             }
         }
 
@@ -486,7 +478,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             } else {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
 
@@ -499,7 +491,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 viewState = ViewState.AudioDialog(State.PENDING)
 
-                socket?.emit("initialize", jsonObject { put("audio", true) })
+                socketClient?.audioCallToCallAgent(currentLanguage)
             }
         }
 
@@ -509,12 +501,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onSendClicked(name: String, email: String, phone: String) {
-                socket?.emit("confirm_fuzzy_task", jsonObject {
-                    put("name", name)
-                    put("email", email)
-                    put("phone", phone)
-                    put("res", '1')
-                })
+                socketClient?.sendFuzzyTaskConfirmation(name, email, phone)
 
                 showFormSentSuccess {
                     formView.clearInputViews()
@@ -685,7 +672,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 showLanguageSelectionAlert(items) { which ->
                     val selected = languages[which]
 
-                    socket?.emit("user_language", jsonObject { put("language", selected.key) })
+                    socketClient?.sendUserLanguage(selected.key)
 
                     setLanguage(selected.locale)
                 }
@@ -728,15 +715,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatFooterAdapter?.showGoToHomeButton()
 
                 if (category.responses.isNotEmpty()) {
-                    sendUserDashboard(jsonObject {
-                        put("action", "get_response")
-                        put("id", category.responses.first())
-                    })
+                    socketClient?.requestResponse(category.responses.first(), currentLanguage)
                 } else {
-                    sendUserDashboard(jsonObject {
-                        put("action", "get_category_list")
-                        put("parent_id", category.id)
-                    })
+                    socketClient?.requestCategories(category.id, currentLanguage)
                 }
 
                 isLoading = true
@@ -873,7 +854,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onSwitchToCallAgentClicked() {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socket?.emit("user_disconnect")
+                        socketClient?.forceDisconnect()
 
                         dialog.isInitiator = false
 
@@ -890,7 +871,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 footerView.enableAttachmentButton()
 
-                socket?.emit("initialize", jsonObject { put("video", false) })
+                socketClient?.textCallToCallAgent(currentLanguage)
             }
 
             override fun onRegisterAppealClicked() {
@@ -1000,7 +981,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         return
                     }
 
-                    socket?.emit("user_message", jsonObject { put(type, url) })
+                    socketClient?.sendUserMediaMessage(type, url)
 
                     if (url.startsWith(UrlUtil.STATIC_PATH)) {
                         url = UrlUtil.getHostname() + url
@@ -1177,183 +1158,70 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private fun connectToSignallingServer() {
         val signallingServerUrl = UrlUtil.getSignallingServerUrl()
         if (signallingServerUrl.isNullOrBlank()) {
-            throw NullPointerException("Signalling server url is null.")
+            throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
         } else {
-            socket = IO.socket(signallingServerUrl)
+            socketClient = SocketClient(signallingServerUrl, currentLanguage)
         }
 
-        socket?.on(Socket.EVENT_CONNECT) { args ->
-            
-            logDebug("event [EVENT_CONNECT]: $args")
+        socketClient?.listener = object : SocketClient.Listener {
+            override fun onSocketConnect() {}
 
-            sendUserDashboard(jsonObject {
-                put("action", "get_category_list")
-                put("parent_id", 0)
-            })
+            override fun onCall(type: String, media: String, operator: String, instance: String) {
+                if (type == "accept") {
+                    dialog = Dialog(operator, instance, media)
 
-        }?.on("call") { args ->
+                    runOnUiThread {
+                        chatAdapter?.clearCategoryMessages()
 
-            logDebug("event [CALL]: $args")
+                        footerView.disableAttachmentButton()
+                    }
 
-            if (args.size != 1) return@on
+                    if (media == "audio") {
+                        viewState = ViewState.AudioDialog(State.PREPARATION)
+                    } else if (media == "video") {
+                        viewState = ViewState.VideoDialog(State.PREPARATION)
+                    }
+                }
+            }
 
-            val call = args[0] as? JSONObject? ?: return@on
+            override fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String) {
+                if (dialog.isSwitchToCallAgentClicked) {
+                    dialog = Dialog(operatorId = fullName, media = "text")
 
-            logDebug("JSONObject call: $call")
+                    runOnUiThread {
+                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-            val type = call.optString("type")
-            val media = call.optString("media")
+                        headerView.showHangupButton()
 
-            if (type == "accept") {
-                dialog = Dialog(
-                    operatorId = call.optString("operator"),
-                    instance = call.optString("instance"),
-                    media = call.optString("media")
-                )
+                        chatFooterAdapter?.clear()
+
+                        footerView.enableAttachmentButton()
+                    }
+                }
+
+                val formattedText = text.replace("{}", fullName)
 
                 runOnUiThread {
-                    chatAdapter?.clearCategoryMessages()
-
-                    footerView.disableAttachmentButton()
-                }
-
-                if (media == "audio") {
-                    viewState = ViewState.AudioDialog(State.PREPARATION)
-                } else if (media == "video") {
-                    viewState = ViewState.VideoDialog(State.PREPARATION)
-                }
-
-                logDebug("viewState: $viewState")
-            }
-
-        }?.on("send_configs") { args ->
-
-            logDebug("event [SEND_CONFIGS]: $args")
-
-            if (args.size != 1) return@on
-
-            val configsJson = args[0] as? JSONObject? ?: return@on
-            logDebug("configsJson: $configsJson")
-
-        }?.on("operator_greet") { args ->
-            logDebug("event [OPERATOR_GREET]: $args")
-
-            if (args.size != 1) return@on
-
-            val operatorGreetJson = args[0] as? JSONObject? ?: return@on
-
-            logDebug("JSONObject operatorGreetJson: $operatorGreetJson")
-
-//            val name = operatorGreet.optString("name")
-            val fullName = operatorGreetJson.optString("full_name")
-            val photo = operatorGreetJson.optString("photo")
-            var text = operatorGreetJson.optString("text")
-
-            val photoUrl = UrlUtil.getStaticUrl(photo)
-
-            if (dialog.isSwitchToCallAgentClicked) {
-                dialog = Dialog(operatorId = fullName, media = "text")
-
-                runOnUiThread {
-                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-                    headerView.showHangupButton()
-
-                    chatFooterAdapter?.clear()
-
-                    footerView.enableAttachmentButton()
-                }
-            }
-
-            logDebug("viewState: $viewState")
-
-            text = text.replace("{}", fullName)
-
-            runOnUiThread {
-                headerView.setOpponentInfo(Configs.Opponent(
-                    name = fullName,
-                    secondName = getString(R.string.kenes_call_agent),
-                    avatarUrl = photoUrl
-                ))
-
-                if (viewState is ViewState.AudioDialog) {
-                    audioDialogView.setAvatar(photoUrl)
-                    audioDialogView.setName(fullName)
-                }
-
-                chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text))
-//                scrollToBottom()
-            }
-
-        }?.on("operator_typing") { args ->
-
-            logDebug("event [OPERATOR_TYPING]: $args")
-
-            if (args.size != 1) return@on
-
-            val operatorTypingJson = args[0] as? JSONObject? ?: return@on
-            logDebug("JSONObject operatorTypingJson: $operatorTypingJson")
-
-        }?.on("form_init") { args ->
-
-            logDebug("event [FORM_INIT]: $args")
-
-            if (args.size != 1) return@on
-
-            val formInitJson = args[0] as? JSONObject? ?: return@on
-            logDebug("JSONObject formInitJson: $formInitJson")
-
-            val formFieldsJsonArray = formInitJson.getJSONArray("form_fields")
-//            val formJson = formInitJson.getJSONObject("form")
-
-            val formFields = mutableListOf<DynamicFormField>()
-            for (i in 0 until formFieldsJsonArray.length()) {
-                val formFieldJson = formFieldsJsonArray[i] as JSONObject
-                formFields.add(DynamicFormField(
-                    id = formFieldJson.getLong("id"),
-                    title = formFieldJson.getNullableString("title"),
-                    prompt = formFieldJson.getNullableString("prompt"),
-                    type = formFieldJson.getString("type"),
-                    default = formFieldJson.getNullableString("default"),
-                    formId = formFieldJson.getLong("form_id"),
-                    level = formFieldJson.optInt("level", -1)
-                ))
-            }
-
-//            dynamicFormView.form = DynamicForm(
-//                id = formJson.getLong("id"),
-//                title = formJson.getNullableString("title"),
-//                isFlex = formJson.optInt("is_flex"),
-//                prompt = formJson.getNullableString("prompt"),
-//                fields = formFields
-//            )
-
-        }?.on("feedback") { args ->
-
-            logDebug("event [FEEDBACK]: $args")
-
-            if (args.size != 1) return@on
-
-            closeLiveCall()
-
-            val feedbackJson = args[0] as? JSONObject? ?: return@on
-
-            logDebug("JSONObject feedbackJson: $feedbackJson")
-
-            val buttonsJson = feedbackJson.optJSONArray("buttons")
-
-            val text = feedbackJson.optString("text")
-//            val chatId = feedback.optLong("chat_id")
-
-            if (buttonsJson != null) {
-                val ratingButtons = mutableListOf<RatingButton>()
-                for (i in 0 until buttonsJson.length()) {
-                    val button = buttonsJson[i] as JSONObject
-                    ratingButtons.add(RatingButton(
-                        button.optString("title"),
-                        button.optString("payload")
+                    headerView.setOpponentInfo(Configs.Opponent(
+                        name = fullName,
+                        secondName = getString(R.string.kenes_call_agent),
+                        avatarUrl = photoUrl
                     ))
+
+                    if (viewState is ViewState.AudioDialog) {
+                        audioDialogView.setAvatar(photoUrl)
+                        audioDialogView.setName(fullName)
+                    }
+
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, formattedText))
+//                    scrollToBottom()
                 }
+            }
+
+            override fun onFormInit(dynamicForm: DynamicForm) {}
+
+            override fun onFeedback(text: String, ratingButtons: List<RatingButton>) {
+                closeLiveCall()
 
                 viewState = ViewState.CallFeedback
 
@@ -1363,10 +1231,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     feedbackView.setTitle(text)
                     feedbackView.setRatingButtons(ratingButtons)
                     feedbackView.setOnRateButtonClickListener { ratingButton ->
-                        socket?.emit("user_feedback", jsonObject {
-                            put("r", ratingButton.rating)
-                            put("chat_id", ratingButton.chatId)
-                        })
+                        socketClient?.sendFeedback(ratingButton)
 
                         if (!setNewStateByPreviousState(State.FINISHED)) {
                             viewState = ViewState.ChatBot
@@ -1375,53 +1240,27 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
 
-        }?.on("user_queue") { args ->
-            logDebug("event [USER_QUEUE]: $args")
-
-            if (args.size != 1) return@on
-
-            val userQueue = args[0] as? JSONObject? ?: return@on
-
-            logDebug("userQueue: $userQueue")
-
-            val count = userQueue.getInt("count")
-//            val channel = userQueue.getInt("channel")
-
-//            logDebug("userQueue -> count: $count")
-
-            if (count > 1) {
+            override fun onPendingUsersQueueCount(text: String?, count: Int) {
                 runOnUiThread {
                     if (viewState is ViewState.VideoDialog) {
-                        videoCallView.setPendingQueueCount(count)
+                        if (text != null) {
+                            videoCallView.setInfoText(text)
+                        }
+                        if (count > 1) {
+                            videoCallView.setPendingQueueCount(count)
+                        }
                     } else if (viewState is ViewState.AudioDialog) {
-                        audioCallView.setPendingQueueCount(count)
+                        if (text != null) {
+                            audioCallView.setInfoText(text)
+                        }
+                        if (count > 1) {
+                            audioCallView.setPendingQueueCount(count)
+                        }
                     }
                 }
             }
 
-        }?.on("message") { args ->
-            logDebug("event [MESSAGE]: $args")
-
-            if (args.size != 1) return@on
-
-            val message = args[0] as? JSONObject? ?: return@on
-
-            logDebug("message: $message")
-
-            val text = message.getNullableString("text")?.trim()
-            val noOnline = message.optBoolean("no_online")
-            val noResults = message.optBoolean("no_results")
-//            val id = message.optString("id")
-            val action = message.getNullableString("action")
-            val time = message.optLong("time")
-            val sender = message.getNullableString("sender")
-            val from = message.getNullableString("from")
-            val media = message.optJSONObject("media")
-            val rtc = message.optJSONObject("rtc")
-            val fuzzyTask = message.optBoolean("fuzzy_task")
-//            val form = message.optJSONObject("form")
-
-            if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
+            override fun onNoResultsFound(text: String, time: Long): Boolean {
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                     chatFooterAdapter?.showSwitchToCallAgentButton()
@@ -1430,20 +1269,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 isLoading = false
 
-                return@on
+                return true
             }
 
-//            if (form?.isNull("id") != null) {
-//                socket?.emit("form_init", jsonObject {
-//                    put("form_id", form.getLong("id"))
-//                })
-//
-//                isLoading = false
-//
-//                return@on
-//            }
-
-            if (fuzzyTask) {
+            override fun onFuzzyTaskOffered(text: String, time: Long): Boolean {
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                     chatFooterAdapter?.showFuzzyQuestionButtons()
@@ -1451,23 +1280,25 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 isLoading = false
 
-                return@on
+                return true
             }
 
-            if (noOnline) {
+            override fun onNoOnlineCallAgents(text: String): Boolean {
                 dialog.isInitiator = false
 
                 runOnUiThread {
+                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text))
+
                     showNoOnlineCallAgents(text) {
                         isLoading = false
                         setNewStateByPreviousState(State.IDLE)
                     }
                 }
 
-                return@on
+                return true
             }
 
-            if (action == "operator_disconnect") {
+            override fun onCallAgentDisconnected(text: String, time: Long): Boolean {
                 closeLiveCall()
 
                 setNewStateByPreviousState(State.OPPONENT_DISCONNECT)
@@ -1477,106 +1308,93 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //                    scrollToBottom()
                 }
 
-                return@on
+                return true
             }
 
-            if (chatBot.activeCategory != null) {
-                val messages = listOf(Message(Message.Type.RESPONSE, text, time, chatBot.activeCategory))
+            override fun onRtcStart() {
                 runOnUiThread {
-                    chatFooterAdapter?.showGoToHomeButton()
-                    chatAdapter?.setNewMessages(messages)
+                    headerView.showHangupButton()
+                    footerView.visibility = View.VISIBLE
                 }
-                isLoading = false
-                return@on
+
+                socketClient?.sendMessage(
+                    rtc = rtc { type = Rtc.Type.PREPARE },
+                    language = currentLanguage
+                )
             }
 
-            rtc?.let {
-                when (rtc.getNullableString("type")) {
-                    Rtc.Type.START?.value -> {
-                        logDebug("viewState (Rtc.Type.START?.value): $viewState")
+            override fun onRtcPrepare() {
+                if (viewState is ViewState.VideoDialog) {
+                    viewState = ViewState.VideoDialog(State.PREPARATION)
 
-                        runOnUiThread {
-                            headerView.showHangupButton()
-                            footerView.visibility = View.VISIBLE
-                        }
+                    initializeCallConnection(isVideoCall = true)
 
-                        sendMessage(rtc { type = Rtc.Type.PREPARE })
-                    }
-                    Rtc.Type.PREPARE?.value -> {
-                        logDebug("viewState (Rtc.Type.PREPARE?.value): $viewState")
+                    socketClient?.sendMessage(
+                        rtc = rtc { type = Rtc.Type.READY },
+                        language = currentLanguage
+                    )
+                } else if (viewState is ViewState.AudioDialog) {
+                    viewState = ViewState.AudioDialog(State.PREPARATION)
 
-                        if (viewState is ViewState.VideoDialog) {
-                            viewState = ViewState.VideoDialog(State.PREPARATION)
+                    initializeCallConnection(isVideoCall = false)
 
-                            initializeCallConnection(isVideoCall = true)
-
-                            sendMessage(rtc { type = Rtc.Type.READY })
-                        } else if (viewState is ViewState.AudioDialog) {
-                            viewState = ViewState.AudioDialog(State.PREPARATION)
-
-                            initializeCallConnection(isVideoCall = false)
-
-                            sendMessage(rtc { type = Rtc.Type.READY })
-                        }
-                    }
-                    Rtc.Type.READY?.value -> {
-                        logDebug("viewState (Rtc.Type.READY?.value): $viewState")
-
-                        if (viewState is ViewState.VideoDialog) {
-                            viewState = ViewState.VideoDialog(State.LIVE)
-
-                            initializeCallConnection(isVideoCall = true)
-
-                            sendOffer()
-                        } else if (viewState is ViewState.AudioDialog) {
-                            viewState = ViewState.AudioDialog(State.LIVE)
-
-                            initializeCallConnection(isVideoCall = false)
-
-                            sendOffer()
-                        }
-                    }
-                    Rtc.Type.ANSWER?.value -> {
-                        logDebug("viewState (Rtc.Type.ANSWER?.value): $viewState")
-
-                        setRemoteDescription(parseRtcType(rtc.getString("type")), rtc.getString("sdp"))
-                    }
-                    Rtc.Type.CANDIDATE?.value -> {
-                        logDebug("viewState (Rtc.Type.CANDIDATE?.value): $viewState")
-
-                        peerConnection?.addIceCandidate(
-                            IceCandidate(
-                                rtc.getString("id"),
-                                rtc.getInt("label"),
-                                rtc.getString("candidate")
-                            )
-                        )
-                    }
-                    Rtc.Type.OFFER?.value -> {
-                        logDebug("viewState (Rtc.Type.OFFER?.value): $viewState")
-
-                        setNewStateByPreviousState(State.LIVE)
-
-                        setRemoteDescription(parseRtcType(rtc.getString("type")), rtc.getString("sdp"))
-
-                        sendAnswer()
-                    }
-                    Rtc.Type.HANGUP?.value -> {
-                        logDebug("viewState (Rtc.Type.HANGUP?.value): $viewState")
-
-                        closeLiveCall()
-
-                        setNewStateByPreviousState(State.IDLE)
-                    }
-                    else -> {
-                        return@on
-                    }
+                    socketClient?.sendMessage(
+                        rtc = rtc { type = Rtc.Type.READY },
+                        language = currentLanguage
+                    )
                 }
-                return@on
             }
 
-            if (!text.isNullOrBlank()) {
-                logDebug("fetched text: $text")
+            override fun onRtcReady() {
+                if (viewState is ViewState.VideoDialog) {
+                    viewState = ViewState.VideoDialog(State.LIVE)
+
+                    initializeCallConnection(isVideoCall = true)
+
+                    sendOffer()
+                } else if (viewState is ViewState.AudioDialog) {
+                    viewState = ViewState.AudioDialog(State.LIVE)
+
+                    initializeCallConnection(isVideoCall = false)
+
+                    sendOffer()
+                }
+            }
+
+            override fun onRtcOffer(type: SessionDescription.Type?, sessionDescription: String) {
+                setNewStateByPreviousState(State.LIVE)
+
+                setRemoteDescription(type, sessionDescription)
+
+                sendAnswer()
+            }
+
+            override fun onRtcAnswer(type: SessionDescription.Type?, sessionDescription: String) {
+                setRemoteDescription(type, sessionDescription)
+            }
+
+            override fun onRtcIceCandidate(iceCandidate: IceCandidate) {
+                peerConnection?.addIceCandidate(iceCandidate)
+            }
+
+            override fun onRtcHangup() {
+                closeLiveCall()
+
+                setNewStateByPreviousState(State.IDLE)
+            }
+
+            override fun onTextMessage(text: String, time: Long) {
+                if (chatBot.activeCategory != null) {
+                    val messages = listOf(Message(
+                        Message.Type.RESPONSE, text, time, chatBot.activeCategory
+                    ))
+                    runOnUiThread {
+                        chatFooterAdapter?.showGoToHomeButton()
+                        chatAdapter?.setNewMessages(messages)
+                    }
+                    isLoading = false
+                    return
+                }
 
                 if (dialog.isOnLive) {
                     runOnUiThread {
@@ -1584,26 +1402,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //                        scrollToBottom()
                     }
                 } else {
-                    if (viewState is ViewState.VideoDialog) {
-                        val queued = message.optInt("queued")
-
-                        runOnUiThread {
-                            videoCallView.setInfoText(text)
-                            if (queued > 1) {
-                                videoCallView.setPendingQueueCount(queued)
-                            }
-                        }
-                    } else if (viewState is ViewState.AudioDialog) {
-                        val queued = message.optInt("queued")
-
-                        runOnUiThread {
-                            audioCallView.setInfoText(text)
-                            if (queued > 1) {
-                                audioCallView.setPendingQueueCount(queued)
-                            }
-                        }
-                    }
-
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
 
@@ -1618,115 +1416,71 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
 
-            if (media != null) {
-                val image = media.getNullableString("image")
-                val file = media.getNullableString("file")
-                val name = media.getNullableString("name")
-                val ext = media.getNullableString("ext")
-
-                if (!image.isNullOrBlank() && !ext.isNullOrBlank()) {
+            override fun onMediaMessage(media: Media, time: Long) {
+                if (media.isImage) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(
-                            Message.Type.OPPONENT,
-                            Media(imageUrl = image, name = name, ext = ext),
-                            time
+                            Message.Type.OPPONENT, media, time
                         ))
 //                        scrollToBottom()
                     }
                 }
 
-                if (!file.isNullOrBlank() && !ext.isNullOrBlank()) {
+                if (media.isFile) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(
-                            Message.Type.OPPONENT,
-                            Media(fileUrl = file, name = name, ext = ext),
-                            time
+                            Message.Type.OPPONENT, media, time
                         ))
 //                        scrollToBottom()
                     }
                 }
             }
 
-            isLoading = false
+            override fun onCategories(categories: List<Category>) {
+                if (chatBot.isLocked) return
 
-        }?.on("category_list") { args ->
+                val sortedCategories = categories.sortedBy { it.id }
+                chatBot.allCategories.addAll(sortedCategories)
 
-            if (args.size != 1) return@on
-
-            val categoryList = args[0] as? JSONObject? ?: return@on
-
-            val categoryListJson = categoryList.optJSONArray("category_list") ?: return@on
-
-            logDebug("categoryList: $categoryList")
-
-            if (chatBot.isLocked) return@on
-
-            var currentCategories = mutableListOf<Category>()
-            for (i in 0 until categoryListJson.length()) {
-                (categoryListJson[i] as? JSONObject?)?.let { categoryJson ->
-                    val parsed = parse(categoryJson)
-                    currentCategories.add(parsed)
-                }
-            }
-
-            currentCategories = currentCategories.sortedBy { it.id }.toMutableList()
-            chatBot.allCategories.addAll(currentCategories)
-
-            if (!chatBot.isBasicCategoriesFilled) {
-                chatBot.allCategories.forEach { category ->
+                if (!chatBot.isBasicCategoriesFilled) {
+                    chatBot.allCategories.forEach { category ->
 //                    logDebug("category: $category, ${category.parentId == null}")
 
-                    if (category.parentId == null) {
-                        sendUserDashboard(jsonObject {
-                            put("action", "get_category_list")
-                            put("parent_id", category.id)
-                        })
+                        if (category.parentId == null) {
+                            socketClient?.requestCategories(category.id, currentLanguage)
+                        }
+                    }
+
+                    chatBot.isBasicCategoriesFilled = true
+                }
+
+                if (chatBot.activeCategory != null) {
+                    if (chatBot.activeCategory?.children?.containsAll(sortedCategories) == false) {
+                        chatBot.activeCategory?.children?.addAll(sortedCategories)
+                    }
+                    val messages = listOf(Message(
+                        Message.Type.CROSS_CHILDREN, chatBot.activeCategory
+                    ))
+                    runOnUiThread {
+                        chatAdapter?.setNewMessages(messages)
                     }
                 }
 
-                chatBot.isBasicCategoriesFilled = true
+                isLoading = false
             }
 
-//            logDebug("------------------------------------------------------------")
-//
-//            logDebug("categories: ${chatBot.allCategories}")
-//
-//            logDebug("------------------------------------------------------------")
+            override fun onSocketDisconnect() {
+                closeLiveCall()
 
-            if (chatBot.activeCategory != null) {
-                if (chatBot.activeCategory?.children?.containsAll(currentCategories) == false) {
-                    chatBot.activeCategory?.children?.addAll(currentCategories)
-                }
-                val messages = listOf(Message(Message.Type.CROSS_CHILDREN, chatBot.activeCategory))
-                runOnUiThread {
-                    chatAdapter?.setNewMessages(messages)
+                if (viewState is ViewState.VideoDialog || viewState is ViewState.AudioDialog) {
+                    setNewStateByPreviousState(State.IDLE)
+                } else {
+                    viewState = ViewState.ChatBot
                 }
             }
-
-            isLoading = false
-
-        }?.on(Socket.EVENT_DISCONNECT) {
-            logDebug("event [EVENT_DISCONNECT]")
-
-            closeLiveCall()
-
-            if (viewState is ViewState.VideoDialog || viewState is ViewState.AudioDialog) {
-                setNewStateByPreviousState(State.IDLE)
-            } else {
-                viewState = ViewState.ChatBot
-            }
-        }
-
-        socket?.connect()
-    }
-
-    private fun parseRtcType(type: String): SessionDescription.Type? {
-        return when (type) {
-            "offer" -> SessionDescription.Type.OFFER
-            "answer" -> SessionDescription.Type.ANSWER
-            else -> null
         }
     }
+
 
     private fun setLocalDescription(type: SessionDescription.Type?, description: String) {
         val newDescription = CodecUtil.preferCodec2(description, CodecUtil.AUDIO_CODEC_ISAC, true)
@@ -1760,7 +1514,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 setLocalDescription(sessionDescription.type, sessionDescription.description)
 
-                sendMessage(rtc { type = Rtc.Type.ANSWER; sdp = sessionDescription.description })
+                socketClient?.sendMessage(
+                    rtc = rtc { type = Rtc.Type.ANSWER; sdp = sessionDescription.description},
+                    language = currentLanguage
+                )
             }
         }, mediaConstraints)
     }
@@ -1777,7 +1534,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 setLocalDescription(sessionDescription.type, sessionDescription.description)
 
-                sendMessage(rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description })
+                socketClient?.sendMessage(
+                    rtc = rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description},
+                    language = currentLanguage
+                )
             }
 
             override fun onCreateFailure(s: String) {
@@ -1850,12 +1610,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onIceCandidate(iceCandidate: IceCandidate) {
                 logDebug("onIceCandidate: " + iceCandidate.sdp)
 
-                sendMessage(rtc {
-                    type = Rtc.Type.CANDIDATE
-                    id = iceCandidate.sdpMid
-                    label = iceCandidate.sdpMLineIndex
-                    candidate = iceCandidate.sdp
-                })
+                socketClient?.sendMessage(
+                    rtc = rtc {
+                        type = Rtc.Type.CANDIDATE
+                        id = iceCandidate.sdpMid
+                        label = iceCandidate.sdpMLineIndex
+                        candidate = iceCandidate.sdp
+                    },
+                    language = currentLanguage
+                )
             }
 
             override fun onIceCandidatesRemoved(iceCandidates: Array<IceCandidate>) {
@@ -1916,7 +1679,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
             }
 
-            sendMessage(action = UserMessage.Action.FINISH)
+            socketClient?.sendMessage(
+                action = UserMessage.Action.FINISH,
+                language = currentLanguage
+            )
         } else {
             dialog.clear()
 
@@ -1930,28 +1696,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             volumeControlStream = previousVolumeControlStream
 
-            sendMessage(rtc { type = Rtc.Type.HANGUP })
-            sendMessage(action = UserMessage.Action.FINISH)
+            socketClient?.sendMessage(
+                rtc = rtc { type = Rtc.Type.HANGUP },
+                language = currentLanguage
+            )
+
+            socketClient?.sendMessage(
+                action = UserMessage.Action.FINISH,
+                language = currentLanguage
+            )
         }
     }
 
-    private fun sendUserDashboard(jsonObject: JSONObject): Emitter? {
-        jsonObject.put("lang", currentLanguage)
-        return socket?.emit("user_dashboard", jsonObject)
-    }
-
-    private fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null): Emitter? {
-//        logDebug("sendMessage: $rtc; $action")
-        val userMessage = UserMessage(rtc, action).toJsonObject()
-        userMessage.put("lang", currentLanguage)
-        return socket?.emit("message", userMessage)
-    }
-
-    private fun sendUserMessage(message: String, isInputClearText: Boolean = true): Emitter? {
-        val emitter = socket?.emit("user_message", jsonObject { 
-            put("text", message) 
-            put("lang", currentLanguage)
-        })
+    private fun sendUserMessage(message: String, isInputClearText: Boolean = true) {
+        socketClient?.sendUserMessage(message, currentLanguage)
 
         if (isInputClearText) {
             footerView.clearInputViewText()
@@ -1959,8 +1717,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         chatAdapter?.addNewMessage(Message(Message.Type.USER, message))
 //        scrollToBottom()
-
-        return emitter
     }
 
 //    private fun scrollToTop() {
@@ -2405,8 +2161,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         audioManager = null
 
-        socket?.disconnect()
-        socket = null
+        socketClient?.release()
+        socketClient = null
 
 //        headerView = null
 
@@ -2443,8 +2199,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         mergeAdapter = null
 
-        chatAdapter?.unregisterAdapterDataObserver(chatAdapterDataObserver)
-        chatFooterAdapter?.unregisterAdapterDataObserver(chatFooterAdapterDataObserver)
+        try {
+            chatAdapter?.unregisterAdapterDataObserver(chatAdapterDataObserver)
+            chatFooterAdapter?.unregisterAdapterDataObserver(chatFooterAdapterDataObserver)
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+        }
 
         chatAdapter = null
 
