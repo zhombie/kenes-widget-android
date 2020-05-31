@@ -70,8 +70,12 @@ internal class ChatAdapter(
         }
     }
 
-    fun clearCategoryMessages(): Boolean {
-        return messages.removeAll { it.category != null }
+    fun clearCategoryMessages(isNotifyEnabled: Boolean = true): Boolean {
+        val isRemoved = messages.removeAll { it.category != null }
+        if (isRemoved && isNotifyEnabled) {
+            notifyDataSetChanged()
+        }
+        return isRemoved
     }
 
     override fun getItemCount(): Int = messages.size

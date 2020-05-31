@@ -231,9 +231,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-    private var isSwitchToCallAgentClicked: Boolean = false
-
     private var chatRecyclerState: Parcelable? = null
+
+    private val adapterDataObserver: RecyclerView.AdapterDataObserver by lazy {
+        object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+
+                val adapter = recyclerView.adapter
+                if (adapter != null) {
+                    recyclerView.scrollToPosition(adapter.itemCount - 1)
+                }
+            }
+        }
+    }
 
     private var previousVolumeControlStream: Int = AudioManager.STREAM_SYSTEM
 
@@ -440,6 +451,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onAttachmentButtonClicked() {
                 MaterialFilePicker()
                     .withActivity(this@KenesWidgetV2Activity)
+                    .withHiddenFiles(true)
+                    .withFilterDirectories(false)
                     .withCloseMenu(true)
                     .withRequestCode(FILE_PICKER_REQUEST_CODE)
                     .start()
@@ -457,7 +470,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (message.isNotBlank()) {
                     isUserPromptMode = true
                     sendUserMessage(message, true)
-                    chatAdapter?.notifyDataSetChanged()
+//                    chatAdapter?.notifyDataSetChanged()
 
                     isLoading = true
                 }
@@ -474,7 +487,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 isUserPromptMode = true
                 sendUserMessage(text, true)
-                chatAdapter?.notifyDataSetChanged()
+//                chatAdapter?.notifyDataSetChanged()
 
                 isLoading = true
 
@@ -624,7 +637,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     val text = url.removePrefix("#")
                     isUserPromptMode = true
                     sendUserMessage(text, false)
-                    chatAdapter?.notifyDataSetChanged()
+//                    chatAdapter?.notifyDataSetChanged()
 
                     isLoading = true
                 } else {
@@ -668,8 +681,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     .apply { color = ContextCompat.getColor(this@KenesWidgetV2Activity, R.color.kenes_light_blue) }
             }
         }
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+//        layoutManager.stackFromEnd = true
+        recyclerView.layoutManager = layoutManager
         recyclerView.isNestedScrollingEnabled = false
+
+        chatAdapter?.registerAdapterDataObserver(adapterDataObserver)
 
         chatFooterAdapter = ChatFooterAdapter()
         chatFooterAdapter?.callback = object : ChatFooterAdapter.Callback {
@@ -678,15 +695,37 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 isUserPromptMode = false
 
-                val messages = chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
+                when (viewState) {
+                    is ViewState.VideoDialog -> {
+                        runOnUiThread {
+                            chatFooterAdapter?.clear()
+                            chatAdapter?.clear()
+                        }
 
-                runOnUiThread {
-                    chatFooterAdapter?.clear()
-                    chatAdapter?.setNewMessages(messages)
-                }
+                        viewState = ViewState.VideoDialog(State.IDLE)
+                    }
+                    is ViewState.AudioDialog -> {
+                        runOnUiThread {
+                            chatFooterAdapter?.clear()
+                            chatAdapter?.clear()
+                        }
 
-                chatRecyclerState?.let { chatRecyclerState ->
-                    recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                        viewState = ViewState.AudioDialog(State.IDLE)
+                    }
+                    else -> {
+                        val messages = chatBot.basicCategories.map { category ->
+                            Message(Message.Type.CATEGORY, category)
+                        }
+
+                        runOnUiThread {
+                            chatFooterAdapter?.clear()
+                            chatAdapter?.setNewMessages(messages)
+                        }
+
+                        chatRecyclerState?.let { chatRecyclerState ->
+                            recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                        }
+                    }
                 }
             }
 
@@ -701,10 +740,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 dialog.isInitiator = true
 
-                isSwitchToCallAgentClicked = true
+                dialog.isSwitchToCallAgentClicked = true
+                chatFooterAdapter?.clear()
 
-//                chatAdapter?.isActionButtonEnabled = false
-//                chatAdapter?.isGoToHomeButtonEnabled = false
+                bottomNavigationView.setNavButtonsDisabled()
 
                 footerView.enableAttachmentButton()
 
@@ -719,6 +758,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         mergeAdapter = MergeAdapter(chatAdapter, chatFooterAdapter)
 
         recyclerView.adapter = mergeAdapter
+
+        recyclerView.itemAnimator = null
 
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
@@ -771,12 +812,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH)
             logDebug("filePath: $filePath")
-            
+
             if (filePath == null) {
                 return
             }
-            
-            val client = AsyncHttpClient()
+
+            val asyncHttpClient = AsyncHttpClient()
 
             val params = RequestParams()
 
@@ -805,7 +846,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 return
             }
 
-            client.post(UrlUtil.getHostname() + "/upload", params, object : JsonHttpResponseHandler() {
+            asyncHttpClient.post(UrlUtil.getHostname() + "/upload", params, object : JsonHttpResponseHandler() {
                 override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
                     super.onSuccess(statusCode, headers, response)
 
@@ -1030,9 +1071,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 )
 
                 runOnUiThread {
-                    if (chatAdapter?.clearCategoryMessages() == true) {
-                        chatAdapter?.notifyDataSetChanged()
-                    }
+                    chatAdapter?.clearCategoryMessages()
 
                     footerView.disableAttachmentButton()
                 }
@@ -1097,7 +1136,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             val photoUrl = UrlUtil.getStaticUrl(photo)
 
-            if (isSwitchToCallAgentClicked) {
+            if (dialog.isSwitchToCallAgentClicked) {
                 dialog = Dialog(
                     operatorId = fullName,
                     media = "text"
@@ -1387,10 +1426,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         runOnUiThread {
                             videoCallView.setInfoText(text)
-                        }
-
-                        if (queued > 1) {
-                            runOnUiThread {
+                            if (queued > 1) {
                                 videoCallView.setPendingQueueCount(queued)
                             }
                         }
@@ -1399,10 +1435,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         runOnUiThread {
                             audioCallView.setInfoText(text)
-                        }
-
-                        if (queued > 1) {
-                            runOnUiThread {
+                            if (queued > 1) {
                                 audioCallView.setPendingQueueCount(queued)
                             }
                         }
@@ -1410,7 +1443,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                        chatFooterAdapter?.showGoToHomeButton()
+
+                        if (!dialog.isSwitchToCallAgentClicked) {
+                            chatFooterAdapter?.showGoToHomeButton()
+                        }
+
                         scrollToBottom()
                     }
 
@@ -1622,6 +1659,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 logDebug("onIceConnectionChange: $iceConnectionState")
 
                 when (iceConnectionState) {
+                    PeerConnection.IceConnectionState.CONNECTED,
                     PeerConnection.IceConnectionState.COMPLETED -> {
                         runOnUiThread {
                             footerView.enableAttachmentButton()
@@ -1705,7 +1743,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private fun hangupLiveCall() {
         if (dialog.media == "text") {
-            isSwitchToCallAgentClicked = false
+            dialog.isSwitchToCallAgentClicked = false
 
             dialog.clear()
 
@@ -1758,7 +1796,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             footerView.clearInputViewText()
         }
 
-        chatAdapter?.addNewMessage(Message(Message.Type.USER, message), false)
+        chatAdapter?.addNewMessage(Message(Message.Type.USER, message))
         scrollToBottom()
 
         return emitter
@@ -1772,12 +1810,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun scrollToBottom() {
-        recyclerView.let {
-            val adapter = it.adapter
-            if (adapter != null) {
-                it.scrollToPosition(adapter.itemCount - 1)
-            }
-        }
+//        val adapter = recyclerView.adapter
+//        if (adapter != null) {
+//            recyclerView.scrollToPosition(adapter.itemCount - 1)
+//        }
     }
 
     private fun setNewStateByPreviousState(state: State): Boolean {
@@ -2107,7 +2143,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             footerView.disableAttachmentButton()
         }
 
-        isSwitchToCallAgentClicked = false
+        dialog.isSwitchToCallAgentClicked = false
 
         peerConnection?.dispose()
         peerConnection = null
@@ -2164,8 +2200,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         footerView.disableAttachmentButton()
 
-        chatRecyclerState = null
-
         isLoading = false
 
         isUserPromptMode = false
@@ -2205,13 +2239,26 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         videoDialogView.callback = null
 //        footerView = null
 
+        chatRecyclerState = null
+
         chatAdapter?.callback = null
         chatAdapter?.clear()
+
         chatFooterAdapter?.callback = null
         chatFooterAdapter?.clear()
+
         chatAdapter?.let { mergeAdapter?.removeAdapter(it) }
+
         chatFooterAdapter?.let { mergeAdapter?.removeAdapter(it) }
+
         mergeAdapter = null
+
+        chatAdapter?.unregisterAdapterDataObserver(adapterDataObserver)
+
+        chatAdapter = null
+
+        chatFooterAdapter = null
+
         recyclerView.adapter = null
 //        recyclerView = null
 

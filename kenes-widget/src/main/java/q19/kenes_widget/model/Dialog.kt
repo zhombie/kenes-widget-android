@@ -11,11 +11,14 @@ internal data class Dialog(
     val isOnLive: Boolean
         get() = !operatorId.isNullOrBlank() && !media.isNullOrBlank()
 
+    var isSwitchToCallAgentClicked: Boolean = false
+
     fun clear() {
         operatorId = null
         instance = null
         media = null
         isInitiator = false
+        isSwitchToCallAgentClicked = false
     }
 
     override fun toString(): String {
