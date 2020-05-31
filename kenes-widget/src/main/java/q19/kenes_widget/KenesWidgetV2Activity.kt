@@ -348,7 +348,18 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
         bottomNavigationView.callback = object : BottomNavigationView.Callback {
-            override fun onHomeNavButtonClicked() {
+            override fun onHomeNavButtonClicked(): Boolean {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+
+                        dialog.isInitiator = false
+
+                        bottomNavigationView.setNavButtonsEnabled()
+                    }
+                    return false
+                }
+
                 isUserPromptMode = false
 
                 chatBot.clear()
@@ -364,9 +375,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 isLoading = true
 
                 viewState = ViewState.ChatBot
+
+                return true
             }
 
-            override fun onVideoNavButtonClicked() {
+            override fun onVideoNavButtonClicked(): Boolean {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+
+                        dialog.isInitiator = false
+                    }
+                    return false
+                }
+
                 isUserPromptMode = false
 
                 chatBot.clear()
@@ -375,9 +397,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatFooterAdapter?.clear()
 
                 viewState = ViewState.VideoDialog(State.IDLE)
+
+                return true
             }
 
-            override fun onAudioNavButtonClicked() {
+            override fun onAudioNavButtonClicked(): Boolean {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+
+                        dialog.isInitiator = false
+                    }
+                    return false
+                }
+
                 isUserPromptMode = false
 
                 chatBot.clear()
@@ -386,9 +419,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatFooterAdapter?.clear()
 
                 viewState = ViewState.AudioDialog(State.IDLE)
+
+                return true
             }
 
-            override fun onInfoNavButtonClicked() {
+            override fun onInfoNavButtonClicked(): Boolean {
+                if (dialog.isInitiator) {
+                    showAlreadyCallingAlert {
+                        socket?.emit("user_disconnect")
+
+                        dialog.isInitiator = false
+                    }
+                    return false
+                }
+
                 isUserPromptMode = false
 
                 chatBot.clear()
@@ -397,6 +441,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatFooterAdapter?.clear()
 
                 viewState = ViewState.Info
+
+                return true
             }
         }
 
@@ -841,8 +887,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 dialog.isSwitchToCallAgentClicked = true
 
                 chatFooterAdapter?.clear()
-
-                bottomNavigationView.setNavButtonsDisabled()
 
                 footerView.enableAttachmentButton()
 

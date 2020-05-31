@@ -52,29 +52,33 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
         homeNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
-                setHomeNavButtonActive()
-                callback?.onHomeNavButtonClicked()
+                if (callback?.onHomeNavButtonClicked() == true) {
+                    setHomeNavButtonActive()
+                }
             }
         })
 
         videoNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
-                setVideoNavButtonActive()
-                callback?.onVideoNavButtonClicked()
+                if (callback?.onVideoNavButtonClicked() == true) {
+                    setVideoNavButtonActive()
+                }
             }
         })
 
         audioNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
-                setAudioNavButtonActive()
-                callback?.onAudioNavButtonClicked()
+                if (callback?.onAudioNavButtonClicked() == true) {
+                    setAudioNavButtonActive()
+                }
             }
         })
 
         infoNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
-                setInfoNavButtonActive()
-                callback?.onInfoNavButtonClicked()
+                if (callback?.onInfoNavButtonClicked() == true) {
+                    setInfoNavButtonActive()
+                }
             }
         })
     }
@@ -143,10 +147,10 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onHomeNavButtonClicked()
-        fun onVideoNavButtonClicked()
-        fun onAudioNavButtonClicked()
-        fun onInfoNavButtonClicked()
+        fun onHomeNavButtonClicked(): Boolean
+        fun onVideoNavButtonClicked(): Boolean
+        fun onAudioNavButtonClicked(): Boolean
+        fun onInfoNavButtonClicked(): Boolean
     }
 
 }
