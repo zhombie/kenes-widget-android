@@ -16,6 +16,7 @@ import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.widget.EdgeEffect
 import android.widget.FrameLayout
@@ -492,6 +493,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //            }
 //        }
 
+        recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
+            if (isUserPromptMode && bottom < oldBottom) {
+                recyclerView.postDelayed(
+                    { mergeAdapter?.let { recyclerView.scrollToPosition(it.itemCount - 1) } },
+                    1
+                )
+            }
+        }
+
         rootView.viewTreeObserver?.addOnGlobalLayoutListener {
             val rec = Rect()
             rootView.getWindowVisibleDisplayFrame(rec)
@@ -792,6 +802,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         chatRecyclerState?.let { chatRecyclerState ->
                             recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
                         }
+
+                        viewState = ViewState.ChatBot
                     }
                 }
             }
@@ -1180,7 +1192,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 dialog = Dialog(operatorId = fullName, media = "text")
 
                 runOnUiThread {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
                     headerView.showHangupButton()
+
+                    chatFooterAdapter?.clear()
+
                     footerView.enableAttachmentButton()
                 }
             }
@@ -1224,7 +1241,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             logDebug("JSONObject formInitJson: $formInitJson")
 
             val formFieldsJsonArray = formInitJson.getJSONArray("form_fields")
-            val formJson = formInitJson.getJSONObject("form")
+//            val formJson = formInitJson.getJSONObject("form")
 
             val formFields = mutableListOf<DynamicFormField>()
             for (i in 0 until formFieldsJsonArray.length()) {
@@ -1288,7 +1305,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             put("chat_id", ratingButton.chatId)
                         })
 
-                        viewState = ViewState.VideoDialog(State.FINISHED)
+                        if (!setNewStateByPreviousState(State.FINISHED)) {
+                            viewState = ViewState.ChatBot
+                        }
                     }
                 }
             }
@@ -1337,7 +1356,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             val media = message.optJSONObject("media")
             val rtc = message.optJSONObject("rtc")
             val fuzzyTask = message.optBoolean("fuzzy_task")
-            val form = message.optJSONObject("form")
+//            val form = message.optJSONObject("form")
 
             if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
                 runOnUiThread {
@@ -1388,7 +1407,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             if (action == "operator_disconnect") {
                 closeLiveCall()
 
-                viewState = ViewState.VideoDialog(State.OPPONENT_DISCONNECT)
+                setNewStateByPreviousState(State.OPPONENT_DISCONNECT)
 
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
@@ -1827,6 +1846,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             dialog.clear()
 
             runOnUiThread {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
                 footerView.disableAttachmentButton()
 
                 chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
@@ -1837,6 +1858,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             dialog.clear()
 
             runOnUiThread {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
                 footerView.disableAttachmentButton()
 
                 chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))

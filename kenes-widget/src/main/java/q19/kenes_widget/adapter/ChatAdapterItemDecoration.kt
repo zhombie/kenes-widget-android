@@ -3,6 +3,7 @@ package q19.kenes_widget.adapter
 import android.content.Context
 import android.graphics.Rect
 import android.view.View
+import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 
@@ -18,7 +19,8 @@ internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDe
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = parent.adapter as? ChatAdapter?
+        val adapter = parent.adapter as? MergeAdapter?
+
         val position = parent.layoutManager?.getPosition(view)
 
         if (adapter != null && position != null) {
@@ -26,6 +28,8 @@ internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDe
                 ChatAdapter.LAYOUT_NOTIFICATION -> {
                     outRect.top = verticalSpacing
                     outRect.bottom = verticalSpacing
+                }
+                ChatFooterAdapter.LAYOUT_FOOTER, ChatFooterAdapter.LAYOUT_FOOTER_FUZZY -> {
                 }
                 else ->
                     outRect.bottom = verticalSpacing * 2

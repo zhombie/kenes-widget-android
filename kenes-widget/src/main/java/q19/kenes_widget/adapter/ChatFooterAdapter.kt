@@ -16,8 +16,8 @@ import java.util.*
 class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val LAYOUT_FOOTER = R.layout.kenes_cell_footer
-        private val LAYOUT_FOOTER_FUZZY = R.layout.kenes_cell_footer_fuzzy
+        val LAYOUT_FOOTER = R.layout.kenes_cell_footer
+        val LAYOUT_FOOTER_FUZZY = R.layout.kenes_cell_footer_fuzzy
     }
 
     private var data = mutableListOf<Footer>()
