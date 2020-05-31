@@ -20,6 +20,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EdgeEffect
 import android.widget.FrameLayout
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.MergeAdapter
@@ -65,6 +66,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     companion object {
         private const val TAG = "LOL"
 
+        private const val KEY_HOSTNAME = "hostname"
+
         private const val VIDEO_RESOLUTION_WIDTH = 1024
         private const val VIDEO_RESOLUTION_HEIGHT = 768
         private const val FPS = 24
@@ -75,8 +78,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         private const val FILE_PICKER_REQUEST_CODE = 101
 
         @JvmStatic
-        fun newIntent(context: Context): Intent {
+        fun newIntent(context: Context, hostname: String): Intent {
             return Intent(context, KenesWidgetV2Activity::class.java)
+                .putExtra(KEY_HOSTNAME, hostname)
         }
     }
 
@@ -238,8 +242,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 super.onItemRangeInserted(positionStart, itemCount)
 
-                val adapter = recyclerView.adapter
-                if (adapter != null) {
+                recyclerView.adapter?.let { adapter ->
                     recyclerView.scrollToPosition(adapter.itemCount - 1)
                 }
             }
@@ -252,11 +255,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_widget_v2)
 
+        val hostname = intent.getStringExtra(KEY_HOSTNAME)
+
+        if (hostname.isNullOrBlank()) {
+            throwError()
+        } else {
+            UrlUtil.setHostname(hostname)
+        }
+
         permissionsRequest.addListener(this)
         permissionsRequest.send()
-
-        // TODO: Remove later, exhaustive on PROD
-        UrlUtil.setHostname("https://kenes.vlx.kz")
 
         /**
          * [Picasso] configuration
@@ -741,6 +749,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 dialog.isInitiator = true
 
                 dialog.isSwitchToCallAgentClicked = true
+
                 chatFooterAdapter?.clear()
 
                 bottomNavigationView.setNavButtonsDisabled()
@@ -871,7 +880,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(Message.Type.USER, media))
-                        scrollToBottom()
+//                        scrollToBottom()
                     }
                 }
             })
@@ -1137,10 +1146,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             val photoUrl = UrlUtil.getStaticUrl(photo)
 
             if (dialog.isSwitchToCallAgentClicked) {
-                dialog = Dialog(
-                    operatorId = fullName,
-                    media = "text"
-                )
+                dialog = Dialog(operatorId = fullName, media = "text")
 
                 runOnUiThread {
                     headerView.showHangupButton()
@@ -1165,7 +1171,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text))
-                scrollToBottom()
+//                scrollToBottom()
             }
 
         }?.on("operator_typing") { args ->
@@ -1280,7 +1286,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
                     chatFooterAdapter?.showSwitchToCallAgentButton()
-                    scrollToBottom()
+//                    scrollToBottom()
                 }
 
                 isLoading = false
@@ -1311,7 +1317,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
-                    scrollToBottom()
+//                    scrollToBottom()
                 }
 
                 return@on
@@ -1418,7 +1424,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (dialog.isOnLive) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
-                        scrollToBottom()
+//                        scrollToBottom()
                     }
                 } else {
                     if (viewState is ViewState.VideoDialog) {
@@ -1448,7 +1454,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             chatFooterAdapter?.showGoToHomeButton()
                         }
 
-                        scrollToBottom()
+//                        scrollToBottom()
                     }
 
                     isLoading = false
@@ -1468,7 +1474,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             Media(imageUrl = image, name = name, ext = ext),
                             time
                         ))
-                        scrollToBottom()
+//                        scrollToBottom()
                     }
                 }
 
@@ -1479,7 +1485,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             Media(fileUrl = file, name = name, ext = ext),
                             time
                         ))
-                        scrollToBottom()
+//                        scrollToBottom()
                     }
                 }
             }
@@ -1577,7 +1583,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun setRemoteDescription(type: SessionDescription.Type?, description: String) {
-        var newDescription = CodecUtil.preferCodec2(description, CodecUtil.AUDIO_CODEC_OPUS, true)
+        val newDescription = CodecUtil.preferCodec2(description, CodecUtil.AUDIO_CODEC_OPUS, true)
 
 //        newSdpDescription = Codec.setStartBitrate(Codec.AUDIO_CODEC_OPUS, false, newSdpDescription, 32)
 
@@ -1753,7 +1759,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
             }
 
-            sendMessage(UserMessage.Action.FINISH)
+            sendMessage(action = UserMessage.Action.FINISH)
         } else {
             dialog.clear()
 
@@ -1766,7 +1772,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             volumeControlStream = previousVolumeControlStream
 
             sendMessage(rtc { type = Rtc.Type.HANGUP })
-            sendMessage(UserMessage.Action.FINISH)
+            sendMessage(action = UserMessage.Action.FINISH)
         }
     }
 
@@ -1775,12 +1781,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         return socket?.emit("user_dashboard", jsonObject)
     }
 
-    private fun sendMessage(action: UserMessage.Action): Emitter? {
-        return sendMessage(rtc = null, action = action)
-    }
-
     private fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null): Emitter? {
-        logDebug("sendMessage: $rtc; $action")
+//        logDebug("sendMessage: $rtc; $action")
         val userMessage = UserMessage(rtc, action).toJsonObject()
         userMessage.put("lang", currentLanguage)
         return socket?.emit("message", userMessage)
@@ -1797,24 +1799,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         chatAdapter?.addNewMessage(Message(Message.Type.USER, message))
-        scrollToBottom()
+//        scrollToBottom()
 
         return emitter
     }
 
-    private fun scrollToTop() {
-        if ((recyclerView.layoutManager as? LinearLayoutManager?)?.findFirstCompletelyVisibleItemPosition() == 0) {
-            return
-        }
-        recyclerView.scrollToPosition(0)
-    }
+//    private fun scrollToTop() {
+//        if ((recyclerView.layoutManager as? LinearLayoutManager?)?.findFirstCompletelyVisibleItemPosition() == 0) {
+//            return
+//        }
+//        recyclerView.scrollToPosition(0)
+//    }
 
-    private fun scrollToBottom() {
+//    private fun scrollToBottom() {
 //        val adapter = recyclerView.adapter
 //        if (adapter != null) {
 //            recyclerView.scrollToPosition(adapter.itemCount - 1)
 //        }
-    }
+//    }
 
     private fun setNewStateByPreviousState(state: State): Boolean {
         return when (viewState) {
@@ -1920,7 +1922,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         headerView.showHangupButton()
 
                         recyclerView.visibility = View.VISIBLE
-                        scrollToBottom()
+//                        scrollToBottom()
 
                         footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
 
@@ -2023,7 +2025,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         headerView.showHangupButton()
 
                         recyclerView.visibility = View.VISIBLE
-                        scrollToBottom()
+//                        scrollToBottom()
 
                         footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
 
@@ -2267,6 +2269,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         bottomNavigationView.callback = null
 
 //        rootView = null
+    }
+
+    private fun throwError() {
+        Log.e(TAG,  getString(R.string.kenes_error_invalid_hostname))
+        Toast.makeText(this, R.string.kenes_error_invalid_hostname, Toast.LENGTH_SHORT)
+            .show()
+        finish()
     }
 
     private fun logDebug(message: String) {

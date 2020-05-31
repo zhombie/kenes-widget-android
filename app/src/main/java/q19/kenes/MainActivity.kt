@@ -11,9 +11,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        startActivity(KenesWidgetV2Activity.newIntent(this))
+        openWidget()
 
-        openWidget.setOnClickListener { startActivity(KenesWidgetV2Activity.newIntent(this)) }
+        openWidget.setOnClickListener { openWidget() }
+    }
+
+    private fun openWidget() {
+        startActivity(KenesWidgetV2Activity.newIntent(this, "https://kenes.vlx.kz"))
     }
 
 }

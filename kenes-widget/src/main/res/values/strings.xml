@@ -47,4 +47,6 @@
     <string name="kenes_cancel_call">Cancel call</string>
     <string name="kenes_register_appeal">Register appeal</string>
     <string name="kenes_or">Or</string>
+
+    <string name="kenes_error_invalid_hostname">Invalid hostname</string>
 </resources>
