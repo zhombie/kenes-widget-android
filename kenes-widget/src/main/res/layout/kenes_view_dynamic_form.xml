@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/kenes_horizontal_spacing">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="5"
+        tools:listitem="@layout/kenes_cell_form_field" />
+
+    <LinearLayout
+        android:id="@+id/buttonsView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/recyclerView"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cancelButton"
+            style="@style/NormalRoundedButton"
+            android:background="@drawable/kenes_bg_button_white_rounded_4dp"
+            android:text="@string/kenes_cancel"
+            android:textColor="@color/kenes_selector_dark_gray" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/sendButton"
+            style="@style/NormalRoundedButton"
+            android:layout_marginStart="10dp"
+            android:text="@string/kenes_send" />
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -128,6 +128,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private val formView by bind<FormView>(R.id.formView)
 
+//    private val dynamicFormView by bind<DynamicFormView>(R.id.dynamicFormView)
+
     private val progressView by bind<ProgressView>(R.id.progressView)
 
     /**
@@ -467,6 +469,28 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
         }
+
+//        dynamicFormView.callback = object : DynamicFormView.Callback {
+//            override fun onCancelClicked() {
+//                viewState = ViewState.ChatBot
+//            }
+//
+//            override fun onSendClicked(data: DynamicForm) {
+//                logDebug("onSendClicked: $data")
+//
+//                dynamicFormView.resetData()
+//
+//                socket?.emit("form_final")
+//                    ?.on("form_final") { args ->
+//                        logDebug("event [FORM_FINAL]: $args")
+//
+//                        if (args.size != 1) return@on
+//
+//                        val formFinalJson = args[0] as? JSONObject? ?: return@on
+//                        logDebug("formFinalJson: $formFinalJson")
+//                    }
+//            }
+//        }
 
         rootView.viewTreeObserver?.addOnGlobalLayoutListener {
             val rec = Rect()
@@ -1096,9 +1120,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             logDebug("event [CALL]: $args")
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val call = args[0] as? JSONObject? ?: return@on
 
@@ -1133,9 +1155,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             logDebug("event [SEND_CONFIGS]: $args")
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val configsJson = args[0] as? JSONObject? ?: return@on
             logDebug("configsJson: $configsJson")
@@ -1143,9 +1163,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }?.on("operator_greet") { args ->
             logDebug("event [OPERATOR_GREET]: $args")
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val operatorGreetJson = args[0] as? JSONObject? ?: return@on
 
@@ -1191,20 +1209,50 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             logDebug("event [OPERATOR_TYPING]: $args")
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val operatorTypingJson = args[0] as? JSONObject? ?: return@on
             logDebug("JSONObject operatorTypingJson: $operatorTypingJson")
+
+        }?.on("form_init") { args ->
+
+            logDebug("event [FORM_INIT]: $args")
+
+            if (args.size != 1) return@on
+
+            val formInitJson = args[0] as? JSONObject? ?: return@on
+            logDebug("JSONObject formInitJson: $formInitJson")
+
+            val formFieldsJsonArray = formInitJson.getJSONArray("form_fields")
+            val formJson = formInitJson.getJSONObject("form")
+
+            val formFields = mutableListOf<DynamicFormField>()
+            for (i in 0 until formFieldsJsonArray.length()) {
+                val formFieldJson = formFieldsJsonArray[i] as JSONObject
+                formFields.add(DynamicFormField(
+                    id = formFieldJson.getLong("id"),
+                    title = formFieldJson.getNullableString("title"),
+                    prompt = formFieldJson.getNullableString("prompt"),
+                    type = formFieldJson.getString("type"),
+                    default = formFieldJson.getNullableString("default"),
+                    formId = formFieldJson.getLong("form_id"),
+                    level = formFieldJson.optInt("level", -1)
+                ))
+            }
+
+//            dynamicFormView.form = DynamicForm(
+//                id = formJson.getLong("id"),
+//                title = formJson.getNullableString("title"),
+//                isFlex = formJson.optInt("is_flex"),
+//                prompt = formJson.getNullableString("prompt"),
+//                fields = formFields
+//            )
 
         }?.on("feedback") { args ->
 
             logDebug("event [FEEDBACK]: $args")
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             closeLiveCall()
 
@@ -1248,9 +1296,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }?.on("user_queue") { args ->
             logDebug("event [USER_QUEUE]: $args")
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val userQueue = args[0] as? JSONObject? ?: return@on
 
@@ -1274,10 +1320,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }?.on("message") { args ->
             logDebug("event [MESSAGE]: $args")
 
-            if (args.size != 1) {
-                logDebug("ERROR! Strange message args behaviour.")
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val message = args[0] as? JSONObject? ?: return@on
 
@@ -1294,6 +1337,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             val media = message.optJSONObject("media")
             val rtc = message.optJSONObject("rtc")
             val fuzzyTask = message.optBoolean("fuzzy_task")
+            val form = message.optJSONObject("form")
 
             if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank()) {
                 runOnUiThread {
@@ -1306,6 +1350,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 return@on
             }
+
+//            if (form?.isNull("id") != null) {
+//                socket?.emit("form_init", jsonObject {
+//                    put("form_id", form.getLong("id"))
+//                })
+//
+//                isLoading = false
+//
+//                return@on
+//            }
 
             if (fuzzyTask) {
                 runOnUiThread {
@@ -1515,9 +1569,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         }?.on("category_list") { args ->
 
-            if (args.size != 1) {
-                return@on
-            }
+            if (args.size != 1) return@on
 
             val categoryList = args[0] as? JSONObject? ?: return@on
 
@@ -2100,6 +2152,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 formView.visibility = View.VISIBLE
             }
+            ViewState.DynamicFormFill -> {
+                recyclerView.visibility = View.GONE
+
+                footerView.visibility = View.GONE
+
+                bottomNavigationView.setNavButtonsDisabled()
+
+//                dynamicFormView.visibility = View.VISIBLE
+            }
             ViewState.ChatBot -> {
                 chatFooterAdapter?.clear()
 
@@ -2122,6 +2183,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 feedbackView.visibility = View.GONE
 
                 formView.visibility = View.GONE
+
+//                dynamicFormView.visibility = View.GONE
 
                 infoView.visibility = View.GONE
 

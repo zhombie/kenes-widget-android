@@ -73,6 +73,13 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
+<!--        <q19.kenes_widget.ui.components.DynamicFormView-->
+<!--            android:id="@+id/dynamicFormView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:visibility="gone" />-->
+
         <q19.kenes_widget.ui.components.FooterView
             android:id="@+id/footerView"
             android:layout_width="match_parent"

@@ -4,6 +4,7 @@ internal sealed class ViewState {
     object ChatBot : ViewState()
     object CallFeedback : ViewState()
     object RegisterForm : ViewState()
+    object DynamicFormFill : ViewState()
     class AudioDialog(var state: State) : ViewState()
     class VideoDialog(var state: State) : ViewState()
     object Info : ViewState()
