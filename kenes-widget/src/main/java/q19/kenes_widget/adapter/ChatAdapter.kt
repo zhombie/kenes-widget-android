@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -334,6 +335,7 @@ internal class ChatAdapter(
     private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), CategoryAdapter.Callback {
         private var titleView = view.findViewById<TextView>(R.id.titleView)
         private var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        private var showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
 
         private var categoryAdapter: CategoryAdapter
         private var layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
@@ -352,6 +354,10 @@ internal class ChatAdapter(
 
                 categoryAdapter.category = category
                 categoryAdapter.notifyDataSetChanged()
+
+                showAllButton?.setOnClickListener {
+                    callback?.showAllCategoryChildrenClicked(category)
+                }
             }
         }
 
@@ -474,6 +480,8 @@ internal class ChatAdapter(
     }
 
     interface Callback {
+        fun showAllCategoryChildrenClicked(category: Category)
+
         fun onCategoryChildClicked(category: Category)
         fun onReturnBackClicked(category: Category)
         fun onUrlInTextClicked(url: String)

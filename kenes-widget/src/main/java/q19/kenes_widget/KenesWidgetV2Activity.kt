@@ -652,33 +652,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private fun setupRecyclerView() {
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
-            override fun onReturnBackClicked(category: Category) {
-                hideKeyboard()
+            override fun showAllCategoryChildrenClicked(category: Category) {
+                chatFooterAdapter?.showGoToHomeButton()
 
-//                logDebug("onReturnBackClicked: $category")
+                chatBot.activeCategory = category
 
-                val categories = chatBot.allCategories.filter { it.id == category.parentId }
-
-//                logDebug("onReturnBackClicked: $categories")
-
-                val messages = if (categories.all { it.parentId == null }) {
-                    runOnUiThread {
-                        chatFooterAdapter?.clear()
-                    }
-
-                    chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
-                } else {
-                    categories.map { Message(Message.Type.CROSS_CHILDREN, it) }
-                }
-
-                chatBot.activeCategory = null
-
+                val messages = listOf(Message(
+                    type = Message.Type.CROSS_CHILDREN,
+                    category = chatBot.activeCategory
+                ))
                 runOnUiThread {
                     chatAdapter?.setNewMessages(messages)
-                }
-
-                chatRecyclerState?.let { chatRecyclerState ->
-                    recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
                 }
             }
 
@@ -704,6 +688,32 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 isLoading = true
+            }
+
+            override fun onReturnBackClicked(category: Category) {
+                hideKeyboard()
+
+                val categories = chatBot.allCategories.filter { it.id == category.parentId }
+
+                val messages = if (categories.all { it.parentId == null }) {
+                    runOnUiThread {
+                        chatFooterAdapter?.clear()
+                    }
+
+                    chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
+                } else {
+                    categories.map { Message(Message.Type.CROSS_CHILDREN, it) }
+                }
+
+                chatBot.activeCategory = null
+
+                runOnUiThread {
+                    chatAdapter?.setNewMessages(messages)
+                }
+
+                chatRecyclerState?.let { chatRecyclerState ->
+                    recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                }
             }
 
             override fun onUrlInTextClicked(url: String) {
