@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginStart="@dimen/kenes_horizontal_spacing"
-        android:layout_marginEnd="35dp"
+        android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
         android:background="@drawable/kenes_bg_opponent_message"
         android:clickable="true"
         android:focusable="true"
@@ -43,13 +43,32 @@
         tools:text="Message" />
 
     <TextView
+        android:id="@+id/attachmentView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/kenes_horizontal_spacing"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
+        android:background="@drawable/kenes_bg_button_light_blue_rounded_4dp"
+        android:clickable="true"
+        android:drawableStart="@drawable/kenes_selector_file"
+        android:drawablePadding="10dp"
+        android:focusable="true"
+        android:padding="10dp"
+        android:textColor="@color/kenes_selector_blue"
+        android:textSize="13sp"
+        android:visibility="gone"
+        tools:text="тарифы_день_в_день.pdf"
+        tools:visibility="visible" />
+
+    <TextView
         android:id="@+id/timeView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginStart="@dimen/kenes_horizontal_spacing"
         android:layout_marginTop="3dp"
-        android:layout_marginEnd="35dp"
+        android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
         android:textColor="#909399"
         android:textSize="11sp"
         tools:text="04:20" />

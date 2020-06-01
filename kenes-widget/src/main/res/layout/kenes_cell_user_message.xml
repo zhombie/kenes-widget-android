@@ -6,15 +6,13 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/kenes_horizontal_spacing"
     android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-    android:orientation="vertical"
-    android:paddingStart="30dp">
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/contentView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:layout_marginStart="50dp"
         android:background="@drawable/kenes_bg_user_message"
         android:gravity="end"
         android:orientation="vertical">
@@ -39,7 +37,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/kenes_bg_file"
             android:clickable="true"
-            android:drawableStart="@drawable/kenes_ic_file"
+            android:drawableStart="@drawable/kenes_ic_file_gray"
             android:drawablePadding="7dp"
             android:focusable="true"
             android:fontFamily="sans-serif"

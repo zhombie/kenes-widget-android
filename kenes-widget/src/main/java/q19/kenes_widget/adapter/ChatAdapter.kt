@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
+import q19.kenes_widget.model.Attachment
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Media
 import q19.kenes_widget.model.Message
@@ -182,9 +183,9 @@ internal class ChatAdapter(
 
                 if (media.isFile) {
                     if (media.fileTypeStringRes != null) {
-                        fileView?.text = media.name + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
+                        fileView?.text = media.hash + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
                     } else {
-                        fileView?.text = media.name
+                        fileView?.text = media.hash
                     }
 
                     fileView?.setOnClickListener {
@@ -217,6 +218,7 @@ internal class ChatAdapter(
         private var fileView = view.findViewById<TextView>(R.id.fileView)
         private var textView = view.findViewById<TextView>(R.id.textView)
         private var timeView = view.findViewById<TextView>(R.id.timeView)
+        private var attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
@@ -273,9 +275,9 @@ internal class ChatAdapter(
 
                 if (media.isFile) {
                     if (media.fileTypeStringRes != null) {
-                        fileView?.text = media.name + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
+                        fileView?.text = media.hash + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
                     } else {
-                        fileView?.text = media.name
+                        fileView?.text = media.hash
                     }
 
                     fileView?.setOnClickListener {
@@ -313,6 +315,18 @@ internal class ChatAdapter(
                 timeView?.visibility = View.VISIBLE
             } else {
                 textView?.visibility = View.GONE
+            }
+
+            val attachments = message.attachments
+            if (!attachments.isNullOrEmpty()) {
+                val attachment = attachments[0]
+
+                attachmentView.text = attachment.title
+                attachmentView.visibility = View.VISIBLE
+
+                attachmentView.setOnClickListener { callback?.onAttachmentClicked(attachment) }
+            } else {
+                attachmentView.visibility = View.GONE
             }
         }
     }
@@ -367,7 +381,7 @@ internal class ChatAdapter(
 
         private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
 
-            private var horizontalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_message_horizontal_spacing)
+            private var horizontalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_category_horizontal_spacing)
 
             override fun getItemOffsets(
                 outRect: Rect,
@@ -435,6 +449,7 @@ internal class ChatAdapter(
         private var titleView = view.findViewById<TextView>(R.id.titleView)
         private var textView = view.findViewById<TextView>(R.id.textView)
         private var timeView = view.findViewById<TextView>(R.id.timeView)
+        private var attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
         private var htmlTextViewManager = HtmlTextViewManager()
 
@@ -442,7 +457,16 @@ internal class ChatAdapter(
             val category = message.category
 
             if (category != null) {
-                titleView.text = message.category?.title
+                if (category.title.isNotBlank())  {
+                    titleView.text = category.title
+                    titleView.visibility = View.VISIBLE
+
+                    titleView.setOnClickListener {
+                        callback?.onReturnBackClicked(category)
+                    }
+                } else {
+                    titleView.visibility = View.GONE
+                }
 
                 if (message.text.isNotBlank()) {
                     htmlTextViewManager.setHtmlText(textView, message.htmlText)
@@ -472,8 +496,16 @@ internal class ChatAdapter(
 //                textView?.setText(message.htmlText, TextView.BufferType.SPANNABLE)
 //                textView?.movementMethod = LinkMovementMethod.getInstance()
 
-                titleView.setOnClickListener {
-                    callback?.onReturnBackClicked(category)
+                val attachments = message.attachments
+                if (!attachments.isNullOrEmpty()) {
+                    val attachment = attachments[0]
+
+                    attachmentView.text = attachment.title
+                    attachmentView.visibility = View.VISIBLE
+
+                    attachmentView.setOnClickListener { callback?.onAttachmentClicked(attachment) }
+                } else {
+                    attachmentView.visibility = View.GONE
                 }
             }
         }
@@ -491,6 +523,7 @@ internal class ChatAdapter(
         fun onImageLoadCompleted()
 
         fun onFileClicked(media: Media)
+        fun onAttachmentClicked(attachment: Attachment)
     }
 
 }

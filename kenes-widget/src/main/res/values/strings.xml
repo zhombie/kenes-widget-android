@@ -1,6 +1,8 @@
 <resources>
     <string name="kenes_app_name" translatable="false">Kenes Widget</string>
 
+    <string name="kenes_notification_channel_name">Kenes Widget Notification</string>
+
     <string name="kenes_exit_widget_title">Exit widget</string>
     <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
     <string name="kenes_yes">Yes</string>
@@ -60,4 +62,7 @@
     <string name="kenes_enter_phone">Enter phone</string>
     <string name="kenes_enter_valid_email">Please, enter valid email</string>
     <string name="kenes_enter_valid_phone">Please, enter valid phone</string>
+
+    <string name="kenes_file_download">File download</string>
+    <string name="kenes_file_download_completed">File download completed</string>
 </resources>

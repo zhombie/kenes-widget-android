@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="kenes_notification_channel_name">Уведомление Кенес Виджет</string>
+
     <string name="kenes_exit_widget_title">Выход из виджета</string>
     <string name="kenes_exit_widget_text">Вы действительно хотите выйти из виджета?</string>
     <string name="kenes_yes">Да</string>
@@ -58,4 +60,7 @@
     <string name="kenes_enter_phone">Введите телефон</string>
     <string name="kenes_enter_valid_email">Пожалуйста, введите корректный email</string>
     <string name="kenes_enter_valid_phone">Пожалуйста, введите корректный телефон</string>
+
+    <string name="kenes_file_download">Загрузка файла</string>
+    <string name="kenes_file_download_completed">Загрузка файла завершена</string>
 </resources>

@@ -169,6 +169,7 @@ internal class SocketClient(url: String, language: String) {
         val rtc = data.optJSONObject("rtc")
         val fuzzyTask = data.optBoolean("fuzzy_task")
 //        val form = message.optJSONObject("form")
+        val attachments = data.optJSONArray("attachments")
 
         if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank() && !text.isNullOrBlank()) {
             val isHandled = listener?.onNoResultsFound(text, time)
@@ -222,9 +223,26 @@ internal class SocketClient(url: String, language: String) {
             if (!data.isNull("queued")) {
                 val queued = data.optInt("queued")
                 listener?.onPendingUsersQueueCount(text, queued)
-                listener?.onTextMessage(text, time)
+                listener?.onTextMessage(text = text, timestamp = time)
             } else {
-                listener?.onTextMessage(text, time)
+                if (attachments != null) {
+                    val newAttachments = mutableListOf<Attachment>()
+                    for (i in 0 until attachments.length()) {
+                        val attachment = attachments[i] as? JSONObject?
+                        newAttachments.add(
+                            Attachment(
+                                title = attachment?.getNullableString("title"),
+                                ext = attachment?.getNullableString("ext"),
+                                type = attachment?.getNullableString("type"),
+                                url = attachment?.getNullableString("url")
+                            )
+                        )
+                    }
+
+                    listener?.onTextMessage(text = text, attachments = newAttachments, timestamp = time)
+                } else {
+                    listener?.onTextMessage(text = text, timestamp = time)
+                }
             }
 
             return@Listener
@@ -237,11 +255,11 @@ internal class SocketClient(url: String, language: String) {
             val ext = media.getNullableString("ext")
 
             if (!image.isNullOrBlank() && !ext.isNullOrBlank()) {
-                listener?.onMediaMessage(Media(imageUrl = image, name = name, ext = ext), time)
+                listener?.onMediaMessage(Media(imageUrl = image, hash = name, ext = ext), time)
             }
 
             if (!file.isNullOrBlank() && !ext.isNullOrBlank()) {
-                listener?.onMediaMessage(Media(fileUrl = file, name = name, ext = ext), time)
+                listener?.onMediaMessage(Media(fileUrl = file, hash = name, ext = ext), time)
             }
         }
     }
@@ -405,9 +423,9 @@ internal class SocketClient(url: String, language: String) {
         fun onFeedback(text: String, ratingButtons: List<RatingButton>)
         fun onPendingUsersQueueCount(text: String? = null, count: Int)
         fun onNoOnlineCallAgents(text: String): Boolean
-        fun onFuzzyTaskOffered(text: String, time: Long): Boolean
-        fun onNoResultsFound(text: String, time: Long): Boolean
-        fun onCallAgentDisconnected(text: String, time: Long): Boolean
+        fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean
+        fun onNoResultsFound(text: String, timestamp: Long): Boolean
+        fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean
 
         fun onRtcStart()
         fun onRtcPrepare()
@@ -417,8 +435,8 @@ internal class SocketClient(url: String, language: String) {
         fun onRtcIceCandidate(iceCandidate: IceCandidate)
         fun onRtcHangup()
 
-        fun onTextMessage(text: String, time: Long)
-        fun onMediaMessage(media: Media, time: Long)
+        fun onTextMessage(text: String, attachments: List<Attachment>? = null, timestamp: Long)
+        fun onMediaMessage(media: Media, timestamp: Long)
 
         fun onCategories(categories: List<Category>)
 

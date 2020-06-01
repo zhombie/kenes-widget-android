@@ -14,6 +14,6 @@
     android:minWidth="200dp"
     android:paddingHorizontal="10dp"
     android:paddingVertical="15dp"
-    android:textColor="@color/kenes_selector_text_color"
+    android:textColor="@color/kenes_selector_dark_gray_to_blue"
     android:textSize="14sp"
     tools:text="Хорошо" />

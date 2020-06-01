@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="kenes_notification_channel_name">Кеңес Виджет хабарламасы</string>
+
     <string name="kenes_exit_widget_title">Виджеттен шығу</string>
     <string name="kenes_exit_widget_text">Расымен виджеттен шыққыңыз келеді ме?</string>
     <string name="kenes_yes">Ия</string>
@@ -58,4 +60,7 @@
     <string name="kenes_enter_phone">Телефон нөміріңізді енгізіңіз</string>
     <string name="kenes_enter_valid_email">Өтінеміз, жарамды email енгізіңіз</string>
     <string name="kenes_enter_valid_phone">Өтінеміз, жарамды телефон нөмірін енгізіңіз</string>
+
+    <string name="kenes_file_download">Файлды жүктеу</string>
+    <string name="kenes_file_download_completed">Файлды жүктеу аяқталды</string>
 </resources>

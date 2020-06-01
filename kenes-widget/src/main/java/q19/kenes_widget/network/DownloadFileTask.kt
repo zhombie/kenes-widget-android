@@ -3,11 +3,11 @@ package q19.kenes_widget.network
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
 import q19.kenes_widget.util.FileUtil.getRootDirPath
 import java.io.BufferedInputStream
@@ -20,14 +20,19 @@ import kotlin.math.min
 internal class DownloadFileTask(
     private val context: Context,
     private val filename: String,
-    private val callback: (file: File) -> Unit
+    private val callback: (file: File) -> Unit,
+    private val progressListener: ((progress: Int) -> Unit)? = null
 ) : AsyncTask<String, Int, String>() {
 
     companion object {
         const val TAG = "DownloadFileTask"
-        private const val CHANNEL_ID = 123
-        private const val CHANNEL_NAME = "Kenes Widget Downloader"
+
+        private const val NOTIFICATION_CHANNEL_ID = 123
     }
+
+    @Suppress("PrivatePropertyName")
+    private val NOTIFICATION_CHANNEL_NAME: String
+        get() = context.getString(R.string.kenes_notification_channel_name)
 
     private var notifyManager: NotificationManager? = null
     private var notificationBuilder: NotificationCompat.Builder? = null
@@ -42,31 +47,30 @@ internal class DownloadFileTask(
         notifyManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID.toString())
+        notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID.toString())
 
-        notificationBuilder?.setContentTitle("Download")
-            ?.setContentText("Download in progress")
+        notificationBuilder?.setContentTitle(context.getString(R.string.kenes_file_download))
+            ?.setContentText(filename)
             ?.setAutoCancel(false)
             ?.setDefaults(0)
-            ?.setSmallIcon(R.drawable.kenes_ic_file)
+            ?.setSmallIcon(R.drawable.kenes_ic_file_blue)
 
         // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID.toString(),
-                CHANNEL_NAME,
+                NOTIFICATION_CHANNEL_ID.toString(),
+                NOTIFICATION_CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
             )
-            channel.description = "Description"
             channel.setSound(null, null)
             channel.enableLights(false)
-            channel.lightColor = Color.BLUE
+            channel.lightColor = ContextCompat.getColor(context, R.color.kenes_blue)
             channel.enableVibration(false)
             notifyManager?.createNotificationChannel(channel)
         }
 
         notificationBuilder?.setProgress(100, 0, false)
-        notifyManager?.notify(CHANNEL_ID, notificationBuilder?.build())
+        notifyManager?.notify(NOTIFICATION_CHANNEL_ID, notificationBuilder?.build())
     }
 
     override fun doInBackground(vararg params: String?): String? {
@@ -101,6 +105,7 @@ internal class DownloadFileTask(
                     }
                 }
                 Log.i(TAG, "CurrentProgress: ${min(cur, 100)} - $cur")
+                progressListener?.invoke(cur)
                 outputStream?.write(data, 0, count)
             }
 
@@ -114,18 +119,22 @@ internal class DownloadFileTask(
     }
 
     override fun onProgressUpdate(vararg values: Int?) {
-        values[0]?.let { notificationBuilder?.setProgress(100, it, false) }
-        notifyManager?.notify(CHANNEL_ID, notificationBuilder?.build())
+        values[0]?.let {
+            progressListener?.invoke(it)
+            notificationBuilder?.setProgress(100, it, false)
+        }
+        notifyManager?.notify(NOTIFICATION_CHANNEL_ID, notificationBuilder?.build())
         super.onProgressUpdate(*values)
     }
 
     override fun onPostExecute(fileUrl: String?) {
-        notificationBuilder?.setContentText("Download complete")
+        notificationBuilder?.setContentText(context.getString(R.string.kenes_file_download_completed))
+
+        progressListener?.invoke(0)
+        notificationBuilder?.setProgress(0, 0, false)
+        notifyManager?.notify(NOTIFICATION_CHANNEL_ID, notificationBuilder?.build())
 
         outputFile?.let { callback(it) }
-
-        notificationBuilder?.setProgress(0, 0, false)
-        notifyManager?.notify(CHANNEL_ID, notificationBuilder?.build())
     }
 
 }

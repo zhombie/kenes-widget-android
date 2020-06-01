@@ -324,7 +324,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         if (palette.isNotEmpty()) {
                             category.color = palette[index % palette.size]
                         }
-                        Message(Message.Type.CATEGORY, category)
+                        Message(type = Message.Type.CATEGORY, category = category)
                     }
 
                 runOnUiThread {
@@ -739,9 +739,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         chatFooterAdapter?.clear()
                     }
 
-                    chatBot.basicCategories.map { Message(Message.Type.CATEGORY, it) }
+                    chatBot.basicCategories.map { Message(type = Message.Type.CATEGORY, category = it) }
                 } else {
-                    categories.map { Message(Message.Type.CROSS_CHILDREN, it) }
+                    categories.map { Message(type = Message.Type.CROSS_CHILDREN, category = it) }
                 }
 
                 chatBot.activeCategory = null
@@ -789,13 +789,28 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onFileClicked(media: Media) {
-                val file = File(getRootDirPath() + "/" + media.name)
+                val file = File(getRootDirPath() + "/" + media.hash)
                 if (file.exists()) {
                     openFile(file)
                 } else {
-                    DownloadFileTask(this@KenesWidgetV2Activity, media.name ?: "temp") {
-                        openFile(it)
-                    }.execute(media.fileUrl)
+                    DownloadFileTask(
+                        context = this@KenesWidgetV2Activity,
+                        filename = media.hash ?: "temp",
+                        callback = { openFile(it) }
+                    ).execute(media.fileUrl)
+                }
+            }
+
+            override fun onAttachmentClicked(attachment: Attachment) {
+                val file = File(getRootDirPath() + "/" + attachment.title)
+                if (file.exists()) {
+                    openFile(file)
+                } else {
+                    DownloadFileTask(
+                        context = this@KenesWidgetV2Activity,
+                        filename = attachment.title ?: "temp",
+                        callback = { openFile(it) }
+                    ).execute(attachment.url)
                 }
             }
         })
@@ -840,7 +855,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }
                     else -> {
                         val messages = chatBot.basicCategories.map { category ->
-                            Message(Message.Type.CATEGORY, category)
+                            Message(type = Message.Type.CATEGORY, category = category)
                         }
 
                         runOnUiThread {
@@ -994,13 +1009,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }
 
                     val media = if (type == "image") {
-                        Media(imageUrl = url, name = hash, ext = hash.split(".").last())
+                        Media(imageUrl = url, hash = hash, ext = hash.split(".").last())
                     } else {
-                        Media(fileUrl = url, name = hash, ext = hash.split(".").last())
+                        Media(fileUrl = url, hash = hash, ext = hash.split(".").last())
                     }
 
                     runOnUiThread {
-                        chatAdapter?.addNewMessage(Message(Message.Type.USER, media))
+                        chatAdapter?.addNewMessage(Message(type = Message.Type.USER, media = media))
 //                        scrollToBottom()
                     }
                 }
@@ -1266,9 +1281,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
 
-            override fun onNoResultsFound(text: String, time: Long): Boolean {
+            override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
                 runOnUiThread {
-                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    chatAdapter?.addNewMessage(Message(
+                        type = Message.Type.OPPONENT,
+                        text = text,
+                        timestamp = timestamp
+                    ))
                     chatFooterAdapter?.showSwitchToCallAgentButton()
 //                    scrollToBottom()
                 }
@@ -1278,9 +1297,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 return true
             }
 
-            override fun onFuzzyTaskOffered(text: String, time: Long): Boolean {
+            override fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean {
                 runOnUiThread {
-                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                    chatAdapter?.addNewMessage(Message(
+                        type = Message.Type.OPPONENT,
+                        text = text,
+                        timestamp = timestamp
+                    ))
                     chatFooterAdapter?.showFuzzyQuestionButtons()
                 }
 
@@ -1304,13 +1327,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 return true
             }
 
-            override fun onCallAgentDisconnected(text: String, time: Long): Boolean {
+            override fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean {
                 closeLiveCall()
 
                 setNewStateByPreviousState(State.OPPONENT_DISCONNECT)
 
                 runOnUiThread {
-                    chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, text, time))
+                    chatAdapter?.addNewMessage(Message(
+                        type = Message.Type.NOTIFICATION,
+                        text = text,
+                        timestamp = timestamp
+                    ))
 //                    scrollToBottom()
                 }
 
@@ -1389,11 +1416,18 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 setNewStateByPreviousState(State.IDLE)
             }
 
-            override fun onTextMessage(text: String, time: Long) {
+            override fun onTextMessage(text: String, attachments: List<Attachment>?, timestamp: Long) {
                 if (chatBot.activeCategory != null) {
-                    val messages = listOf(Message(
-                        Message.Type.RESPONSE, text, time, chatBot.activeCategory
-                    ))
+                    val messages = listOf(
+                        Message(
+                            type = Message.Type.RESPONSE,
+                            text = text,
+                            attachments = attachments,
+                            timestamp = timestamp,
+                            category = chatBot.activeCategory
+                        )
+                    )
+
                     runOnUiThread {
                         chatFooterAdapter?.showGoToHomeButton()
                         chatAdapter?.setNewMessages(messages)
@@ -1404,12 +1438,22 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 if (dialog.isOnLive) {
                     runOnUiThread {
-                        chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                        chatAdapter?.addNewMessage(Message(
+                            type = Message.Type.OPPONENT,
+                            text = text,
+                            attachments = attachments,
+                            timestamp = timestamp
+                        ))
 //                        scrollToBottom()
                     }
                 } else {
                     runOnUiThread {
-                        chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text, time))
+                        chatAdapter?.addNewMessage(Message(
+                            type = Message.Type.OPPONENT,
+                            text = text,
+                            attachments = attachments,
+                            timestamp = timestamp
+                        ))
 
                         if (!dialog.isSwitchToCallAgentClicked) {
                             chatFooterAdapter?.showGoToHomeButton()
@@ -1422,11 +1466,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
 
-            override fun onMediaMessage(media: Media, time: Long) {
+            override fun onMediaMessage(media: Media, timestamp: Long) {
                 if (media.isImage) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(
-                            Message.Type.OPPONENT, media, time
+                            type = Message.Type.OPPONENT,
+                            media = media,
+                            timestamp = timestamp
                         ))
 //                        scrollToBottom()
                     }
@@ -1435,7 +1481,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 if (media.isFile) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(Message(
-                            Message.Type.OPPONENT, media, time
+                            type = Message.Type.OPPONENT,
+                            media = media,
+                            timestamp = timestamp
                         ))
 //                        scrollToBottom()
                     }
@@ -1464,9 +1512,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     if (chatBot.activeCategory?.children?.containsAll(sortedCategories) == false) {
                         chatBot.activeCategory?.children?.addAll(sortedCategories)
                     }
-                    val messages = listOf(Message(
-                        Message.Type.CROSS_CHILDREN, chatBot.activeCategory
-                    ))
+                    val messages = listOf(
+                        Message(
+                            type = Message.Type.CROSS_CHILDREN,
+                            category = chatBot.activeCategory
+                        )
+                    )
                     runOnUiThread {
                         chatAdapter?.setNewMessages(messages)
                     }

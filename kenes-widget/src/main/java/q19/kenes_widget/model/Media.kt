@@ -6,7 +6,7 @@ import q19.kenes_widget.R
 internal data class Media(
     var imageUrl: String? = null,
     var fileUrl: String? = null,
-    var name: String? = null,
+    var hash: String? = null,
     var ext: String? = null
 ) {
 

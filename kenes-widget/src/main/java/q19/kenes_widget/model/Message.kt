@@ -11,6 +11,7 @@ internal data class Message(
     var type: Type = Type.OPPONENT,
     var text: String,
     var media: Media? = null,
+    var attachments: List<Attachment>? = null,
     var date: Calendar = now(),
     var category: Category? = null
 ) {
@@ -36,40 +37,19 @@ internal data class Message(
 
     constructor(
         type: Type,
-        text: String?,
-        timestamp: Long? = null
+        text: String? = null,
+        media: Media? = null,
+        attachments: List<Attachment>? = null,
+        timestamp: Long? = null,
+        category: Category? = null
     ) : this(
-        null,
-        type,
-        text?.trim() ?: "",
-        null,
-        timestamp?.let { fromTimestamp(it) } ?: now(),
-        null
-    )
-
-    constructor(
-        type: Type,
-        text: String?,
-        timestamp: Long,
-        category: Category?
-    ) : this(null, type, text?.trim() ?: "", null, fromTimestamp(timestamp), category)
-
-    constructor(
-        type: Type,
-        category: Category?
-    ) : this(null, type, "", null, now(), category)
-
-    constructor(
-        type: Type,
-        media: Media,
-        timestamp: Long? = null
-    ) : this(
-        null,
-        type,
-        "",
-        media,
-        timestamp?.let { fromTimestamp(it) } ?: now(),
-        null
+        id = null,
+        type = type,
+        text = text?.trim() ?: "",
+        media = media,
+        attachments = attachments,
+        date = timestamp?.let { fromTimestamp(it) } ?: now(),
+        category = category
     )
 
     val time: String
