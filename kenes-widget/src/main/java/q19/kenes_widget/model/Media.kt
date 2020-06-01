@@ -24,7 +24,7 @@ internal data class Media(
     val isFile: Boolean
         get() = !fileUrl.isNullOrBlank()
 
-    val fileTypeStringRes: Int?
+    val fileTypeStringRes: Int
         @StringRes
         get() = if (isFile) {
             when (ext) {
@@ -36,7 +36,7 @@ internal data class Media(
                 else -> R.string.kenes_file
             }
         } else {
-            null
+            -1
         }
 
 }

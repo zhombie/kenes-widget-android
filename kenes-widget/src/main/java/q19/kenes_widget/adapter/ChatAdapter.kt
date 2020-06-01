@@ -4,7 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
+import android.text.style.UnderlineSpan
 import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
@@ -153,6 +157,8 @@ internal class ChatAdapter(
         }
 
         fun bind(message: Message) {
+            val context = itemView.context
+
             val media = message.media
             if (media == null) {
                 imageView?.visibility = View.GONE
@@ -184,8 +190,13 @@ internal class ChatAdapter(
                 }
 
                 if (media.isFile) {
-                    if (media.fileTypeStringRes != null) {
-                        fileView?.text = media.hash + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
+                    if (media.fileTypeStringRes > 0) {
+                        val spannableStringBuilder = SpannableStringBuilder()
+                        spannableStringBuilder.append(SpannableString(context.getString(R.string.kenes_file_download) + ":"))
+                        spannableStringBuilder.append(SpannableString(" ${media.hash}\n(${context.getString(media.fileTypeStringRes)})"))
+                        spannableStringBuilder.setSpan(UnderlineSpan(), 0, spannableStringBuilder.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+
+                        fileView?.text = spannableStringBuilder
                     } else {
                         fileView?.text = media.hash
                     }
@@ -211,9 +222,9 @@ internal class ChatAdapter(
                 textView?.movementMethod = LinkMovementMethod.getInstance()
 
                 val colorStateList = ColorStateListBuilder()
-                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
-                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
-                    .addState(intArrayOf(), ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_blue))
+                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(context, R.color.kenes_blue))
+                    .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
                     .build()
 
                 textView.highlightColor = Color.TRANSPARENT
@@ -258,6 +269,8 @@ internal class ChatAdapter(
 //        }
 
         fun bind(message: Message) {
+            val context = itemView.context
+
             val media = message.media
             if (media == null) {
                 imageView?.visibility = View.GONE
@@ -289,8 +302,13 @@ internal class ChatAdapter(
                 }
 
                 if (media.isFile) {
-                    if (media.fileTypeStringRes != null) {
-                        fileView?.text = media.hash + "\n(" + itemView.context.getString(media.fileTypeStringRes!!) + ")"
+                    if (media.fileTypeStringRes > 0) {
+                        val spannableStringBuilder = SpannableStringBuilder()
+                        spannableStringBuilder.append(SpannableString(context.getString(R.string.kenes_file_download) + ":"))
+                        spannableStringBuilder.append(SpannableString(" ${media.hash}\n(${context.getString(media.fileTypeStringRes)})"))
+                        spannableStringBuilder.setSpan(UnderlineSpan(), 0, spannableStringBuilder.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+
+                        fileView?.text = spannableStringBuilder
                     } else {
                         fileView?.text = media.hash
                     }
@@ -315,9 +333,9 @@ internal class ChatAdapter(
                 }
 
                 val colorStateList = ColorStateListBuilder()
-                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
-                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
-                    .addState(intArrayOf(), ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_blue))
+                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(context, R.color.kenes_blue))
+                    .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
                     .build()
 
                 textView.highlightColor = Color.TRANSPARENT
@@ -469,6 +487,8 @@ internal class ChatAdapter(
         private var htmlTextViewManager = HtmlTextViewManager()
 
         fun bind(message: Message) {
+            val context = itemView.context
+
             val category = message.category
 
             if (category != null) {
@@ -490,9 +510,9 @@ internal class ChatAdapter(
                     }
 
                     val colorStateList = ColorStateListBuilder()
-                        .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
-                        .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
-                        .addState(intArrayOf(), ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                        .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_blue))
+                        .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(context, R.color.kenes_blue))
+                        .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
                         .build()
 
                     textView.highlightColor = Color.TRANSPARENT
