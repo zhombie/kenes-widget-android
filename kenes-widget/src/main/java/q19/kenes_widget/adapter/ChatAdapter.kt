@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -204,6 +206,19 @@ internal class ChatAdapter(
             if (message.text.isNotBlank()) {
                 textView?.text = message.text
                 timeView?.text = message.time
+
+                textView?.autoLinkMask = Linkify.ALL
+                textView?.movementMethod = LinkMovementMethod.getInstance()
+
+                val colorStateList = ColorStateListBuilder()
+                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .addState(intArrayOf(), ContextCompat.getColor(itemView.context, R.color.kenes_blue))
+                    .build()
+
+                textView.highlightColor = Color.TRANSPARENT
+
+                textView.setLinkTextColor(colorStateList)
 
                 textView?.visibility = View.VISIBLE
                 timeView?.visibility = View.VISIBLE

@@ -5,6 +5,7 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.URLSpan
+import android.text.util.Linkify
 import android.view.View
 import android.widget.TextView
 
@@ -42,6 +43,7 @@ internal class HtmlTextViewManager {
             spannableStringBuilder.setLinkClickable(span)
         }
         textView.text = spannableStringBuilder
+        textView.autoLinkMask = Linkify.ALL
         textView.movementMethod = LinkMovementMethod.getInstance()
     }
 
