@@ -13,7 +13,10 @@ internal data class Message(
     var media: Media? = null,
     var attachments: List<Attachment>? = null,
     var date: Calendar = now(),
-    var category: Category? = null
+    var category: Category? = null,
+
+    // Local variables
+    val file: File = File()
 ) {
 
     companion object {
@@ -67,6 +70,39 @@ internal data class Message(
                 }
             } else null
         }
+
+    class File {
+
+        enum class DownloadStatus {
+            NONE,
+            PENDING,
+            ERROR,
+            COMPLETED
+        }
+
+        var progress: Int = 0
+            set(value) {
+                field = value
+                if (value == 100) {
+                    downloadStatus = DownloadStatus.COMPLETED
+                } else if (value in 1..99) {
+                    downloadStatus = DownloadStatus.PENDING
+                }
+            }
+
+        var downloadStatus: DownloadStatus = DownloadStatus.NONE
+            set(value) {
+                if (value == DownloadStatus.NONE) {
+                    field = value
+                    return
+                } else if (field == DownloadStatus.COMPLETED) {
+                    return
+                }
+                if (field == value) return
+                field = value
+            }
+
+    }
 
     enum class Type {
         USER,

@@ -36,11 +36,18 @@ import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
 import cz.msebera.android.httpclient.Header
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import org.webrtc.*
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.ChatFooterAdapter
+import q19.kenes_widget.core.ktor.DownloadResult
+import q19.kenes_widget.core.ktor.downloadFile
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
@@ -49,7 +56,6 @@ import q19.kenes_widget.network.IceServersTask
 import q19.kenes_widget.network.WidgetConfigsTask
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
-import q19.kenes_widget.util.FileUtil.getRootDirPath
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.webrtc.AppRTCAudioManager
 import q19.kenes_widget.webrtc.ProxyVideoSink
@@ -144,6 +150,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private val audioDialogView by bind<AudioDialogView>(R.id.audioDialogView)
 
     // ------------------------------------------------------------------------
+
+    private val httpClient = InjectionProvider.initKtor()
 
     private var palette = intArrayOf()
 
@@ -788,21 +796,21 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onImageLoadCompleted() {
             }
 
-            override fun onFileClicked(media: Media) {
-                val file = File(getRootDirPath() + "/" + media.hash)
+            override fun onFileClicked(media: Media, position: Int) {
+                val file = media.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
                     openFile(file)
                 } else {
-                    DownloadFileTask(
-                        context = this@KenesWidgetV2Activity,
-                        filename = media.hash ?: "temp",
-                        callback = { openFile(it) }
-                    ).execute(media.fileUrl)
+                    try {
+                        downloadFile(position, file, media.fileUrl ?: return)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
 
             override fun onAttachmentClicked(attachment: Attachment) {
-                val file = File(getRootDirPath() + "/" + attachment.title)
+                val file = attachment.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
                     openFile(file)
                 } else {
@@ -907,6 +915,23 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         recyclerView.itemAnimator = null
 
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
+    }
+
+    private fun downloadFile(position: Int, file: File, url: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            httpClient.downloadFile(file, url).collect { downloadResult ->
+                withContext(Dispatchers.Main) {
+                    when (downloadResult) {
+                        is DownloadResult.Success ->
+                            chatAdapter?.setDownloading(position, Message.File.DownloadStatus.COMPLETED)
+                        is DownloadResult.Error ->
+                            chatAdapter?.setDownloading(position, Message.File.DownloadStatus.ERROR)
+                        is DownloadResult.Progress ->
+                            chatAdapter?.setProgress(position, downloadResult.progress)
+                    }
+                }
+            }
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -2146,6 +2171,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         dialog.clear()
 
         runOnUiThread {
+            headerView.hideHangupButton()
             footerView.disableAttachmentButton()
         }
 

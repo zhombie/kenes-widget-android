@@ -64,5 +64,7 @@
     <string name="kenes_enter_valid_phone">Please, enter valid phone</string>
 
     <string name="kenes_file_download">File download</string>
+    <string name="kenes_open_file">Open file</string>
     <string name="kenes_file_download_completed">File download completed</string>
+    <string name="kenes_file_pending_download">File is downloading</string>
 </resources>

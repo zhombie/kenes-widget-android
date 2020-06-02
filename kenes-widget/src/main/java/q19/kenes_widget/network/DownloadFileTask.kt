@@ -20,7 +20,7 @@ import kotlin.math.min
 internal class DownloadFileTask(
     private val context: Context,
     private val filename: String,
-    private val callback: (file: File) -> Unit,
+    private val callback: ((file: File) -> Unit)? = null,
     private val progressListener: ((progress: Int) -> Unit)? = null
 ) : AsyncTask<String, Int, String>() {
 
@@ -40,6 +40,22 @@ internal class DownloadFileTask(
     private var outputFile: File? = null
 
     private var outputStream: OutputStream? = null
+
+    private var progress: Int = 0
+        set(value) {
+            if (value == 0) {
+                progressListener?.invoke(0)
+                field = value
+                return
+            } else if (value == 100) {
+                progressListener?.invoke(100)
+                field = value
+                return
+            }
+            if (field == value || field - value < 10) return
+            field = value
+            progressListener?.invoke(progress)
+        }
 
     override fun onPreExecute() {
         super.onPreExecute()
@@ -86,9 +102,9 @@ internal class DownloadFileTask(
             val input = BufferedInputStream(url.openStream(), 8192)
 
             // Output stream
-            outputStream = FileOutputStream(context.getRootDirPath() + "/" + filename)
+            outputStream = FileOutputStream(context.getRootDirPath() + File.separatorChar + filename)
 
-            outputFile = File(context.getRootDirPath() + "/" + filename)
+            outputFile = File(context.getRootDirPath() + File.separatorChar + filename)
 
             val data = ByteArray(1024)
             var total = 0L
@@ -96,7 +112,9 @@ internal class DownloadFileTask(
             while (input.read(data).also { count = it } != -1) {
                 total += count.toLong()
                 val cur = (total * 100 / lenghtOfFile).toInt()
-                publishProgress(min(cur, 100))
+                val progress = min(cur, 100)
+                this.progress = progress
+                publishProgress(progress)
                 if (min(cur, 100) > 98) {
                     try {
                         Thread.sleep(500)
@@ -104,8 +122,7 @@ internal class DownloadFileTask(
                         Log.d(TAG, "Sleeping failure")
                     }
                 }
-                Log.i(TAG, "CurrentProgress: ${min(cur, 100)} - $cur")
-                progressListener?.invoke(cur)
+//                Log.i(TAG, "CurrentProgress: ${min(cur, 100)} - $cur")
                 outputStream?.write(data, 0, count)
             }
 
@@ -119,22 +136,23 @@ internal class DownloadFileTask(
     }
 
     override fun onProgressUpdate(vararg values: Int?) {
-        values[0]?.let {
-            progressListener?.invoke(it)
-            notificationBuilder?.setProgress(100, it, false)
+        if (!values.isNullOrEmpty()) {
+            val progress = values[0] ?: 0
+//            progressListener?.invoke(progress)
+            notificationBuilder?.setProgress(100, progress, false)
+            notifyManager?.notify(NOTIFICATION_CHANNEL_ID, notificationBuilder?.build())
         }
-        notifyManager?.notify(NOTIFICATION_CHANNEL_ID, notificationBuilder?.build())
         super.onProgressUpdate(*values)
     }
 
     override fun onPostExecute(fileUrl: String?) {
         notificationBuilder?.setContentText(context.getString(R.string.kenes_file_download_completed))
 
-        progressListener?.invoke(0)
+        progressListener?.invoke(100)
         notificationBuilder?.setProgress(0, 0, false)
         notifyManager?.notify(NOTIFICATION_CHANNEL_ID, notificationBuilder?.build())
 
-        outputFile?.let { callback(it) }
+        outputFile?.let { callback?.invoke(it) }
     }
 
 }

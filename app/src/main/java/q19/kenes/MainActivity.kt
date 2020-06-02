@@ -1,11 +1,15 @@
 package q19.kenes
 
 import android.os.Bundle
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_main.*
 import q19.kenes_widget.KenesWidgetV2Activity
 
 class MainActivity : AppCompatActivity() {
+
+    private val openWidget by lazy {
+        findViewById<Button>(R.id.openWidget)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -13,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
         openWidget()
 
-        openWidget.setOnClickListener { openWidget() }
+        openWidget?.setOnClickListener { openWidget() }
     }
 
     private fun openWidget() {

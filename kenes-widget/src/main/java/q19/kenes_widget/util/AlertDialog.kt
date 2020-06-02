@@ -164,3 +164,14 @@ internal fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
         }
         .show()
 }
+
+internal fun Context.showPendingFileDownloadAlert(callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
+        .setTitle(R.string.kenes_attention)
+        .setMessage(R.string.kenes_file_pending_download)
+        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+            dialog.dismiss()
+            callback()
+        }
+        .show()
+}

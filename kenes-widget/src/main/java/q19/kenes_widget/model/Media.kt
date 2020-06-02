@@ -1,7 +1,10 @@
 package q19.kenes_widget.model
 
+import android.content.Context
 import androidx.annotation.StringRes
 import q19.kenes_widget.R
+import q19.kenes_widget.util.FileUtil.getRootDirPath
+import java.io.File
 
 internal data class Media(
     var imageUrl: String? = null,
@@ -23,6 +26,10 @@ internal data class Media(
 
     val isFile: Boolean
         get() = !fileUrl.isNullOrBlank()
+
+    fun getFile(context: Context): File {
+        return File(context.getRootDirPath() + File.separatorChar + hash)
+    }
 
     val fileTypeStringRes: Int
         @StringRes

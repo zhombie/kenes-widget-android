@@ -15,11 +15,4 @@
         android:text="Open widget"
         tools:ignore="HardcodedText" />
 
-    <Button
-        android:id="@+id/changeUrl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Change Url"
-        tools:ignore="HardcodedText" />
-
 </LinearLayout>

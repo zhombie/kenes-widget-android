@@ -1,5 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven'
 
 android {
@@ -26,6 +27,11 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
+        freeCompilerArgs += [
+                "-Xallow-result-return-type",
+                "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi"
+        ]
     }
 
 }
@@ -58,4 +64,15 @@ dependencies {
     implementation 'com.loopj.android:android-async-http:1.4.9'
 
     implementation 'org.webrtc:google-webrtc:1.0.30039'
+
+    // Kotlin Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.7'
+
+    // Ktor for Android
+    implementation "io.ktor:ktor-client-android:1.2.5"
+    // Ktor JVM(necessary for logging extension)
+    implementation "io.ktor:ktor-client-logging-jvm:1.2.5"
+    // Ktor Logging extension
+    implementation "io.ktor:ktor-client-logging:1.2.5"
 }

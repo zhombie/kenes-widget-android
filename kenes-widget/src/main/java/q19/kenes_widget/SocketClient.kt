@@ -291,7 +291,11 @@ internal class SocketClient(url: String, language: String) {
     }
 
     init {
-        socket = IO.socket(url)
+        val options = IO.Options()
+        options.reconnection = true
+        options.reconnectionAttempts = 3
+
+        socket = IO.socket(url, options)
 
         socket?.on(Socket.EVENT_CONNECT, eventConnectEmitter)
         socket?.on("call", eventCallEmitter)
@@ -328,7 +332,7 @@ internal class SocketClient(url: String, language: String) {
     }
 
     fun requestCategories(parentId: Long, language: String) {
-        logDebug("requestCategories: $parentId")
+//        logDebug("requestCategories: $parentId")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_category_list")
@@ -338,7 +342,7 @@ internal class SocketClient(url: String, language: String) {
     }
 
     fun requestResponse(id: Int, language: String) {
-        logDebug("requestResponse: $id")
+//        logDebug("requestResponse: $id")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_response")
@@ -393,6 +397,13 @@ internal class SocketClient(url: String, language: String) {
     }
 
     fun release() {
+        socket?.off("call", eventCallEmitter)
+        socket?.off("operator_greet", eventOperatorGreetEmitter)
+        socket?.off("form_init", eventFormInitEmitter)
+        socket?.off("feedback", eventFeedbackEmitter)
+        socket?.off("user_queue", eventUserQueueEmitter)
+        socket?.off("message", eventMessageEmitter)
+        socket?.off("category_list", eventCategoryListEmitter)
         socket?.disconnect()
         socket = null
     }
