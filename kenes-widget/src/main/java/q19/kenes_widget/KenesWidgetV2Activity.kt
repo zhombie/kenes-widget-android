@@ -30,38 +30,31 @@ import com.fondesa.kpermissions.*
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.loopj.android.http.AsyncHttpClient
-import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestParams
 import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
-import cz.msebera.android.httpclient.Header
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONObject
 import org.webrtc.*
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.ChatFooterAdapter
-import q19.kenes_widget.core.ktor.DownloadResult
-import q19.kenes_widget.core.ktor.downloadFile
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.model.*
 import q19.kenes_widget.model.Message
-import q19.kenes_widget.network.DownloadFileTask
-import q19.kenes_widget.network.IceServersTask
-import q19.kenes_widget.network.WidgetConfigsTask
+import q19.kenes_widget.network.file.DownloadResult
+import q19.kenes_widget.network.file.downloadFile
+import q19.kenes_widget.network.file.uploadFile
+import q19.kenes_widget.network.http.IceServersTask
+import q19.kenes_widget.network.http.WidgetConfigsTask
+import q19.kenes_widget.network.socket.SocketClient
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
+import q19.kenes_widget.util.FileUtil.getFileType
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.webrtc.AppRTCAudioManager
 import q19.kenes_widget.webrtc.ProxyVideoSink
 import q19.kenes_widget.webrtc.SimpleSdpObserver
 import java.io.File
-import java.io.FileNotFoundException
 
 class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener {
 
@@ -151,7 +144,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     // ------------------------------------------------------------------------
 
-    private val httpClient = InjectionProvider.initKtor()
+    private val httpClient by lazy { AsyncHttpClient() }
 
     private var palette = intArrayOf()
 
@@ -802,23 +795,23 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     openFile(file)
                 } else {
                     try {
-                        downloadFile(position, file, media.fileUrl ?: return)
+                        downloadFile(position, file, media.fileUrl, "media")
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
             }
 
-            override fun onAttachmentClicked(attachment: Attachment) {
+            override fun onAttachmentClicked(attachment: Attachment, position: Int) {
                 val file = attachment.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
                     openFile(file)
                 } else {
-                    DownloadFileTask(
-                        context = this@KenesWidgetV2Activity,
-                        filename = attachment.title ?: "temp",
-                        callback = { openFile(it) }
-                    ).execute(attachment.url)
+                    try {
+                        downloadFile(position, file, attachment.url, "attachment")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         })
@@ -917,19 +910,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
 
-    private fun downloadFile(position: Int, file: File, url: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            httpClient.downloadFile(file, url).collect { downloadResult ->
-                withContext(Dispatchers.Main) {
-                    when (downloadResult) {
-                        is DownloadResult.Success ->
-                            chatAdapter?.setDownloading(position, Message.File.DownloadStatus.COMPLETED)
-                        is DownloadResult.Error ->
-                            chatAdapter?.setDownloading(position, Message.File.DownloadStatus.ERROR)
-                        is DownloadResult.Progress ->
-                            chatAdapter?.setProgress(position, downloadResult.progress)
-                    }
-                }
+    private fun downloadFile(position: Int, file: File, url: String?, fileType: String) {
+        if (url.isNullOrBlank()) return
+        httpClient.downloadFile(this, file, url) { downloadResult ->
+            when (downloadResult) {
+                is DownloadResult.Success ->
+                    chatAdapter?.setDownloading(position, Message.File.DownloadStatus.COMPLETED)
+                is DownloadResult.Error ->
+                    chatAdapter?.setDownloading(position, Message.File.DownloadStatus.ERROR)
+                is DownloadResult.Progress ->
+                    chatAdapter?.setProgress(position, fileType, downloadResult.progress)
             }
         }
     }
@@ -980,71 +970,36 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH)
-            logDebug("filePath: $filePath")
+            val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH) ?: return
 
-            if (filePath == null) {
-                return
+            val file = File(filePath)
+            val type = file.getFileType() ?: return
+
+            val params = RequestParams().apply {
+                put("type", type)
+                put("file", file)
             }
 
-            val asyncHttpClient = AsyncHttpClient()
+            httpClient.uploadFile(UrlUtil.getHostname() + "/upload", params) { path, hash ->
+                logDebug("uploadFile: $path, $hash")
 
-            val params = RequestParams()
+                socketClient?.sendUserMediaMessage(type, path)
 
-            val type: String?
+                val fullUrl = UrlUtil.buildUrl(path)
 
-            try {
-                val file = File(filePath)
-                params.put("file", file)
-
-                type = when {
-                    filePath.endsWith("jpg") || filePath.endsWith("jpeg") || filePath.endsWith("png") ->
-                        "image"
-                    filePath.endsWith("mp3") || filePath.endsWith("wav") || filePath.endsWith("opus") || filePath.endsWith("ogg") ->
-                        "audio"
-                    filePath.endsWith("mp4") || filePath.endsWith("mov") || filePath.endsWith("webm") || filePath.endsWith("mkv") || filePath.endsWith("avi") ->
-                        "video"
-//                    filePath.endsWith("doc") || filePath.endsWith("docx") || filePath.endsWith("xls") || filePath.endsWith("xlsx") || filePath.endsWith("pdf") ->
-//                        "document"
-                    else ->
-                        "file"
+                val media = if (type == "image") {
+                    Media(imageUrl = fullUrl, hash = hash, ext = hash.split(".").last())
+                } else {
+                    Media(fileUrl = fullUrl, hash = hash, ext = hash.split(".").last())
                 }
 
-                params.put("type", type)
-            } catch (e: FileNotFoundException) {
-                Log.e(TAG, e.message ?: "")
-                return
+                logDebug("media: $media")
+
+                runOnUiThread {
+                    chatAdapter?.addNewMessage(Message(type = Message.Type.USER, media = media))
+//                    scrollToBottom()
+                }
             }
-
-            asyncHttpClient.post(UrlUtil.getHostname() + "/upload", params, object : JsonHttpResponseHandler() {
-                override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
-                    super.onSuccess(statusCode, headers, response)
-
-                    val hash = response?.optString("hash")
-                    var url = response?.optString("url")
-
-                    if (hash.isNullOrBlank() || url.isNullOrBlank()) {
-                        return
-                    }
-
-                    socketClient?.sendUserMediaMessage(type, url)
-
-                    if (url.startsWith(UrlUtil.STATIC_PATH)) {
-                        url = UrlUtil.getHostname() + url
-                    }
-
-                    val media = if (type == "image") {
-                        Media(imageUrl = url, hash = hash, ext = hash.split(".").last())
-                    } else {
-                        Media(fileUrl = url, hash = hash, ext = hash.split(".").last())
-                    }
-
-                    runOnUiThread {
-                        chatAdapter?.addNewMessage(Message(type = Message.Type.USER, media = media))
-//                        scrollToBottom()
-                    }
-                }
-            })
         }
     }
 

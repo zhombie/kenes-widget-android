@@ -1,4 +1,4 @@
-package q19.kenes_widget.network
+package q19.kenes_widget.network.http
 
 import android.util.Log
 import org.json.JSONArray

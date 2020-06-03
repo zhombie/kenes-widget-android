@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.network.socket
 
 import android.util.Log
 import io.socket.client.IO

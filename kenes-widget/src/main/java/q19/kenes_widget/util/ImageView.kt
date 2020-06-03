@@ -1,8 +1,10 @@
 package q19.kenes_widget.util
 
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Transformation
+import q19.kenes_widget.R
 import q19.kenes_widget.util.picasso.CircleTransformation
 import q19.kenes_widget.util.picasso.RoundedTransformation
 
@@ -16,7 +18,7 @@ internal fun ImageView.loadCircleImage(photoUrl: String) {
 }
 
 internal fun ImageView.loadRoundedImage(
-    photoUrl: String,
+    photoUrl: String?,
     radius: Int
 ) {
     loadImage(
@@ -30,10 +32,13 @@ internal fun ImageView.loadRoundedImage(
 internal fun ImageView.loadImage(
     url: String?,
     isFit: Boolean = false,
+    @DrawableRes placeholderResId: Int = R.drawable.kenes_bg_gradient_gray,
     isCenterCrop: Boolean = false,
     transformation: Transformation? = null
 ) {
     val requestCreator = Picasso.get().load(url)
+
+    requestCreator.placeholder(placeholderResId)
 
     if (isFit) {
         requestCreator.fit()

@@ -65,4 +65,5 @@
     <string name="kenes_open_file">Открыть файл</string>
     <string name="kenes_file_download_completed">Загрузка файла завершена</string>
     <string name="kenes_file_pending_download">Файл загружается</string>
+    <string name="kenes_file_download_error">Файл не загрузился</string>
 </resources>

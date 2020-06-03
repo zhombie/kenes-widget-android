@@ -1,4 +1,4 @@
-package q19.kenes_widget.network
+package q19.kenes_widget.network.http
 
 import android.os.AsyncTask
 import java.io.BufferedReader

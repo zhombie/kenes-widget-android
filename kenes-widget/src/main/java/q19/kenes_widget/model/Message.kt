@@ -71,7 +71,9 @@ internal data class Message(
             } else null
         }
 
-    class File {
+    class File(
+        var type: String? = null
+    ) {
 
         enum class DownloadStatus {
             NONE,

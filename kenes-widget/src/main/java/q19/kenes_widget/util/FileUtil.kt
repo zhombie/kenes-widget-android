@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package q19.kenes_widget.util
 
 import android.content.ContentResolver
@@ -9,12 +11,20 @@ import android.webkit.MimeTypeMap
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import java.io.File
+import java.util.*
 
 internal object FileUtil {
 
-    // Check If SD Card is present or not method
-    val isSDCardPresent: Boolean
-        get() = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
+    val IMAGE_ENTENSIONS = setOf("jpg", "jpeg", "png")
+    val AUDIO_ENTENSIONS = setOf("mp3", "wav", "opus", "ogg")
+    val VIDEO_ENTENSIONS = setOf("mp4", "mov", "webm", "mkv", "avi")
+    val DOCUMENT_ENTENSIONS = setOf("doc", "docx", "xls", "xlsx", "pdf")
+
+    val ALL_EXTENSIONS = mapOf(
+        IMAGE_ENTENSIONS to "image",
+        AUDIO_ENTENSIONS to "audio",
+        VIDEO_ENTENSIONS to "video"
+    )
 
     fun Context.getRootDirPath(): String? {
         return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
@@ -30,7 +40,7 @@ internal object FileUtil {
             contentResolver.getType(uri)
         } else {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase())
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase(Locale.getDefault()))
         }
     }
 
@@ -43,5 +53,32 @@ internal object FileUtil {
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         startActivity(intent)
     }
+
+    fun File.getFileType(): String? {
+        if (!exists()) return null
+        if (name.isNullOrBlank()) return null
+
+        for (entry in ALL_EXTENSIONS) {
+            for (extension in entry.key) {
+                if (name.endsWith(extension)) {
+                    return entry.value
+                }
+            }
+        }
+
+        return "file"
+    }
+
+    val File.size: Double
+        get() = if (!exists()) 0.0 else length().toDouble()
+
+    val File.sizeInKb: Double
+        get() = size / 1024
+
+    val File.sizeInMb: Double
+        get() = sizeInKb / 1024
+
+    val File.sizeInGb: Double
+        get() = sizeInMb / 1024
 
 }
