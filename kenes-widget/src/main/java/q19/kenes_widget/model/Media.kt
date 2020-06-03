@@ -10,7 +10,10 @@ internal data class Media(
     var imageUrl: String? = null,
     var fileUrl: String? = null,
     var hash: String? = null,
-    var ext: String? = null
+    var ext: String? = null,
+
+    // Local variables
+    var local: File? = null
 ) {
 
     companion object {
@@ -28,7 +31,7 @@ internal data class Media(
         get() = !fileUrl.isNullOrBlank()
 
     fun getFile(context: Context): File {
-        return File(context.getRootDirPath() + File.separatorChar + hash)
+        return local ?: File(context.getRootDirPath() + File.separatorChar + hash)
     }
 
     val fileTypeStringRes: Int

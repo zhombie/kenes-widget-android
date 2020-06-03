@@ -35,23 +35,23 @@ internal object FileUtil {
         }
     }
 
-    fun Context.getMimeType(uri: Uri): String? {
-        return if (uri.scheme.equals(ContentResolver.SCHEME_CONTENT)) {
-            contentResolver.getType(uri)
+    fun Uri.getMimeType(context: Context): String? {
+        return if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+            context.contentResolver.getType(this)
         } else {
-            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(this.toString())
             MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase(Locale.getDefault()))
         }
     }
 
-    fun Context.openFile(file: File) {
-        val data = FileProvider.getUriForFile(this, "q19.kenes", file)
-        grantUriPermission(packageName, data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val mimeType = getMimeType(Uri.fromFile(file))
+    fun File.openFile(context: Context) {
+        val data = FileProvider.getUriForFile(context, "q19.kenes", this)
+        context.grantUriPermission(context.packageName, data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val mimeType = Uri.fromFile(this).getMimeType(context)
         val intent = Intent(Intent.ACTION_VIEW)
             .setDataAndType(data, mimeType)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(intent)
+        context.startActivity(intent)
     }
 
     fun File.getFileType(): String? {

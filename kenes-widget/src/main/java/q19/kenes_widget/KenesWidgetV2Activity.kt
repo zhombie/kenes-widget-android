@@ -789,13 +789,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onImageLoadCompleted() {
             }
 
-            override fun onFileClicked(media: Media, position: Int) {
+            override fun onMediaClicked(media: Media, position: Int) {
                 val file = media.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
-                    openFile(file)
+                    file.openFile(this@KenesWidgetV2Activity)
                 } else {
                     try {
-                        downloadFile(position, file, media.fileUrl, "media")
+                        file.downloadFile(position, media.fileUrl, "media") {}
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -805,10 +805,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onAttachmentClicked(attachment: Attachment, position: Int) {
                 val file = attachment.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
-                    openFile(file)
+                    file.openFile(this@KenesWidgetV2Activity)
                 } else {
                     try {
-                        downloadFile(position, file, attachment.url, "attachment")
+                        file.downloadFile(position, attachment.url, "attachment") {
+                            file.openFile(this@KenesWidgetV2Activity)
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -910,12 +912,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
 
-    private fun downloadFile(position: Int, file: File, url: String?, fileType: String) {
+    private fun File.downloadFile(position: Int, url: String?, fileType: String, callback: () -> Unit) {
         if (url.isNullOrBlank()) return
-        httpClient.downloadFile(this, file, url) { downloadResult ->
+        httpClient.downloadFile(this@KenesWidgetV2Activity, this, url) { downloadResult ->
             when (downloadResult) {
-                is DownloadResult.Success ->
+                is DownloadResult.Success -> {
+                    callback()
                     chatAdapter?.setDownloading(position, Message.File.DownloadStatus.COMPLETED)
+                }
                 is DownloadResult.Error ->
                     chatAdapter?.setDownloading(position, Message.File.DownloadStatus.ERROR)
                 is DownloadResult.Progress ->
@@ -980,7 +984,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 put("file", file)
             }
 
-            httpClient.uploadFile(UrlUtil.getHostname() + "/upload", params) { path, hash ->
+            httpClient.uploadFile(UrlUtil.buildUrl("/upload"), params) { path, hash ->
                 logDebug("uploadFile: $path, $hash")
 
                 socketClient?.sendUserMediaMessage(type, path)
@@ -988,12 +992,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 val fullUrl = UrlUtil.buildUrl(path)
 
                 val media = if (type == "image") {
-                    Media(imageUrl = fullUrl, hash = hash, ext = hash.split(".").last())
+                    Media(
+                        imageUrl = fullUrl,
+                        hash = hash,
+                        ext = hash.split(".").last(),
+                        local = file
+                    )
                 } else {
-                    Media(fileUrl = fullUrl, hash = hash, ext = hash.split(".").last())
+                    Media(
+                        fileUrl = fullUrl,
+                        hash = hash,
+                        ext = hash.split(".").last(),
+                        local = file
+                    )
                 }
-
-                logDebug("media: $media")
 
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(type = Message.Type.USER, media = media))

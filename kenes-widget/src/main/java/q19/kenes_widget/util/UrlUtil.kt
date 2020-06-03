@@ -68,8 +68,9 @@ internal object UrlUtil {
         }
     }
 
-    fun buildUrl(path: String): String? {
-        val hostname = getHostname() ?: return null
+    fun buildUrl(path: String): String {
+        if (path.isBlank()) return ""
+        val hostname = getHostname() ?: return ""
         if (path.startsWith(hostname)) return path
         return hostname.dropLastWhile { it == '/' } + path
     }

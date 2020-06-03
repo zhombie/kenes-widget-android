@@ -10,7 +10,6 @@ import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.method.LinkMovementMethod
 import android.text.style.ForegroundColorSpan
-import android.text.style.UnderlineSpan
 import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
@@ -193,7 +192,9 @@ internal class ChatAdapter(
 
     private inner class UserMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var imageView = view.findViewById<ImageView>(R.id.imageView)
-        private var fileView = view.findViewById<TextView>(R.id.fileView)
+        private var mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
+        private var iconView = view.findViewById<ImageView>(R.id.iconView)
+        private var mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
         private var textView = view.findViewById<TextView>(R.id.textView)
         private var timeView = view.findViewById<TextView>(R.id.timeView)
 
@@ -207,17 +208,17 @@ internal class ChatAdapter(
             val media = message.media
             if (media == null) {
                 imageView?.visibility = View.GONE
-                fileView?.visibility = View.GONE
+                mediaView?.visibility = View.GONE
             } else {
                 if (media.isImage) {
                     imageView?.visibility = View.VISIBLE
 
-                    imageView.loadRoundedImage(
+                    imageView?.loadRoundedImage(
                         media.imageUrl,
                         itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     )
 
-                    itemView.setOnClickListener {
+                    imageView?.setOnClickListener {
                         callback?.onImageClicked(
                             imageView ?: return@setOnClickListener,
                             media.imageUrl ?: return@setOnClickListener
@@ -231,27 +232,26 @@ internal class ChatAdapter(
                 }
 
                 if (media.isFile) {
-                    if (media.fileTypeStringRes > 0) {
-                        val spannableStringBuilder = SpannableStringBuilder()
-                        spannableStringBuilder.append(SpannableString(context.getString(R.string.kenes_file_download) + ":"))
-                        spannableStringBuilder.append(SpannableString(" ${media.hash}\n(${context.getString(media.fileTypeStringRes)})"))
-                        spannableStringBuilder.setSpan(UnderlineSpan(), 0, spannableStringBuilder.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                    val isEmptyMediaName = context.bindMedia(media)
 
-                        fileView?.text = spannableStringBuilder
+                    mediaView?.setOnClickListener {
+                        if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
+                            context.showPendingFileDownloadAlert {}
+                            return@setOnClickListener
+                        }
+                        callback?.onMediaClicked(media, absoluteAdapterPosition)
+                    }
+
+                    if (!isEmptyMediaName) {
+                        mediaView?.visibility = View.VISIBLE
+
+                        timeView?.text = message.time
+                        timeView?.visibility = View.VISIBLE
                     } else {
-                        fileView?.text = media.hash
+                        mediaView?.visibility = View.GONE
                     }
-
-                    fileView?.setOnClickListener {
-                        callback?.onFileClicked(media, absoluteAdapterPosition)
-                    }
-
-                    fileView?.visibility = View.VISIBLE
-
-                    timeView?.text = message.time
-                    timeView?.visibility = View.VISIBLE
                 } else {
-                    fileView?.visibility = View.GONE
+                    mediaView?.visibility = View.GONE
                 }
             }
 
@@ -268,9 +268,9 @@ internal class ChatAdapter(
                     .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
                     .build()
 
-                textView.highlightColor = Color.TRANSPARENT
+                textView?.highlightColor = Color.TRANSPARENT
 
-                textView.setLinkTextColor(colorStateList)
+                textView?.setLinkTextColor(colorStateList)
 
                 textView?.visibility = View.VISIBLE
                 timeView?.visibility = View.VISIBLE
@@ -278,14 +278,44 @@ internal class ChatAdapter(
                 textView?.visibility = View.GONE
             }
         }
+
+        private fun Context.bindMedia(media: Media): Boolean {
+            var title = media.hash ?: ""
+
+            if (title.length > 25) {
+                val lastIndex = title.length
+                title = title.substring(0, 10) + "..." + title.substring(lastIndex - 10, lastIndex)
+            }
+
+            val spannableStringBuilder = SpannableStringBuilder()
+                .append(title)
+
+            if (media.fileTypeStringRes > 0) {
+                spannableStringBuilder.append("\n")
+                spannableStringBuilder.append("(" + getString(media.fileTypeStringRes) + ")")
+                spannableStringBuilder.append(" - ")
+            } else {
+                spannableStringBuilder.append("\n")
+            }
+
+            iconView?.setImageResource(R.drawable.kenes_ic_document_white)
+
+            val spannableString = SpannableString(getString(R.string.kenes_open_file))
+            spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.kenes_blue)),0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            spannableStringBuilder.append(spannableString)
+
+            mediaNameView?.text = spannableStringBuilder
+
+            return mediaNameView.text.isBlank()
+        }
     }
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var imageView = view.findViewById<ImageView>(R.id.imageView)
-        private var fileView = view.findViewById<LinearLayout>(R.id.fileView)
+        private var mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
         private var iconView = view.findViewById<ImageView>(R.id.iconView)
         private var progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-        private var filenameView = view.findViewById<TextView>(R.id.filenameView)
+        private var mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
         private var textView = view.findViewById<TextView>(R.id.textView)
         private var timeView = view.findViewById<TextView>(R.id.timeView)
         private var attachmentView = view.findViewById<TextView>(R.id.attachmentView)
@@ -302,20 +332,19 @@ internal class ChatAdapter(
             val media = message.media
             if (media == null) {
                 imageView?.visibility = View.GONE
-                fileView?.visibility = View.GONE
+                mediaView?.visibility = View.GONE
             } else {
                 if (media.isImage) {
                     imageView?.visibility = View.VISIBLE
 
-                    imageView.loadRoundedImage(
+                    imageView?.loadRoundedImage(
                         media.imageUrl,
                         itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     )
 
-                    itemView.setOnClickListener {
+                    imageView?.setOnClickListener {
                         callback?.onImageClicked(
-                            imageView ?: return@setOnClickListener,
-                            media.imageUrl ?: return@setOnClickListener
+                            imageView, media.imageUrl ?: return@setOnClickListener
                         )
                     }
 
@@ -326,26 +355,26 @@ internal class ChatAdapter(
                 }
 
                 if (media.isFile) {
-                    val isEmptyFileName = context.bindFile(media, message.file.downloadStatus)
+                    val isEmptyMediaName = context.bindMedia(media, message.file.downloadStatus)
 
-                    fileView?.setOnClickListener {
+                    mediaView?.setOnClickListener {
                         if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
                             context.showPendingFileDownloadAlert {}
                             return@setOnClickListener
                         }
-                        callback?.onFileClicked(media, absoluteAdapterPosition)
+                        callback?.onMediaClicked(media, absoluteAdapterPosition)
                     }
 
-                    if (!isEmptyFileName) {
-                        fileView?.visibility = View.VISIBLE
+                    if (!isEmptyMediaName) {
+                        mediaView?.visibility = View.VISIBLE
 
                         timeView?.text = message.time
                         timeView?.visibility = View.VISIBLE
                     } else {
-                        fileView?.visibility = View.GONE
+                        mediaView?.visibility = View.GONE
                     }
                 } else {
-                    fileView?.visibility = View.GONE
+                    mediaView?.visibility = View.GONE
                 }
             }
 
@@ -361,9 +390,9 @@ internal class ChatAdapter(
                     .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
                     .build()
 
-                textView.highlightColor = Color.TRANSPARENT
+                textView?.highlightColor = Color.TRANSPARENT
 
-                textView.setLinkTextColor(colorStateList)
+                textView?.setLinkTextColor(colorStateList)
 
                 timeView?.text = message.time
 
@@ -378,24 +407,36 @@ internal class ChatAdapter(
                 val attachment = attachments[0]
 
                 if (attachment.type == "image") {
-                    imageView.loadRoundedImage(
+                    imageView?.loadRoundedImage(
                         attachment.url,
                         itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     )
+                    imageView?.visibility = View.VISIBLE
+
+                    imageView?.setOnClickListener {
+                        callback?.onImageClicked(
+                            imageView, attachment.url ?: return@setOnClickListener
+                        )
+                    }
+
+                    attachmentView?.text = null
+                    attachmentView?.visibility = View.GONE
                 } else {
-                    attachmentView.setOnClickListener {
+                    attachmentView?.setOnClickListener {
                         if (message.file.type == "attachment" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
                             context.showPendingFileDownloadAlert {}
                             return@setOnClickListener
                         }
                         callback?.onAttachmentClicked(attachment, absoluteAdapterPosition)
                     }
-                }
 
-                attachmentView.text = attachment.title
-                attachmentView.visibility = View.VISIBLE
+                    imageView?.visibility = View.GONE
+
+                    attachmentView?.text = attachment.title
+                    attachmentView?.visibility = View.VISIBLE
+                }
             } else {
-                attachmentView.visibility = View.GONE
+                attachmentView?.visibility = View.GONE
             }
         }
 
@@ -403,11 +444,11 @@ internal class ChatAdapter(
             progressBar.progress = if (progress == 0 || progress == 100) 0 else progress
 
             if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
-                media?.let { itemView.context.bindFile(it, downloadStatus) }
+                media?.let { itemView.context.bindMedia(it, downloadStatus) }
             }
         }
 
-        private fun Context.bindFile(media: Media, downloadStatus: Message.File.DownloadStatus): Boolean {
+        private fun Context.bindMedia(media: Media, downloadStatus: Message.File.DownloadStatus): Boolean {
             var title = media.hash ?: ""
 
             if (title.length > 25) {
@@ -429,20 +470,20 @@ internal class ChatAdapter(
             if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
                 progressBar.progress = 0
 
-                iconView.setImageResource(R.drawable.kenes_ic_document_white)
+                iconView?.setImageResource(R.drawable.kenes_ic_document_white)
                 val spannableString = SpannableString(getString(R.string.kenes_open_file))
                 spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.kenes_blue)),0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                 spannableStringBuilder.append(spannableString)
             } else {
-                iconView.setImageResource(R.drawable.kenes_ic_download_white)
+                iconView?.setImageResource(R.drawable.kenes_ic_download_white)
                 val spannableString = SpannableString(getString(R.string.kenes_file_download))
                 spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.kenes_blue)),0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                 spannableStringBuilder.append(spannableString)
             }
 
-            filenameView.text = spannableStringBuilder
+            mediaNameView?.text = spannableStringBuilder
 
-            return filenameView.text.isBlank()
+            return mediaNameView.text.isBlank()
         }
     }
 
@@ -638,7 +679,7 @@ internal class ChatAdapter(
         fun onImageClicked(imageView: ImageView, bitmap: Bitmap)
         fun onImageLoadCompleted()
 
-        fun onFileClicked(media: Media, position: Int)
+        fun onMediaClicked(media: Media, position: Int)
         fun onAttachmentClicked(attachment: Attachment, position: Int)
     }
 

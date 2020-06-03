@@ -61,7 +61,7 @@
     <string name="kenes_enter_valid_email">Пожалуйста, введите корректный email</string>
     <string name="kenes_enter_valid_phone">Пожалуйста, введите корректный телефон</string>
 
-    <string name="kenes_file_download">Загрузка файла</string>
+    <string name="kenes_file_download">Загрузить файл</string>
     <string name="kenes_open_file">Открыть файл</string>
     <string name="kenes_file_download_completed">Загрузка файла завершена</string>
     <string name="kenes_file_pending_download">Файл загружается</string>
