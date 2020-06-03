@@ -68,4 +68,6 @@
     <string name="kenes_file_download_completed">File download completed</string>
     <string name="kenes_file_pending_download">File is downloading</string>
     <string name="kenes_file_download_error">File not downloaded</string>
+
+    <string name="kenes_add_attachment_button_disabled">File attachment is available only when talking with the call agent</string>
 </resources>

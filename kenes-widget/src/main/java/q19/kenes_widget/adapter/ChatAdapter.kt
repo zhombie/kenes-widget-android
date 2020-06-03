@@ -526,7 +526,7 @@ internal class ChatAdapter(
                 categoryAdapter.notifyDataSetChanged()
 
                 showAllButton?.setOnClickListener {
-                    callback?.showAllCategoryChildrenClicked(category)
+                    callback?.onShowAllCategoryChildClicked(category)
                 }
             }
         }
@@ -575,7 +575,7 @@ internal class ChatAdapter(
                 crossChildrenAdapter.notifyDataSetChanged()
 
                 titleView?.setOnClickListener {
-                    callback?.onReturnBackClicked(category)
+                    callback?.onGoBackClicked(category)
                 }
             }
         }
@@ -620,7 +620,7 @@ internal class ChatAdapter(
                     titleView.visibility = View.VISIBLE
 
                     titleView.setOnClickListener {
-                        callback?.onReturnBackClicked(category)
+                        callback?.onGoBackClicked(category)
                     }
                 } else {
                     titleView.visibility = View.GONE
@@ -669,10 +669,10 @@ internal class ChatAdapter(
     }
 
     interface Callback {
-        fun showAllCategoryChildrenClicked(category: Category)
+        fun onShowAllCategoryChildClicked(category: Category)
 
         fun onCategoryChildClicked(category: Category)
-        fun onReturnBackClicked(category: Category)
+        fun onGoBackClicked(category: Category)
         fun onUrlInTextClicked(url: String)
 
         fun onImageClicked(imageView: ImageView, imageUrl: String)

@@ -28,6 +28,9 @@ internal class FooterView @JvmOverloads constructor(
     private val attachmentButton: AppCompatImageButton
     private val sendMessageButton: AppCompatImageButton
 
+    var isAttachmentButtonEnabled: Boolean = false
+        private set
+
     var callback: Callback? = null
 
     init {
@@ -98,7 +101,7 @@ internal class FooterView @JvmOverloads constructor(
     }
 
     private fun setAttachmentButtonEnabled(isEnabled: Boolean) {
-        attachmentButton.isEnabled = isEnabled
+        isAttachmentButtonEnabled = isEnabled
     }
 
     fun setOnInputViewFocusChangeListener(

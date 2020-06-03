@@ -571,13 +571,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onAttachmentButtonClicked() {
-                MaterialFilePicker()
-                    .withActivity(this@KenesWidgetV2Activity)
-                    .withHiddenFiles(true)
-                    .withFilterDirectories(false)
-                    .withCloseMenu(true)
-                    .withRequestCode(FILE_PICKER_REQUEST_CODE)
-                    .start()
+                if (footerView.isAttachmentButtonEnabled) {
+                    MaterialFilePicker()
+                        .withActivity(this@KenesWidgetV2Activity)
+                        .withHiddenFiles(true)
+                        .withFilterDirectories(false)
+                        .withCloseMenu(true)
+                        .withRequestCode(FILE_PICKER_REQUEST_CODE)
+                        .start()
+                } else {
+                    showAddAttachmentButtonDisabledAlert {}
+                }
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
@@ -698,7 +702,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private fun setupRecyclerView() {
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
-            override fun showAllCategoryChildrenClicked(category: Category) {
+            override fun onShowAllCategoryChildClicked(category: Category) {
                 chatFooterAdapter?.showGoToHomeButton()
 
                 chatBot.activeCategory = category
@@ -730,7 +734,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 isLoading = true
             }
 
-            override fun onReturnBackClicked(category: Category) {
+            override fun onGoBackClicked(category: Category) {
                 hideKeyboard()
 
                 val categories = chatBot.allCategories.filter { it.id == category.parentId }
@@ -892,8 +896,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 dialog.isSwitchToCallAgentClicked = true
 
                 chatFooterAdapter?.clear()
-
-                footerView.enableAttachmentButton()
 
                 socketClient?.textCallToCallAgent(currentLanguage)
             }

@@ -175,3 +175,14 @@ internal fun Context.showPendingFileDownloadAlert(callback: () -> Unit): AlertDi
         }
         .show()
 }
+
+internal fun Context.showAddAttachmentButtonDisabledAlert(callback: () -> Unit): AlertDialog? {
+    return AlertDialogBuilder
+        .setTitle(R.string.kenes_attention)
+        .setMessage(R.string.kenes_add_attachment_button_disabled)
+        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+            dialog.dismiss()
+            callback()
+        }
+        .show()
+}

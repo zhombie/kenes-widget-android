@@ -66,4 +66,6 @@
     <string name="kenes_file_download_completed">Файлды жүктеу аяқталды</string>
     <string name="kenes_file_pending_download">Файл жүктелуде</string>
     <string name="kenes_file_download_error">Файл жүктелмеді</string>
+
+    <string name="kenes_add_attachment_button_disabled">Файлды жүктеу тек оператормен байланыс кезінде қолжетімді</string>
 </resources>
