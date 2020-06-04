@@ -363,7 +363,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.clear()
                 chatFooterAdapter?.clear()
 
-                socketClient?.requestCategories(0, currentLanguage)
+                socketClient?.requestBasicCategories(currentLanguage)
 
                 isLoading = true
 
@@ -865,13 +865,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             Message(type = Message.Type.CATEGORY, category = category)
                         }
 
-                        runOnUiThread {
-                            chatFooterAdapter?.clear()
-                            chatAdapter?.setNewMessages(messages)
-                        }
+                        if (messages.isEmpty()) {
+                            socketClient?.requestBasicCategories(currentLanguage)
+                        } else {
+                            runOnUiThread {
+//                            chatFooterAdapter?.clear()
+                                chatAdapter?.setNewMessages(messages)
+                            }
 
-                        chatRecyclerState?.let { chatRecyclerState ->
-                            recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                            chatRecyclerState?.let { chatRecyclerState ->
+                                recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
+                            }
                         }
 
                         viewState = ViewState.ChatBot
@@ -1175,7 +1179,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         if (signallingServerUrl.isNullOrBlank()) {
             throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
         } else {
-            socketClient = SocketClient(signallingServerUrl, currentLanguage)
+            socketClient = SocketClient()
+            socketClient?.start(signallingServerUrl, currentLanguage)
         }
 
         socketClient?.listener = object : SocketClient.Listener {
@@ -1248,7 +1253,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     feedbackView.setOnRateButtonClickListener { ratingButton ->
                         socketClient?.sendFeedback(ratingButton)
 
-                        if (!setNewStateByPreviousState(State.FINISHED)) {
+                        val isHandled = setNewStateByPreviousState(State.FINISHED)
+
+                        if (!isHandled) {
                             viewState = ViewState.ChatBot
                         }
                     }
@@ -2218,6 +2225,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         audioManager = null
 
         socketClient?.release()
+        socketClient?.listener = null
         socketClient = null
 
 //        headerView = null

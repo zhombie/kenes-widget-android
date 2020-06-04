@@ -12,7 +12,7 @@ import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.UrlUtil
 
-internal class SocketClient(url: String, language: String) {
+internal class SocketClient {
 
     companion object {
         const val TAG = "SocketClient"
@@ -20,15 +20,9 @@ internal class SocketClient(url: String, language: String) {
 
     private var socket: Socket? = null
 
+    private var eventConnectEmitter: Emitter.Listener? = null
+
     var listener: Listener? = null
-
-    private val eventConnectEmitter = Emitter.Listener { args ->
-        logDebug("event [EVENT_CONNECT]: $args")
-
-        requestCategories(0, language)
-
-        listener?.onSocketConnect()
-    }
 
     private val eventCallEmitter = Emitter.Listener { args ->
         logDebug("event [CALL]: $args")
@@ -290,12 +284,20 @@ internal class SocketClient(url: String, language: String) {
         listener?.onSocketDisconnect()
     }
 
-    init {
+    fun start(url: String, language: String) {
         val options = IO.Options()
         options.reconnection = true
         options.reconnectionAttempts = 3
 
         socket = IO.socket(url, options)
+
+        eventConnectEmitter = Emitter.Listener { args ->
+            logDebug("event [EVENT_CONNECT]: $args")
+
+            requestBasicCategories(language)
+
+            listener?.onSocketConnect()
+        }
 
         socket?.on(Socket.EVENT_CONNECT, eventConnectEmitter)
         socket?.on("call", eventCallEmitter)
@@ -329,6 +331,10 @@ internal class SocketClient(url: String, language: String) {
             put("video", true)
             put("lang", language)
         })
+    }
+
+    fun requestBasicCategories(language: String) {
+        requestCategories(0, language)
     }
 
     fun requestCategories(parentId: Long, language: String) {
