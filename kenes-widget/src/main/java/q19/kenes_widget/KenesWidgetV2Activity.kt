@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
-import android.media.AudioManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -34,7 +33,9 @@ import com.loopj.android.http.RequestParams
 import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
-import org.webrtc.*
+import org.webrtc.IceCandidate
+import org.webrtc.PeerConnection
+import org.webrtc.SessionDescription
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.ChatFooterAdapter
@@ -47,13 +48,12 @@ import q19.kenes_widget.network.file.uploadFile
 import q19.kenes_widget.network.http.IceServersTask
 import q19.kenes_widget.network.http.WidgetConfigsTask
 import q19.kenes_widget.network.socket.SocketClient
+import q19.kenes_widget.rtc.PeerConnectionClient
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
 import q19.kenes_widget.util.FileUtil.getFileType
 import q19.kenes_widget.util.FileUtil.openFile
-import q19.kenes_widget.webrtc.AppRTCAudioManager
-import q19.kenes_widget.webrtc.ProxyVideoSink
-import q19.kenes_widget.webrtc.SimpleSdpObserver
+import q19.kenes_widget.util.Logger.debug
 import java.io.File
 
 class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener {
@@ -62,13 +62,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         private const val TAG = "LOL"
 
         private const val KEY_HOSTNAME = "hostname"
-
-        private const val VIDEO_RESOLUTION_WIDTH = 1024
-        private const val VIDEO_RESOLUTION_HEIGHT = 768
-        private const val FPS = 24
-
-        private const val AUDIO_TRACK_ID = "ARDAMSa0"
-        private const val VIDEO_TRACK_ID = "ARDAMSv0"
 
         private const val FILE_PICKER_REQUEST_CODE = 101
 
@@ -153,26 +146,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private var chatFooterAdapter: ChatFooterAdapter? = null
 
     private var socketClient: SocketClient? = null
-    private var peerConnection: PeerConnection? = null
-    private var peerConnectionFactory: PeerConnectionFactory? = null
-    private var rootEglBase: EglBase? = null
 
-    private var localAudioSource: AudioSource? = null
-    private var localVideoSource: VideoSource? = null
-
-    private var surfaceTextureHelper: SurfaceTextureHelper? = null
-
-    private var localMediaStream: MediaStream? = null
-
-    private var localVideoCapturer: VideoCapturer? = null
-
-    private var localAudioTrack: AudioTrack? = null
-    private var remoteAudioTrack: AudioTrack? = null
-
-    private var localVideoTrack: VideoTrack? = null
-    private var remoteVideoTrack: VideoTrack? = null
-
-    private var audioManager: AppRTCAudioManager? = null
+    private var peerConnectionClient: PeerConnectionClient? = null
 
     private val permissionsRequest by lazy {
         permissionsBuilder(
@@ -188,7 +163,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private var chatBot = ChatBot()
     private var dialog = Dialog()
 
-    private var iceServers = listOf<WidgetIceServer>()
+    private var iceServers = listOf<PeerConnection.IceServer>()
 
     private var viewState: ViewState = ViewState.ChatBot
         set(value) {
@@ -262,8 +237,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
     }
 
-    private var previousVolumeControlStream: Int = AudioManager.STREAM_SYSTEM
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_widget_v2)
@@ -287,6 +260,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         palette = resources.getIntArray(R.array.kenes_palette)
+
+        peerConnectionClient = PeerConnectionClient()
 
         // --------------------- Default screen setups ----------------------------
 
@@ -517,28 +492,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-//        dynamicFormView.callback = object : DynamicFormView.Callback {
-//            override fun onCancelClicked() {
-//                viewState = ViewState.ChatBot
-//            }
-//
-//            override fun onSendClicked(data: DynamicForm) {
-//                logDebug("onSendClicked: $data")
-//
-//                dynamicFormView.resetData()
-//
-//                socket?.emit("form_final")
-//                    ?.on("form_final") { args ->
-//                        logDebug("event [FORM_FINAL]: $args")
-//
-//                        if (args.size != 1) return@on
-//
-//                        val formFinalJson = args[0] as? JSONObject? ?: return@on
-//                        logDebug("formFinalJson: $formFinalJson")
-//                    }
-//            }
-//        }
-
         recyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
             if (isUserPromptMode && bottom < oldBottom) {
                 recyclerView.postDelayed(
@@ -589,7 +542,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onInputViewClicked() {
-//                scrollToBottom()
             }
 
             override fun onSendMessageButtonClicked(message: String) {
@@ -640,7 +592,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onSwitchSourceButtonClicked() {
-                (localVideoCapturer as? CameraVideoCapturer?)?.switchCamera(null)
+                peerConnectionClient?.onSwitchCamera()
             }
 
             override fun onRemoteFrameClicked() {
@@ -991,7 +943,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             httpClient.uploadFile(UrlUtil.buildUrl("/upload"), params) { path, hash ->
-                logDebug("uploadFile: $path, $hash")
+                debug(TAG, "uploadFile: $path, $hash")
 
                 socketClient?.sendUserMediaMessage(type, path)
 
@@ -1025,128 +977,81 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         showWidgetCloseConfirmDialog { finish() }
     }
 
+    override fun finish() {
+        closeLiveCall()
+        super.finish()
+    }
+
     private fun initializeCallConnection(isVideoCall: Boolean = true) {
-        rootEglBase = EglBase.create()
+        peerConnectionClient?.init(
+            activity = this,
+            isVideoCall = isVideoCall,
+            iceServers = iceServers,
+            localSurfaceView = videoDialogView.localSurfaceView,
+            remoteSurfaceView = videoDialogView.remoteSurfaceView,
+            listener = object : PeerConnectionClient.Listener {
+                override fun onIceCandidate(iceCandidate: IceCandidate) {
+                    socketClient?.sendMessage(
+                        rtc = rtc {
+                            type = RTC.Type.CANDIDATE
+                            id = iceCandidate.sdpMid
+                            label = iceCandidate.sdpMLineIndex
+                            candidate = iceCandidate.sdp
+                        },
+                        language = currentLanguage
+                    )
+                }
 
-        if (isVideoCall) {
-            runOnUiThread {
-                videoDialogView.localSurfaceView.init(rootEglBase?.eglBaseContext, null)
-                videoDialogView.localSurfaceView.setEnableHardwareScaler(true)
-                videoDialogView.localSurfaceView.setMirror(false)
-                videoDialogView.localSurfaceView.setZOrderMediaOverlay(true)
-                videoDialogView.localSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
+                    when (iceConnectionState) {
+                        PeerConnection.IceConnectionState.CONNECTED,
+                        PeerConnection.IceConnectionState.COMPLETED -> {
+                            runOnUiThread {
+                                footerView.enableAttachmentButton()
+                            }
+                        }
+                        PeerConnection.IceConnectionState.CLOSED -> {
+                            dialog.clear()
 
-                videoDialogView.remoteSurfaceView.init(rootEglBase?.eglBaseContext, null)
-                videoDialogView.remoteSurfaceView.setEnableHardwareScaler(true)
-                videoDialogView.remoteSurfaceView.setMirror(true)
-                videoDialogView.remoteSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                            setNewStateByPreviousState(State.IDLE)
+                        }
+                        PeerConnection.IceConnectionState.DISCONNECTED -> {
+                            hangupLiveCall()
+                        }
+                        else -> {
+                        }
+                    }
+
+                }
+
+                override fun onRenegotiationNeeded() {
+                    if (dialog.isInitiator) {
+                        peerConnectionClient?.createOffer()
+                    } else {
+                        peerConnectionClient?.createAnswer()
+                    }
+                }
+
+                override fun onLocalDescription(sessionDescription: SessionDescription) {
+                    val type = when (sessionDescription.type) {
+                        SessionDescription.Type.OFFER -> RTC.Type.OFFER
+                        SessionDescription.Type.ANSWER -> RTC.Type.ANSWER
+                        else -> null
+                    }
+                    socketClient?.sendMessage(
+                        rtc = rtc {
+                            this.type = type
+                            this.sdp = sessionDescription.description
+                        },
+                        language = currentLanguage
+                    )
+                }
+
+                override fun onPeerConnectionError(errorMessage: String) {
+                }
             }
-        }
-
-        val initializationOptions = PeerConnectionFactory.InitializationOptions.builder(this)
-            .setEnableInternalTracer(true)
-            .createInitializationOptions()
-
-        PeerConnectionFactory.initialize(initializationOptions)
-
-        val options = PeerConnectionFactory.Options()
-        options.disableNetworkMonitor = true
-
-//        val audioDeviceModule = JavaAudioDeviceModule.builder(applicationContext)
-//            .setUseHardwareAcousticEchoCanceler(true)
-//            .setUseHardwareNoiseSuppressor(true)
-//            .setAudioRecordErrorCallback(null)
-//            .setAudioTrackErrorCallback(null)
-//            .setSamplesReadyCallback(null)
-//            .createAudioDeviceModule()
-
-        val defaultVideoEncoderFactory = DefaultVideoEncoderFactory(
-            rootEglBase?.eglBaseContext,  /* enableIntelVp8Encoder */
-            true,  /* enableH264HighProfile */
-            true
         )
-
-        val defaultVideoDecoderFactory = DefaultVideoDecoderFactory(rootEglBase?.eglBaseContext)
-
-        peerConnectionFactory = PeerConnectionFactory.builder()
-            .setOptions(options)
-//            .setAudioDeviceModule(audioDeviceModule)
-            .setVideoEncoderFactory(defaultVideoEncoderFactory)
-            .setVideoDecoderFactory(defaultVideoDecoderFactory)
-            .createPeerConnectionFactory()
-
-//        if (isVideoCall) {
-//            peerConnectionFactory?.setVideoHwAccelerationOptions(
-//                rootEglBase?.eglBaseContext,
-//                rootEglBase?.eglBaseContext
-//            )
-//        }
-
-        peerConnection = peerConnectionFactory?.let { createPeerConnection(it) }
-
-        localMediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
-
-        if (isVideoCall) {
-            localMediaStream?.addTrack(createVideoTrack())
-        }
-
-        localMediaStream?.addTrack(createAudioTrack())
-
-        peerConnection?.addStream(localMediaStream)
-
-        runOnUiThread {
-            audioManager = AppRTCAudioManager.create(this)
-            audioManager?.start { selectedAudioDevice, availableAudioDevices ->
-                logDebug("onAudioManagerDevicesChanged: $availableAudioDevices, selected: $selectedAudioDevice")
-            }
-        }
-
-        previousVolumeControlStream = volumeControlStream
-
-        volumeControlStream = AudioManager.STREAM_VOICE_CALL
     }
-
-    private fun createVideoTrack(): VideoTrack? {
-        localVideoCapturer = createVideoCapturer()
-        surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", rootEglBase?.eglBaseContext)
-        localVideoSource = peerConnectionFactory?.createVideoSource(false)
-        localVideoCapturer?.initialize(surfaceTextureHelper, applicationContext, localVideoSource?.capturerObserver)
-        localVideoCapturer?.startCapture(VIDEO_RESOLUTION_WIDTH, VIDEO_RESOLUTION_HEIGHT, FPS)
-
-        localVideoTrack = peerConnectionFactory?.createVideoTrack(VIDEO_TRACK_ID, localVideoSource)
-        localVideoTrack?.setEnabled(true)
-//        localVideoTrack?.addRenderer(VideoRenderer(videoDialogView.localSurfaceView))
-        localVideoTrack?.addSink(ProxyVideoSink(TAG).also { it.setTarget(videoDialogView.localSurfaceView) })
-
-        return localVideoTrack
-    }
-
-    private fun createAudioTrack(): AudioTrack? {
-        localAudioSource = peerConnectionFactory?.createAudioSource(MediaConstraints())
-        localAudioTrack = peerConnectionFactory?.createAudioTrack(AUDIO_TRACK_ID, localAudioSource)
-        localAudioTrack?.setEnabled(true)
-        return localAudioTrack
-    }
-
-    private fun createVideoCapturer(): VideoCapturer? {
-        return if (useCamera2()) {
-            createCameraCapturer(Camera2Enumerator(this))
-        } else {
-            createCameraCapturer(Camera1Enumerator(true))
-        }
-    }
-
-    private fun createCameraCapturer(enumerator: CameraEnumerator): VideoCapturer? {
-        val deviceNames = enumerator.deviceNames
-        // find the front facing camera and return it.
-        deviceNames
-            .filter { enumerator.isFrontFacing(it) }
-            .mapNotNull { enumerator.createCapturer(it, null) }
-            .forEach { return it }
-        return null
-    }
-
-    private fun useCamera2(): Boolean = Camera2Enumerator.isSupported(this)
 
     private fun fetchWidgetConfigs() {
         val task = WidgetConfigsTask(UrlUtil.getHostname() + "/configs")
@@ -1170,7 +1075,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         val data = task.run()
 
         data?.let {
-            iceServers = data
+            iceServers = data.map {
+                PeerConnection.IceServer.builder(it.url)
+                    .setUsername(it.username)
+                    .setPassword(it.credential)
+                    .createIceServer()
+            }
         }
     }
 
@@ -1345,26 +1255,26 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 return true
             }
 
-            override fun onRtcStart() {
+            override fun onRTCStart() {
                 runOnUiThread {
                     headerView.showHangupButton()
                     footerView.visibility = View.VISIBLE
                 }
 
                 socketClient?.sendMessage(
-                    rtc = rtc { type = Rtc.Type.PREPARE },
+                    rtc = rtc { type = RTC.Type.PREPARE },
                     language = currentLanguage
                 )
             }
 
-            override fun onRtcPrepare() {
+            override fun onRTCPrepare() {
                 if (viewState is ViewState.VideoDialog) {
                     viewState = ViewState.VideoDialog(State.PREPARATION)
 
                     initializeCallConnection(isVideoCall = true)
 
                     socketClient?.sendMessage(
-                        rtc = rtc { type = Rtc.Type.READY },
+                        rtc = rtc { type = RTC.Type.READY },
                         language = currentLanguage
                     )
                 } else if (viewState is ViewState.AudioDialog) {
@@ -1373,45 +1283,47 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     initializeCallConnection(isVideoCall = false)
 
                     socketClient?.sendMessage(
-                        rtc = rtc { type = Rtc.Type.READY },
+                        rtc = rtc { type = RTC.Type.READY },
                         language = currentLanguage
                     )
                 }
             }
 
-            override fun onRtcReady() {
+            override fun onRTCReady() {
+                debug(TAG, "onRTCReady: $viewState")
+
                 if (viewState is ViewState.VideoDialog) {
                     viewState = ViewState.VideoDialog(State.LIVE)
 
                     initializeCallConnection(isVideoCall = true)
 
-                    sendOffer()
+                    peerConnectionClient?.createOffer()
                 } else if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog(State.LIVE)
 
                     initializeCallConnection(isVideoCall = false)
 
-                    sendOffer()
+                    peerConnectionClient?.createOffer()
                 }
             }
 
-            override fun onRtcOffer(type: SessionDescription.Type?, sessionDescription: String) {
+            override fun onRTCOffer(sessionDescription: SessionDescription) {
                 setNewStateByPreviousState(State.LIVE)
 
-                setRemoteDescription(type, sessionDescription)
+                peerConnectionClient?.setRemoteDescription(sessionDescription)
 
-                sendAnswer()
+                peerConnectionClient?.createAnswer()
             }
 
-            override fun onRtcAnswer(type: SessionDescription.Type?, sessionDescription: String) {
-                setRemoteDescription(type, sessionDescription)
+            override fun onRTCAnswer(sessionDescription: SessionDescription) {
+                peerConnectionClient?.setRemoteDescription(sessionDescription)
             }
 
-            override fun onRtcIceCandidate(iceCandidate: IceCandidate) {
-                peerConnection?.addIceCandidate(iceCandidate)
+            override fun onRTCIceCandidate(iceCandidate: IceCandidate) {
+                peerConnectionClient?.addRemoteIceCandidate(iceCandidate)
             }
 
-            override fun onRtcHangup() {
+            override fun onRTCHangup() {
                 closeLiveCall()
 
                 setNewStateByPreviousState(State.IDLE)
@@ -1499,7 +1411,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 if (!chatBot.isBasicCategoriesFilled) {
                     chatBot.allCategories.forEach { category ->
-//                    logDebug("category: $category, ${category.parentId == null}")
+//                    logDebug(TAG, "category: $category, ${category.parentId == null}")
 
                         if (category.parentId == null) {
                             socketClient?.requestCategories(category.id, currentLanguage)
@@ -1539,190 +1451,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
     }
 
-
-    private fun setLocalDescription(type: SessionDescription.Type?, description: String) {
-        val newDescription = CodecUtil.preferCodec2(description, CodecUtil.AUDIO_CODEC_ISAC, true)
-
-        peerConnection?.setLocalDescription(
-            SimpleSdpObserver(),
-            SessionDescription(type, newDescription)
-        )
-    }
-
-    private fun setRemoteDescription(type: SessionDescription.Type?, description: String) {
-        val newDescription = CodecUtil.preferCodec2(description, CodecUtil.AUDIO_CODEC_OPUS, true)
-
-//        newSdpDescription = Codec.setStartBitrate(Codec.AUDIO_CODEC_OPUS, false, newSdpDescription, 32)
-
-        peerConnection?.setRemoteDescription(
-            SimpleSdpObserver(),
-            SessionDescription(type, newDescription)
-        )
-    }
-
-    private fun sendAnswer() {
-        val mediaConstraints = MediaConstraints()
-
-//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
-//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-
-        peerConnection?.createAnswer(object : SimpleSdpObserver() {
-            override fun onCreateSuccess(sessionDescription: SessionDescription) {
-                logDebug("onCreateSuccess")
-
-                setLocalDescription(sessionDescription.type, sessionDescription.description)
-
-                socketClient?.sendMessage(
-                    rtc = rtc { type = Rtc.Type.ANSWER; sdp = sessionDescription.description},
-                    language = currentLanguage
-                )
-            }
-        }, mediaConstraints)
-    }
-
-    private fun sendOffer() {
-        val mediaConstraints = MediaConstraints()
-
-//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
-//        mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-
-        peerConnection?.createOffer(object : SimpleSdpObserver() {
-            override fun onCreateSuccess(sessionDescription: SessionDescription) {
-                logDebug("onCreateSuccess")
-
-                setLocalDescription(sessionDescription.type, sessionDescription.description)
-
-                socketClient?.sendMessage(
-                    rtc = rtc { type = Rtc.Type.OFFER; sdp = sessionDescription.description},
-                    language = currentLanguage
-                )
-            }
-
-            override fun onCreateFailure(s: String) {
-                super.onCreateFailure(s)
-                logDebug("onCreateFailure: $s")
-            }
-        }, mediaConstraints)
-    }
-
-    private fun createPeerConnection(factory: PeerConnectionFactory): PeerConnection? {
-        var iceServers = iceServers.map {
-            PeerConnection.IceServer.builder(it.url)
-                .setUsername(it.username)
-                .setPassword(it.credential)
-                .createIceServer()
-        }
-
-        if (iceServers.isNullOrEmpty()) {
-            iceServers = listOf(
-                PeerConnection.IceServer.builder("stun:stun.l.google.com:19302")
-                    .createIceServer()
-            )
-        }
-
-        val rtcConfig = PeerConnection.RTCConfiguration(iceServers)
-        rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.DISABLED
-        rtcConfig.bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE
-        rtcConfig.rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE
-        rtcConfig.continualGatheringPolicy = PeerConnection.ContinualGatheringPolicy.GATHER_CONTINUALLY
-        rtcConfig.iceTransportsType = PeerConnection.IceTransportsType.RELAY
-
-        val peerConnectionObserver = object : PeerConnection.Observer {
-            override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {}
-
-            override fun onSignalingChange(signalingState: PeerConnection.SignalingState) {
-                logDebug("onSignalingChange: $signalingState")
-            }
-
-            override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
-                logDebug("onIceConnectionChange: $iceConnectionState")
-
-                when (iceConnectionState) {
-                    PeerConnection.IceConnectionState.CONNECTED,
-                    PeerConnection.IceConnectionState.COMPLETED -> {
-                        runOnUiThread {
-                            footerView.enableAttachmentButton()
-                        }
-                    }
-                    PeerConnection.IceConnectionState.CLOSED -> {
-                        dialog.clear()
-
-                        setNewStateByPreviousState(State.IDLE)
-                    }
-                    PeerConnection.IceConnectionState.DISCONNECTED -> {
-                        hangupLiveCall()
-                    }
-                    else -> {
-                    }
-                }
-            }
-
-            override fun onIceConnectionReceivingChange(b: Boolean) {
-                logDebug("onIceConnectionReceivingChange: $b")
-            }
-
-            override fun onIceGatheringChange(iceGatheringState: PeerConnection.IceGatheringState) {
-                logDebug("onIceGatheringChange: $iceGatheringState")
-            }
-
-            override fun onIceCandidate(iceCandidate: IceCandidate) {
-                logDebug("onIceCandidate: " + iceCandidate.sdp)
-
-                socketClient?.sendMessage(
-                    rtc = rtc {
-                        type = Rtc.Type.CANDIDATE
-                        id = iceCandidate.sdpMid
-                        label = iceCandidate.sdpMLineIndex
-                        candidate = iceCandidate.sdp
-                    },
-                    language = currentLanguage
-                )
-            }
-
-            override fun onIceCandidatesRemoved(iceCandidates: Array<IceCandidate>) {
-                logDebug("onIceCandidatesRemoved: " + iceCandidates.contentToString())
-            }
-
-            override fun onAddStream(mediaStream: MediaStream) {
-                logDebug("onAddStream -> mediaStream.audioTracks.size: " + mediaStream.audioTracks.size)
-                logDebug("onAddStream -> mediaStream.videoTracks.size: " + mediaStream.videoTracks.size)
-
-                if (mediaStream.audioTracks.isNotEmpty()) {
-                    remoteAudioTrack = mediaStream.audioTracks[0]
-                    remoteAudioTrack?.setEnabled(true)
-//                    setSpeakerphoneOn(true)
-                }
-
-                if (viewState is ViewState.VideoDialog) {
-                    if (mediaStream.videoTracks.isNotEmpty()) {
-                        remoteVideoTrack = mediaStream.videoTracks[0]
-                        remoteVideoTrack?.setEnabled(true)
-//                        remoteVideoTrack?.addRenderer(VideoRenderer(videoDialogView.remoteSurfaceView))
-                        remoteVideoTrack?.addSink(ProxyVideoSink(TAG).also { it.setTarget(videoDialogView.remoteSurfaceView) })
-                    }
-                }
-            }
-
-            override fun onRemoveStream(mediaStream: MediaStream) {
-                logDebug("onRemoveStream: $mediaStream")
-            }
-
-            override fun onDataChannel(dataChannel: DataChannel) {
-                logDebug("onDataChannel: $dataChannel")
-            }
-
-            override fun onRenegotiationNeeded() {
-                logDebug("onRenegotiationNeeded")
-                if (dialog.isInitiator) {
-                    sendOffer()
-                } else {
-                    sendAnswer()
-                }
-            }
-        }
-        return factory.createPeerConnection(rtcConfig, peerConnectionObserver)
-    }
-
     private fun hangupLiveCall() {
         if (dialog.media == "text") {
             dialog.isSwitchToCallAgentClicked = false
@@ -1752,10 +1480,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.addNewMessage(Message(Message.Type.NOTIFICATION, getString(R.string.kenes_user_disconnected)))
             }
 
-            volumeControlStream = previousVolumeControlStream
-
             socketClient?.sendMessage(
-                rtc = rtc { type = Rtc.Type.HANGUP },
+                rtc = rtc { type = RTC.Type.HANGUP },
                 language = currentLanguage
             )
 
@@ -1902,7 +1628,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         headerView.showHangupButton()
 
                         recyclerView.visibility = View.VISIBLE
-//                        scrollToBottom()
 
                         footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
 
@@ -2006,7 +1731,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         headerView.showHangupButton()
 
                         recyclerView.visibility = View.VISIBLE
-//                        scrollToBottom()
 
                         footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
 
@@ -2153,54 +1877,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         dialog.isSwitchToCallAgentClicked = false
 
-        peerConnection?.dispose()
-        peerConnection = null
-
-        surfaceTextureHelper?.dispose()
-        surfaceTextureHelper = null
-
-        logDebug("Stopping capture.")
-        try {
-            localVideoCapturer?.stopCapture()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        localVideoCapturer?.dispose()
-        localVideoCapturer = null
-
-//        localVideoSource?.dispose()
-        localVideoSource = null
-
-//        localVideoSource?.dispose()
-        localAudioSource = null
-
-//        localMediaStream?.dispose()
-        localMediaStream = null
-
-        logDebug("Closing peer connection factory.")
-        peerConnectionFactory?.dispose()
-        peerConnectionFactory = null
-
-        logDebug("Closing peer connection done.")
-
-//        PeerConnectionFactory.stopInternalTracingCapture()
-//        PeerConnectionFactory.shutdownInternalTracer()
-
-        rootEglBase?.release()
-        rootEglBase = null
-
-//        localVideoTrack?.dispose()
-        localVideoTrack = null
-//        remoteVideoTrack?.dispose()
-        remoteVideoTrack = null
-
-//        localAudioTrack?.dispose()
-        localAudioTrack = null
-
-//        remoteAudioTrack?.dispose()
-        remoteAudioTrack = null
-
         videoDialogView.release()
+
+        peerConnectionClient?.dispose()
     }
 
     override fun onDestroy() {
@@ -2222,11 +1901,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         chatBot.clear()
         dialog.clear()
 
-        audioManager = null
-
         socketClient?.release()
         socketClient?.listener = null
         socketClient = null
+
+        peerConnectionClient = null
 
 //        headerView = null
 
@@ -2267,7 +1946,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             chatAdapter?.unregisterAdapterDataObserver(chatAdapterDataObserver)
             chatFooterAdapter?.unregisterAdapterDataObserver(chatFooterAdapterDataObserver)
         } catch (e: IllegalStateException) {
-            e.printStackTrace()
+//            e.printStackTrace()
         }
 
         chatAdapter = null
@@ -2289,15 +1968,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         Toast.makeText(this, R.string.kenes_error_invalid_hostname, Toast.LENGTH_SHORT)
             .show()
         finish()
-    }
-
-    private fun logDebug(message: String) {
-        if (message.length > 4000) {
-            Log.d(TAG, message.substring(0, 4000))
-            logDebug(message.substring(4000))
-        } else {
-            Log.d(TAG, message)
-        }
     }
 
 }

@@ -1,6 +1,5 @@
 package q19.kenes_widget.network.socket
 
-import android.util.Log
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
@@ -25,13 +24,13 @@ internal class SocketClient {
     var listener: Listener? = null
 
     private val eventCallEmitter = Emitter.Listener { args ->
-        logDebug("event [CALL]: $args")
+//        logDebug(TAG, "event [CALL]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        logDebug("[JSONObject] data: $data")
+//        logDebug(TAG, "[JSONObject] data: $data")
 
         val type = data.optString("type")
         val media = data.optString("media")
@@ -42,13 +41,13 @@ internal class SocketClient {
     }
 
     private val eventOperatorGreetEmitter = Emitter.Listener { args ->
-        logDebug("event [OPERATOR_GREET]: $args")
+//        logDebug(TAG, "event [OPERATOR_GREET]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        logDebug("[JSONObject] data: $data")
+//        logDebug(TAG, "[JSONObject] data: $data")
 
 //        val name = data.optString("name")
         val fullName = data.optString("full_name")
@@ -61,13 +60,13 @@ internal class SocketClient {
     }
 
     private val eventFormInitEmitter = Emitter.Listener { args ->
-        logDebug("event [FORM_INIT]: $args")
+//        logDebug(TAG, "event [FORM_INIT]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        logDebug("[JSONObject] data: $data")
+//        logDebug(TAG, "[JSONObject] data: $data")
 
         val formJson = data.getJSONObject("form")
         val formFieldsJsonArray = data.getJSONArray("form_fields")
@@ -98,13 +97,13 @@ internal class SocketClient {
     }
 
     private val eventFeedbackEmitter = Emitter.Listener { args ->
-        logDebug("event [FEEDBACK]: $args")
+//        logDebug(TAG, "event [FEEDBACK]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        logDebug("[JSONObject] data: $data")
+//        logDebug(TAG, "[JSONObject] data: $data")
 
         val buttonsJson = data.optJSONArray("buttons")
 
@@ -128,13 +127,13 @@ internal class SocketClient {
     }
 
     private val eventUserQueueEmitter = Emitter.Listener { args ->
-        logDebug("event [USER_QUEUE]: $args")
+//        logDebug(TAG, "event [USER_QUEUE]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        logDebug("[JSONObject] data: $data")
+//        logDebug(TAG, "[JSONObject] data: $data")
 
         val count = data.getInt("count")
 //            val channel = userQueue.getInt("channel")
@@ -143,13 +142,13 @@ internal class SocketClient {
     }
 
     private val eventMessageEmitter = Emitter.Listener { args ->
-        logDebug("event [MESSAGE]: $args")
+//        logDebug(TAG, "event [MESSAGE]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        logDebug("[JSONObject] data: $data")
+//        logDebug(TAG, "[JSONObject] data: $data")
 
         val text = data.getNullableString("text")?.trim()
         val noOnline = data.optBoolean("no_online")
@@ -187,28 +186,32 @@ internal class SocketClient {
 
         if (rtc != null) {
             when (rtc.getNullableString("type")) {
-                Rtc.Type.START?.value -> listener?.onRtcStart()
-                Rtc.Type.PREPARE?.value -> listener?.onRtcPrepare()
-                Rtc.Type.READY?.value -> listener?.onRtcReady()
-                Rtc.Type.ANSWER?.value ->
-                    listener?.onRtcAnswer(
-                        parseRtcType(rtc.getString("type")),
-                        rtc.getString("sdp")
+                RTC.Type.START?.value -> listener?.onRTCStart()
+                RTC.Type.PREPARE?.value -> listener?.onRTCPrepare()
+                RTC.Type.READY?.value -> listener?.onRTCReady()
+                RTC.Type.ANSWER?.value ->
+                    listener?.onRTCAnswer(
+                        SessionDescription(
+                            parseRTCType(rtc.getString("type")),
+                            rtc.getString("sdp")
+                        )
                     )
-                Rtc.Type.CANDIDATE?.value ->
-                    listener?.onRtcIceCandidate(
+                RTC.Type.CANDIDATE?.value ->
+                    listener?.onRTCIceCandidate(
                         IceCandidate(
                             rtc.getString("id"),
                             rtc.getInt("label"),
                             rtc.getString("candidate")
                         )
                     )
-                Rtc.Type.OFFER?.value ->
-                    listener?.onRtcOffer(
-                        parseRtcType(rtc.getString("type")),
-                        rtc.getString("sdp")
+                RTC.Type.OFFER?.value ->
+                    listener?.onRTCOffer(
+                        SessionDescription(
+                            parseRTCType(rtc.getString("type")),
+                            rtc.getString("sdp")
+                        )
                     )
-                Rtc.Type.HANGUP?.value -> listener?.onRtcHangup()
+                RTC.Type.HANGUP?.value -> listener?.onRTCHangup()
             }
             return@Listener
         }
@@ -265,7 +268,7 @@ internal class SocketClient {
 
         val categoryListJson = data.optJSONArray("category_list") ?: return@Listener
 
-        logDebug("categoryList: $data")
+//        logDebug(TAG, "categoryList: $data")
 
         val currentCategories = mutableListOf<Category>()
         for (i in 0 until categoryListJson.length()) {
@@ -279,7 +282,7 @@ internal class SocketClient {
     }
 
     private val eventDisconnectEmitter = Emitter.Listener {
-        logDebug("event [EVENT_DISCONNECT]")
+//        logDebug(TAG, "event [EVENT_DISCONNECT]")
 
         listener?.onSocketDisconnect()
     }
@@ -292,7 +295,7 @@ internal class SocketClient {
         socket = IO.socket(url, options)
 
         eventConnectEmitter = Emitter.Listener { args ->
-            logDebug("event [EVENT_CONNECT]: $args")
+//            logDebug(TAG, "event [EVENT_CONNECT]: $args")
 
             requestBasicCategories(language)
 
@@ -338,7 +341,7 @@ internal class SocketClient {
     }
 
     fun requestCategories(parentId: Long, language: String) {
-//        logDebug("requestCategories: $parentId")
+//        logDebug(TAG, "requestCategories: $parentId")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_category_list")
@@ -348,7 +351,7 @@ internal class SocketClient {
     }
 
     fun requestResponse(id: Int, language: String) {
-//        logDebug("requestResponse: $id")
+//        logDebug(TAG, "requestResponse: $id")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_response")
@@ -365,6 +368,8 @@ internal class SocketClient {
     }
 
     fun sendUserMessage(message: String, language: String) {
+//        logDebug(TAG, "sendUserMessage -> message: $message")
+
         socket?.emit("user_message", jsonObject {
             put("text", message)
             put("lang", language)
@@ -377,9 +382,12 @@ internal class SocketClient {
         })
     }
 
-    fun sendMessage(rtc: Rtc? = null, action: UserMessage.Action? = null, language: String): Emitter? {
+    fun sendMessage(rtc: RTC? = null, action: UserMessage.Action? = null, language: String): Emitter? {
         val userMessage = UserMessage(rtc, action).toJsonObject()
         userMessage.put("lang", language)
+
+//        logDebug(TAG, "sendMessage -> userMessage: $userMessage")
+
         return socket?.emit("message", userMessage)
     }
 
@@ -414,20 +422,11 @@ internal class SocketClient {
         socket = null
     }
 
-    private fun parseRtcType(type: String): SessionDescription.Type? {
+    private fun parseRTCType(type: String): SessionDescription.Type? {
         return when (type) {
             "offer" -> SessionDescription.Type.OFFER
             "answer" -> SessionDescription.Type.ANSWER
             else -> null
-        }
-    }
-
-    private fun logDebug(message: String) {
-        if (message.length > 4000) {
-            Log.d(TAG, message.substring(0, 4000))
-            logDebug(message.substring(4000))
-        } else {
-            Log.d(TAG, message)
         }
     }
 
@@ -444,13 +443,13 @@ internal class SocketClient {
         fun onNoResultsFound(text: String, timestamp: Long): Boolean
         fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean
 
-        fun onRtcStart()
-        fun onRtcPrepare()
-        fun onRtcReady()
-        fun onRtcOffer(type: SessionDescription.Type?, sessionDescription: String)
-        fun onRtcAnswer(type: SessionDescription.Type?, sessionDescription: String)
-        fun onRtcIceCandidate(iceCandidate: IceCandidate)
-        fun onRtcHangup()
+        fun onRTCStart()
+        fun onRTCPrepare()
+        fun onRTCReady()
+        fun onRTCAnswer(sessionDescription: SessionDescription)
+        fun onRTCOffer(sessionDescription: SessionDescription)
+        fun onRTCIceCandidate(iceCandidate: IceCandidate)
+        fun onRTCHangup()
 
         fun onTextMessage(text: String, attachments: List<Attachment>? = null, timestamp: Long)
         fun onMediaMessage(media: Media, timestamp: Long)

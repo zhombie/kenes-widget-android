@@ -1,8 +1,8 @@
-package q19.kenes_widget.webrtc
+package q19.kenes_widget.rtc
 
-import android.util.Log
 import org.webrtc.VideoFrame
 import org.webrtc.VideoSink
+import q19.kenes_widget.util.Logger
 
 internal class ProxyVideoSink(private val tag: String = "ProxyVideoSink") : VideoSink {
     private var target: VideoSink? = null
@@ -10,7 +10,7 @@ internal class ProxyVideoSink(private val tag: String = "ProxyVideoSink") : Vide
     @Synchronized
     override fun onFrame(frame: VideoFrame?) {
         if (target == null) {
-            Log.d(tag, "Dropping frame in proxy because target is null.")
+            Logger.debug(tag, "Dropping frame in proxy because target is null.")
             return
         }
         target?.onFrame(frame)

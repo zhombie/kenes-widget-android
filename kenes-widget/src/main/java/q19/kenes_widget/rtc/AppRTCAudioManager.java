@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package q19.kenes_widget.webrtc;
+package q19.kenes_widget.rtc;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,13 +31,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import q19.kenes_widget.util.AssertionUtil;
-import q19.kenes_widget.util.LoggingUtil;
+import q19.kenes_widget.util.Logger;
 import q19.kenes_widget.util.ThreadUtil;
 
 /**
- * AppRTCAudioManager manages all audio related parts of the AppRTC demo.
+ * AppRTCAudioManager manages all audio related parts.
  */
-@SuppressWarnings("unused")
 public class AppRTCAudioManager {
 
   private static final String TAG = "AppRTCAudioManager";
@@ -62,8 +61,7 @@ public class AppRTCAudioManager {
   /** Selected audio device change event. */
   public interface AudioManagerEvents {
     // Callback fired once audio device is changed or list of available audio devices changed.
-    void onAudioDeviceChanged(
-            AudioDevice selectedAudioDevice, Set<AudioDevice> availableAudioDevices);
+    void onAudioDeviceChanged(AudioDevice selectedAudioDevice, Set<AudioDevice> availableAudioDevices);
   }
 
   private final Context apprtcContext;
@@ -198,10 +196,10 @@ public class AppRTCAudioManager {
         this ::onProximitySensorChangedState);
 
     Log.d(TAG, "defaultAudioDevice: " + defaultAudioDevice);
-    LoggingUtil.logDeviceInfo(TAG);
+    Logger.logDeviceInfo(TAG);
   }
 
-  @SuppressWarnings("deprecation") // TODO(henrika): audioManager.requestAudioFocus() is deprecated.
+  // TODO(henrika): audioManager.requestAudioFocus() is deprecated.
   public void start(AudioManagerEvents audioManagerEvents) {
     Log.d(TAG, "start");
     ThreadUtils.checkIsOnMainThread();
@@ -443,7 +441,6 @@ public class AppRTCAudioManager {
    * only use it as an early indicator (during initialization) of an attached
    * wired headset.
    */
-  @Deprecated
   private boolean hasWiredHeadset() {
     if (audioManager != null) {
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {

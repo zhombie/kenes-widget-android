@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package q19.kenes_widget.webrtc;
+package q19.kenes_widget.rtc;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -26,15 +26,14 @@ import q19.kenes_widget.util.AssertionUtil;
 import q19.kenes_widget.util.ThreadUtil;
 
 /**
- * AppRTCProximitySensor manages functions related to the proximity sensor in
- * the AppRTC demo.
+ * AppRTCProximitySensor manages functions related to the proximity sensor.
  * On most device, the proximity sensor is implemented as a boolean-sensor.
  * It returns just two values "NEAR" or "FAR". Thresholding is done on the LUX
  * value i.e. the LUX value of the light sensor is compared with a threshold.
  * A LUX-value more than the threshold means the proximity sensor returns "FAR".
  * Anything less than the threshold value and the sensor  returns "NEAR".
  */
-public class AppRTCProximitySensor implements SensorEventListener {
+class AppRTCProximitySensor implements SensorEventListener {
   private static final String TAG = "AppRTCProximitySensor";
 
   // This class should be created, started and stopped on one thread
