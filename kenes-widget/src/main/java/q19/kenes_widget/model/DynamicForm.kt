@@ -1,6 +1,6 @@
 package q19.kenes_widget.model
 
-data class DynamicForm(
+internal data class DynamicForm(
     val id: Long,
     val title: String? = null,
     val isFlex: Int = 0,
@@ -8,7 +8,7 @@ data class DynamicForm(
     val fields: List<DynamicFormField>
 )
 
-class DynamicFormField(
+internal class DynamicFormField(
     val id: Long,
     val title: String? = null,
     val prompt: String? = null,

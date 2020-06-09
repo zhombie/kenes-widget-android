@@ -108,7 +108,7 @@ internal class DynamicFormView @JvmOverloads constructor(
 
 }
 
-private class DynamicFormFieldsAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val LAYOUT_FORM_FIELD = R.layout.kenes_cell_form_field

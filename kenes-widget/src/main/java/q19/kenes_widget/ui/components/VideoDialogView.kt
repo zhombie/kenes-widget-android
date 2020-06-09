@@ -38,7 +38,14 @@ internal class VideoDialogView @JvmOverloads constructor(
         hangupButton = view.findViewById(R.id.hangupButton)
         switchSourceButton = view.findViewById(R.id.switchSourceButton)
 
+        localSurfaceView.setOnClickListener {
+            if (!isControlButtonsVisible()) {
+                showControlButtons()
+            }
+        }
+
         remoteSurfaceView.setOnClickListener { callback?.onRemoteFrameClicked() }
+
         goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
         hangupButton.setOnClickListener { callback?.onHangupButtonClicked() }
         switchSourceButton.setOnClickListener { callback?.onSwitchSourceButtonClicked() }

@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package q19.kenes_widget.webrtc;
+package q19.kenes_widget.rtc;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
@@ -36,11 +36,9 @@ import java.util.Set;
 import q19.kenes_widget.util.ThreadUtil;
 
 /**
- * AppRTCProximitySensor manages functions related to Bluetoth devices in the
- * AppRTC demo.
+ * AppRTCProximitySensor manages functions related to Bluetoth devices.
  */
-@SuppressWarnings("unused")
-public class AppRTCBluetoothManager {
+class AppRTCBluetoothManager {
   private static final String TAG = "AppRTCBluetoothManager";
 
   // Timeout interval for starting or stopping audio to a Bluetooth SCO device.
@@ -415,8 +413,7 @@ public class AppRTCBluetoothManager {
     apprtcContext.unregisterReceiver(receiver);
   }
 
-  protected boolean getBluetoothProfileProxy(
-      Context context, BluetoothProfile.ServiceListener listener, int profile) {
+  protected boolean getBluetoothProfileProxy(Context context, BluetoothProfile.ServiceListener listener, int profile) {
     return bluetoothAdapter != null && bluetoothAdapter.getProfileProxy(context, listener, profile);
   }
 

@@ -3,7 +3,7 @@ package q19.kenes_widget.model
 import org.json.JSONObject
 
 internal class UserMessage(
-    var rtc: Rtc? = null,
+    var rtc: RTC? = null,
     var action: Action? = null
 ) {
 
@@ -59,7 +59,7 @@ internal class UserMessage(
 
 }
 
-internal class Rtc(
+internal class RTC(
     var type: Type,
     var sdp: String? = null,
     var id: String? = null,
@@ -82,24 +82,24 @@ internal class Rtc(
     }
 
     override fun toString(): String {
-        return "Rtc(type = $type, sdp = $sdp, id = $id, label = $label, candidate = $candidate)"
+        return "RTC(type = $type, sdp = $sdp, id = $id, label = $label, candidate = $candidate)"
     }
 
 }
 
-internal class RtcBuilder {
-    var type: Rtc.Type? = null
+internal class RTCBuilder {
+    var type: RTC.Type? = null
     var sdp: String? = null
     var id: String? = null
     var label: Int? = null
     var candidate: String? = null
 
     fun build() =
-        Rtc(type ?: throw IllegalStateException("Unknown RTC type"), sdp, id, label, candidate)
+        RTC(type ?: throw IllegalStateException("Unknown RTC type"), sdp, id, label, candidate)
 
 }
 
 
-internal inline fun rtc(lambda: RtcBuilder.() -> Unit): Rtc {
-    return RtcBuilder().apply(lambda).build()
+internal inline fun rtc(lambda: RTCBuilder.() -> Unit): RTC {
+    return RTCBuilder().apply(lambda).build()
 }

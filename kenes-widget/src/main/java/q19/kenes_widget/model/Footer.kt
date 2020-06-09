@@ -1,6 +1,6 @@
 package q19.kenes_widget.model
 
-class Footer(
+internal class Footer(
     val type: Type
 ) {
 

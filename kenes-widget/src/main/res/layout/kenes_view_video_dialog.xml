@@ -19,7 +19,8 @@
         android:layout_width="160dp"
         android:layout_height="213.3dp"
         android:layout_gravity="top|end"
-        android:elevation="10dp" />
+        android:clickable="true"
+        android:focusable="true" />
 
     <LinearLayout
         android:id="@+id/controlButtonsView"
