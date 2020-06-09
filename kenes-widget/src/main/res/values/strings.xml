@@ -33,7 +33,7 @@
     <string name="kenes_open_link_confirm">Do you want to open %s ?</string>
 
     <string name="kenes_permissions_necessity_info">
-        Please, provide all those permissions\n\n1. Camera\n2. Record audio\n\nthey are needed for widget proper work
+        Please, provide all those permissions\n\n1. Camera\n2. Record audio\n3. Storage\n\nthey are needed for widget proper work
     </string>
     <string name="kenes_to_settings">To Settings</string>
 

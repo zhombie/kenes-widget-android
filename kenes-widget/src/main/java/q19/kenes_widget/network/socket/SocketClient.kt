@@ -9,6 +9,7 @@ import org.webrtc.SessionDescription
 import q19.kenes_widget.model.*
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
+import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 
 internal class SocketClient {
@@ -19,11 +20,11 @@ internal class SocketClient {
 
     private var socket: Socket? = null
 
-    private var eventConnectEmitter: Emitter.Listener? = null
+    private var onConnect: Emitter.Listener? = null
 
     var listener: Listener? = null
 
-    private val eventCallEmitter = Emitter.Listener { args ->
+    private val onCall = Emitter.Listener { args ->
 //        debug(TAG, "event [CALL]: $args")
 
         if (args.size != 1) return@Listener
@@ -40,7 +41,7 @@ internal class SocketClient {
         listener?.onCall(type, media, operator, instance)
     }
 
-    private val eventOperatorGreetEmitter = Emitter.Listener { args ->
+    private val onOperatorGreet = Emitter.Listener { args ->
 //        debug(TAG, "event [OPERATOR_GREET]: $args")
 
         if (args.size != 1) return@Listener
@@ -59,7 +60,7 @@ internal class SocketClient {
         listener?.onCallAgentGreet(fullName, photoUrl, text)
     }
 
-    private val eventFormInitEmitter = Emitter.Listener { args ->
+    private val onFormInit = Emitter.Listener { args ->
 //        debug(TAG, "event [FORM_INIT]: $args")
 
         if (args.size != 1) return@Listener
@@ -96,7 +97,7 @@ internal class SocketClient {
         listener?.onFormInit(form)
     }
 
-    private val eventFeedbackEmitter = Emitter.Listener { args ->
+    private val onFeedback = Emitter.Listener { args ->
 //        debug(TAG, "event [FEEDBACK]: $args")
 
         if (args.size != 1) return@Listener
@@ -126,7 +127,7 @@ internal class SocketClient {
         }
     }
 
-    private val eventUserQueueEmitter = Emitter.Listener { args ->
+    private val onUserQueue = Emitter.Listener { args ->
 //        debug(TAG, "event [USER_QUEUE]: $args")
 
         if (args.size != 1) return@Listener
@@ -141,7 +142,7 @@ internal class SocketClient {
         listener?.onPendingUsersQueueCount(count = count)
     }
 
-    private val eventMessageEmitter = Emitter.Listener { args ->
+    private val onMessage = Emitter.Listener { args ->
 //        debug(TAG, "event [MESSAGE]: $args")
 
         if (args.size != 1) return@Listener
@@ -189,6 +190,13 @@ internal class SocketClient {
                 RTC.Type.START?.value -> listener?.onRTCStart()
                 RTC.Type.PREPARE?.value -> listener?.onRTCPrepare()
                 RTC.Type.READY?.value -> listener?.onRTCReady()
+                RTC.Type.OFFER?.value ->
+                    listener?.onRTCOffer(
+                        SessionDescription(
+                            parseRTCType(rtc.getString("type")),
+                            rtc.getString("sdp")
+                        )
+                    )
                 RTC.Type.ANSWER?.value ->
                     listener?.onRTCAnswer(
                         SessionDescription(
@@ -202,13 +210,6 @@ internal class SocketClient {
                             rtc.getString("id"),
                             rtc.getInt("label"),
                             rtc.getString("candidate")
-                        )
-                    )
-                RTC.Type.OFFER?.value ->
-                    listener?.onRTCOffer(
-                        SessionDescription(
-                            parseRTCType(rtc.getString("type")),
-                            rtc.getString("sdp")
                         )
                     )
                 RTC.Type.HANGUP?.value -> listener?.onRTCHangup()
@@ -261,7 +262,7 @@ internal class SocketClient {
         }
     }
 
-    private val eventCategoryListEmitter = Emitter.Listener { args ->
+    private val onCategoryList = Emitter.Listener { args ->
 //        debug(TAG, "event [CATEGORY_LIST]")
 
         if (args.size != 1) return@Listener
@@ -283,7 +284,7 @@ internal class SocketClient {
         listener?.onCategories(currentCategories)
     }
 
-    private val eventDisconnectEmitter = Emitter.Listener {
+    private val onDisconnect = Emitter.Listener {
 //        debug(TAG, "event [EVENT_DISCONNECT]")
 
         listener?.onDisconnect()
@@ -296,53 +297,53 @@ internal class SocketClient {
 
         socket = IO.socket(url, options)
 
-        eventConnectEmitter = Emitter.Listener {
-//            debug(TAG, "event [EVENT_CONNECT]")
+        onConnect = Emitter.Listener {
+            debug(TAG, "event [EVENT_CONNECT]")
 
-            requestBasicCategories(language)
+            getBasicCategories(language)
 
             listener?.onConnect()
         }
 
-        socket?.on(Socket.EVENT_CONNECT, eventConnectEmitter)
-        socket?.on("call", eventCallEmitter)
-        socket?.on("operator_greet", eventOperatorGreetEmitter)
-        socket?.on("form_init", eventFormInitEmitter)
-        socket?.on("feedback", eventFeedbackEmitter)
-        socket?.on("user_queue", eventUserQueueEmitter)
-        socket?.on("message", eventMessageEmitter)
-        socket?.on("category_list", eventCategoryListEmitter)
-        socket?.on(Socket.EVENT_DISCONNECT, eventDisconnectEmitter)
+        socket?.on(Socket.EVENT_CONNECT, onConnect)
+        socket?.on("call", onCall)
+        socket?.on("operator_greet", onOperatorGreet)
+        socket?.on("form_init", onFormInit)
+        socket?.on("feedback", onFeedback)
+        socket?.on("user_queue", onUserQueue)
+        socket?.on("message", onMessage)
+        socket?.on("category_list", onCategoryList)
+        socket?.on(Socket.EVENT_DISCONNECT, onDisconnect)
 
         socket?.connect()
     }
 
-    fun textCallToCallAgent(language: String) {
+    fun textCall(language: String) {
         socket?.emit("initialize", jsonObject {
             put("video", false)
             put("lang", language)
         })
     }
 
-    fun audioCallToCallAgent(language: String) {
+    fun audioCall(language: String) {
         socket?.emit("initialize", jsonObject {
             put("audio", true)
             put("lang", language)
         })
     }
 
-    fun videoCallToCallAgent(language: String) {
+    fun videoCall(language: String) {
         socket?.emit("initialize", jsonObject {
             put("video", true)
             put("lang", language)
         })
     }
 
-    fun requestBasicCategories(language: String) {
-        requestCategories(0, language)
+    fun getBasicCategories(language: String) {
+        getCategories(0, language)
     }
 
-    fun requestCategories(parentId: Long, language: String) {
+    fun getCategories(parentId: Long, language: String) {
 //        debug(TAG, "requestCategories: $parentId")
 
         socket?.emit("user_dashboard", jsonObject {
@@ -352,7 +353,7 @@ internal class SocketClient {
         })
     }
 
-    fun requestResponse(id: Int, language: String) {
+    fun getResponse(id: Int, language: String) {
 //        debug(TAG, "requestResponse: $id")
 
         socket?.emit("user_dashboard", jsonObject {
@@ -362,10 +363,10 @@ internal class SocketClient {
         })
     }
 
-    fun sendFeedback(ratingButton: RatingButton) {
+    fun sendFeedback(rating: Int, chatId: Long) {
         socket?.emit("user_feedback", jsonObject {
-            put("r", ratingButton.rating)
-            put("chat_id", ratingButton.chatId)
+            put("r", rating)
+            put("chat_id", chatId)
         })
     }
 
@@ -408,18 +409,20 @@ internal class SocketClient {
         })
     }
 
-    fun forceDisconnect() {
+    fun userDisconnect() {
         socket?.emit("user_disconnect")
     }
 
     fun release() {
-        socket?.off("call", eventCallEmitter)
-        socket?.off("operator_greet", eventOperatorGreetEmitter)
-        socket?.off("form_init", eventFormInitEmitter)
-        socket?.off("feedback", eventFeedbackEmitter)
-        socket?.off("user_queue", eventUserQueueEmitter)
-        socket?.off("message", eventMessageEmitter)
-        socket?.off("category_list", eventCategoryListEmitter)
+        onConnect = null
+
+        socket?.off("call", onCall)
+        socket?.off("operator_greet", onOperatorGreet)
+        socket?.off("form_init", onFormInit)
+        socket?.off("feedback", onFeedback)
+        socket?.off("user_queue", onUserQueue)
+        socket?.off("message", onMessage)
+        socket?.off("category_list", onCategoryList)
         socket?.disconnect()
         socket = null
     }

@@ -25,7 +25,7 @@ internal class PeerConnectionClient {
 
     private val executor = Executors.newSingleThreadExecutor()
 
-    private var isVideoCall: Boolean = false
+    private var isCameraEnabled: Boolean = false
 
     private var iceServers: List<PeerConnection.IceServer>? = null
 
@@ -69,7 +69,7 @@ internal class PeerConnectionClient {
 
     fun init(
         activity: Activity,
-        isVideoCall: Boolean,
+        isCameraEnabled: Boolean,
         localSurfaceView: SurfaceViewRenderer,
         remoteSurfaceView: SurfaceViewRenderer,
         iceServers: List<PeerConnection.IceServer>,
@@ -77,10 +77,10 @@ internal class PeerConnectionClient {
         listener: Listener
     ) {
         this.activity = activity
-        this.isVideoCall = isVideoCall
+        this.isCameraEnabled = isCameraEnabled
         this.eglBase = EglBase.create()
 
-        if (isVideoCall) {
+        if (isCameraEnabled) {
             this.localSurfaceView = localSurfaceView
             this.remoteSurfaceView = remoteSurfaceView
         }
@@ -94,7 +94,7 @@ internal class PeerConnectionClient {
 
         localSdp = null
 
-        if (isVideoCall) {
+        if (isCameraEnabled) {
             activity.runOnUiThread {
                 localSurfaceView.init(eglBase?.eglBaseContext, null)
                 localSurfaceView.setEnableHardwareScaler(true)
@@ -115,7 +115,7 @@ internal class PeerConnectionClient {
             MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
         )
 
-        if (isVideoCall) {
+        if (isCameraEnabled) {
             sdpMediaConstraints?.mandatory?.add(
                 MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true")
             )
@@ -132,7 +132,7 @@ internal class PeerConnectionClient {
             val options = PeerConnectionFactory.Options()
             options.disableNetworkMonitor = true
 
-            if (isVideoCall) {
+            if (isCameraEnabled) {
                 if (videoCodecHwAcceleration) {
                     encoderFactory = DefaultVideoEncoderFactory(
                         eglBase?.eglBaseContext,  /* enableIntelVp8Encoder */
@@ -158,7 +158,7 @@ internal class PeerConnectionClient {
 
             localMediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
 
-            if (isVideoCall) {
+            if (isCameraEnabled) {
                 localMediaStream?.addTrack(createVideoTrack())
             }
 
@@ -334,7 +334,7 @@ internal class PeerConnectionClient {
                     remoteAudioTrack?.setEnabled(true)
                 }
 
-                if (isVideoCall) {
+                if (isCameraEnabled) {
                     if (mediaStream.videoTracks.isNotEmpty()) {
                         remoteVideoTrack = mediaStream.videoTracks[0]
                         remoteVideoTrack?.setEnabled(true)
@@ -521,12 +521,10 @@ internal class PeerConnectionClient {
     }
 
     interface Listener {
-        fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState)
         fun onIceCandidate(iceCandidate: IceCandidate)
+        fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState)
         fun onRenegotiationNeeded()
-
         fun onLocalDescription(sessionDescription: SessionDescription)
-
         fun onPeerConnectionError(errorMessage: String)
     }
 

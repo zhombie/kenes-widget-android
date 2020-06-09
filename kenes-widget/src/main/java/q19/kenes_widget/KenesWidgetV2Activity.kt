@@ -25,7 +25,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.MergeAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.fondesa.kpermissions.*
+import com.fondesa.kpermissions.PermissionStatus
+import com.fondesa.kpermissions.allGranted
+import com.fondesa.kpermissions.anyPermanentlyDenied
+import com.fondesa.kpermissions.anyShouldShowRationale
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.loopj.android.http.AsyncHttpClient
@@ -59,7 +62,7 @@ import java.io.File
 class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener {
 
     companion object {
-        private const val TAG = "LOL"
+        private const val TAG = "KenesWidgetV2Activity"
 
         private const val KEY_HOSTNAME = "hostname"
 
@@ -322,7 +325,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onHomeNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
@@ -338,7 +341,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.clear()
                 chatFooterAdapter?.clear()
 
-                socketClient?.requestBasicCategories(currentLanguage)
+                socketClient?.getBasicCategories(currentLanguage)
 
                 isLoading = true
 
@@ -350,11 +353,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onVideoNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
-                        viewState = ViewState.VideoDialog(State.IDLE)
+                        viewState = ViewState.VideoDialog(MediaDialogState.IDLE)
                     }
                     return false
                 }
@@ -366,7 +369,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.clear()
                 chatFooterAdapter?.clear()
 
-                viewState = ViewState.VideoDialog(State.IDLE)
+                viewState = ViewState.VideoDialog(MediaDialogState.IDLE)
 
                 return true
             }
@@ -374,11 +377,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onAudioNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
-                        viewState = ViewState.AudioDialog(State.IDLE)
+                        viewState = ViewState.AudioDialog(MediaDialogState.IDLE)
                     }
                     return false
                 }
@@ -390,7 +393,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatAdapter?.clear()
                 chatFooterAdapter?.clear()
 
-                viewState = ViewState.AudioDialog(State.IDLE)
+                viewState = ViewState.AudioDialog(MediaDialogState.IDLE)
 
                 return true
             }
@@ -398,7 +401,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onInfoNavButtonClicked(): Boolean {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
@@ -436,20 +439,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             } else {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
-                        viewState = ViewState.VideoDialog(State.IDLE)
+                        viewState = ViewState.VideoDialog(MediaDialogState.IDLE)
                     }
                     return@setOnCallClickListener
                 }
 
                 dialog.isInitiator = true
 
-                viewState = ViewState.VideoDialog(State.PENDING)
+                viewState = ViewState.VideoDialog(MediaDialogState.PENDING)
 
-                socketClient?.videoCallToCallAgent(currentLanguage)
+                socketClient?.videoCall(currentLanguage)
             }
         }
 
@@ -460,20 +463,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             } else {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
-                        viewState = ViewState.AudioDialog(State.IDLE)
+                        viewState = ViewState.AudioDialog(MediaDialogState.IDLE)
                     }
                     return@setOnCallClickListener
                 }
 
                 dialog.isInitiator = true
 
-                viewState = ViewState.AudioDialog(State.PENDING)
+                viewState = ViewState.AudioDialog(MediaDialogState.PENDING)
 
-                socketClient?.audioCallToCallAgent(currentLanguage)
+                socketClient?.audioCall(currentLanguage)
             }
         }
 
@@ -520,10 +523,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         footerView.callback = object : FooterView.Callback {
             override fun onGoToActiveDialogButtonClicked() {
-                setNewStateByPreviousState(State.SHOWN)
+                setNewStateByPreviousState(MediaDialogState.SHOWN)
             }
 
             override fun onAttachmentButtonClicked() {
+                val isPermissionRequestSent = checkPermissions()
+
+                if (isPermissionRequestSent) {
+                    return
+                }
+
                 if (footerView.isAttachmentButtonEnabled) {
                     MaterialFilePicker()
                         .withActivity(this@KenesWidgetV2Activity)
@@ -584,7 +593,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         videoDialogView.callback = object : VideoDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                viewState = ViewState.VideoDialog(State.HIDDEN)
+                viewState = ViewState.VideoDialog(MediaDialogState.HIDDEN)
             }
 
             override fun onHangupButtonClicked() {
@@ -606,7 +615,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         audioDialogView.callback = object : AudioDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                viewState = ViewState.AudioDialog(State.HIDDEN)
+                viewState = ViewState.AudioDialog(MediaDialogState.HIDDEN)
             }
 
             override fun onHangupButtonClicked() {
@@ -678,9 +687,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 chatFooterAdapter?.showGoToHomeButton()
 
                 if (category.responses.isNotEmpty()) {
-                    socketClient?.requestResponse(category.responses.first(), currentLanguage)
+                    socketClient?.getResponse(category.responses.first(), currentLanguage)
                 } else {
-                    socketClient?.requestCategories(category.id, currentLanguage)
+                    socketClient?.getCategories(category.id, currentLanguage)
                 }
 
                 isLoading = true
@@ -802,7 +811,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             chatAdapter?.clear()
                         }
 
-                        viewState = ViewState.VideoDialog(State.IDLE)
+                        viewState = ViewState.VideoDialog(MediaDialogState.IDLE)
                     }
                     is ViewState.AudioDialog -> {
                         runOnUiThread {
@@ -810,7 +819,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             chatAdapter?.clear()
                         }
 
-                        viewState = ViewState.AudioDialog(State.IDLE)
+                        viewState = ViewState.AudioDialog(MediaDialogState.IDLE)
                     }
                     else -> {
                         val messages = chatBot.basicCategories.map { category ->
@@ -818,7 +827,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         }
 
                         if (messages.isEmpty()) {
-                            socketClient?.requestBasicCategories(currentLanguage)
+                            socketClient?.getBasicCategories(currentLanguage)
                         } else {
                             runOnUiThread {
 //                            chatFooterAdapter?.clear()
@@ -838,7 +847,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onSwitchToCallAgentClicked() {
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
-                        socketClient?.forceDisconnect()
+                        socketClient?.userDisconnect()
 
                         dialog.isInitiator = false
 
@@ -853,11 +862,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 chatFooterAdapter?.clear()
 
-                socketClient?.textCallToCallAgent(currentLanguage)
+                socketClient?.textCall(currentLanguage)
             }
 
             override fun onRegisterAppealClicked() {
-                viewState = ViewState.RegisterForm
+                viewState = ViewState.Form
             }
         }
 
@@ -896,18 +905,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        checkPermissions()
-    }
-
     private fun checkPermissions(): Boolean {
         val permissions = permissionsRequest.checkStatus()
-        if (permissions.anyShouldShowRationale() || permissions.anyDenied() || permissions.anyPermanentlyDenied()) {
+        return if (permissions.allGranted()) {
+            false
+        } else {
             permissionsRequest.send()
-            return true
+            true
         }
-        return false
     }
 
     override fun onPermissionsResult(result: List<PermissionStatus>) {
@@ -985,7 +990,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private fun initializeCallConnection(isVideoCall: Boolean = true) {
         peerConnectionClient?.init(
             activity = this,
-            isVideoCall = isVideoCall,
+            isCameraEnabled = isVideoCall,
             iceServers = iceServers,
             localSurfaceView = videoDialogView.localSurfaceView,
             remoteSurfaceView = videoDialogView.remoteSurfaceView,
@@ -1013,7 +1018,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         PeerConnection.IceConnectionState.CLOSED -> {
                             dialog.clear()
 
-                            setNewStateByPreviousState(State.IDLE)
+                            setNewStateByPreviousState(MediaDialogState.IDLE)
                         }
                         PeerConnection.IceConnectionState.DISCONNECTED -> {
 //                            hangupLiveCall()
@@ -1108,9 +1113,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }
 
                     if (media == "audio") {
-                        viewState = ViewState.AudioDialog(State.PREPARATION)
+                        viewState = ViewState.AudioDialog(MediaDialogState.PREPARATION)
                     } else if (media == "video") {
-                        viewState = ViewState.VideoDialog(State.PREPARATION)
+                        viewState = ViewState.VideoDialog(MediaDialogState.PREPARATION)
                     }
                 }
             }
@@ -1154,7 +1159,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onFeedback(text: String, ratingButtons: List<RatingButton>) {
                 closeLiveCall()
 
-                viewState = ViewState.CallFeedback
+                viewState = ViewState.DialogQualityFeedback
 
                 runOnUiThread {
                     hideKeyboard(footerView.inputView)
@@ -1162,9 +1167,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     feedbackView.setTitle(text)
                     feedbackView.setRatingButtons(ratingButtons)
                     feedbackView.setOnRateButtonClickListener { ratingButton ->
-                        socketClient?.sendFeedback(ratingButton)
+                        socketClient?.sendFeedback(ratingButton.rating, ratingButton.chatId)
 
-                        val isHandled = setNewStateByPreviousState(State.FINISHED)
+                        val isHandled = setNewStateByPreviousState(MediaDialogState.FINISHED)
 
                         if (!isHandled) {
                             viewState = ViewState.ChatBot
@@ -1232,7 +1237,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                     showNoOnlineCallAgents(text) {
                         isLoading = false
-                        setNewStateByPreviousState(State.IDLE)
+                        setNewStateByPreviousState(MediaDialogState.IDLE)
                     }
                 }
 
@@ -1242,7 +1247,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean {
                 closeLiveCall()
 
-                setNewStateByPreviousState(State.OPPONENT_DISCONNECT)
+                setNewStateByPreviousState(MediaDialogState.OPPONENT_DISCONNECT)
 
                 runOnUiThread {
                     chatAdapter?.addNewMessage(Message(
@@ -1257,11 +1262,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onRTCStart() {
-                runOnUiThread {
-                    headerView.showHangupButton()
-                    footerView.visibility = View.VISIBLE
-                }
-
                 socketClient?.sendMessage(
                     rtc = rtc { type = RTC.Type.PREPARE },
                     language = currentLanguage
@@ -1270,7 +1270,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
             override fun onRTCPrepare() {
                 if (viewState is ViewState.VideoDialog) {
-                    viewState = ViewState.VideoDialog(State.PREPARATION)
+                    viewState = ViewState.VideoDialog(MediaDialogState.PREPARATION)
 
                     initializeCallConnection(isVideoCall = true)
 
@@ -1279,7 +1279,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         language = currentLanguage
                     )
                 } else if (viewState is ViewState.AudioDialog) {
-                    viewState = ViewState.AudioDialog(State.PREPARATION)
+                    viewState = ViewState.AudioDialog(MediaDialogState.PREPARATION)
 
                     initializeCallConnection(isVideoCall = false)
 
@@ -1294,13 +1294,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 debug(TAG, "onRTCReady: $viewState")
 
                 if (viewState is ViewState.VideoDialog) {
-                    viewState = ViewState.VideoDialog(State.LIVE)
+                    viewState = ViewState.VideoDialog(MediaDialogState.LIVE)
 
                     initializeCallConnection(isVideoCall = true)
 
                     peerConnectionClient?.createOffer()
                 } else if (viewState is ViewState.AudioDialog) {
-                    viewState = ViewState.AudioDialog(State.LIVE)
+                    viewState = ViewState.AudioDialog(MediaDialogState.LIVE)
 
                     initializeCallConnection(isVideoCall = false)
 
@@ -1309,10 +1309,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onRTCOffer(sessionDescription: SessionDescription) {
-                setNewStateByPreviousState(State.LIVE)
-
                 peerConnectionClient?.setRemoteDescription(sessionDescription)
-
                 peerConnectionClient?.createAnswer()
             }
 
@@ -1327,7 +1324,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onRTCHangup() {
                 closeLiveCall()
 
-                setNewStateByPreviousState(State.IDLE)
+                setNewStateByPreviousState(MediaDialogState.IDLE)
             }
 
             override fun onTextMessage(text: String, attachments: List<Attachment>?, timestamp: Long) {
@@ -1415,7 +1412,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //                    logDebug(TAG, "category: $category, ${category.parentId == null}")
 
                         if (category.parentId == null) {
-                            socketClient?.requestCategories(category.id, currentLanguage)
+                            socketClient?.getCategories(category.id, currentLanguage)
                         }
                     }
 
@@ -1444,7 +1441,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 closeLiveCall()
 
                 if (viewState is ViewState.VideoDialog || viewState is ViewState.AudioDialog) {
-                    setNewStateByPreviousState(State.IDLE)
+                    setNewStateByPreviousState(MediaDialogState.IDLE)
                 } else {
                     viewState = ViewState.ChatBot
                 }
@@ -1518,14 +1515,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 //        }
 //    }
 
-    private fun setNewStateByPreviousState(state: State): Boolean {
+    private fun setNewStateByPreviousState(mediaCallState: MediaDialogState): Boolean {
         return when (viewState) {
             is ViewState.VideoDialog -> {
-                viewState = ViewState.VideoDialog(state)
+                viewState = ViewState.VideoDialog(mediaCallState)
                 true
             }
             is ViewState.AudioDialog -> {
-                viewState = ViewState.AudioDialog(state)
+                viewState = ViewState.AudioDialog(mediaCallState)
                 true
             }
             else -> false
@@ -1544,7 +1541,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 when (viewState.state) {
-                    State.IDLE, State.USER_DISCONNECT -> {
+                    MediaDialogState.IDLE, MediaDialogState.USER_DISCONNECT -> {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
                         headerView.hideHangupButton()
@@ -1570,14 +1567,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         videoCallView.setDefaultState()
                         videoCallView.visibility = View.VISIBLE
                     }
-                    State.PENDING -> {
+                    MediaDialogState.PENDING -> {
                         headerView.hideHangupButton()
 
                         videoCallView.setDisabledState()
 
 //                        chatAdapter?.clearMessages()
                     }
-                    State.PREPARATION -> {
+                    MediaDialogState.PREPARATION -> {
                         headerView.hideHangupButton()
 
                         videoCallView.setDisabledState()
@@ -1588,7 +1585,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         recyclerView.visibility = View.VISIBLE
                     }
-                    State.LIVE -> {
+                    MediaDialogState.LIVE -> {
                         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
                         headerView.showHangupButton()
@@ -1607,7 +1604,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         videoDialogView.visibility = View.VISIBLE
                     }
-                    State.OPPONENT_DISCONNECT, State.FINISHED -> {
+                    MediaDialogState.OPPONENT_DISCONNECT, MediaDialogState.FINISHED -> {
                         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
                         headerView.hideHangupButton()
@@ -1625,7 +1622,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         recyclerView.visibility = View.VISIBLE
                     }
-                    State.HIDDEN -> {
+                    MediaDialogState.HIDDEN -> {
                         headerView.showHangupButton()
 
                         recyclerView.visibility = View.VISIBLE
@@ -1634,7 +1631,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         videoDialogView.visibility = View.INVISIBLE
                     }
-                    State.SHOWN -> {
+                    MediaDialogState.SHOWN -> {
                         headerView.hideHangupButton()
 
                         hideKeyboard(footerView.inputView)
@@ -1656,7 +1653,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 when (viewState.state) {
-                    State.IDLE, State.USER_DISCONNECT -> {
+                    MediaDialogState.IDLE, MediaDialogState.USER_DISCONNECT -> {
                         headerView.hideHangupButton()
                         headerView.setOpponentInfo(configs.opponent)
 
@@ -1680,12 +1677,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         audioCallView.setDefaultState()
                         audioCallView.visibility = View.VISIBLE
                     }
-                    State.PENDING -> {
+                    MediaDialogState.PENDING -> {
                         headerView.hideHangupButton()
 
                         audioCallView.setDisabledState()
                     }
-                    State.PREPARATION -> {
+                    MediaDialogState.PREPARATION -> {
                         headerView.hideHangupButton()
 
                         audioCallView.setDisabledState()
@@ -1696,7 +1693,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         recyclerView.visibility = View.VISIBLE
                     }
-                    State.LIVE -> {
+                    MediaDialogState.LIVE -> {
                         headerView.showHangupButton()
 
                         audioCallView.setDisabledState()
@@ -1712,7 +1709,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         audioDialogView.visibility = View.VISIBLE
                     }
-                    State.OPPONENT_DISCONNECT, State.FINISHED -> {
+                    MediaDialogState.OPPONENT_DISCONNECT, MediaDialogState.FINISHED -> {
                         headerView.hideHangupButton()
                         headerView.setOpponentInfo(configs.opponent)
 
@@ -1728,7 +1725,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         recyclerView.visibility = View.VISIBLE
                     }
-                    State.HIDDEN -> {
+                    MediaDialogState.HIDDEN -> {
                         headerView.showHangupButton()
 
                         recyclerView.visibility = View.VISIBLE
@@ -1737,7 +1734,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                         audioDialogView.visibility = View.INVISIBLE
                     }
-                    State.SHOWN -> {
+                    MediaDialogState.SHOWN -> {
                         headerView.hideHangupButton()
 
                         hideKeyboard(footerView.inputView)
@@ -1748,7 +1745,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     }
                 }
             }
-            ViewState.CallFeedback -> {
+            ViewState.DialogQualityFeedback -> {
                 chatFooterAdapter?.clear()
 
                 headerView.hideHangupButton()
@@ -1776,7 +1773,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 feedbackView.visibility = View.VISIBLE
             }
-            ViewState.RegisterForm -> {
+            ViewState.Form -> {
                 recyclerView.visibility = View.GONE
 
                 footerView.visibility = View.GONE
@@ -1784,15 +1781,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 bottomNavigationView.setNavButtonsDisabled()
 
                 formView.visibility = View.VISIBLE
-            }
-            ViewState.DynamicFormFill -> {
-                recyclerView.visibility = View.GONE
-
-                footerView.visibility = View.GONE
-
-                bottomNavigationView.setNavButtonsDisabled()
-
-//                dynamicFormView.visibility = View.VISIBLE
             }
             ViewState.ChatBot -> {
                 chatFooterAdapter?.clear()

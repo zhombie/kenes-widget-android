@@ -2,11 +2,15 @@ package q19.kenes_widget.model
 
 internal sealed class ViewState {
     object ChatBot : ViewState()
-    object CallFeedback : ViewState()
-    object RegisterForm : ViewState()
-    object DynamicFormFill : ViewState()
-    class AudioDialog(var state: State) : ViewState()
-    class VideoDialog(var state: State) : ViewState()
+
+    class TextDialog(var state: TextDialogState) : ViewState()
+    class AudioDialog(var state: MediaDialogState) : ViewState()
+    class VideoDialog(var state: MediaDialogState) : ViewState()
+
+    object DialogQualityFeedback : ViewState()
+
+    object Form : ViewState()
+
     object Info : ViewState()
 
     override fun toString(): String {
@@ -14,7 +18,13 @@ internal sealed class ViewState {
     }
 }
 
-internal enum class State {
+internal enum class TextDialogState {
+    IDLE,
+    PENDING,
+    LIVE
+}
+
+internal enum class MediaDialogState {
     IDLE,
     PENDING,
     PREPARATION,
@@ -29,11 +39,3 @@ internal enum class State {
         return this.name
     }
 }
-
-
-internal val ViewState.isOnLiveCall: Boolean
-    get() = when (this) {
-        is ViewState.AudioDialog -> state == State.LIVE
-        is ViewState.VideoDialog -> state == State.LIVE
-        else -> false
-    }
