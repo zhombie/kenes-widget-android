@@ -24,13 +24,13 @@ internal class SocketClient {
     var listener: Listener? = null
 
     private val eventCallEmitter = Emitter.Listener { args ->
-//        logDebug(TAG, "event [CALL]: $args")
+//        debug(TAG, "event [CALL]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        logDebug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[JSONObject] data: $data")
 
         val type = data.optString("type")
         val media = data.optString("media")
@@ -41,13 +41,13 @@ internal class SocketClient {
     }
 
     private val eventOperatorGreetEmitter = Emitter.Listener { args ->
-//        logDebug(TAG, "event [OPERATOR_GREET]: $args")
+//        debug(TAG, "event [OPERATOR_GREET]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        logDebug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[JSONObject] data: $data")
 
 //        val name = data.optString("name")
         val fullName = data.optString("full_name")
@@ -60,13 +60,13 @@ internal class SocketClient {
     }
 
     private val eventFormInitEmitter = Emitter.Listener { args ->
-//        logDebug(TAG, "event [FORM_INIT]: $args")
+//        debug(TAG, "event [FORM_INIT]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        logDebug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[JSONObject] data: $data")
 
         val formJson = data.getJSONObject("form")
         val formFieldsJsonArray = data.getJSONArray("form_fields")
@@ -97,13 +97,13 @@ internal class SocketClient {
     }
 
     private val eventFeedbackEmitter = Emitter.Listener { args ->
-//        logDebug(TAG, "event [FEEDBACK]: $args")
+//        debug(TAG, "event [FEEDBACK]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        logDebug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[JSONObject] data: $data")
 
         val buttonsJson = data.optJSONArray("buttons")
 
@@ -127,13 +127,13 @@ internal class SocketClient {
     }
 
     private val eventUserQueueEmitter = Emitter.Listener { args ->
-//        logDebug(TAG, "event [USER_QUEUE]: $args")
+//        debug(TAG, "event [USER_QUEUE]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        logDebug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[JSONObject] data: $data")
 
         val count = data.getInt("count")
 //            val channel = userQueue.getInt("channel")
@@ -142,13 +142,13 @@ internal class SocketClient {
     }
 
     private val eventMessageEmitter = Emitter.Listener { args ->
-//        logDebug(TAG, "event [MESSAGE]: $args")
+//        debug(TAG, "event [MESSAGE]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        logDebug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[JSONObject] data: $data")
 
         val text = data.getNullableString("text")?.trim()
         val noOnline = data.optBoolean("no_online")
@@ -262,13 +262,15 @@ internal class SocketClient {
     }
 
     private val eventCategoryListEmitter = Emitter.Listener { args ->
+//        debug(TAG, "event [CATEGORY_LIST]")
+
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
         val categoryListJson = data.optJSONArray("category_list") ?: return@Listener
 
-//        logDebug(TAG, "categoryList: $data")
+//        debug(TAG, "categoryList: $data")
 
         val currentCategories = mutableListOf<Category>()
         for (i in 0 until categoryListJson.length()) {
@@ -282,9 +284,9 @@ internal class SocketClient {
     }
 
     private val eventDisconnectEmitter = Emitter.Listener {
-//        logDebug(TAG, "event [EVENT_DISCONNECT]")
+//        debug(TAG, "event [EVENT_DISCONNECT]")
 
-        listener?.onSocketDisconnect()
+        listener?.onDisconnect()
     }
 
     fun start(url: String, language: String) {
@@ -294,12 +296,12 @@ internal class SocketClient {
 
         socket = IO.socket(url, options)
 
-        eventConnectEmitter = Emitter.Listener { args ->
-//            logDebug(TAG, "event [EVENT_CONNECT]: $args")
+        eventConnectEmitter = Emitter.Listener {
+//            debug(TAG, "event [EVENT_CONNECT]")
 
             requestBasicCategories(language)
 
-            listener?.onSocketConnect()
+            listener?.onConnect()
         }
 
         socket?.on(Socket.EVENT_CONNECT, eventConnectEmitter)
@@ -341,7 +343,7 @@ internal class SocketClient {
     }
 
     fun requestCategories(parentId: Long, language: String) {
-//        logDebug(TAG, "requestCategories: $parentId")
+//        debug(TAG, "requestCategories: $parentId")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_category_list")
@@ -351,7 +353,7 @@ internal class SocketClient {
     }
 
     fun requestResponse(id: Int, language: String) {
-//        logDebug(TAG, "requestResponse: $id")
+//        debug(TAG, "requestResponse: $id")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_response")
@@ -368,7 +370,7 @@ internal class SocketClient {
     }
 
     fun sendUserMessage(message: String, language: String) {
-//        logDebug(TAG, "sendUserMessage -> message: $message")
+//        debug(TAG, "sendUserMessage -> message: $message")
 
         socket?.emit("user_message", jsonObject {
             put("text", message)
@@ -386,7 +388,7 @@ internal class SocketClient {
         val userMessage = UserMessage(rtc, action).toJsonObject()
         userMessage.put("lang", language)
 
-//        logDebug(TAG, "sendMessage -> userMessage: $userMessage")
+//        debug(TAG, "sendMessage -> userMessage: $userMessage")
 
         return socket?.emit("message", userMessage)
     }
@@ -431,7 +433,7 @@ internal class SocketClient {
     }
 
     interface Listener {
-        fun onSocketConnect()
+        fun onConnect()
 
         fun onCall(type: String, media: String, operator: String, instance: String)
         fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String)
@@ -456,7 +458,7 @@ internal class SocketClient {
 
         fun onCategories(categories: List<Category>)
 
-        fun onSocketDisconnect()
+        fun onDisconnect()
     }
 
 }

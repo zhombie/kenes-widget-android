@@ -1016,7 +1016,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             setNewStateByPreviousState(State.IDLE)
                         }
                         PeerConnection.IceConnectionState.DISCONNECTED -> {
-                            hangupLiveCall()
+//                            hangupLiveCall()
+                            closeLiveCall()
                         }
                         else -> {
                         }
@@ -1025,11 +1026,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 override fun onRenegotiationNeeded() {
-                    if (dialog.isInitiator) {
-                        peerConnectionClient?.createOffer()
-                    } else {
-                        peerConnectionClient?.createAnswer()
-                    }
+//                    if (dialog.isInitiator) {
+//                        peerConnectionClient?.createOffer()
+//                    } else {
+//                        peerConnectionClient?.createAnswer()
+//                    }
                 }
 
                 override fun onLocalDescription(sessionDescription: SessionDescription) {
@@ -1094,7 +1095,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         socketClient?.listener = object : SocketClient.Listener {
-            override fun onSocketConnect() {}
+            override fun onConnect() {}
 
             override fun onCall(type: String, media: String, operator: String, instance: String) {
                 if (type == "accept") {
@@ -1439,7 +1440,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 isLoading = false
             }
 
-            override fun onSocketDisconnect() {
+            override fun onDisconnect() {
                 closeLiveCall()
 
                 if (viewState is ViewState.VideoDialog || viewState is ViewState.AudioDialog) {
