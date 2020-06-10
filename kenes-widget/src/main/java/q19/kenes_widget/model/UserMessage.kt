@@ -1,6 +1,7 @@
 package q19.kenes_widget.model
 
 import org.json.JSONObject
+import org.webrtc.SessionDescription
 
 internal class UserMessage(
     var rtc: RTC? = null,
@@ -71,10 +72,28 @@ internal class RTC(
         START("start"),
         PREPARE("prepare"),
         READY("ready"),
+        OFFER("offer"),
         ANSWER("answer"),
         CANDIDATE("candidate"),
-        OFFER("offer"),
         HANGUP("hangup");
+
+        companion object {
+            fun to(type: SessionDescription.Type): Type? {
+                return when (type) {
+                    SessionDescription.Type.OFFER -> OFFER
+                    SessionDescription.Type.ANSWER -> ANSWER
+                    else -> null
+                }
+            }
+
+            fun to(type: String): SessionDescription.Type? {
+                return when (type) {
+                    OFFER.value -> SessionDescription.Type.OFFER
+                    ANSWER.value -> SessionDescription.Type.ANSWER
+                    else -> null
+                }
+            }
+        }
 
         override fun toString(): String {
             return value

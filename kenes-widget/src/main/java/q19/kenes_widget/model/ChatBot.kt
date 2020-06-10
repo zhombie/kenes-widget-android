@@ -5,8 +5,6 @@ internal class ChatBot {
     /**
      * State variables
      */
-    var isLocked: Boolean = false
-
     var activeCategory: Category? = null
 
     /**

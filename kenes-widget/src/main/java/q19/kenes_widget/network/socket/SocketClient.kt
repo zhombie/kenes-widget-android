@@ -22,24 +22,13 @@ internal class SocketClient {
 
     private var onConnect: Emitter.Listener? = null
 
-    var listener: Listener? = null
+    private var language: String? = null
 
-    private val onCall = Emitter.Listener { args ->
-//        debug(TAG, "event [CALL]: $args")
-
-        if (args.size != 1) return@Listener
-
-        val data = args[0] as? JSONObject? ?: return@Listener
-
-//        debug(TAG, "[JSONObject] data: $data")
-
-        val type = data.optString("type")
-        val media = data.optString("media")
-        val operator = data.optString("operator")
-        val instance = data.optString("instance")
-
-        listener?.onCall(type, media, operator, instance)
+    fun setLanguage(language: String) {
+        this.language = language
     }
+
+    var listener: Listener? = null
 
     private val onOperatorGreet = Emitter.Listener { args ->
 //        debug(TAG, "event [OPERATOR_GREET]: $args")
@@ -98,13 +87,13 @@ internal class SocketClient {
     }
 
     private val onFeedback = Emitter.Listener { args ->
-//        debug(TAG, "event [FEEDBACK]: $args")
+        debug(TAG, "event [FEEDBACK]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        debug(TAG, "[JSONObject] data: $data")
+        debug(TAG, "[JSONObject] data: $data")
 
         val buttonsJson = data.optJSONArray("buttons")
 
@@ -143,13 +132,13 @@ internal class SocketClient {
     }
 
     private val onMessage = Emitter.Listener { args ->
-//        debug(TAG, "event [MESSAGE]: $args")
+        debug(TAG, "event [MESSAGE]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        debug(TAG, "[JSONObject] data: $data")
+        debug(TAG, "[JSONObject] data: $data")
 
         val text = data.getNullableString("text")?.trim()
         val noOnline = data.optBoolean("no_online")
@@ -187,20 +176,26 @@ internal class SocketClient {
 
         if (rtc != null) {
             when (rtc.getNullableString("type")) {
-                RTC.Type.START?.value -> listener?.onRTCStart()
+                RTC.Type.START?.value -> {
+                    when (action) {
+                        "call_accept" -> listener?.onCallAccept()
+                        "call_redirect" -> {}
+                        "call_redial" -> {}
+                    }
+                }
                 RTC.Type.PREPARE?.value -> listener?.onRTCPrepare()
                 RTC.Type.READY?.value -> listener?.onRTCReady()
                 RTC.Type.OFFER?.value ->
                     listener?.onRTCOffer(
                         SessionDescription(
-                            parseRTCType(rtc.getString("type")),
+                            RTC.Type.to(rtc.getString("type")),
                             rtc.getString("sdp")
                         )
                     )
                 RTC.Type.ANSWER?.value ->
                     listener?.onRTCAnswer(
                         SessionDescription(
-                            parseRTCType(rtc.getString("type")),
+                            RTC.Type.to(rtc.getString("type")),
                             rtc.getString("sdp")
                         )
                     )
@@ -291,6 +286,8 @@ internal class SocketClient {
     }
 
     fun start(url: String, language: String) {
+        setLanguage(language)
+
         val options = IO.Options()
         options.reconnection = true
         options.reconnectionAttempts = 3
@@ -306,7 +303,6 @@ internal class SocketClient {
         }
 
         socket?.on(Socket.EVENT_CONNECT, onConnect)
-        socket?.on("call", onCall)
         socket?.on("operator_greet", onOperatorGreet)
         socket?.on("form_init", onFormInit)
         socket?.on("feedback", onFeedback)
@@ -318,64 +314,66 @@ internal class SocketClient {
         socket?.connect()
     }
 
-    fun textCall(language: String) {
+    fun textCall(language: String? = null) {
         socket?.emit("initialize", jsonObject {
             put("video", false)
-            put("lang", language)
+            put("lang", fetchLanguage(language))
         })
     }
 
-    fun audioCall(language: String) {
+    fun audioCall(language: String? = null) {
         socket?.emit("initialize", jsonObject {
             put("audio", true)
-            put("lang", language)
+            put("lang", fetchLanguage(language))
         })
     }
 
-    fun videoCall(language: String) {
+    fun videoCall(language: String? = null) {
         socket?.emit("initialize", jsonObject {
             put("video", true)
-            put("lang", language)
+            put("lang", fetchLanguage(language))
         })
     }
 
-    fun getBasicCategories(language: String) {
+    fun getBasicCategories(language: String? = null) {
         getCategories(0, language)
     }
 
-    fun getCategories(parentId: Long, language: String) {
+    fun getCategories(parentId: Long, language: String? = null) {
 //        debug(TAG, "requestCategories: $parentId")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_category_list")
             put("parent_id", parentId)
-            put("lang", language)
+            put("lang", fetchLanguage(language))
         })
     }
 
-    fun getResponse(id: Int, language: String) {
+    fun getResponse(id: Int, language: String? = null) {
 //        debug(TAG, "requestResponse: $id")
 
         socket?.emit("user_dashboard", jsonObject {
             put("action", "get_response")
             put("id", id)
-            put("lang", language)
+            put("lang", fetchLanguage(language))
         })
     }
 
     fun sendFeedback(rating: Int, chatId: Long) {
+        debug(TAG, "sendFeedback: $rating, $chatId")
+
         socket?.emit("user_feedback", jsonObject {
             put("r", rating)
             put("chat_id", chatId)
         })
     }
 
-    fun sendUserMessage(message: String, language: String) {
-//        debug(TAG, "sendUserMessage -> message: $message")
+    fun sendUserMessage(message: String, language: String? = null) {
+        debug(TAG, "sendUserMessage: $message")
 
         socket?.emit("user_message", jsonObject {
             put("text", message)
-            put("lang", language)
+            put("lang", fetchLanguage(language))
         })
     }
 
@@ -385,11 +383,11 @@ internal class SocketClient {
         })
     }
 
-    fun sendMessage(rtc: RTC? = null, action: UserMessage.Action? = null, language: String): Emitter? {
+    fun sendMessage(rtc: RTC? = null, action: UserMessage.Action? = null, language: String? = null): Emitter? {
         val userMessage = UserMessage(rtc, action).toJsonObject()
-        userMessage.put("lang", language)
+        userMessage.put("lang", fetchLanguage(language))
 
-//        debug(TAG, "sendMessage -> userMessage: $userMessage")
+        debug(TAG, "sendMessage: $userMessage")
 
         return socket?.emit("message", userMessage)
     }
@@ -404,19 +402,23 @@ internal class SocketClient {
     }
 
     fun sendUserLanguage(language: String) {
+        setLanguage(language)
+
         socket?.emit("user_language", jsonObject {
             put("language", language)
         })
     }
 
-    fun userDisconnect() {
-        socket?.emit("user_disconnect")
+    fun cancelPendingCall() {
+        debug(TAG, "cancelPendingCall")
+
+        socket?.emit("cancel_pending_call")
     }
 
     fun release() {
         onConnect = null
 
-        socket?.off("call", onCall)
+//        socket?.off("call", onCall)
         socket?.off("operator_greet", onOperatorGreet)
         socket?.off("form_init", onFormInit)
         socket?.off("feedback", onFeedback)
@@ -427,18 +429,20 @@ internal class SocketClient {
         socket = null
     }
 
-    private fun parseRTCType(type: String): SessionDescription.Type? {
-        return when (type) {
-            "offer" -> SessionDescription.Type.OFFER
-            "answer" -> SessionDescription.Type.ANSWER
-            else -> null
+    private fun fetchLanguage(language: String?): String? {
+        return if (!language.isNullOrBlank()) {
+            language
+        } else if (!this.language.isNullOrBlank()) {
+            this.language
+        } else {
+            null
         }
     }
 
     interface Listener {
         fun onConnect()
 
-        fun onCall(type: String, media: String, operator: String, instance: String)
+//        fun onCall(type: String, media: String, operator: String, instance: String)
         fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String)
         fun onFormInit(dynamicForm: DynamicForm)
         fun onFeedback(text: String, ratingButtons: List<RatingButton>)
@@ -448,7 +452,7 @@ internal class SocketClient {
         fun onNoResultsFound(text: String, timestamp: Long): Boolean
         fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean
 
-        fun onRTCStart()
+        fun onCallAccept()
         fun onRTCPrepare()
         fun onRTCReady()
         fun onRTCAnswer(sessionDescription: SessionDescription)

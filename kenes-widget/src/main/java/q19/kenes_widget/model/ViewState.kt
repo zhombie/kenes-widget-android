@@ -1,41 +1,50 @@
 package q19.kenes_widget.model
 
 internal sealed class ViewState {
-    object ChatBot : ViewState()
+    sealed class ChatBot : ViewState() {
+        object Category : ChatBot()
+        object UserPrompt : ChatBot()
+    }
 
-    class TextDialog(var state: TextDialogState) : ViewState()
-    class AudioDialog(var state: MediaDialogState) : ViewState()
-    class VideoDialog(var state: MediaDialogState) : ViewState()
+    sealed class TextDialog : ViewState() {
+        object IDLE : TextDialog()
+        object Pending : TextDialog()
+        object Live : TextDialog()
+        object UserDisconnected : TextDialog()
+        object CallAgentDisconnected : TextDialog()
+        class UserFeedback(val isFeedbackSent: Boolean) : TextDialog()
+    }
 
-    object DialogQualityFeedback : ViewState()
+    sealed class AudioDialog : ViewState() {
+        object IDLE : AudioDialog()
+        object Pending : AudioDialog()
+
+        object Start : AudioDialog()
+        object Preparation : AudioDialog()
+        object Ready : AudioDialog()
+        class Live(val isDialogScreenShown: Boolean = true) : AudioDialog()
+        object UserDisconnected : AudioDialog()
+        object CallAgentDisconnected : AudioDialog()
+
+        class UserFeedback(val isFeedbackSent: Boolean) : AudioDialog()
+    }
+
+    sealed class VideoDialog : ViewState() {
+        object IDLE : VideoDialog()
+        object Pending : VideoDialog()
+
+        object Start : VideoDialog()
+        object Preparation : VideoDialog()
+        object Ready : VideoDialog()
+        class Live(val isDialogScreenShown: Boolean = true) : VideoDialog()
+        object UserDisconnected : VideoDialog()
+        object CallAgentDisconnected : VideoDialog()
+
+        class UserFeedback(val isFeedbackSent: Boolean) : VideoDialog()
+    }
 
     object Form : ViewState()
 
     object Info : ViewState()
 
-    override fun toString(): String {
-        return this.javaClass.simpleName
-    }
-}
-
-internal enum class TextDialogState {
-    IDLE,
-    PENDING,
-    LIVE
-}
-
-internal enum class MediaDialogState {
-    IDLE,
-    PENDING,
-    PREPARATION,
-    LIVE,
-    OPPONENT_DISCONNECT,
-    USER_DISCONNECT,
-    FINISHED,
-    HIDDEN,
-    SHOWN;
-
-    override fun toString(): String {
-        return this.name
-    }
 }

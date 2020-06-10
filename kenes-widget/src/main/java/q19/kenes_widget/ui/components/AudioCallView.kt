@@ -48,6 +48,7 @@ internal class AudioCallView @JvmOverloads constructor(
     }
 
     private fun setState(isEnabled: Boolean) {
+        if (audioCallButton.isEnabled == isEnabled) return
         audioCallButton.isEnabled = isEnabled
     }
 

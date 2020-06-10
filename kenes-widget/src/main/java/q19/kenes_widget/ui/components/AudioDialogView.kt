@@ -2,6 +2,7 @@ package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -22,6 +23,7 @@ internal class AudioDialogView @JvmOverloads constructor(
     private val nameView: TextView
     private val goToChatButton: AppCompatImageButton
     private val hangupButton: AppCompatImageButton
+    private val unreadMessagesCountView: TextView
 
     var callback: Callback? = null
 
@@ -32,6 +34,7 @@ internal class AudioDialogView @JvmOverloads constructor(
         nameView = view.findViewById(R.id.nameView)
         goToChatButton = view.findViewById(R.id.goToChatButton)
         hangupButton = view.findViewById(R.id.hangupButton)
+        unreadMessagesCountView = view.findViewById(R.id.unreadMessagesCountView)
 
         goToChatButton.setOnClickListener { callback?.onGoToChatButtonClicked() }
         hangupButton.setOnClickListener { callback?.onHangupButtonClicked() }
@@ -52,6 +55,32 @@ internal class AudioDialogView @JvmOverloads constructor(
 
     fun setName(name: String?) {
         nameView.text = name
+    }
+
+    fun showUnreadMessagesCounter() {
+        setUnreadMessagesCounterVisibility(true)
+    }
+
+    fun hideUnreadMessagesCounter() {
+        setUnreadMessagesCounterVisibility(false)
+    }
+
+    private fun setUnreadMessagesCounterVisibility(isVisible: Boolean) {
+        if (isVisible && unreadMessagesCountView.visibility == View.VISIBLE) return
+        if (!isVisible && unreadMessagesCountView.visibility == View.GONE) return
+        unreadMessagesCountView.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    fun isUnreadMessagesCounterVisible(): Boolean {
+        return unreadMessagesCountView.visibility == View.VISIBLE
+    }
+
+    fun isUnreadMessagesCounterHidden(): Boolean {
+        return unreadMessagesCountView.visibility == View.GONE
+    }
+
+    fun setUnreadMessagesCount(value: String) {
+        unreadMessagesCountView.text = value
     }
 
     interface Callback {

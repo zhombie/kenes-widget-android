@@ -1,28 +1,37 @@
 package q19.kenes_widget.model
 
 internal data class Dialog(
-    var operatorId: String? = null,
-    var instance: String? = null,
+    var callAgentId: String? = null,
+    var callAgentName: String? = null,
+    var callAgentAvatarUrl: String? = null,
     var media: String? = null
 ) {
 
+    companion object {
+        const val MAX_UNREAD_MESSAGES_COUNT = 9
+    }
+
     var isInitiator = false
 
-    val isOnLive: Boolean
-        get() = !operatorId.isNullOrBlank() && !media.isNullOrBlank()
-
-    var isSwitchToCallAgentClicked: Boolean = false
+    var unreadMessages: Int = 0
+        set(value) {
+            if (field >= MAX_UNREAD_MESSAGES_COUNT) {
+                return
+            } else {
+                field = value
+            }
+        }
 
     fun clear() {
-        operatorId = null
-        instance = null
+        callAgentId = null
+        callAgentName = null
         media = null
         isInitiator = false
-        isSwitchToCallAgentClicked = false
+        unreadMessages = 0
     }
 
     override fun toString(): String {
-        return "Dialog(operatorId=\"$operatorId\", instance=\"$instance\", media=\"$media\")"
+        return "Dialog(operatorId=\"$callAgentId\", media=\"$media\")"
     }
 
 }

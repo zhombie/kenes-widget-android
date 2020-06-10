@@ -25,6 +25,7 @@ internal class PeerConnectionClient {
 
     private val executor = Executors.newSingleThreadExecutor()
 
+    private var isMicrophoneEnabled: Boolean = true
     private var isCameraEnabled: Boolean = false
 
     private var iceServers: List<PeerConnection.IceServer>? = null
@@ -67,59 +68,28 @@ internal class PeerConnectionClient {
 
     private var listener: Listener? = null
 
-    fun init(
+    fun createPeerConnection(
         activity: Activity,
+        isMicrophoneEnabled: Boolean,
         isCameraEnabled: Boolean,
-        localSurfaceView: SurfaceViewRenderer,
-        remoteSurfaceView: SurfaceViewRenderer,
         iceServers: List<PeerConnection.IceServer>,
         videoCodecHwAcceleration: Boolean = true,
         listener: Listener
     ) {
+        debug(TAG, "createPeerConnection")
+
         this.activity = activity
+        this.isMicrophoneEnabled = isMicrophoneEnabled
         this.isCameraEnabled = isCameraEnabled
         this.eglBase = EglBase.create()
-
-        if (isCameraEnabled) {
-            this.localSurfaceView = localSurfaceView
-            this.remoteSurfaceView = remoteSurfaceView
-        }
-
         this.iceServers = iceServers
         this.listener = listener
 
         isInitiator = false
-
         sdpMediaConstraints = null
-
         localSdp = null
 
-        if (isCameraEnabled) {
-            activity.runOnUiThread {
-                localSurfaceView.init(eglBase?.eglBaseContext, null)
-                localSurfaceView.setEnableHardwareScaler(true)
-                localSurfaceView.setMirror(false)
-                localSurfaceView.setZOrderMediaOverlay(true)
-                localSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
-
-                remoteSurfaceView.init(eglBase?.eglBaseContext, null)
-                remoteSurfaceView.setEnableHardwareScaler(true)
-                remoteSurfaceView.setMirror(true)
-                remoteSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
-            }
-        }
-
-        sdpMediaConstraints = MediaConstraints()
-
-        sdpMediaConstraints?.mandatory?.add(
-            MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true")
-        )
-
-        if (isCameraEnabled) {
-            sdpMediaConstraints?.mandatory?.add(
-                MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true")
-            )
-        }
+        sdpMediaConstraints = getMediaConstaints()
 
         executor.execute {
             val initializationOptions = PeerConnectionFactory.InitializationOptions
@@ -154,30 +124,117 @@ internal class PeerConnectionClient {
                 .setVideoDecoderFactory(decoderFactory)
                 .createPeerConnectionFactory()
 
-            peerConnection = peerConnectionFactory?.let { createPeerConnection(it) }
+            peerConnection = peerConnectionFactory?.let { createPeerConnectionInternally(it) }
+        }
+    }
 
-            localMediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
+    private fun getMediaConstaints(): MediaConstraints {
+        val mediaConstraints = MediaConstraints()
 
-            if (isCameraEnabled) {
-                localMediaStream?.addTrack(createVideoTrack())
-            }
-
-            localMediaStream?.addTrack(createAudioTrack())
-
-            localMediaStream?.let { addLocalStream(it) }
+        if (isMicrophoneEnabled) {
+            mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+        } else {
+            mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "false"))
         }
 
-        activity.runOnUiThread {
+        if (isCameraEnabled) {
+            mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
+        } else {
+            mediaConstraints.mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "false"))
+        }
+
+        return mediaConstraints
+    }
+
+    fun initLocalCameraStream(localSurfaceView: SurfaceViewRenderer) {
+        debug(TAG, "initLocalStream")
+
+        if (isCameraEnabled) {
+            this.localSurfaceView = localSurfaceView
+
+            activity?.runOnUiThread {
+                this.localSurfaceView?.init(eglBase?.eglBaseContext, null)
+                this.localSurfaceView?.setEnableHardwareScaler(true)
+                this.localSurfaceView?.setMirror(false)
+                this.localSurfaceView?.setZOrderMediaOverlay(true)
+                this.localSurfaceView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+            }
+        }
+    }
+
+    fun initRemoteCameraStream(remoteSurfaceView: SurfaceViewRenderer) {
+        if (isCameraEnabled) {
+            this.remoteSurfaceView = remoteSurfaceView
+
+            activity?.runOnUiThread {
+                this.remoteSurfaceView?.init(eglBase?.eglBaseContext, null)
+                this.remoteSurfaceView?.setEnableHardwareScaler(true)
+                this.remoteSurfaceView?.setMirror(false)
+                this.remoteSurfaceView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+            }
+        }
+    }
+
+    fun addLocalStreamToPeer() {
+        debug(TAG, "addLocalStreamToPeer")
+
+        localMediaStream = peerConnectionFactory?.createLocalMediaStream("ARDAMS")
+
+        if (isMicrophoneEnabled) {
+            localMediaStream?.addTrack(createAudioTrack())
+        }
+
+        if (isCameraEnabled) {
+            localMediaStream?.addTrack(createVideoTrack())
+        }
+
+        if (!localMediaStream?.audioTracks.isNullOrEmpty() || !localMediaStream?.videoTracks.isNullOrEmpty()) {
+            peerConnection?.addStream(localMediaStream)
+
+            startAudioManager()
+        }
+    }
+
+    fun addRemoteStreamToPeer(mediaStream: MediaStream) {
+        debug(TAG, "addRemoteStreamToPeer")
+
+        if (mediaStream.audioTracks.isNotEmpty()) {
+            remoteAudioTrack = mediaStream.audioTracks[0]
+            remoteAudioTrack?.setEnabled(true)
+        }
+
+        if (isCameraEnabled) {
+            if (remoteSurfaceView == null) {
+                throw NullPointerException("Remote SurfaceViewRenderer is null.")
+            }
+
+            if (mediaStream.videoTracks.isNotEmpty()) {
+                remoteVideoTrack = mediaStream.videoTracks[0]
+                remoteVideoTrack?.setEnabled(true)
+
+                val remoteVideoSink = ProxyVideoSink()
+                remoteVideoSink.setTarget(remoteSurfaceView)
+                remoteVideoTrack?.addSink(remoteVideoSink)
+            }
+        }
+    }
+
+    private fun startAudioManager() {
+        activity?.runOnUiThread {
             audioManager = AppRTCAudioManager.create(activity)
             audioManager?.start { selectedAudioDevice, availableAudioDevices ->
                 debug(TAG, "onAudioManagerDevicesChanged: $availableAudioDevices, selected: $selectedAudioDevice")
             }
         }
 
-        activity.volumeControlStream = AudioManager.STREAM_VOICE_CALL
+        activity?.volumeControlStream = AudioManager.STREAM_VOICE_CALL
     }
 
     private fun createVideoTrack(): VideoTrack? {
+        if (localSurfaceView == null) {
+            throw NullPointerException("Local SurfaceViewRenderer is null.")
+        }
+
         surfaceTextureHelper = SurfaceTextureHelper.create("CaptureThread", eglBase?.eglBaseContext)
 
         localVideoSource = peerConnectionFactory?.createVideoSource(false)
@@ -229,12 +286,6 @@ internal class PeerConnectionClient {
 
     private fun useCamera2(): Boolean = Camera2Enumerator.isSupported(activity)
 
-    private fun addLocalStream(mediaStream: MediaStream) {
-        debug(TAG, "addLocalStream: $mediaStream")
-
-        peerConnection?.addStream(mediaStream)
-    }
-
     fun addRemoteIceCandidate(iceCandidate: IceCandidate) {
         debug(TAG, "addIceCandidate: $iceCandidate")
 
@@ -280,7 +331,7 @@ internal class PeerConnectionClient {
         }
     }
 
-    private fun createPeerConnection(factory: PeerConnectionFactory): PeerConnection? {
+    private fun createPeerConnectionInternally(factory: PeerConnectionFactory): PeerConnection? {
         val rtcConfig = PeerConnection.RTCConfiguration(iceServers)
 
         rtcConfig.tcpCandidatePolicy = PeerConnection.TcpCandidatePolicy.DISABLED
@@ -329,20 +380,8 @@ internal class PeerConnectionClient {
             override fun onAddStream(mediaStream: MediaStream) {
                 debug(TAG, "onAddStream -> audioTracks: ${mediaStream.audioTracks.size}, videoTracks: ${mediaStream.videoTracks.size}")
 
-                if (mediaStream.audioTracks.isNotEmpty()) {
-                    remoteAudioTrack = mediaStream.audioTracks[0]
-                    remoteAudioTrack?.setEnabled(true)
-                }
-
-                if (isCameraEnabled) {
-                    if (mediaStream.videoTracks.isNotEmpty()) {
-                        remoteVideoTrack = mediaStream.videoTracks[0]
-                        remoteVideoTrack?.setEnabled(true)
-
-                        val remoteVideoSink = ProxyVideoSink()
-                        remoteVideoSink.setTarget(remoteSurfaceView)
-                        remoteVideoTrack?.addSink(remoteVideoSink)
-                    }
+                executor.execute {
+                    listener?.onAddRemoteStream(mediaStream)
                 }
             }
 
@@ -525,6 +564,7 @@ internal class PeerConnectionClient {
         fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState)
         fun onRenegotiationNeeded()
         fun onLocalDescription(sessionDescription: SessionDescription)
+        fun onAddRemoteStream(mediaStream: MediaStream)
         fun onPeerConnectionError(errorMessage: String)
     }
 

@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
@@ -25,6 +26,7 @@ internal class VideoDialogView @JvmOverloads constructor(
     private val goToChatButton: AppCompatImageButton
     private val hangupButton: AppCompatImageButton
     private val switchSourceButton: AppCompatImageButton
+    private val unreadMessagesCountView: TextView
 
     var callback: Callback? = null
 
@@ -37,6 +39,7 @@ internal class VideoDialogView @JvmOverloads constructor(
         goToChatButton = view.findViewById(R.id.goToChatButton)
         hangupButton = view.findViewById(R.id.hangupButton)
         switchSourceButton = view.findViewById(R.id.switchSourceButton)
+        unreadMessagesCountView = view.findViewById(R.id.unreadMessagesCountView)
 
         localSurfaceView.setOnClickListener {
             if (!isControlButtonsVisible()) {
@@ -53,6 +56,8 @@ internal class VideoDialogView @JvmOverloads constructor(
 
     fun setDefaultState() {
         showControlButtons()
+
+        hideUnreadMessagesCounter()
     }
 
     fun isControlButtonsVisible(): Boolean {
@@ -65,6 +70,32 @@ internal class VideoDialogView @JvmOverloads constructor(
 
     fun hideControlButtons() {
         setControlButtonsVisibility(false)
+    }
+
+    fun showUnreadMessagesCounter() {
+        setUnreadMessagesCounterVisibility(true)
+    }
+
+    fun hideUnreadMessagesCounter() {
+        setUnreadMessagesCounterVisibility(false)
+    }
+
+    private fun setUnreadMessagesCounterVisibility(isVisible: Boolean) {
+        if (isVisible && unreadMessagesCountView.visibility == View.VISIBLE) return
+        if (!isVisible && unreadMessagesCountView.visibility == View.GONE) return
+        unreadMessagesCountView.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    fun isUnreadMessagesCounterVisible(): Boolean {
+        return unreadMessagesCountView.visibility == View.VISIBLE
+    }
+
+    fun isUnreadMessagesCounterHidden(): Boolean {
+        return unreadMessagesCountView.visibility == View.GONE
+    }
+
+    fun setUnreadMessagesCount(value: String) {
+        unreadMessagesCountView.text = value
     }
 
     private fun setControlButtonsVisibility(isVisible: Boolean) {

@@ -48,6 +48,7 @@ internal class VideoCallView @JvmOverloads constructor(
     }
 
     private fun setState(isEnabled: Boolean) {
+        if (videoCallButton.isEnabled == isEnabled) return
         videoCallButton.isEnabled = isEnabled
     }
 
@@ -56,9 +57,19 @@ internal class VideoCallView @JvmOverloads constructor(
         videoCallInfoView.visibility = View.VISIBLE
     }
 
+    fun hideInfoText() {
+        videoCallInfoView.text = null
+        videoCallInfoView.visibility = View.GONE
+    }
+
     fun setPendingQueueCount(count: Int) {
         queueCountView.text = "В очереди $count"
         queueCountView.visibility = View.VISIBLE
+    }
+
+    fun hidePendingQueueCount() {
+        queueCountView.text = null
+        queueCountView.visibility = View.GONE
     }
 
     fun setOnCallClickListener(callback: () -> Unit) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/videoDialogView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -31,16 +32,41 @@
         android:gravity="center"
         android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/goToChatButton"
-            android:layout_width="47dp"
-            android:layout_height="47dp"
-            android:background="@null"
-            android:clickable="true"
-            android:elevation="10dp"
-            android:focusable="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/kenes_selector_chat_message" />
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/goToChatButton"
+                android:layout_width="47dp"
+                android:layout_height="47dp"
+                android:layout_centerInParent="true"
+                android:background="@null"
+                android:clickable="true"
+                android:focusable="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/kenes_selector_chat_message" />
+
+            <TextView
+                android:id="@+id/unreadMessagesCountView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/goToChatButton"
+                android:layout_alignEnd="@id/goToChatButton"
+                android:layout_margin="6dp"
+                android:background="@drawable/kenes_bg_red_circle"
+                android:gravity="center"
+                android:maxWidth="25dp"
+                android:maxHeight="25dp"
+                android:minWidth="18dp"
+                android:minHeight="18dp"
+                android:textColor="@color/kenes_white"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:text="9+"
+                tools:visibility="visible" />
+
+        </RelativeLayout>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/hangupButton"
@@ -52,7 +78,6 @@
             android:layout_marginBottom="40dp"
             android:background="@null"
             android:clickable="true"
-            android:elevation="10dp"
             android:focusable="true"
             android:scaleType="fitCenter"
             android:src="@drawable/kenes_selector_phone" />
@@ -63,7 +88,6 @@
             android:layout_height="47dp"
             android:background="@null"
             android:clickable="true"
-            android:elevation="10dp"
             android:focusable="true"
             android:scaleType="fitCenter"
             android:src="@drawable/kenes_selector_switch_camera" />
