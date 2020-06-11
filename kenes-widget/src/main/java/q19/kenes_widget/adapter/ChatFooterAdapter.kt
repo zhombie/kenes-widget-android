@@ -69,6 +69,8 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+    private fun getItem(position: Int) = data[position]
+
     override fun getItemCount(): Int = data.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -81,10 +83,11 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = getItem(position)
         if (holder is FooterViewHolder) {
-            holder.bind(data[position])
+            holder.bind(item)
         } else if (holder is FuzzyFooterViewHolder) {
-            holder.bind(data[position])
+            holder.bind(item)
         }
     }
 

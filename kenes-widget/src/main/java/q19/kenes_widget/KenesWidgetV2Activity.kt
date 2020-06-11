@@ -809,6 +809,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onRegisterAppealClicked() {
+                chatFooterAdapter?.showGoToHomeButton()
+
                 viewState = ViewState.Form
             }
         }
