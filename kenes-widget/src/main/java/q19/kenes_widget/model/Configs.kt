@@ -37,7 +37,11 @@ internal data class Configs(
         var value: String
     ) {
 
-        enum class Social(val key: String, val title: String, @DrawableRes val icon: Int) {
+        enum class Social(
+            val key: String,
+            val title: String,
+            @DrawableRes val icon: Int
+        ) {
             FACEBOOK("fb", "Facebook", R.drawable.kenes_ic_messenger),
             TELEGRAM("tg", "Telegram", R.drawable.kenes_ic_telegram),
             VK("vk", "ВКонтакте", R.drawable.kenes_ic_vk)

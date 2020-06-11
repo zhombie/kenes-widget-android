@@ -56,6 +56,10 @@ internal class ChatAdapter(
         }
     }
 
+    fun setNewMessages(message: Message, isNotifyEnabled: Boolean = true) {
+        setNewMessages(listOf(message), isNotifyEnabled)
+    }
+
     fun setNewMessages(messages: List<Message>, isNotifyEnabled: Boolean = true) {
         if (messages.isEmpty()) return
 

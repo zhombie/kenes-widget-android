@@ -414,6 +414,10 @@ internal class PeerConnectionClient {
         }
     }
 
+    fun removeListeners() {
+        listener = null
+    }
+
     fun dispose() {
         activity?.runOnUiThread {
             audioManager?.stop()

@@ -176,28 +176,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
     private var iceServers = listOf<PeerConnection.IceServer>()
 
-    private var viewState: ViewState = ViewState.ChatBot.Category
+    private var viewState: ViewState = ViewState.ChatBot.Categories(false)
         set(value) {
             field = value
             renderViewState(value)
-        }
-
-    private var isLoading: Boolean = false
-        set(value) {
-            if (field == value) return
-            if (viewState is ViewState.TextDialog || viewState is ViewState.AudioDialog || viewState is ViewState.VideoDialog) return
-
-            field = value
-
-            runOnUiThread {
-                if (value) {
-                    recyclerView.visibility = View.GONE
-                    progressView.show()
-                } else {
-                    progressView.hide()
-                    recyclerView.visibility = View.VISIBLE
-                }
-            }
         }
 
     private var chatRecyclerState: Parcelable? = null
@@ -248,15 +230,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         // --------------------- [BEGIN] Default screen setups ----------------------------
 
         /**
-         * Default active navigation button of [bottomNavigationView]
-         */
-        bottomNavigationView.setHomeNavButtonActive()
-
-        isLoading = true
-
-        /**
          * Default states of views
          */
+        configs.clear()
+        chatBot.clear()
         dialog.clear()
 
         headerView.hideHangupButton()
@@ -273,7 +250,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         videoCallView.setDefaultState()
         audioCallView.setDefaultState()
 
-        viewState = ViewState.ChatBot.Category
+        /**
+         * Default active navigation button of [bottomNavigationView]
+         */
+        bottomNavigationView.setHomeNavButtonActive()
 
         // --------------------- [END] Default screen setups ----------------------------
 
@@ -293,7 +273,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     chatAdapter?.setNewMessages(messages)
                 }
 
-                isLoading = false
+                viewState = ViewState.ChatBot.Categories(false)
             }
         }
 
@@ -316,7 +296,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     showAlreadyCallingAlert {
                         cancelPendingCall()
 
-                        viewState = ViewState.ChatBot.Category
+                        reset()
+
+                        socketClient?.getBasicCategories()
+                        viewState = ViewState.ChatBot.Categories(true)
                     }
                     return false
                 }
@@ -324,9 +307,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 reset()
 
                 socketClient?.getBasicCategories()
-                isLoading = true
-
-                viewState = ViewState.ChatBot.Category
+                viewState = ViewState.ChatBot.Categories(true)
 
                 return true
             }
@@ -438,15 +419,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         formView.callback = object : FormView.Callback {
             override fun onCancelClicked() {
-                viewState = ViewState.ChatBot.UserPrompt
+                debug(TAG, "onCancelClicked -> viewState: $viewState")
+
+                viewState = ViewState.ChatBot.UserPrompt(false)
             }
 
             override fun onSendClicked(name: String, email: String, phone: String) {
+                debug(TAG, "onSendClicked -> viewState: $viewState")
+
                 socketClient?.sendFuzzyTaskConfirmation(name, email, phone)
 
                 showFormSentSuccess {
                     formView.clearInputViews()
-                    viewState = ViewState.ChatBot.UserPrompt
+
+                    viewState = ViewState.ChatBot.UserPrompt(false)
                 }
             }
         }
@@ -514,11 +500,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onSendMessageButtonClicked(message: String) {
+                debug(TAG, "onSendMessageButtonClicked -> viewState: $viewState")
+
                 if (message.isNotBlank()) {
                     if (viewState is ViewState.ChatBot) {
-                        viewState = ViewState.ChatBot.UserPrompt
-
-                        isLoading = true
+                        viewState = ViewState.ChatBot.UserPrompt(true)
                     }
 
                     sendUserMessage(message, true)
@@ -528,6 +514,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         footerView.setOnInputViewFocusChangeListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEND || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+                debug(TAG, "IME_ACTION_SEND || KEYCODE_ENTER -> viewState: $viewState")
+
                 val text = v?.text.toString()
 
                 if (text.isBlank()) {
@@ -535,9 +523,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 if (viewState is ViewState.ChatBot) {
-                    viewState = ViewState.ChatBot.UserPrompt
-
-                    isLoading = true
+                    viewState = ViewState.ChatBot.UserPrompt(true)
                 }
 
                 sendUserMessage(text, true)
@@ -620,7 +606,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         setupRecyclerView()
 
-        setKeyboardBehavior()
+        setupKeyboardBehavior()
 
         fetchWidgetConfigs()
         fetchIceServers()
@@ -631,18 +617,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     private fun setupRecyclerView() {
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
             override fun onShowAllCategoryChildClicked(category: Category) {
-                chatFooterAdapter?.showGoToHomeButton()
-
                 chatBot.activeCategory = category
 
                 chatAdapter?.setNewMessages(
-                    listOf(
-                        Message(
-                            type = Message.Type.CROSS_CHILDREN,
-                            category = chatBot.activeCategory
-                        )
-                    )
+                    Message(type = Message.Type.CROSS_CHILDREN, category = chatBot.activeCategory)
                 )
+
+                chatFooterAdapter?.showGoToHomeButton()
             }
 
             override fun onCategoryChildClicked(category: Category) {
@@ -652,15 +633,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                 chatRecyclerState = recyclerView.layoutManager?.onSaveInstanceState()
 
-                chatFooterAdapter?.showGoToHomeButton()
-
                 if (category.responses.isNotEmpty()) {
                     socketClient?.getResponse(category.responses.first())
                 } else {
                     socketClient?.getCategories(category.id)
                 }
 
-                isLoading = true
+                viewState = ViewState.ChatBot.Categories(true)
             }
 
             override fun onGoBackClicked(category: Category) {
@@ -688,17 +667,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onUrlInTextClicked(url: String) {
+                debug(TAG, "onUrlInTextClicked -> viewState: $viewState")
+
                 if (url.startsWith("#")) {
-                    chatFooterAdapter?.showGoToHomeButton()
-
                     if (viewState is ViewState.ChatBot) {
-                        viewState = ViewState.ChatBot.UserPrompt
-
-                        isLoading = true
+                        viewState = ViewState.ChatBot.UserPrompt(true)
                     }
 
                     val text = url.removePrefix("#")
                     sendUserMessage(text, false)
+
+                    chatFooterAdapter?.showGoToHomeButton()
                 } else {
                     showOpenLinkConfirmAlert(url) {
                         try {
@@ -775,14 +754,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onGoToHomeClicked() {
                 when (viewState) {
                     is ViewState.VideoDialog -> {
-                        chatFooterAdapter?.clear()
                         chatAdapter?.clear()
+                        chatFooterAdapter?.clear()
 
                         viewState = ViewState.VideoDialog.IDLE
                     }
                     is ViewState.AudioDialog -> {
-                        chatFooterAdapter?.clear()
                         chatAdapter?.clear()
+                        chatFooterAdapter?.clear()
 
                         viewState = ViewState.AudioDialog.IDLE
                     }
@@ -791,27 +770,33 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             Message(type = Message.Type.CATEGORY, category = category)
                         }
 
-                        if (messages.isEmpty()) {
+                        chatFooterAdapter?.clear()
+
+                        viewState = if (messages.isEmpty()) {
                             socketClient?.getBasicCategories()
+
+                            ViewState.ChatBot.Categories(true)
                         } else {
                             chatAdapter?.setNewMessages(messages)
 
                             chatRecyclerState?.let { chatRecyclerState ->
                                 recyclerView.layoutManager?.onRestoreInstanceState(chatRecyclerState)
                             }
-                        }
 
-                        viewState = ViewState.ChatBot.Category
+                            ViewState.ChatBot.Categories(false)
+                        }
                     }
                 }
             }
 
             override fun onSwitchToCallAgentClicked() {
+                debug(TAG, "onSwitchToCallAgentClicked -> viewState: $viewState")
+
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
                         cancelPendingCall()
 
-                        viewState = ViewState.ChatBot.UserPrompt
+                        viewState = ViewState.ChatBot.UserPrompt(false)
                     }
                     return
                 }
@@ -819,8 +804,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 dialog.isInitiator = true
 
                 viewState = ViewState.TextDialog.Pending
-
-                chatFooterAdapter?.clear()
 
                 socketClient?.textCall()
             }
@@ -833,9 +816,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         mergeAdapter = MergeAdapter(chatAdapter, chatFooterAdapter)
 
         recyclerView.adapter = mergeAdapter
-
         recyclerView.itemAnimator = null
-
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
 
@@ -861,7 +842,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setKeyboardBehavior() {
+    private fun setupKeyboardBehavior() {
         recyclerView.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
                 hideKeyboard()
@@ -992,15 +973,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         socketClient?.listener = object : SocketClient.Listener {
-            override fun onConnect() {}
+            override fun onConnect() {
+                socketClient?.getBasicCategories()
+                viewState = ViewState.ChatBot.Categories(true)
+            }
 
             override fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String) {
+                debug(TAG, "onCallAgentGreet -> viewState: $viewState")
+
                 if (viewState is ViewState.TextDialog) {
                     viewState = ViewState.TextDialog.Live
                 }
-
-                dialog.callAgentName = fullName
-                dialog.callAgentAvatarUrl = photoUrl
 
                 val newText = text.replace("{}", fullName)
 
@@ -1038,7 +1021,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         when (viewState) {
                             is ViewState.TextDialog -> {
                                 viewState = ViewState.TextDialog.UserFeedback(true)
-                                viewState = ViewState.ChatBot.UserPrompt
+                                viewState = ViewState.ChatBot.UserPrompt(false)
                             }
                             is ViewState.AudioDialog ->
                                 viewState = ViewState.AudioDialog.UserFeedback(true)
@@ -1049,30 +1032,30 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 when (viewState) {
-                    is ViewState.VideoDialog ->
-                        viewState = ViewState.VideoDialog.UserFeedback(false)
-                    is ViewState.AudioDialog ->
-                        viewState = ViewState.AudioDialog.UserFeedback(false)
                     is ViewState.TextDialog ->
                         viewState = ViewState.TextDialog.UserFeedback(false)
+                    is ViewState.AudioDialog ->
+                        viewState = ViewState.AudioDialog.UserFeedback(false)
+                    is ViewState.VideoDialog ->
+                        viewState = ViewState.VideoDialog.UserFeedback(false)
                 }
             }
 
             override fun onPendingUsersQueueCount(text: String?, count: Int) {
                 runOnUiThread {
-                    if (viewState is ViewState.VideoDialog) {
-                        if (!text.isNullOrBlank()) {
-                            videoCallView.setInfoText(text)
-                        }
-                        if (count > 1) {
-                            videoCallView.setPendingQueueCount(count)
-                        }
-                    } else if (viewState is ViewState.AudioDialog) {
+                    if (viewState is ViewState.AudioDialog) {
                         if (!text.isNullOrBlank()) {
                             audioCallView.setInfoText(text)
                         }
                         if (count > 1) {
                             audioCallView.setPendingQueueCount(count)
+                        }
+                    } else if (viewState is ViewState.VideoDialog) {
+                        if (!text.isNullOrBlank()) {
+                            videoCallView.setInfoText(text)
+                        }
+                        if (count > 1) {
+                            videoCallView.setPendingQueueCount(count)
                         }
                     }
                 }
@@ -1090,17 +1073,21 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         )
                     )
 
-                    if (viewState is ViewState.ChatBot.UserPrompt) {
+                    if (viewState is ViewState.ChatBot.UserPrompt && !dialog.isInitiator) {
                         chatFooterAdapter?.showSwitchToCallAgentButton()
                     }
                 }
 
-                isLoading = false
+                if (viewState is ViewState.ChatBot.UserPrompt) {
+                    viewState = ViewState.ChatBot.UserPrompt(false)
+                }
 
                 return true
             }
 
             override fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean {
+                debug(TAG, "onFuzzyTaskOffered -> viewState: $viewState")
+
                 runOnUiThread {
                     chatAdapter?.addNewMessage(
                         Message(
@@ -1112,30 +1099,30 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     chatFooterAdapter?.showFuzzyQuestionButtons()
                 }
 
-                isLoading = false
+                viewState = ViewState.ChatBot.UserPrompt(false)
 
                 return true
             }
 
             override fun onNoOnlineCallAgents(text: String): Boolean {
+                debug(TAG, "onNoOnlineCallAgents -> viewState: $viewState")
+
                 dialog.isInitiator = false
 
                 runOnUiThread {
-                    chatAdapter?.addNewMessage(Message(Message.Type.OPPONENT, text))
+                    chatAdapter?.addNewMessage(Message(type = Message.Type.OPPONENT, text = text))
 
                     showNoOnlineCallAgents(text) {}
 
                     when (viewState) {
-                        is ViewState.VideoDialog ->
-                            viewState = ViewState.VideoDialog.IDLE
-                        is ViewState.AudioDialog ->
-                            viewState = ViewState.AudioDialog.IDLE
                         is ViewState.TextDialog -> {
                             chatFooterAdapter?.showGoToHomeButton()
-                            viewState = ViewState.ChatBot.UserPrompt
-
-                            isLoading = false
+                            viewState = ViewState.ChatBot.UserPrompt(false)
                         }
+                        is ViewState.AudioDialog ->
+                            viewState = ViewState.AudioDialog.IDLE
+                        is ViewState.VideoDialog ->
+                            viewState = ViewState.VideoDialog.IDLE
                     }
                 }
 
@@ -1155,13 +1142,28 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             timestamp = timestamp
                         )
                     )
+                    chatFooterAdapter?.showGoToHomeButton()
                 }
 
                 return true
             }
 
             override fun onCallAccept() {
-                if (viewState is ViewState.VideoDialog) {
+                debug(TAG, "onCallAccept -> viewState: $viewState")
+
+                if (viewState is ViewState.AudioDialog) {
+                    viewState = ViewState.AudioDialog.Start
+
+                    peerConnectionClient?.createPeerConnection(
+                        activity = this@KenesWidgetV2Activity,
+                        isMicrophoneEnabled = true,
+                        isCameraEnabled = false,
+                        iceServers = iceServers,
+                        listener = peerConnectionClientListener
+                    )
+
+                    socketClient?.sendMessage(rtc = rtc { type = RTC.Type.PREPARE })
+                } else if (viewState is ViewState.VideoDialog) {
                     viewState = ViewState.VideoDialog.Start
 
                     peerConnectionClient?.createPeerConnection(
@@ -1175,32 +1177,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     peerConnectionClient?.initLocalCameraStream(videoDialogView.localSurfaceView)
 
                     socketClient?.sendMessage(rtc = rtc { type = RTC.Type.PREPARE })
-                } else if (viewState is ViewState.AudioDialog) {
-                    viewState = ViewState.AudioDialog.Start
-
-                    peerConnectionClient?.createPeerConnection(
-                        activity = this@KenesWidgetV2Activity,
-                        isMicrophoneEnabled = true,
-                        isCameraEnabled = false,
-                        iceServers = iceServers,
-                        listener = peerConnectionClientListener
-                    )
-
-                    socketClient?.sendMessage(rtc = rtc { type = RTC.Type.PREPARE })
                 }
             }
 
             override fun onRTCPrepare() {
                 debug(TAG, "onRTCPrepare: $viewState")
 
-                if (viewState is ViewState.VideoDialog) {
-                    viewState = ViewState.VideoDialog.Preparation
+                if (viewState is ViewState.AudioDialog) {
+                    viewState = ViewState.AudioDialog.Preparation
 
                     peerConnectionClient?.addLocalStreamToPeer()
 
                     socketClient?.sendMessage(rtc = rtc { type = RTC.Type.READY })
-                } else if (viewState is ViewState.AudioDialog) {
-                    viewState = ViewState.AudioDialog.Preparation
+                } else if (viewState is ViewState.VideoDialog) {
+                    viewState = ViewState.VideoDialog.Preparation
 
                     peerConnectionClient?.addLocalStreamToPeer()
 
@@ -1211,13 +1201,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onRTCReady() {
                 debug(TAG, "onRTCReady -> viewState: $viewState")
 
-                if (viewState is ViewState.VideoDialog) {
-                    viewState = ViewState.VideoDialog.Ready
+                if (viewState is ViewState.AudioDialog) {
+                    viewState = ViewState.AudioDialog.Ready
 
                     peerConnectionClient?.addLocalStreamToPeer()
                     peerConnectionClient?.createOffer()
-                } else if (viewState is ViewState.AudioDialog) {
-                    viewState = ViewState.AudioDialog.Ready
+                } else if (viewState is ViewState.VideoDialog) {
+                    viewState = ViewState.VideoDialog.Ready
 
                     peerConnectionClient?.addLocalStreamToPeer()
                     peerConnectionClient?.createOffer()
@@ -1249,22 +1239,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 debug(TAG, "onTextMessage -> viewState: $viewState")
 
                 if (chatBot.activeCategory != null) {
-                    val messages = listOf(
-                        Message(
-                            type = Message.Type.RESPONSE,
-                            text = text,
-                            attachments = attachments,
-                            timestamp = timestamp,
-                            category = chatBot.activeCategory
-                        )
-                    )
-
                     runOnUiThread {
+                        chatAdapter?.setNewMessages(
+                            Message(
+                                type = Message.Type.RESPONSE,
+                                text = text,
+                                attachments = attachments,
+                                timestamp = timestamp,
+                                category = chatBot.activeCategory
+                            )
+                        )
                         chatFooterAdapter?.showGoToHomeButton()
-                        chatAdapter?.setNewMessages(messages)
                     }
 
-                    isLoading = false
+                    viewState = ViewState.ChatBot.Categories(false)
 
                     return
                 }
@@ -1310,11 +1298,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     )
 
                     if (viewState is ViewState.ChatBot) {
+                        debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
+
                         chatFooterAdapter?.showGoToHomeButton()
+
+                        viewState = ViewState.ChatBot.UserPrompt(false)
                     }
                 }
-
-                isLoading = false
             }
 
             override fun onMediaMessage(media: Media, timestamp: Long) {
@@ -1332,6 +1322,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onCategories(categories: List<Category>) {
+                debug(TAG, "onCategories -> viewState: $viewState")
+
                 if (viewState is ViewState.ChatBot.UserPrompt) return
 
                 val sortedCategories = categories.sortedBy { it.id }
@@ -1353,18 +1345,22 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     if (chatBot.activeCategory?.children?.containsAll(sortedCategories) == false) {
                         chatBot.activeCategory?.children?.addAll(sortedCategories)
                     }
-                    val messages = listOf(
-                        Message(
-                            type = Message.Type.CROSS_CHILDREN,
-                            category = chatBot.activeCategory
-                        )
-                    )
                     runOnUiThread {
-                        chatAdapter?.setNewMessages(messages)
+                        chatAdapter?.setNewMessages(
+                            Message(
+                                type = Message.Type.CROSS_CHILDREN,
+                                category = chatBot.activeCategory
+                            )
+                        )
+                        chatFooterAdapter?.showGoToHomeButton()
                     }
                 }
 
-                isLoading = false
+                viewState.let {
+                    if (it is ViewState.ChatBot.Categories && it.isLoading) {
+                        viewState = ViewState.ChatBot.Categories(false)
+                    }
+                }
             }
 
             override fun onDisconnect() {
@@ -1396,14 +1392,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         socketClient?.sendMessage(action = UserMessage.Action.FINISH)
 
         viewState = when (viewState) {
+            is ViewState.TextDialog -> ViewState.TextDialog.UserDisconnected
+            is ViewState.AudioDialog -> ViewState.AudioDialog.UserDisconnected
             is ViewState.VideoDialog -> {
                 videoDialogView.release()
 
                 ViewState.VideoDialog.UserDisconnected
             }
-            is ViewState.AudioDialog -> ViewState.AudioDialog.UserDisconnected
-            is ViewState.TextDialog -> ViewState.TextDialog.UserDisconnected
-            else -> ViewState.ChatBot.UserPrompt
+            else -> ViewState.ChatBot.UserPrompt(false)
         }
     }
 
@@ -1433,7 +1429,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
             else -> {
-                viewState = ViewState.ChatBot.UserPrompt
+                viewState = ViewState.ChatBot.UserPrompt(false)
             }
         }
     }
@@ -1470,7 +1466,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         viewState = ViewState.VideoDialog.Live(true)
                     }
                 }
-                PeerConnection.IceConnectionState.DISCONNECTED -> closeLiveCall()
+                PeerConnection.IceConnectionState.DISCONNECTED ->
+                    closeLiveCall()
                 else -> {
                 }
             }
@@ -1504,7 +1501,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun renderViewState(viewState: ViewState) {
-        debug(TAG, "renderViewState -> viewState: $viewState")
+        debug(TAG, "[renderViewState] -> viewState: $viewState")
 
         when (viewState) {
             is ViewState.ChatBot -> {
@@ -1541,14 +1538,48 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 when (viewState) {
-                    ViewState.ChatBot.Category -> {
+                    is ViewState.ChatBot.Categories -> {
                         runOnUiThread {
-                            chatFooterAdapter?.clear()
+                            if (viewState.isLoading) {
+                                if (recyclerView.visibility != View.GONE) {
+                                    recyclerView.visibility = View.GONE
+                                }
+
+                                if (progressView.isProgressHidden()) {
+                                    progressView.show()
+                                }
+                            } else {
+                                if (progressView.isProgressShown()) {
+                                    progressView.hide()
+                                }
+
+                                if (recyclerView.visibility != View.VISIBLE) {
+                                    recyclerView.visibility = View.VISIBLE
+                                }
+                            }
                         }
                     }
-                    ViewState.ChatBot.UserPrompt -> {
+                    is ViewState.ChatBot.UserPrompt -> {
                         runOnUiThread {
                             chatAdapter?.clearCategoryMessages()
+
+                            if (viewState.isLoading) {
+                                if (recyclerView.visibility != View.GONE) {
+                                    recyclerView.visibility = View.GONE
+                                }
+
+                                if (progressView.isProgressHidden()) {
+                                    progressView.show()
+                                }
+                            } else {
+                                if (progressView.isProgressShown()) {
+                                    progressView.hide()
+                                }
+
+                                if (recyclerView.visibility != View.VISIBLE) {
+                                    recyclerView.visibility = View.VISIBLE
+                                }
+                            }
                         }
 
                         chatBot.activeCategory = null
@@ -1571,7 +1602,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             bottomNavigationView.setHomeNavButtonActive()
                         }
                     }
-                    ViewState.TextDialog.Pending -> {}
+                    ViewState.TextDialog.Pending -> {
+                        runOnUiThread {
+                            chatFooterAdapter?.clear()
+                        }
+                    }
                     ViewState.TextDialog.Live -> {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
@@ -1943,9 +1978,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         footerView.disableAttachmentButton()
 
-        isLoading = false
-
-        viewState = ViewState.ChatBot.Category
+        viewState = ViewState.ChatBot.Categories(false)
 
         closeLiveCall()
 
@@ -1959,6 +1992,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         socketClient?.listener = null
         socketClient = null
 
+        peerConnectionClient?.removeListeners()
         peerConnectionClient = null
 
 //        headerView = null

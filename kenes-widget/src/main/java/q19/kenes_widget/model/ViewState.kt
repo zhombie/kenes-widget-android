@@ -2,8 +2,8 @@ package q19.kenes_widget.model
 
 internal sealed class ViewState {
     sealed class ChatBot : ViewState() {
-        object Category : ChatBot()
-        object UserPrompt : ChatBot()
+        class Categories(val isLoading: Boolean) : ChatBot()
+        class UserPrompt(val isLoading: Boolean) : ChatBot()
     }
 
     sealed class TextDialog : ViewState() {
@@ -46,5 +46,4 @@ internal sealed class ViewState {
     object Form : ViewState()
 
     object Info : ViewState()
-
 }

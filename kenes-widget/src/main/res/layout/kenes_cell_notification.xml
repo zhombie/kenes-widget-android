@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/kenes_bg_notification"
+        android:gravity="center"
         android:paddingHorizontal="15dp"
         android:paddingTop="6dp"
         android:paddingBottom="4dp"

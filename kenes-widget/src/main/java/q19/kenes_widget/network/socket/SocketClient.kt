@@ -20,8 +20,6 @@ internal class SocketClient {
 
     private var socket: Socket? = null
 
-    private var onConnect: Emitter.Listener? = null
-
     private var language: String? = null
 
     fun setLanguage(language: String) {
@@ -29,6 +27,12 @@ internal class SocketClient {
     }
 
     var listener: Listener? = null
+
+    private var onConnect = Emitter.Listener {
+        debug(TAG, "event [EVENT_CONNECT]")
+
+        listener?.onConnect()
+    }
 
     private val onOperatorGreet = Emitter.Listener { args ->
 //        debug(TAG, "event [OPERATOR_GREET]: $args")
@@ -84,6 +88,10 @@ internal class SocketClient {
         )
 
         listener?.onFormInit(form)
+    }
+
+    private val onOperatorTyping = Emitter.Listener {
+        debug(TAG, "event [OPERATOR_TYPING]")
     }
 
     private val onFeedback = Emitter.Listener { args ->
@@ -294,19 +302,12 @@ internal class SocketClient {
 
         socket = IO.socket(url, options)
 
-        onConnect = Emitter.Listener {
-            debug(TAG, "event [EVENT_CONNECT]")
-
-            getBasicCategories(language)
-
-            listener?.onConnect()
-        }
-
         socket?.on(Socket.EVENT_CONNECT, onConnect)
         socket?.on("operator_greet", onOperatorGreet)
         socket?.on("form_init", onFormInit)
         socket?.on("feedback", onFeedback)
         socket?.on("user_queue", onUserQueue)
+        socket?.on("operator_typing", onOperatorTyping)
         socket?.on("message", onMessage)
         socket?.on("category_list", onCategoryList)
         socket?.on(Socket.EVENT_DISCONNECT, onDisconnect)
@@ -416,13 +417,12 @@ internal class SocketClient {
     }
 
     fun release() {
-        onConnect = null
-
 //        socket?.off("call", onCall)
         socket?.off("operator_greet", onOperatorGreet)
         socket?.off("form_init", onFormInit)
         socket?.off("feedback", onFeedback)
         socket?.off("user_queue", onUserQueue)
+        socket?.off("operator_typing", onOperatorTyping)
         socket?.off("message", onMessage)
         socket?.off("category_list", onCategoryList)
         socket?.disconnect()
