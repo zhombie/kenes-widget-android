@@ -9,9 +9,9 @@
     </item>
 
     <item
-        android:drawable="@drawable/kenes_ic_switch_camera_white"
+        android:drawable="@drawable/kenes_ic_expand"
         android:gravity="center"
-        android:width="13dp"
-        android:height="13dp" />
+        android:width="11.5dp"
+        android:height="11.5dp" />
 
 </layer-list>

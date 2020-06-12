@@ -16,7 +16,6 @@
         android:layout_gravity="end"
         android:layout_marginStart="@dimen/kenes_message_horizonal_spacing"
         android:background="@drawable/kenes_bg_user_message"
-        android:gravity="end"
         android:orientation="vertical">
 
         <ImageView
@@ -80,7 +79,8 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="end"
+            android:layout_gravity="start"
+            android:gravity="start"
             android:lineSpacingExtra="2.5sp"
             android:paddingStart="@dimen/kenes_message_text_horizontal_spacing"
             android:paddingTop="@dimen/kenes_message_text_vertical_spacing"

@@ -23,4 +23,4 @@
 # WebRTC
 -keep class org.webrtc.** { *; }
 -keepclasseswithmembernames class * { native <methods>; }
--keep class android.media.AudioManager
+-keep class android.media.** { *; }

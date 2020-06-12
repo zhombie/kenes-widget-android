@@ -9,10 +9,10 @@
     </item>
 
     <item
-        android:drawable="@drawable/kenes_ic_switch_camera_gray"
+        android:drawable="@drawable/kenes_ic_minimize"
         android:gravity="center"
-        android:width="13dp"
-        android:height="13dp" />
+        android:width="11.5dp"
+        android:height="11.5dp" />
 
     <item android:gravity="center">
         <shape android:shape="oval">

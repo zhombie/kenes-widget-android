@@ -551,7 +551,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 peerConnectionClient?.onSwitchCamera()
             }
 
-            override fun onRemoteFrameClicked() {
+            override fun onSwitchScalingButtonClicked() {
+                peerConnectionClient?.switchScalingType()
+            }
+
+            override fun onFullscreenScreenClicked() {
                 if (videoDialogView.isControlButtonsVisible()) {
                     videoDialogView.hideControlButtons()
                 } else {
@@ -1508,6 +1512,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         override fun onPeerConnectionError(errorMessage: String) {
+        }
+
+        override fun onRemoteScreenScaleChanged(isFilled: Boolean) {
+            videoDialogView.setSwitchScaleIcon(isFilled)
         }
     }
 

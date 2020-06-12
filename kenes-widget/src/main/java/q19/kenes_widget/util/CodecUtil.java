@@ -18,64 +18,10 @@ public class CodecUtil {
     public static final String AUDIO_CODEC_OPUS = "OPUS";
     public static final String AUDIO_CODEC_ISAC = "ISAC";
 
+    public static final String VIDEO_CODEC_VP9 = "VP9";
+
     private static final String VIDEO_CODEC_PARAM_START_BITRATE = "x-google-start-bitrate";
     private static final String AUDIO_CODEC_PARAM_BITRATE = "maxaveragebitrate";
-
-    public static String preferCodec(String sdpDescription, String codec, boolean isAudio) {
-        String[] lines = sdpDescription.split("\r\n");
-        int mLineIndex = -1;
-        String codecRtpMap = null;
-        // a=rtpmap:<payload type> <encoding name>/<clock rate> [/<encoding parameters>]
-        String regex = "^a=rtpmap:(\\d+) " + codec + "(/\\d+)+[\r]?$";
-        Pattern codecPattern = Pattern.compile(regex);
-        String mediaDescription = "m=video ";
-        if (isAudio) {
-            mediaDescription = "m=audio ";
-        }
-        for (int i = 0; (i < lines.length) && (mLineIndex == -1 || codecRtpMap == null); i++) {
-            if (lines[i].startsWith(mediaDescription)) {
-                mLineIndex = i;
-                continue;
-            }
-            Matcher codecMatcher = codecPattern.matcher(lines[i]);
-            if (codecMatcher.matches()) {
-                codecRtpMap = codecMatcher.group(1);
-            }
-        }
-        if (mLineIndex == -1) {
-            Log.w(TAG, "No " + mediaDescription + " line, so can't prefer " + codec);
-            return sdpDescription;
-        }
-        if (codecRtpMap == null) {
-            Log.w(TAG, "No rtpmap for " + codec);
-            return sdpDescription;
-        }
-        Log.d(TAG, "Found " + codec + " rtpmap " + codecRtpMap + ", prefer at " + lines[mLineIndex]);
-        String[] origMLineParts = lines[mLineIndex].split(" ");
-        if (origMLineParts.length > 3) {
-            StringBuilder newMLine = new StringBuilder();
-            int origPartIndex = 0;
-            // Format is: m=<media> <port> <proto> <fmt> ...
-            newMLine.append(origMLineParts[origPartIndex++]).append(" ");
-            newMLine.append(origMLineParts[origPartIndex++]).append(" ");
-            newMLine.append(origMLineParts[origPartIndex++]).append(" ");
-            newMLine.append(codecRtpMap);
-            for (; origPartIndex < origMLineParts.length; origPartIndex++) {
-                if (!origMLineParts[origPartIndex].equals(codecRtpMap)) {
-                    newMLine.append(" ").append(origMLineParts[origPartIndex]);
-                }
-            }
-            lines[mLineIndex] = newMLine.toString();
-            Log.d(TAG, "Change media description: " + lines[mLineIndex]);
-        } else {
-            Log.e(TAG, "Wrong SDP media description format: " + lines[mLineIndex]);
-        }
-        StringBuilder newSdpDescription = new StringBuilder();
-        for (String line : lines) {
-            newSdpDescription.append(line).append("\r\n");
-        }
-        return newSdpDescription.toString();
-    }
 
     public static String setStartBitrate(String codec, boolean isVideoCodec, String sdpDescription, int bitrateKbps) {
         String[] lines = sdpDescription.split("\r\n");
@@ -139,7 +85,7 @@ public class CodecUtil {
         return newSdpDescription.toString();
     }
 
-    public static String preferCodec2(String sdpDescription, String codec, boolean isAudio) {
+    public static String preferCodec(String sdpDescription, String codec, boolean isAudio) {
         final String[] lines = sdpDescription.split("\r\n");
         final int mLineIndex = findMediaDescriptionLine(isAudio, lines);
         if (mLineIndex == -1) {

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.media.AudioManager
 import android.util.Log
 import org.webrtc.*
+import org.webrtc.RendererCommon.ScalingType
 import q19.kenes_widget.util.CodecUtil
 import q19.kenes_widget.util.Logger.debug
 import java.util.concurrent.Executors
@@ -65,6 +66,8 @@ internal class PeerConnectionClient {
     private var isInitiator = false
 
     private var audioManager: AppRTCAudioManager? = null
+
+    private var remoteVideoScalingType: ScalingType? = null
 
     private var listener: Listener? = null
 
@@ -157,7 +160,7 @@ internal class PeerConnectionClient {
                 this.localSurfaceView?.setEnableHardwareScaler(true)
                 this.localSurfaceView?.setMirror(false)
                 this.localSurfaceView?.setZOrderMediaOverlay(true)
-                this.localSurfaceView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+                this.localSurfaceView?.setScalingType(ScalingType.SCALE_ASPECT_FIT)
             }
         }
     }
@@ -170,8 +173,22 @@ internal class PeerConnectionClient {
                 this.remoteSurfaceView?.init(eglBase?.eglBaseContext, null)
                 this.remoteSurfaceView?.setEnableHardwareScaler(true)
                 this.remoteSurfaceView?.setMirror(false)
-                this.remoteSurfaceView?.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL)
+
+                remoteVideoScalingType = ScalingType.SCALE_ASPECT_FILL
+                this.remoteSurfaceView?.setScalingType(remoteVideoScalingType)
             }
+        }
+    }
+
+    fun switchScalingType() {
+        activity?.runOnUiThread {
+            remoteVideoScalingType = if (remoteVideoScalingType == ScalingType.SCALE_ASPECT_FILL) {
+                ScalingType.SCALE_ASPECT_FIT
+            } else {
+                ScalingType.SCALE_ASPECT_FILL
+            }
+            remoteSurfaceView?.setScalingType(remoteVideoScalingType)
+            listener?.onRemoteScreenScaleChanged(remoteVideoScalingType == ScalingType.SCALE_ASPECT_FILL)
         }
     }
 
@@ -298,10 +315,16 @@ internal class PeerConnectionClient {
         debug(TAG, "setRemoteDescription: $sessionDescription")
 
         executor.execute {
-            val sdpDescription = CodecUtil.preferCodec2(
+            var sdpDescription = CodecUtil.preferCodec(
                 sessionDescription.description,
                 CodecUtil.AUDIO_CODEC_OPUS,
                 true
+            )
+
+            sdpDescription = CodecUtil.preferCodec(
+                sdpDescription,
+                CodecUtil.VIDEO_CODEC_VP9,
+                false
             )
 
 //            sdpDescription = Codec.setStartBitrate(Codec.AUDIO_CODEC_OPUS, false, sdpDescription, 32)
@@ -431,14 +454,16 @@ internal class PeerConnectionClient {
             }
         }
 
+        activity = null
+        isInitiator = false
+        sdpMediaConstraints = null
+        localSdp = null
+        isCameraEnabled = false
+        isMicrophoneEnabled = false
+        remoteVideoScalingType = null
+
         executor.execute {
             activity?.volumeControlStream = AudioManager.USE_DEFAULT_STREAM_TYPE
-
-            isInitiator = false
-
-            sdpMediaConstraints = null
-
-            localSdp = null
 
             peerConnection?.dispose()
 
@@ -503,10 +528,16 @@ internal class PeerConnectionClient {
                 return
             }
 
-            val sdpDescription = CodecUtil.preferCodec2(
+            var sdpDescription = CodecUtil.preferCodec(
                 sessionDescription.description,
                 CodecUtil.AUDIO_CODEC_OPUS,
                 true
+            )
+
+            sdpDescription = CodecUtil.preferCodec(
+                sdpDescription,
+                CodecUtil.VIDEO_CODEC_VP9,
+                false
             )
 
             localSdp = SessionDescription(sessionDescription.type, sdpDescription)
@@ -570,6 +601,8 @@ internal class PeerConnectionClient {
         fun onLocalDescription(sessionDescription: SessionDescription)
         fun onAddRemoteStream(mediaStream: MediaStream)
         fun onPeerConnectionError(errorMessage: String)
+
+        fun onRemoteScreenScaleChanged(isFilled: Boolean)
     }
 
 }
