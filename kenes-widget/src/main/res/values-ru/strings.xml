@@ -11,7 +11,7 @@
     <string name="kenes_message">Сообщение</string>
     <string name="kenes_video_call">Видеозвонок</string>
     <string name="kenes_audio_call">Аудиозвонок</string>
-    <string name="kenes_call_agent">Оператор</string>
+    <string name="kenes_operator">Оператор</string>
     <string name="kenes_send">Отправить</string>
     <string name="kenes_satisfied_with_call">Удовлетворены ли вы ответом оператора?</string>
     <string name="kenes_typing">Печатает…</string>
@@ -42,8 +42,8 @@
     <string name="kenes_html_text">HTML текст</string>
     <string name="kenes_file">Файл</string>
 
-    <string name="kenes_switch_to_call_agent">Переключиться на оператора</string>
-    <string name="kenes_already_calling_to_agent">Извините, но Ваш прошлый звонок все еще в ожидании</string>
+    <string name="kenes_switch_to_operator">Переключиться на оператора</string>
+    <string name="kenes_already_calling_to_operator">Извините, но Ваш прошлый звонок все еще в ожидании</string>
     <string name="kenes_cancel_call">Отменить звонок</string>
     <string name="kenes_register_appeal">Зарегистрировать обращение</string>
     <string name="kenes_or">Или</string>

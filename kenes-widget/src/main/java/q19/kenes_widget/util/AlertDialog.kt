@@ -142,7 +142,7 @@ internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Un
 internal fun Context.showAlreadyCallingAlert(callback: (isPositive: Boolean) -> Unit): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
-        .setMessage(R.string.kenes_already_calling_to_agent)
+        .setMessage(R.string.kenes_already_calling_to_operator)
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
             dialog.dismiss()
             callback(true)

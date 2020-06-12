@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-package q19.kenes_widget.rtc;
+package q19.kenes_widget.webrtc;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;

@@ -11,12 +11,9 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
-import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.view.inputmethod.EditorInfo
 import android.widget.EdgeEffect
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -52,12 +49,12 @@ import q19.kenes_widget.network.file.uploadFile
 import q19.kenes_widget.network.http.IceServersTask
 import q19.kenes_widget.network.http.WidgetConfigsTask
 import q19.kenes_widget.network.socket.SocketClient
-import q19.kenes_widget.rtc.PeerConnectionClient
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
 import q19.kenes_widget.util.FileUtil.getFileType
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.Logger.debug
+import q19.kenes_widget.webrtc.PeerConnectionClient
 import java.io.File
 
 class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener {
@@ -465,10 +462,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         footerView.callback = object : FooterView.Callback {
             override fun onGoToActiveDialogButtonClicked() {
-                if (viewState is ViewState.VideoDialog) {
-                    viewState = ViewState.VideoDialog.Live(true)
-                } else if (viewState is ViewState.AudioDialog) {
+                if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog.Live(true)
+                } else if (viewState is ViewState.VideoDialog) {
+                    viewState = ViewState.VideoDialog.Live(true)
                 }
             }
 
@@ -512,26 +509,26 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
-        footerView.setOnInputViewFocusChangeListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_SEND || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
-                debug(TAG, "IME_ACTION_SEND || KEYCODE_ENTER -> viewState: $viewState")
-
-                val text = v?.text.toString()
-
-                if (text.isBlank()) {
-                    return@setOnInputViewFocusChangeListener false
-                }
-
-                if (viewState is ViewState.ChatBot) {
-                    viewState = ViewState.ChatBot.UserPrompt(true)
-                }
-
-                sendUserMessage(text, true)
-
-                return@setOnInputViewFocusChangeListener true
-            }
-            return@setOnInputViewFocusChangeListener false
-        }
+//        footerView.setOnInputViewFocusChangeListener { v, actionId, event ->
+//            if (actionId == EditorInfo.IME_ACTION_SEND || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
+//                debug(TAG, "IME_ACTION_SEND || KEYCODE_ENTER -> viewState: $viewState")
+//
+//                val text = v?.text.toString()
+//
+//                if (text.isBlank()) {
+//                    return@setOnInputViewFocusChangeListener false
+//                }
+//
+//                if (viewState is ViewState.ChatBot) {
+//                    viewState = ViewState.ChatBot.UserPrompt(true)
+//                }
+//
+//                sendUserMessage(text, true)
+//
+//                return@setOnInputViewFocusChangeListener true
+//            }
+//            return@setOnInputViewFocusChangeListener false
+//        }
 
         footerView.setOnTextChangedListener { s, _, _, _ ->
             if (s.isNullOrBlank()) {
@@ -753,17 +750,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         chatFooterAdapter?.callback = object : ChatFooterAdapter.Callback {
             override fun onGoToHomeClicked() {
                 when (viewState) {
-                    is ViewState.VideoDialog -> {
-                        chatAdapter?.clear()
-                        chatFooterAdapter?.clear()
-
-                        viewState = ViewState.VideoDialog.IDLE
-                    }
                     is ViewState.AudioDialog -> {
                         chatAdapter?.clear()
                         chatFooterAdapter?.clear()
 
                         viewState = ViewState.AudioDialog.IDLE
+                    }
+                    is ViewState.VideoDialog -> {
+                        chatAdapter?.clear()
+                        chatFooterAdapter?.clear()
+
+                        viewState = ViewState.VideoDialog.IDLE
                     }
                     else -> {
                         val messages = chatBot.basicCategories.map { category ->
@@ -980,7 +977,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 viewState = ViewState.ChatBot.Categories(true)
             }
 
-            override fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String) {
+            override fun onOperatorGreet(fullName: String, photoUrl: String?, text: String) {
                 debug(TAG, "onCallAgentGreet -> viewState: $viewState")
 
                 if (viewState is ViewState.TextDialog) {
@@ -993,7 +990,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     headerView.setOpponentInfo(
                         Configs.Opponent(
                             name = fullName,
-                            secondName = getString(R.string.kenes_call_agent),
+                            secondName = getString(R.string.kenes_operator),
                             avatarUrl = photoUrl
                         )
                     )
@@ -1106,7 +1103,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 return true
             }
 
-            override fun onNoOnlineCallAgents(text: String): Boolean {
+            override fun onNoOnlineOperators(text: String): Boolean {
                 debug(TAG, "onNoOnlineCallAgents -> viewState: $viewState")
 
                 dialog.isInitiator = false
@@ -1131,9 +1128,23 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 return true
             }
 
-            override fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean {
+            override fun onChatTimeout(text: String, timestamp: Long): Boolean {
+                debug(TAG, "onChatTimeout -> viewState: $viewState")
+
+                disconnect(text, timestamp)
+
+                return true
+            }
+
+            override fun onOperatorDisconnected(text: String, timestamp: Long): Boolean {
                 debug(TAG, "onCallAgentDisconnected -> viewState: $viewState")
 
+                disconnect(text, timestamp)
+
+                return true
+            }
+
+            private fun disconnect(text: String, timestamp: Long) {
                 closeLiveCall()
 
                 runOnUiThread {
@@ -1146,8 +1157,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                     )
                     chatFooterAdapter?.showGoToHomeButton()
                 }
-
-                return true
             }
 
             override fun onCallAccept() {
@@ -1260,20 +1269,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 viewState.let {
-                    if (it is ViewState.VideoDialog.Live && it.isDialogScreenShown) {
-                        dialog.unreadMessages += 1
-                        runOnUiThread {
-                            if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
-                                videoDialogView.setUnreadMessagesCount("${dialog.unreadMessages}+")
-                            } else {
-                                videoDialogView.setUnreadMessagesCount("${dialog.unreadMessages}")
-                            }
-
-                            if (videoDialogView.isUnreadMessagesCounterHidden()) {
-                                videoDialogView.showUnreadMessagesCounter()
-                            }
-                        }
-                    } else if (it is ViewState.AudioDialog.Live && it.isDialogScreenShown) {
+                    if (it is ViewState.AudioDialog.Live && it.isDialogScreenShown) {
                         dialog.unreadMessages += 1
                         runOnUiThread {
                             if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
@@ -1284,6 +1280,19 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                             if (audioDialogView.isUnreadMessagesCounterHidden()) {
                                 audioDialogView.showUnreadMessagesCounter()
+                            }
+                        }
+                    } else if (it is ViewState.VideoDialog.Live && it.isDialogScreenShown) {
+                        dialog.unreadMessages += 1
+                        runOnUiThread {
+                            if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
+                                videoDialogView.setUnreadMessagesCount("${dialog.unreadMessages}+")
+                            } else {
+                                videoDialogView.setUnreadMessagesCount("${dialog.unreadMessages}")
+                            }
+
+                            if (videoDialogView.isUnreadMessagesCounterHidden()) {
+                                videoDialogView.showUnreadMessagesCounter()
                             }
                         }
                     }
@@ -2054,7 +2063,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun throwError() {
-        Log.e(TAG, getString(R.string.kenes_error_invalid_hostname))
         Toast.makeText(this, R.string.kenes_error_invalid_hostname, Toast.LENGTH_SHORT)
             .show()
         finish()

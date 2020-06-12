@@ -1,6 +1,5 @@
 package q19.kenes_widget.ui.components
 
-import android.animation.Animator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
@@ -72,6 +71,10 @@ internal class VideoDialogView @JvmOverloads constructor(
         setControlButtonsVisibility(false)
     }
 
+    private fun setControlButtonsVisibility(isVisible: Boolean) {
+        controlButtonsView.visibility = if (isVisible) View.VISIBLE else View.INVISIBLE
+    }
+
     fun showUnreadMessagesCounter() {
         setUnreadMessagesCounterVisibility(true)
     }
@@ -96,23 +99,6 @@ internal class VideoDialogView @JvmOverloads constructor(
 
     fun setUnreadMessagesCount(value: String) {
         unreadMessagesCountView.text = value
-    }
-
-    private fun setControlButtonsVisibility(isVisible: Boolean) {
-        controlButtonsView.animate()
-            .alpha(if (isVisible) 1.0f else 0.0f)
-            .setDuration(150)
-            .setListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator?) {}
-
-                override fun onAnimationEnd(animation: Animator?) {
-                    controlButtonsView.visibility = if (isVisible) View.VISIBLE else View.INVISIBLE
-                }
-
-                override fun onAnimationCancel(animation: Animator?) {}
-
-                override fun onAnimationRepeat(animation: Animator?) {}
-            })
     }
 
     fun release() {

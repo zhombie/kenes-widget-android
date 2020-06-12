@@ -50,7 +50,7 @@ internal class SocketClient {
 
         val photoUrl = UrlUtil.getStaticUrl(photo)
 
-        listener?.onCallAgentGreet(fullName, photoUrl, text)
+        listener?.onOperatorGreet(fullName, photoUrl, text)
     }
 
     private val onFormInit = Emitter.Listener { args ->
@@ -173,12 +173,17 @@ internal class SocketClient {
         }
 
         if (noOnline && !text.isNullOrBlank()) {
-            val isHandled = listener?.onNoOnlineCallAgents(text)
+            val isHandled = listener?.onNoOnlineOperators(text)
+            if (isHandled == true) return@Listener
+        }
+
+        if (action == "chat_timeout" && !text.isNullOrBlank()) {
+            val isHandled = listener?.onChatTimeout(text, time)
             if (isHandled == true) return@Listener
         }
 
         if (action == "operator_disconnect" && !text.isNullOrBlank()) {
-            val isHandled = listener?.onCallAgentDisconnected(text, time)
+            val isHandled = listener?.onOperatorDisconnected(text, time)
             if (isHandled == true) return@Listener
         }
 
@@ -443,14 +448,15 @@ internal class SocketClient {
         fun onConnect()
 
 //        fun onCall(type: String, media: String, operator: String, instance: String)
-        fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String)
+        fun onOperatorGreet(fullName: String, photoUrl: String?, text: String)
         fun onFormInit(dynamicForm: DynamicForm)
         fun onFeedback(text: String, ratingButtons: List<RatingButton>)
         fun onPendingUsersQueueCount(text: String? = null, count: Int)
-        fun onNoOnlineCallAgents(text: String): Boolean
+        fun onNoOnlineOperators(text: String): Boolean
         fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean
         fun onNoResultsFound(text: String, timestamp: Long): Boolean
-        fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean
+        fun onChatTimeout(text: String, timestamp: Long): Boolean
+        fun onOperatorDisconnected(text: String, timestamp: Long): Boolean
 
         fun onCallAccept()
         fun onRTCPrepare()

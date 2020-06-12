@@ -101,7 +101,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
                 button.setOnClickListener { callback?.onGoToHomeClicked() }
             } else if (footer.type == Footer.Type.SWITCH_TO_CALL_AGENT) {
                 button.removeCompoundDrawables()
-                button.setText(R.string.kenes_switch_to_call_agent)
+                button.setText(R.string.kenes_switch_to_operator)
                 button.setOnClickListener { callback?.onSwitchToCallAgentClicked() }
             }
         }
@@ -115,7 +115,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         fun bind(footer: Footer) {
             if (footer.type == Footer.Type.FUZZY_QUESTION) {
                 button1.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_headphones, 15)
-                button1.setText(R.string.kenes_switch_to_call_agent)
+                button1.setText(R.string.kenes_switch_to_operator)
                 button1.setOnClickListener { callback?.onSwitchToCallAgentClicked() }
 
                 orView.text = itemView.context.getString(R.string.kenes_or).toLowerCase(Locale.getDefault())

@@ -54,16 +54,19 @@
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
         android:hint="@string/kenes_message"
-        android:imeOptions="actionSend"
+        android:lineSpacingExtra="3sp"
         android:maxLength="500"
-        android:maxLines="1"
-        android:minHeight="50dp"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:singleLine="true"
+        android:maxLines="6"
+        android:minHeight="48dp"
+        android:paddingStart="17.5dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="17.5dp"
+        android:paddingBottom="10dp"
+        android:singleLine="false"
         android:textColor="@color/kenes_black"
         android:textCursorDrawable="@drawable/kenes_shape_cursor"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        tools:text="Тестовое сообщение для проверки линий" />
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/sendMessageButton"

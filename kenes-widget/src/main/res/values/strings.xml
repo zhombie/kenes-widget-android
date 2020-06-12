@@ -13,7 +13,7 @@
     <string name="kenes_message">Message</string>
     <string name="kenes_video_call">Video Call</string>
     <string name="kenes_audio_call">Audio Call</string>
-    <string name="kenes_call_agent">Call agent</string>
+    <string name="kenes_operator">Call agent</string>
     <string name="kenes_send">Send</string>
     <string name="kenes_satisfied_with_call">Are you satisfied with the response of the operator?</string>
     <string name="kenes_typing">Typing…</string>
@@ -44,8 +44,8 @@
     <string name="kenes_html_text">HTML text</string>
     <string name="kenes_file">File</string>
 
-    <string name="kenes_switch_to_call_agent">Switch to call agent</string>
-    <string name="kenes_already_calling_to_agent">Sorry, but your previous call is already on waiting list</string>
+    <string name="kenes_switch_to_operator">Switch to call agent</string>
+    <string name="kenes_already_calling_to_operator">Sorry, but your previous call is already on waiting list</string>
     <string name="kenes_cancel_call">Cancel call</string>
     <string name="kenes_register_appeal">Register appeal</string>
     <string name="kenes_or">Or</string>

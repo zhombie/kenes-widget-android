@@ -1,4 +1,4 @@
-package q19.kenes_widget.rtc
+package q19.kenes_widget.webrtc
 
 import android.app.Activity
 import android.media.AudioManager
