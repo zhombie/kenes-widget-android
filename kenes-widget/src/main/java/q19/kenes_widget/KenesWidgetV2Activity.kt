@@ -1414,6 +1414,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
 
                 viewState.let {
+                    if (it is ViewState.AudioDialog.Live || it is ViewState.VideoDialog.Live) {
+                        runOnUiThread {
+                            if (!footerView.isAttachmentButtonEnabled) {
+                                footerView.enableAttachmentButton()
+                            }
+                            if (footerView.visibility != View.VISIBLE) {
+                                footerView.visibility = View.VISIBLE
+                            }
+                        }
+                    }
+
                     if (it is ViewState.AudioDialog.Live && it.isDialogScreenShown) {
                         dialog.unreadMessages += 1
                         runOnUiThread {
@@ -1958,9 +1969,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                             headerView.hideHangupButton()
 
                             footerView.setDefaultState()
-                            footerView.visibility = View.GONE
-
                             footerView.disableAttachmentButton()
+                            footerView.visibility = View.GONE
 
                             audioDialogView.visibility = View.GONE
 
