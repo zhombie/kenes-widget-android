@@ -19,6 +19,7 @@ import org.nurmash.lib.nurmashwidgets.customtabs.Browser
 import q19.kenes_widget.R
 import q19.kenes_widget.util.UrlUtil
 
+@Deprecated(message = "Use [KenesWidgetV2Activity], which is the native version of widget")
 class KenesWidgetActivity : AppCompatActivity() {
 
     companion object {

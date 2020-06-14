@@ -401,6 +401,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
 
+        videoCallView.setOnCancelCallClickListener {
+            cancelPendingCall()
+
+            viewState = ViewState.VideoDialog.IDLE
+        }
+
         audioCallView.setOnCallClickListener {
             val isPermissionRequestSent = checkPermissions()
             if (isPermissionRequestSent) {
@@ -2043,7 +2049,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            videoCallView.setDisabledState()
+                            videoCallView.setCallButtonDisabled()
+                            videoCallView.showCancelCallButton()
                         }
                     }
                     ViewState.VideoDialog.Start -> {
@@ -2056,7 +2063,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
                             headerView.showHangupButton()
 
-                            videoCallView.setDisabledState()
+                            videoCallView.setDefaultState()
                             videoCallView.visibility = View.GONE
 
                             recyclerView.visibility = View.VISIBLE

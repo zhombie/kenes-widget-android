@@ -18,6 +18,7 @@ internal class VideoCallView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     private val videoCallButton: AppCompatButton
+    private val cancelCallButton: AppCompatButton
     private val videoCallInfoView: TextView
     private val queueCountView: TextView
 
@@ -25,12 +26,15 @@ internal class VideoCallView @JvmOverloads constructor(
         val view = inflate(context, R.layout.kenes_view_video_call, this)
 
         videoCallButton = view.findViewById(R.id.videoCallButton)
+        cancelCallButton = view.findViewById(R.id.cancelCallButton)
         videoCallInfoView = view.findViewById(R.id.videoCallInfoView)
         queueCountView = view.findViewById(R.id.queueCountView)
     }
 
     fun setDefaultState() {
-        setEnabledState()
+        setCallButtonEnabled()
+
+        hideCancelCallButton()
 
         videoCallInfoView.text = null
         videoCallInfoView.visibility = View.GONE
@@ -39,17 +43,29 @@ internal class VideoCallView @JvmOverloads constructor(
         queueCountView.visibility = View.GONE
     }
 
-    fun setEnabledState() {
-        setState(true)
+    fun setCallButtonEnabled() {
+        setCallButtonEnabled(true)
     }
 
-    fun setDisabledState() {
-        setState(false)
+    fun setCallButtonDisabled() {
+        setCallButtonEnabled(false)
     }
 
-    private fun setState(isEnabled: Boolean) {
+    private fun setCallButtonEnabled(isEnabled: Boolean) {
         if (videoCallButton.isEnabled == isEnabled) return
         videoCallButton.isEnabled = isEnabled
+    }
+
+    fun showCancelCallButton() {
+        setCancelCallButtonVisibility(true)
+    }
+
+    fun hideCancelCallButton() {
+        setCancelCallButtonVisibility(false)
+    }
+
+    private fun setCancelCallButtonVisibility(isVisible: Boolean) {
+        cancelCallButton.visibility = if (isVisible) View.VISIBLE else View.INVISIBLE
     }
 
     fun setInfoText(text: String) {
@@ -63,7 +79,7 @@ internal class VideoCallView @JvmOverloads constructor(
     }
 
     fun setPendingQueueCount(count: Int) {
-        queueCountView.text = "В очереди $count"
+        queueCountView.text = context.getString(R.string.kenes_queue_count, count)
         queueCountView.visibility = View.VISIBLE
     }
 
@@ -74,6 +90,10 @@ internal class VideoCallView @JvmOverloads constructor(
 
     fun setOnCallClickListener(callback: () -> Unit) {
         videoCallButton.setOnClickListener { callback() }
+    }
+
+    fun setOnCancelCallClickListener(callback: () -> Unit) {
+        cancelCallButton.setOnClickListener { callback() }
     }
 
 }

@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openWidget() {
-        startActivity(KenesWidgetV2Activity.newIntent(this, "https://kenes.vlx.kz"))
+        startActivity(KenesWidgetV2Activity.newIntent(this, "https://kenes.1414.kz"))
     }
 
 }

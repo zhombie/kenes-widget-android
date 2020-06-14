@@ -58,7 +58,7 @@ internal class AudioCallView @JvmOverloads constructor(
     }
 
     fun setPendingQueueCount(count: Int) {
-        queueCountView.text = "В очереди ($count)"
+        queueCountView.text = context.getString(R.string.kenes_queue_count, count)
         queueCountView.visibility = View.VISIBLE
     }
 

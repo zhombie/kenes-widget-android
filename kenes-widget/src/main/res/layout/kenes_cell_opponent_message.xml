@@ -154,7 +154,7 @@
         android:drawablePadding="10dp"
         android:focusable="true"
         android:padding="10dp"
-        android:textColor="@color/kenes_selector_blue"
+        android:textColor="@color/kenes_selector_blue_to_light_blue"
         android:textSize="13sp"
         android:visibility="gone"
         tools:text="тарифы_день_в_день.pdf"

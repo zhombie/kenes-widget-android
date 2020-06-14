@@ -61,7 +61,7 @@ internal object UrlUtil {
             val domain = when {
                 "kenes.vlx.kz" in hostname -> "https://kenes2.vlx.kz"
                 "rtc.vlx.kz" in hostname -> "https://rtc.vlx.kz"
-                "bot.nitec.kz" in hostname -> "https://kenes2.1414.kz"
+                "bot.nitec.kz" in hostname || "kenes.1414.kz" in hostname -> "https://kenes2.1414.kz"
                 "help.post.kz" in hostname -> "https://help.post.kz"
                 else -> null
             }

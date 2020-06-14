@@ -28,7 +28,7 @@
             style="@style/NormalRoundedButton"
             android:background="@drawable/kenes_bg_button_white_rounded_4dp"
             android:text="@string/kenes_cancel"
-            android:textColor="@color/kenes_selector_dark_gray" />
+            android:textColor="@color/kenes_selector_dark_gray_to_gray" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/sendButton"

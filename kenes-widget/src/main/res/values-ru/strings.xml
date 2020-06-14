@@ -68,4 +68,6 @@
     <string name="kenes_file_download_error">Файл не загрузился</string>
 
     <string name="kenes_add_attachment_button_disabled">Приклепление файла доступно только при разговоре с оператором</string>
+
+    <string name="kenes_queue_count">В очереди (%d)</string>
 </resources>

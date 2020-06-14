@@ -28,7 +28,7 @@
         <RelativeLayout
             android:id="@+id/controlButtonsView"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="275dp"
             android:layout_gravity="bottom"
             android:background="@drawable/kenes_bg_gradient_black"
             android:elevation="5dp"
