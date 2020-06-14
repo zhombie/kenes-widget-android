@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
@@ -13,10 +14,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,12 +26,16 @@ import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Media
 import q19.kenes_widget.model.Message
 import q19.kenes_widget.util.*
+import q19.kenes_widget.util.Logger.debug
+import java.util.concurrent.TimeUnit
 
 internal class ChatAdapter(
     var callback: Callback? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
+        private const val TAG = "ChatAdapter"
+
         private val LAYOUT_USER_MESSAGE = R.layout.kenes_cell_user_message
         private val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
@@ -44,11 +46,18 @@ internal class ChatAdapter(
 
         private const val KEY_PROGRESS = "progress"
         private const val KEY_FILE_TYPE = "fileType"
+        private const val KEY_START_TIME = "startTime"
+        private const val KEY_END_TIME = "endTime"
+        private const val KEY_ACTION = "action"
+        private const val KEY_CURRENT_POSITION_MILLIS = "currentPositionMillis"
+        private const val KEY_DURATION_MILLIS = "durationMillis"
     }
 
     private var messages = mutableListOf<Message>()
 
     fun addNewMessage(message: Message, isNotifyEnabled: Boolean = true) {
+        debug(TAG, "addNewMessage -> message: $message")
+
         messages.add(message)
 
         if (isNotifyEnabled) {
@@ -92,17 +101,58 @@ internal class ChatAdapter(
         return isRemoved
     }
 
-    fun setDownloading(position: Int, downloadStatus: Message.File.DownloadStatus) {
-        getItem(position).file.downloadStatus = downloadStatus
-        notifyItemChanged(position)
+    fun setDownloading(downloadStatus: Message.File.DownloadStatus, itemPosition: Int) {
+        getItem(itemPosition).file.downloadStatus = downloadStatus
+        notifyItemChanged(itemPosition)
     }
 
-    fun setProgress(position: Int, fileType: String, progress: Int) {
-        getItem(position).apply {
+    fun setAudioStartTime(startTime: Int, itemPosition: Int) {
+        debug(TAG, "setAudioStartTime -> startTime: $startTime, itemPosition: $itemPosition")
+
+        notifyItemChanged(itemPosition, Bundle().apply {
+            putInt(KEY_START_TIME, startTime)
+            putString(KEY_ACTION, "setStartTime")
+            putString(KEY_FILE_TYPE, "audio")
+        })
+    }
+
+    fun setAudioEndTime(endTime: Int, itemPosition: Int) {
+        debug(TAG, "setAudioEndTime -> endTime: $endTime, itemPosition: $itemPosition")
+
+        notifyItemChanged(itemPosition, Bundle().apply {
+            putInt(KEY_END_TIME, endTime)
+            putString(KEY_ACTION, "setEndTime")
+            putString(KEY_FILE_TYPE, "audio")
+        })
+    }
+
+    fun setAudioPaused(itemPosition: Int) {
+        debug(TAG, "setAudioPaused -> position: $itemPosition")
+
+        notifyItemChanged(itemPosition, Bundle().apply {
+            putString(KEY_ACTION, "pauseAudio")
+        })
+    }
+
+    fun setAudioProgress(progress: Int, currentPosition: Int, duration: Int, itemPosition: Int) {
+        debug(TAG, "setAudioProgress -> progress: $progress, currentPosition: $currentPosition, duration: $duration, itemPosition: $itemPosition")
+
+        notifyItemChanged(itemPosition, Bundle().apply {
+            putInt(KEY_PROGRESS, progress)
+            putInt(KEY_CURRENT_POSITION_MILLIS, currentPosition)
+            putInt(KEY_DURATION_MILLIS, duration)
+            putString(KEY_FILE_TYPE, "audio")
+        })
+    }
+
+    fun setProgress(progress: Int, fileType: String, itemPosition: Int) {
+        debug(TAG, "setProgress -> progress: $progress, fileType: $fileType, itemPosition: $itemPosition")
+
+        getItem(itemPosition).apply {
             file.progress = progress
             file.type = fileType
         }
-        notifyItemChanged(position, Bundle().apply {
+        notifyItemChanged(itemPosition, Bundle().apply {
             putInt(KEY_PROGRESS, progress)
             putString(KEY_FILE_TYPE, fileType)
         })
@@ -175,22 +225,41 @@ internal class ChatAdapter(
         position: Int,
         payloads: MutableList<Any>
     ) {
-        super.onBindViewHolder(holder, position, payloads)
-
         val payload = payloads.lastOrNull()
         if (payload != null) {
             if (holder is OpponentMessageViewHolder && payload is Bundle) {
                 val message = getItem(position)
                 val fileType = payload.getString(KEY_FILE_TYPE)
+                val progress = payload.getInt(KEY_PROGRESS)
+
+                debug(TAG, "onBindViewHolder -> fileType: $fileType, progress: $progress")
 
                 if (fileType == "media") {
-                    holder.updateMediaProgress(
+                    holder.setMediaDownloadProgress(
                         message.media,
                         message.file.downloadStatus,
                         payload.getInt(KEY_PROGRESS)
                     )
+                } else if (fileType == "audio") {
+                    when (payload.getString(KEY_ACTION)) {
+                        "setStartTime" ->
+                            holder.setAudioStartTime(payload.getInt(KEY_START_TIME))
+                        "setEndTime" ->
+                            holder.setAudioEndTime(payload.getInt(KEY_END_TIME))
+                        "pauseAudio" ->
+                            holder.setAudioPaused()
+                        else -> holder.setAudioPlayProgress(
+                            payload.getInt(KEY_CURRENT_POSITION_MILLIS),
+                            payload.getInt(KEY_DURATION_MILLIS),
+                            progress
+                        )
+                    }
                 }
+            } else {
+                super.onBindViewHolder(holder, position, payloads)
             }
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
         }
     }
 
@@ -316,10 +385,12 @@ internal class ChatAdapter(
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var imageView = view.findViewById<ImageView>(R.id.imageView)
-        private var mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
+        private var mediaView = view.findViewById<RelativeLayout>(R.id.mediaView)
         private var iconView = view.findViewById<ImageView>(R.id.iconView)
         private var progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
         private var mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
+        private var mediaPlaySeekBar = view.findViewById<SeekBar>(R.id.mediaPlaySeekBar)
+        private var mediaPlayTimeView = view.findViewById<TextView>(R.id.mediaPlayTimeView)
         private var textView = view.findViewById<TextView>(R.id.textView)
         private var timeView = view.findViewById<TextView>(R.id.timeView)
         private var attachmentView = view.findViewById<TextView>(R.id.attachmentView)
@@ -328,6 +399,23 @@ internal class ChatAdapter(
 
         init {
             timeView.visibility = View.GONE
+
+            mediaPlaySeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                }
+
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                    seekBar?.let {
+                        callback?.onStopTrackingTouch(it.progress, absoluteAdapterPosition)
+                    }
+                }
+            })
         }
 
         fun bind(message: Message) {
@@ -358,27 +446,67 @@ internal class ChatAdapter(
                     imageView?.visibility = View.GONE
                 }
 
-                if (media.isFile) {
-                    val isEmptyMediaName = context.bindMedia(media, message.file.downloadStatus)
+                when {
+                    media.isAudio -> {
+                        val isBound = bindAudio(message.file.downloadStatus)
 
-                    mediaView?.setOnClickListener {
-                        if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
-                            context.showPendingFileDownloadAlert {}
-                            return@setOnClickListener
+                        if (isBound) {
+                            mediaNameView?.visibility = View.GONE
+
+                            timeView?.text = message.time
+                            timeView?.visibility = View.VISIBLE
+
+                            mediaView?.visibility = View.VISIBLE
+                        } else {
+                            mediaNameView?.visibility = View.GONE
+                            mediaPlaySeekBar?.visibility = View.GONE
+                            mediaPlayTimeView?.visibility = View.GONE
+
+                            mediaView?.visibility = View.GONE
                         }
-                        callback?.onMediaClicked(media, absoluteAdapterPosition)
+
+                        mediaView?.setOnClickListener {
+                            if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
+                                context.showPendingFileDownloadAlert {}
+                                return@setOnClickListener
+                            }
+                            callback?.onMediaClicked(media, absoluteAdapterPosition)
+                        }
                     }
+                    media.isFile -> {
+                        val isEmptyMediaName = context.bindFile(media, message.file.downloadStatus)
 
-                    if (!isEmptyMediaName) {
-                        mediaView?.visibility = View.VISIBLE
+                        mediaView?.setOnClickListener {
+                            if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
+                                context.showPendingFileDownloadAlert {}
+                                return@setOnClickListener
+                            }
+                            callback?.onMediaClicked(media, absoluteAdapterPosition)
+                        }
 
-                        timeView?.text = message.time
-                        timeView?.visibility = View.VISIBLE
-                    } else {
+                        if (!isEmptyMediaName) {
+                            mediaNameView?.visibility = View.VISIBLE
+
+                            timeView?.text = message.time
+                            timeView?.visibility = View.VISIBLE
+
+                            mediaView?.visibility = View.VISIBLE
+                        } else {
+                            mediaNameView?.visibility = View.GONE
+
+                            mediaView?.visibility = View.GONE
+                        }
+
+                        mediaPlaySeekBar?.visibility = View.GONE
+                        mediaPlayTimeView?.visibility = View.GONE
+                    }
+                    else -> {
+                        mediaNameView?.visibility = View.GONE
+                        mediaPlaySeekBar?.visibility = View.GONE
+                        mediaPlayTimeView?.visibility = View.GONE
+
                         mediaView?.visibility = View.GONE
                     }
-                } else {
-                    mediaView?.visibility = View.GONE
                 }
             }
 
@@ -444,15 +572,82 @@ internal class ChatAdapter(
             }
         }
 
-        fun updateMediaProgress(media: Media?, downloadStatus: Message.File.DownloadStatus, progress: Int) {
-            progressBar.progress = if (progress == 0 || progress == 100) 0 else progress
+        fun setMediaDownloadProgress(media: Media?, downloadStatus: Message.File.DownloadStatus, progress: Int) {
+            progressBar?.progress = if (progress == 0 || progress == 100) 0 else progress
 
             if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
-                media?.let { itemView.context.bindMedia(it, downloadStatus) }
+                media?.let { itemView.context.bindFile(it, downloadStatus) }
             }
         }
 
-        private fun Context.bindMedia(media: Media, downloadStatus: Message.File.DownloadStatus): Boolean {
+        fun setAudioStartTime(startTime: Int) {
+            debug(TAG, "setAudioStartTime -> startTime: $startTime")
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                mediaPlaySeekBar?.min = startTime
+            }
+        }
+
+        fun setAudioEndTime(endTime: Int) {
+            debug(TAG, "setAudioEndTime -> endTime: $endTime")
+
+            mediaPlaySeekBar?.max = endTime
+        }
+
+        fun setAudioPaused() {
+            debug(TAG, "setAudioPaused")
+
+            iconView?.setImageResource(R.drawable.kenes_ic_play)
+        }
+
+        fun setAudioPlayProgress(currentPosition: Int, duration: Int, progress: Int) {
+            debug(TAG, "setAudioPlayProgress -> progress: $progress")
+
+            mediaPlaySeekBar?.let {
+                it.progress = progress
+
+                if (it.progress < it.max) {
+                    iconView?.setImageResource(R.drawable.kenes_ic_pause)
+                } else {
+                    iconView?.setImageResource(R.drawable.kenes_ic_play)
+                }
+            }
+
+            mediaPlayTimeView?.text = formatAudioProgress(currentPosition, duration)
+        }
+
+        private fun formatToDigitalClock(milliseconds: Long): String {
+            val hours = TimeUnit.MILLISECONDS.toHours(milliseconds).toInt() % 24
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds).toInt() % 60
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds).toInt() % 60
+            return when {
+                hours > 0 -> String.format("%d:%02d:%02d", hours, minutes, seconds)
+                minutes > 0 -> String.format("%02d:%02d", minutes, seconds)
+                seconds > 0 -> String.format("00:%02d", seconds)
+                else -> "00:00"
+            }
+        }
+
+        private fun formatAudioProgress(current: Int, end: Int): String {
+            return formatToDigitalClock(current.toLong()) + " / " + formatToDigitalClock(end.toLong())
+        }
+
+        private fun bindAudio(downloadStatus: Message.File.DownloadStatus): Boolean {
+            if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
+                progressBar?.progress = 0
+
+                iconView?.setImageResource(R.drawable.kenes_ic_play)
+            } else {
+                iconView?.setImageResource(R.drawable.kenes_ic_download_white)
+            }
+
+            mediaPlayTimeView?.text = formatAudioProgress(0, 0)
+            mediaPlayTimeView?.visibility = View.VISIBLE
+
+            return true
+        }
+
+        private fun Context.bindFile(media: Media, downloadStatus: Message.File.DownloadStatus): Boolean {
             var title = media.hash ?: ""
 
             if (title.length > 25) {
@@ -683,8 +878,10 @@ internal class ChatAdapter(
         fun onImageClicked(imageView: ImageView, bitmap: Bitmap)
         fun onImageLoadCompleted()
 
-        fun onMediaClicked(media: Media, position: Int)
-        fun onAttachmentClicked(attachment: Attachment, position: Int)
+        fun onMediaClicked(media: Media, itemPosition: Int)
+        fun onAttachmentClicked(attachment: Attachment, itemPosition: Int)
+
+        fun onStopTrackingTouch(progress: Int, itemPosition: Int)
     }
 
 }

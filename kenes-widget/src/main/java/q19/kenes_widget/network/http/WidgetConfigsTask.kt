@@ -30,8 +30,8 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             val configs = Configs()
 
             configs.opponent = Configs.Opponent(
-                name = configsJson?.optString("default_operator"),
-                secondName = configsJson?.optString("title"),
+                name = configsJson?.optString("title"),
+                secondName = configsJson?.optString("default_operator"),
                 avatarUrl = UrlUtil.getStaticUrl(configsJson?.optString("image"))
             )
 

@@ -8,11 +8,13 @@ internal object Logger {
     private const val LIMIT = 4000
 
     fun debug(tag: String, message: String) {
-        if (message.length > LIMIT) {
-            Log.d(tag, message.substring(0, LIMIT))
-            debug(tag, message.substring(LIMIT))
-        } else {
-            Log.d(tag, message)
+        if (UrlUtil.getHostname()?.contains("kenes.vlx.kz") == true) {
+            if (message.length > LIMIT) {
+                Log.d(tag, message.substring(0, LIMIT))
+                debug(tag, message.substring(LIMIT))
+            } else {
+                Log.d(tag, message)
+            }
         }
     }
 

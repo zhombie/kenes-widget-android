@@ -30,7 +30,7 @@
             tools:srcCompat="@tools:sample/backgrounds/scenic"
             tools:visibility="visible" />
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/mediaView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,6 +50,8 @@
                 android:id="@+id/indicatorView"
                 android:layout_width="@dimen/kenes_message_media_indicator_size"
                 android:layout_height="@dimen/kenes_message_media_indicator_size"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 android:background="@drawable/kenes_ic_circle_blue">
 
                 <ImageView
@@ -67,7 +69,6 @@
                     android:layout_gravity="center"
                     android:indeterminateBehavior="repeat"
                     android:max="100"
-                    android:min="0"
                     android:progressDrawable="@drawable/kenes_ic_circular_progress"
                     tools:progress="25" />
 
@@ -75,18 +76,54 @@
 
             <TextView
                 android:id="@+id/mediaNameView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
                 android:layout_marginStart="@dimen/kenes_message_media_name_horizontal_spacing"
                 android:layout_marginEnd="@dimen/kenes_message_media_name_horizontal_spacing"
-                android:layout_weight="1"
+                android:layout_toEndOf="@id/indicatorView"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="4sp"
                 android:textColor="#60626A"
                 android:textSize="14sp"
                 tools:text="988b8432....63646098a1.jpg\n(PDF Документ) - Скачать файл" />
 
-        </LinearLayout>
+            <SeekBar
+                android:id="@+id/mediaPlaySeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/mediaNameView"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="-5dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginEnd="-5dp"
+                android:layout_toEndOf="@id/indicatorView"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:progress="0"
+                android:progressBackgroundTint="@color/kenes_gray"
+                android:progressTint="@color/kenes_blue"
+                android:thumbTint="@color/kenes_blue"
+                tools:progress="25" />
+
+            <TextView
+                android:id="@+id/mediaPlayTimeView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/mediaPlaySeekBar"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginEnd="10dp"
+                android:layout_toEndOf="@id/indicatorView"
+                android:includeFontPadding="true"
+                android:textColor="@color/kenes_gray"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="00:02"
+                tools:visibility="visible" />
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/textView"

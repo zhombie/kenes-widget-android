@@ -8,8 +8,11 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.media.AudioAttributes
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.os.Parcelable
 import android.view.MotionEvent
 import android.view.View
@@ -204,6 +207,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
         }
     }
+
+    private var mediaPlayer: MediaPlayer? = null
+    private var handler = Handler()
+    @Volatile private var currentAudioPlayingItemPosition: Int = -1
+    @Volatile private var isAudioPlayCompleted = false
+    @Volatile private var isAudioPaused: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -612,7 +621,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         fetchWidgetConfigs()
         fetchIceServers()
 
-        connectToSignallingServer()
+        initSocket()
     }
 
     private fun setupRecyclerView() {
@@ -702,26 +711,154 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             override fun onImageLoadCompleted() {
             }
 
-            override fun onMediaClicked(media: Media, position: Int) {
+            override fun onStopTrackingTouch(progress: Int, itemPosition: Int) {
+                debug(TAG, "onStopTrackingTouch -> progress: $progress, itemPosition: $itemPosition")
+
+                if (currentAudioPlayingItemPosition == itemPosition) {
+                    isAudioPaused = false
+                    isAudioPlayCompleted = false
+                    val milliseconds = (progress * (mediaPlayer?.duration ?: 1)) / 100
+                    mediaPlayer?.seekTo(milliseconds)
+                    mediaPlayer?.start()
+                    updateProgress(itemPosition)
+                }
+            }
+
+            private fun playAudio(path: String, itemPosition: Int) {
+                debug(TAG, "playAudio: -> currentAudioPlayingItemPosition: $currentAudioPlayingItemPosition, itemPosition: $itemPosition")
+
+                if (currentAudioPlayingItemPosition == itemPosition) {
+                    if (mediaPlayer?.isPlaying == true) {
+                        isAudioPaused = true
+                        mediaPlayer?.pause()
+                        chatAdapter?.setAudioPaused(itemPosition)
+                    } else {
+                        if (isAudioPlayCompleted) {
+                            isAudioPlayCompleted = false
+                            chatAdapter?.setAudioProgress(
+                                progress = 0,
+                                currentPosition = 0,
+                                duration = mediaPlayer?.duration ?: 0,
+                                itemPosition = itemPosition
+                            )
+                        }
+
+                        isAudioPaused = false
+                        mediaPlayer?.start()
+                        updateProgress(itemPosition)
+                    }
+                    return
+                }
+
+                releaseMediaPlayer()
+                chatAdapter?.setAudioProgress(
+                    progress = 0,
+                    currentPosition = 0,
+                    duration = 0,
+                    itemPosition = currentAudioPlayingItemPosition
+                )
+
+                if (mediaPlayer == null) {
+                    mediaPlayer = MediaPlayer()
+
+                    mediaPlayer?.setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .build()
+                    )
+
+                    mediaPlayer?.setOnCompletionListener {
+                        isAudioPlayCompleted = true
+                    }
+
+                    mediaPlayer?.isLooping = false
+                }
+
+                try {
+                    mediaPlayer?.setDataSource(path)
+                    mediaPlayer?.prepare()
+                    mediaPlayer?.start()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                chatAdapter?.setAudioStartTime(0, itemPosition)
+                chatAdapter?.setAudioEndTime(100, itemPosition)
+
+                updateProgress(itemPosition)
+
+                currentAudioPlayingItemPosition = itemPosition
+            }
+
+            private fun updateProgress(itemPosition: Int) {
+                handler.postDelayed(object : Runnable {
+                    override fun run() {
+                        if (currentAudioPlayingItemPosition != itemPosition) return
+                        if (isAudioPaused) return
+
+//                        debug(TAG, "mediaPlayer.currentPosition: ${mediaPlayer?.currentPosition}")
+//                        debug(TAG, "mediaPlayer.duration: ${mediaPlayer?.duration}")
+//                        debug(TAG, "isAudioPlayCompleted: $isAudioPlayCompleted")
+//                        debug(TAG, "mediaPlayer.isPlaying: ${mediaPlayer?.isPlaying}")
+
+                        val progress = mediaPlayer?.let {
+                            (it.currentPosition * 100) / it.duration
+                        } ?: 0
+
+                        if (isAudioPlayCompleted) {
+                            chatAdapter?.setAudioProgress(
+                                progress = 100,
+                                currentPosition = mediaPlayer?.duration ?: 0,
+                                duration = mediaPlayer?.duration ?: 0,
+                                itemPosition = itemPosition
+                            )
+                        } else {
+                            if (mediaPlayer?.isPlaying == true) {
+                                chatAdapter?.setAudioProgress(
+                                    progress = progress,
+                                    currentPosition = mediaPlayer?.currentPosition ?: 0,
+                                    duration = mediaPlayer?.duration ?: 0,
+                                    itemPosition = itemPosition
+                                )
+                                handler.postDelayed(this, 250)
+                            }
+                        }
+                    }
+                }, 250)
+            }
+
+            override fun onMediaClicked(media: Media, itemPosition: Int) {
+                debug(TAG, "onMediaClicked: $media, itemPosition: $itemPosition")
+
                 val file = media.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
-                    file.openFile(this@KenesWidgetV2Activity)
+                    if (media.isAudio) {
+                        playAudio(file.absolutePath, itemPosition)
+                    } else if (media.isFile) {
+                        file.openFile(this@KenesWidgetV2Activity)
+                    }
                 } else {
                     try {
-                        file.downloadFile(position, media.fileUrl, "media") {}
+                        if (media.isAudio) {
+                            file.downloadFile(media.audioUrl, "media", itemPosition) {
+                                playAudio(file.absolutePath, itemPosition)
+                            }
+                        } else if (media.isFile) {
+                            file.downloadFile(media.fileUrl, "media", itemPosition) {}
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }
             }
 
-            override fun onAttachmentClicked(attachment: Attachment, position: Int) {
+            override fun onAttachmentClicked(attachment: Attachment, itemPosition: Int) {
                 val file = attachment.getFile(this@KenesWidgetV2Activity)
                 if (file.exists()) {
                     file.openFile(this@KenesWidgetV2Activity)
                 } else {
                     try {
-                        file.downloadFile(position, attachment.url, "attachment") {
+                        file.downloadFile(attachment.url, "attachment", itemPosition) {
                             file.openFile(this@KenesWidgetV2Activity)
                         }
                     } catch (e: Exception) {
@@ -743,7 +880,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-//        layoutManager.stackFromEnd = true
         recyclerView.layoutManager = layoutManager
         recyclerView.isNestedScrollingEnabled = false
 
@@ -824,9 +960,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun File.downloadFile(
-        position: Int,
         url: String?,
         fileType: String,
+        itemPosition: Int,
         callback: () -> Unit
     ) {
         if (url.isNullOrBlank()) return
@@ -834,12 +970,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             when (downloadResult) {
                 is DownloadResult.Success -> {
                     callback()
-                    chatAdapter?.setDownloading(position, Message.File.DownloadStatus.COMPLETED)
+                    chatAdapter?.setDownloading(Message.File.DownloadStatus.COMPLETED, itemPosition)
                 }
                 is DownloadResult.Error ->
-                    chatAdapter?.setDownloading(position, Message.File.DownloadStatus.ERROR)
+                    chatAdapter?.setDownloading(Message.File.DownloadStatus.ERROR, itemPosition)
                 is DownloadResult.Progress ->
-                    chatAdapter?.setProgress(position, fileType, downloadResult.progress)
+                    chatAdapter?.setProgress(downloadResult.progress, fileType, itemPosition)
             }
         }
     }
@@ -926,6 +1062,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        releaseMediaPlayer()
+    }
+
     override fun onBackPressed() {
         showWidgetCloseConfirmDialog { finish() }
     }
@@ -966,13 +1107,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
     }
 
-    private fun connectToSignallingServer() {
-        val signallingServerUrl = UrlUtil.getSignallingServerUrl()
-        if (signallingServerUrl.isNullOrBlank()) {
+    private fun initSocket() {
+        val socketUrl = UrlUtil.getSocketUrl()
+        if (socketUrl.isNullOrBlank()) {
             throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
         } else {
             socketClient = SocketClient()
-            socketClient?.start(signallingServerUrl, currentLanguage)
+            socketClient?.start(socketUrl, currentLanguage)
         }
 
         socketClient?.listener = object : SocketClient.Listener {
@@ -1323,7 +1464,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onMediaMessage(media: Media, timestamp: Long) {
-                if (media.isImage || media.isFile) {
+                if (media.isImage || media.isAudio || media.isFile) {
                     runOnUiThread {
                         chatAdapter?.addNewMessage(
                             Message(
@@ -1390,8 +1531,25 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         dialog.isInitiator = false
     }
 
+    private fun releaseMediaPlayer() {
+        currentAudioPlayingItemPosition = -1
+        isAudioPlayCompleted = false
+        isAudioPaused = false
+
+        try {
+            mediaPlayer?.pause()
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+        } catch (e: Exception) {
+        } finally {
+            mediaPlayer = null
+        }
+    }
+
     private fun hangupLiveCall() {
         dialog.clear()
+
+        releaseMediaPlayer()
 
         runOnUiThread {
             chatAdapter?.addNewMessage(
@@ -1422,6 +1580,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         debug(TAG, "closeLiveCall -> viewState: $viewState")
 
         dialog.clear()
+
+        releaseMediaPlayer()
 
         videoDialogView.release()
 

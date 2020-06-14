@@ -51,8 +51,19 @@ internal class HeaderView @JvmOverloads constructor(
             setOpponentAvatar(opponent?.avatarUrl)
         }
 
-        setOpponentName(opponent?.name)
-        setOpponentSecondName(opponent?.secondName)
+        if (!opponent?.name.isNullOrBlank()) {
+            setOpponentName(opponent?.name)
+            opponentNameView.visibility = View.VISIBLE
+        } else {
+            opponentNameView.visibility = View.GONE
+        }
+
+        if (!opponent?.secondName.isNullOrBlank()) {
+            setOpponentSecondName(opponent?.secondName)
+            opponentSecondNameView.visibility = View.VISIBLE
+        } else {
+            opponentSecondNameView.visibility = View.GONE
+        }
     }
 
     fun setOpponentAvatar(photoUrl: String?) {

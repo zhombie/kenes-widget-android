@@ -256,12 +256,17 @@ internal class SocketClient {
 
         if (media != null) {
             val image = media.getNullableString("image")
+            val audio = media.getNullableString("audio")
             val file = media.getNullableString("file")
             val name = media.getNullableString("name")
             val ext = media.getNullableString("ext")
 
             if (!image.isNullOrBlank() && !ext.isNullOrBlank()) {
                 listener?.onMediaMessage(Media(imageUrl = image, hash = name, ext = ext), time)
+            }
+
+            if (!audio.isNullOrBlank() && !ext.isNullOrBlank()) {
+                listener?.onMediaMessage(Media(audioUrl = audio, hash = name, ext = ext), time)
             }
 
             if (!file.isNullOrBlank() && !ext.isNullOrBlank()) {

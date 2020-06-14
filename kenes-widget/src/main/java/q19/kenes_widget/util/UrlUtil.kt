@@ -6,7 +6,7 @@ internal object UrlUtil {
 
     private var HOSTNAME: String? = null
 
-    const val STATIC_PATH = "/static/uploads/"
+    private const val STATIC_PATH = "/static/uploads/"
 
     fun getStaticUrl(path: String?): String? {
         if (path == null) {
@@ -55,13 +55,25 @@ internal object UrlUtil {
         HOSTNAME = hostname
     }
 
-    fun getSignallingServerUrl(): String? {
+    fun getSocketUrl(): String? {
         val hostname = getHostname()
         return if (!hostname.isNullOrBlank()) {
-            when {
-                "kenes.vlx.kz" in hostname -> "https://kenes2.vlx.kz/user"
+            val domain = when {
+                "kenes.vlx.kz" in hostname -> "https://kenes2.vlx.kz"
                 "rtc.vlx.kz" in hostname -> "https://rtc.vlx.kz"
+                "bot.nitec.kz" in hostname -> "https://kenes2.1414.kz"
+                "help.post.kz" in hostname -> "https://help.post.kz"
                 else -> null
+            }
+
+            if (hostname == "rtc.vlx.kz") {
+                return hostname
+            }
+
+            if (!domain.isNullOrBlank()) {
+                "$domain/user"
+            } else {
+                null
             }
         } else {
             null

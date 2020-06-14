@@ -8,6 +8,7 @@ import java.io.File
 
 internal data class Media(
     var imageUrl: String? = null,
+    var audioUrl: String? = null,
     var fileUrl: String? = null,
     var hash: String? = null,
     var ext: String? = null,
@@ -26,6 +27,9 @@ internal data class Media(
 
     val isImage: Boolean
         get() = !imageUrl.isNullOrBlank() && IMAGE_EXTENSIONS.any { ext == it }
+
+    val isAudio: Boolean
+        get() = !audioUrl.isNullOrBlank()
 
     val isFile: Boolean
         get() = !fileUrl.isNullOrBlank()
