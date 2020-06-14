@@ -1633,12 +1633,31 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
 
         override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
             when (iceConnectionState) {
-                PeerConnection.IceConnectionState.CONNECTED,
-                PeerConnection.IceConnectionState.COMPLETED -> {
+                PeerConnection.IceConnectionState.CONNECTED -> {
+//                    peerConnectionClient?.setVideoMaxBitrate(500)
                     if (viewState is ViewState.AudioDialog) {
                         viewState = ViewState.AudioDialog.Live(true)
                     } else if (viewState is ViewState.VideoDialog) {
                         viewState = ViewState.VideoDialog.Live(true)
+                    }
+                }
+                PeerConnection.IceConnectionState.COMPLETED -> {
+                    viewState.let { viewState ->
+                        if (viewState is ViewState.AudioDialog) {
+                            if (viewState is ViewState.AudioDialog.Live && viewState.isDialogScreenShown) {
+                                debug(TAG, "Already is on Live Mode")
+                            } else {
+                                this@KenesWidgetV2Activity.viewState =
+                                    ViewState.AudioDialog.Live(true)
+                            }
+                        } else if (viewState is ViewState.VideoDialog) {
+                            if (viewState is ViewState.VideoDialog.Live && viewState.isDialogScreenShown) {
+                                debug(TAG, "Already is on Live Mode")
+                            } else {
+                                this@KenesWidgetV2Activity.viewState =
+                                    ViewState.VideoDialog.Live(true)
+                            }
+                        }
                     }
                 }
                 PeerConnection.IceConnectionState.DISCONNECTED ->
@@ -1842,6 +1861,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 when (viewState) {
                     ViewState.AudioDialog.IDLE -> {
                         runOnUiThread {
+                            progressView.hide()
+
                             chatFooterAdapter?.clear()
 
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -1980,6 +2001,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 when (viewState) {
                     ViewState.VideoDialog.IDLE -> {
                         runOnUiThread {
+                            progressView.hide()
+
                             chatFooterAdapter?.clear()
 
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -2120,6 +2143,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 formView.visibility = View.VISIBLE
             }
             ViewState.Info -> {
+                progressView.hide()
+
                 chatFooterAdapter?.clear()
 
                 headerView.hideHangupButton()

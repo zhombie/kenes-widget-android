@@ -20,6 +20,8 @@ internal class PeerConnectionClient {
 
         const val AUDIO_TRACK_ID = "ARDAMSa0"
         const val VIDEO_TRACK_ID = "ARDAMSv0"
+
+        private const val BPS_IN_KBPS = 1000
     }
 
     private var activity: Activity? = null
@@ -62,6 +64,8 @@ internal class PeerConnectionClient {
     private var remoteVideoTrack: VideoTrack? = null
 
     private var localSdp: SessionDescription? = null
+
+    private var localVideoSender: RtpSender? = null
 
     private var isInitiator = false
 
@@ -203,6 +207,7 @@ internal class PeerConnectionClient {
 
         if (isCameraEnabled) {
             localMediaStream?.addTrack(createVideoTrack())
+            findVideoSender()
         }
 
         if (!localMediaStream?.audioTracks.isNullOrEmpty() || !localMediaStream?.videoTracks.isNullOrEmpty()) {
@@ -302,6 +307,44 @@ internal class PeerConnectionClient {
     }
 
     private fun useCamera2(): Boolean = Camera2Enumerator.isSupported(activity)
+
+    private fun findVideoSender() {
+        peerConnection?.let {
+            for (sender in it.senders) {
+                if (sender.track()?.kind() == "video") {
+                    debug(TAG, "Found video sender.")
+                    localVideoSender = sender
+                }
+            }
+        }
+    }
+
+    fun setVideoMaxBitrate(maxBitrateKbps: Int?) {
+        executor.execute {
+            if (peerConnection == null || localVideoSender == null) {
+                return@execute
+            }
+            debug(TAG, "Requested max video bitrate: $maxBitrateKbps")
+            if (localVideoSender == null) {
+                debug(TAG, "Sender is not ready.")
+                return@execute
+            }
+            val parameters = localVideoSender?.parameters
+            if (parameters == null || parameters.encodings.size == 0) {
+                debug(TAG, "RtpParameters are not ready.")
+                return@execute
+            }
+            for (encoding in parameters.encodings) {
+                // Null value means no limit.
+                encoding.maxBitrateBps =
+                    if (maxBitrateKbps == null) null else maxBitrateKbps * BPS_IN_KBPS
+            }
+            if (!localVideoSender!!.setParameters(parameters)) {
+                debug(TAG, "RtpSender.setParameters failed.")
+            }
+            debug(TAG, "Configured max video bitrate to: $maxBitrateKbps")
+        }
+    }
 
     fun addRemoteIceCandidate(iceCandidate: IceCandidate) {
         debug(TAG, "addIceCandidate: $iceCandidate")
@@ -461,6 +504,7 @@ internal class PeerConnectionClient {
         isCameraEnabled = false
         isMicrophoneEnabled = false
         remoteVideoScalingType = null
+        localVideoSender = null
 
         executor.execute {
             activity?.volumeControlStream = AudioManager.USE_DEFAULT_STREAM_TYPE
