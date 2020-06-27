@@ -4,6 +4,9 @@
 
     <dimen name="kenes_message_vertical_spacing">10dp</dimen>
 
+    <dimen name="kenes_info_block_horizontal_spacing">28dp</dimen>
+    <dimen name="kenes_info_block_vertical_spacing">28dp</dimen>
+
     <dimen name="kenes_category_horizontal_spacing">10dp</dimen>
 
     <dimen name="kenes_child_border_radius">10dp</dimen>

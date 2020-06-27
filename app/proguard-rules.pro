@@ -19,8 +19,3 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
-
-# WebRTC
--keep class org.webrtc.** { *; }
--keepclasseswithmembernames class * { native <methods>; }
--keep class android.media.** { *; }

@@ -1,13 +1,18 @@
 package q19.kenes_widget.model
 
 import androidx.annotation.DrawableRes
+import org.json.JSONObject
 import q19.kenes_widget.R
 
 internal data class Configs(
+    var isAudioCallEnabled: Boolean = false,
+    var isVideoCallEnabled: Boolean = false,
+    var isContactSectionsShown: Boolean = false,
     var opponent: Opponent = Opponent(),
     var contacts: List<Contact> = listOf(),
     var phones: List<String> = listOf(),
-    var workingHours: WorkingHours = WorkingHours()
+    var workingHours: WorkingHours = WorkingHours(),
+    var infoBlocks: List<InfoBlock>? = null
 ) {
 
     data class Opponent(
@@ -77,6 +82,33 @@ internal data class Configs(
             messageRu = null
         }
     }
+
+    data class InfoBlock(
+        val title: I18NString,
+        val description: I18NString,
+        val items: List<Item>
+    )
+
+    class I18NString(
+        val value: JSONObject
+    ) {
+        companion object {
+            fun JSONObject.parse(): I18NString {
+                return I18NString(this)
+            }
+        }
+
+        fun get(language: Language): String {
+            return value.optString(language.key)
+        }
+    }
+
+    data class Item(
+        val icon: String?,
+        val text: String,
+        val description: I18NString,
+        val action: String
+    )
 
     fun clear() {
         opponent.clear()

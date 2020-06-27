@@ -31,9 +31,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/opponentAvatarView"
-            android:layout_alignBottom="@id/opponentAvatarView"
             android:layout_toEndOf="@id/opponentAvatarView"
             android:gravity="center_vertical"
+            android:minHeight="40dp"
             android:orientation="vertical">
 
             <TextView

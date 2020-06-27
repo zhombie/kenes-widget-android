@@ -8,20 +8,20 @@ internal object UrlUtil {
 
     private const val STATIC_PATH = "/static/uploads/"
 
-    fun getStaticUrl(path: String?): String? {
-        if (path == null) {
+    fun getStaticUrl(hash: String?): String? {
+        if (hash.isNullOrBlank()) {
             return null
         }
 
         val hostname = getHostname()
         return if (!hostname.isNullOrBlank()) {
-            if (path.startsWith(STATIC_PATH)) {
-                hostname + path
+            if (hash.startsWith(STATIC_PATH)) {
+                hostname + hash
             } else {
                 if (hostname.endsWith("/")) {
-                    hostname.dropLast(1) + STATIC_PATH + path
+                    hostname.dropLastWhile { it == '/' } + STATIC_PATH + hash
                 } else {
-                    hostname + STATIC_PATH + path
+                    hostname + STATIC_PATH + hash
                 }
             }
         } else {
@@ -80,11 +80,12 @@ internal object UrlUtil {
         }
     }
 
-    fun buildUrl(path: String): String {
-        if (path.isBlank()) return ""
-        val hostname = getHostname() ?: return ""
+    fun buildUrl(path: String): String? {
+        if (path.isBlank()) return null
+        val hostname = getHostname() ?: return null
         if (path.startsWith(hostname)) return path
-        return hostname.dropLastWhile { it == '/' } + path
+        if (path.startsWith('/')) return hostname.dropLastWhile { it == '/' } + path
+        return hostname.dropLastWhile { it == '/' } + '/' + path
     }
 
 }

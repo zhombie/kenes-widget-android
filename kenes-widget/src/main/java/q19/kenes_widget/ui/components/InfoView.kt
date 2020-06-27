@@ -168,8 +168,8 @@ private class MenuAdapter(
         }
 
         override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-            val startX = parent.paddingLeft + 100
-            val stopX = parent.width - parent.paddingRight - 35
+            val startX = parent.paddingStart + 100
+            val stopX = parent.width - parent.paddingEnd - 35
 
             val childCount = parent.childCount
             for (i in 0 until childCount - 1) {

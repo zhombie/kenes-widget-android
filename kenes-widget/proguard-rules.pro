@@ -22,5 +22,9 @@
 
 # WebRTC
 -keep class org.webrtc.** { *; }
--keepclasseswithmembernames class * { native <methods>; }
--keep class android.media.** { *; }
+
+-keepattributes InnerClasses
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
