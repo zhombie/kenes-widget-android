@@ -12,12 +12,7 @@ import q19.kenes_widget.util.UrlUtil
 
 internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
 
-    companion object {
-        private const val TAG = "WidgetConfigsTask"
-    }
-
-    override val tag: String
-        get() = "WidgetConfigsTask"
+    override val TAG = "WidgetConfigsTask"
 
     override fun run(): Configs? {
         try {
@@ -105,6 +100,8 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
 
                     if (value is Boolean) {
                         when (key) {
+                            "chatbot_enabled" ->
+                                configs.isChabotEnabled = value
                             "audio_call_enabled" ->
                                 configs.isAudioCallEnabled = value
                             "video_call_enabled" ->
@@ -119,7 +116,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             return configs
         } catch (e: Exception) {
 //            e.printStackTrace()
-            Log.e(tag, "ERROR! $e")
+            Log.e(TAG, "ERROR! $e")
             return null
         }
     }

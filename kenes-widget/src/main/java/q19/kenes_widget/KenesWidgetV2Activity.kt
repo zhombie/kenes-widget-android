@@ -243,26 +243,18 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         dialog.clear()
 
         headerView.hideHangupButton()
-        headerView.setOpponentInfo(
-            Configs.Opponent(
-                "Kenes",
-                "Smart Bot",
-                drawableRes = R.drawable.kenes_ic_robot
-            )
-        )
+        headerView.setOpponentInfo(Configs.Opponent.getDefault())
 
         feedbackView.setDefaultState()
         footerView.setDefaultState()
         videoCallView.setDefaultState()
         audioCallView.setDefaultState()
 
-        /**
-         * Default active navigation button of [bottomNavigationView]
-         */
-        bottomNavigationView.setHomeNavButtonActive()
+        bottomNavigationView.hideHomeNavButton()
         bottomNavigationView.hideVideoCallNavButton()
         bottomNavigationView.hideAudioCallNavButton()
         bottomNavigationView.hideContactsNavButton()
+        bottomNavigationView.showInfoNavButton()
 
         // --------------------- [END] Default screen setups ----------------------------
 
@@ -301,6 +293,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
             }
 
             override fun onHomeNavButtonClicked(): Boolean {
+                if (!configs.isChabotEnabled) {
+                    return false
+                }
+
                 if (dialog.isInitiator) {
                     showAlreadyCallingAlert {
                         cancelPendingCall()
@@ -400,6 +396,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         videoCallView.setOnCallClickListener {
+            if (!configs.isVideoCallEnabled) {
+                return@setOnCallClickListener
+            }
+
             val isPermissionRequestSent = checkPermissions()
             if (isPermissionRequestSent) {
                 return@setOnCallClickListener
@@ -428,6 +428,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         }
 
         audioCallView.setOnCallClickListener {
+            if (!configs.isAudioCallEnabled) {
+                return@setOnCallClickListener
+            }
+
             val isPermissionRequestSent = checkPermissions()
             if (isPermissionRequestSent) {
                 return@setOnCallClickListener
@@ -1105,18 +1109,37 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun fetchWidgetConfigs() {
-        val task = WidgetConfigsTask(UrlUtil.buildUrl("/configs") ?: return)
+        val url = UrlUtil.buildUrl("/configs") ?: return
+        debug(TAG, "fetchWidgetConfigs -> url: $url")
+
+        val task = WidgetConfigsTask(url)
 
         val data = task.run()
 
-        data?.let {
+        if (data == null) {
+            headerView.setOpponentInfo(Configs.Opponent.getDefault())
+
+            viewState = ViewState.ChatBot.Categories(false)
+        } else {
             configs = data
 
-            infoView.setContacts(configs.contacts)
-            infoView.setPhones(configs.phones)
+            configs.contacts?.let {
+                infoView.setContacts(it)
+            }
+
+            configs.phones?.let {
+                infoView.setPhones(it)
+            }
+
             infoView.setLanguage(Language.from(getCurrentLanguage()))
 
             headerView.setOpponentInfo(configs.opponent)
+
+            if (configs.isChabotEnabled) {
+                bottomNavigationView.showHomeNavButton()
+            } else {
+                bottomNavigationView.hideHomeNavButton()
+            }
 
             if (configs.isAudioCallEnabled) {
                 bottomNavigationView.showAudioCallNavButton()
@@ -1140,7 +1163,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
     }
 
     private fun fetchIceServers() {
-        val task = IceServersTask(UrlUtil.buildUrl("/ice_servers") ?: return)
+        val url = UrlUtil.buildUrl("/ice_servers") ?: return
+        debug(TAG, "fetchIceServers -> url: $url")
+
+        val task = IceServersTask(url)
 
         val data = task.run()
 
@@ -1159,14 +1185,32 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
         if (socketUrl.isNullOrBlank()) {
             throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
         } else {
+            debug(TAG, "initSocket -> socketUrl: $socketUrl")
             socketClient = SocketClient()
             socketClient?.start(socketUrl, currentLanguage)
         }
 
         socketClient?.listener = object : SocketClient.Listener {
             override fun onConnect() {
-                socketClient?.getBasicCategories()
-                viewState = ViewState.ChatBot.Categories(true)
+                viewState = if (configs.isChabotEnabled) {
+                    socketClient?.getBasicCategories()
+                    ViewState.ChatBot.Categories(true)
+                } else {
+                    when {
+                        bottomNavigationView.isHomeNavButtonFirst() ->
+                            ViewState.ChatBot.Categories(false)
+                        bottomNavigationView.isVideoCallNavButtonFirst() ->
+                            ViewState.VideoDialog.IDLE
+                        bottomNavigationView.isAudioCallNavButtonFirst() ->
+                            ViewState.AudioDialog.IDLE
+                        bottomNavigationView.isContactsNavButtonFirst() ->
+                            ViewState.Contacts
+                        bottomNavigationView.isInfoNavButtonFirst() ->
+                            ViewState.Info
+                        else ->
+                            ViewState.ChatBot.Categories(false)
+                    }
+                }
             }
 
             override fun onOperatorGreet(fullName: String, photoUrl: String?, text: String) {
@@ -2229,31 +2273,37 @@ class KenesWidgetV2Activity : LocalizationActivity(), PermissionRequest.Listener
                 }
             }
             ViewState.Form -> {
-                recyclerView.visibility = View.GONE
+                runOnUiThread {
+                    recyclerView.visibility = View.GONE
 
-                footerView.visibility = View.GONE
+                    footerView.visibility = View.GONE
 
-                bottomNavigationView.setNavButtonsDisabled()
+                    bottomNavigationView.setNavButtonsDisabled()
 
-                formView.visibility = View.VISIBLE
+                    formView.visibility = View.VISIBLE
+                }
             }
             ViewState.Contacts -> {
-                hideOtherViews()
+                runOnUiThread {
+                    hideOtherViews()
 
-                infoView.visibility = View.GONE
+                    infoView.visibility = View.GONE
 
-                bottomNavigationView.setContactsNavButtonActive()
+                    bottomNavigationView.setContactsNavButtonActive()
 
-                contactsView.visibility = View.VISIBLE
+                    contactsView.visibility = View.VISIBLE
+                }
             }
             ViewState.Info -> {
-                hideOtherViews()
+                runOnUiThread {
+                    hideOtherViews()
 
-                contactsView.visibility = View.GONE
+                    contactsView.visibility = View.GONE
 
-                bottomNavigationView.setInfoNavButtonActive()
+                    bottomNavigationView.setInfoNavButtonActive()
 
-                infoView.visibility = View.VISIBLE
+                    infoView.visibility = View.VISIBLE
+                }
             }
         }
     }

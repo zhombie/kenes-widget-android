@@ -5,13 +5,14 @@ import org.json.JSONObject
 import q19.kenes_widget.R
 
 internal data class Configs(
+    var isChabotEnabled: Boolean = false,
     var isAudioCallEnabled: Boolean = false,
     var isVideoCallEnabled: Boolean = false,
     var isContactSectionsShown: Boolean = false,
-    var opponent: Opponent = Opponent(),
-    var contacts: List<Contact> = listOf(),
-    var phones: List<String> = listOf(),
-    var workingHours: WorkingHours = WorkingHours(),
+    var opponent: Opponent? = null,
+    var contacts: List<Contact>? = null,
+    var phones: List<String>? = null,
+    var workingHours: WorkingHours? = null,
     var infoBlocks: List<InfoBlock>? = null
 ) {
 
@@ -25,6 +26,13 @@ internal data class Configs(
     ) {
         companion object {
             private const val UNDEFINED_DRAWABLE_RES = -1
+
+            fun getDefault(): Opponent {
+                return Opponent(
+                    secondName = "Smart Bot",
+                    drawableRes = R.drawable.kenes_ic_robot
+                )
+            }
         }
 
         val isDrawableResAvailable: Boolean
@@ -111,8 +119,12 @@ internal data class Configs(
     )
 
     fun clear() {
-        opponent.clear()
-        workingHours.clear()
+        opponent?.clear()
+        opponent = null
+        contacts = null
+        phones = null
+        workingHours?.clear()
+        workingHours = null
     }
 
 }

@@ -56,28 +56,21 @@ internal class BottomNavigationView @JvmOverloads constructor(
         audioButton = view.findViewById(R.id.audioButton)
         contactsButton = view.findViewById(R.id.contactsButton)
         infoButton = view.findViewById(R.id.infoButton)
+    }
 
-        navButtons.clear()
+    fun isHomeNavButtonFirst(): Boolean = isNavButtonFirst(homeButton)
+    fun isVideoCallNavButtonFirst(): Boolean = isNavButtonFirst(videoButton)
+    fun isAudioCallNavButtonFirst(): Boolean = isNavButtonFirst(audioButton)
+    fun isContactsNavButtonFirst(): Boolean = isNavButtonFirst(contactsButton)
+    fun isInfoNavButtonFirst(): Boolean = isNavButtonFirst(infoButton)
 
-        homeButton?.setOnClickListener(object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                if (callback?.onHomeNavButtonClicked() == true) {
-                    setHomeNavButtonActive()
-                }
+    private fun isNavButtonFirst(appCompatImageButton: AppCompatImageButton?): Boolean {
+        if (navButtons.isNotEmpty()) {
+            if (navButtons.indexOf(appCompatImageButton) >= 0) {
+                return true
             }
-        })
-
-        homeButton?.let { navButtons.add(0, it) }
-
-        infoButton?.setOnClickListener(object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                if (callback?.onInfoNavButtonClicked() == true) {
-                    setInfoNavButtonActive()
-                }
-            }
-        })
-
-        infoButton?.let { navButtons.add(navButtons.size - 1, it) }
+        }
+        return false
     }
 
     fun setHomeNavButtonActive() {
@@ -160,10 +153,24 @@ internal class BottomNavigationView @JvmOverloads constructor(
         bottomNavigationView?.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
+    fun showHomeNavButton() {
+        showNavButton(homeButton, 0, object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                if (callback?.onHomeNavButtonClicked() == true) {
+                    setHomeNavButtonActive()
+                }
+            }
+        })
+    }
+
+    fun hideHomeNavButton() {
+        hideNavButton(homeButton)
+    }
+
     fun showVideoCallNavButton() {
-        val half = navButtons.size / 2
-        Logger.debug(TAG, "showVideoCallNavButton -> half: $half")
-        showNavButton(videoButton, half, object : DebouncedOnClickListener() {
+        val index = navButtons.size / 2
+        Logger.debug(TAG, "showVideoCallNavButton -> index: $index")
+        showNavButton(videoButton, index, object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
                 if (callback?.onVideoNavButtonClicked() == true) {
                     setVideoNavButtonActive()
@@ -177,9 +184,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     fun showAudioCallNavButton() {
-        val half = navButtons.size / 2
-        Logger.debug(TAG, "showAudioCallNavButton -> half: $half")
-        showNavButton(audioButton, half, object : DebouncedOnClickListener() {
+        val index = navButtons.size / 2
+        Logger.debug(TAG, "showAudioCallNavButton -> index: $index")
+        showNavButton(audioButton, index, object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
                 if (callback?.onAudioNavButtonClicked() == true) {
                     setAudioNavButtonActive()
@@ -193,9 +200,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     fun showContactsNavButton() {
-        val half = navButtons.size / 2
-        Logger.debug(TAG, "showContactsNavButton -> half: $half")
-        showNavButton(contactsButton, half, object : DebouncedOnClickListener() {
+        val index = navButtons.size / 2
+        Logger.debug(TAG, "showContactsNavButton -> index: $index")
+        showNavButton(contactsButton, index, object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
                 if (callback?.onContactsNavButtonClicked() == true) {
                     setContactsNavButtonActive()
@@ -206,6 +213,25 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     fun hideContactsNavButton() {
         hideNavButton(contactsButton)
+    }
+
+    fun showInfoNavButton() {
+        var index = navButtons.size
+        if (index > 0) {
+            index -= 1
+        }
+        Logger.debug(TAG, "showInfoNavButton -> index: $index")
+        showNavButton(infoButton, index, object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                if (callback?.onInfoNavButtonClicked() == true) {
+                    setInfoNavButtonActive()
+                }
+            }
+        })
+    }
+
+    fun hideInfoButton() {
+        hideNavButton(infoButton)
     }
 
     private fun showNavButton(
