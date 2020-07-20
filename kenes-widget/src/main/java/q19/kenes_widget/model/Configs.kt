@@ -5,15 +5,16 @@ import org.json.JSONObject
 import q19.kenes_widget.R
 
 internal data class Configs(
-    var isChabotEnabled: Boolean = false,
-    var isAudioCallEnabled: Boolean = false,
-    var isVideoCallEnabled: Boolean = false,
-    var isContactSectionsShown: Boolean = false,
-    var opponent: Opponent? = null,
-    var contacts: List<Contact>? = null,
-    var phones: List<String>? = null,
-    var workingHours: WorkingHours? = null,
-    var infoBlocks: List<InfoBlock>? = null
+    val isChabotEnabled: Boolean = false,
+    val isAudioCallEnabled: Boolean = false,
+    val isVideoCallEnabled: Boolean = false,
+    val isContactSectionsShown: Boolean = false,
+    val isPhonesListShown: Boolean = false,
+    val opponent: Opponent? = null,
+    val contacts: List<Contact>? = null,
+    val phones: List<String>? = null,
+    val workingHours: WorkingHours? = null,
+    val infoBlocks: List<InfoBlock>? = null
 ) {
 
     data class Opponent(
@@ -22,7 +23,7 @@ internal data class Configs(
         var avatarUrl: String? = null,
 
         @DrawableRes
-        var drawableRes: Int = UNDEFINED_DRAWABLE_RES
+        val drawableRes: Int = UNDEFINED_DRAWABLE_RES
     ) {
         companion object {
             private const val UNDEFINED_DRAWABLE_RES = -1
@@ -82,14 +83,9 @@ internal data class Configs(
     }
 
     data class WorkingHours(
-        var messageKk: String? = null,
-        var messageRu: String? = null
-    ) {
-        fun clear() {
-            messageKk = null
-            messageRu = null
-        }
-    }
+        val messageKk: String? = null,
+        val messageRu: String? = null
+    )
 
     data class InfoBlock(
         val title: I18NString,
@@ -120,11 +116,6 @@ internal data class Configs(
 
     fun clear() {
         opponent?.clear()
-        opponent = null
-        contacts = null
-        phones = null
-        workingHours?.clear()
-        workingHours = null
     }
 
 }

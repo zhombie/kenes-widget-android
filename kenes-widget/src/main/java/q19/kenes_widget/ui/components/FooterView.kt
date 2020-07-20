@@ -61,8 +61,6 @@ internal class FooterView @JvmOverloads constructor(
 
         setGoToActiveDialogButtonState(null)
 
-        clearInputViewText()
-
         disableSendMessageButton()
     }
 

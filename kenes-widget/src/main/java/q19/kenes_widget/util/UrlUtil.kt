@@ -82,10 +82,20 @@ internal object UrlUtil {
 
     fun buildUrl(path: String): String? {
         if (path.isBlank()) return null
-        val hostname = getHostname() ?: return null
+        val hostname = getHostname()
+        if (hostname.isNullOrBlank()) return null
         if (path.startsWith(hostname)) return path
         if (path.startsWith('/')) return hostname.dropLastWhile { it == '/' } + path
         return hostname.dropLastWhile { it == '/' } + '/' + path
     }
+
+    val isDebug: Boolean
+        get() {
+            val hostname = getHostname()
+            if (hostname.isNullOrBlank()) return false
+            if (hostname.contains("kenes.vlx.kz")) return true
+            if (hostname.contains("help.post.kz")) return true
+            return false
+        }
 
 }

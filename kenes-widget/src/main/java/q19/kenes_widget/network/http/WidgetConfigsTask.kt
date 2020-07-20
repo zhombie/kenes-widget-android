@@ -31,37 +31,36 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             val booleansJson = json?.optJSONObject("booleans")
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-            val configs = Configs()
-
-            configs.opponent = Configs.Opponent(
+            val opponent = Configs.Opponent(
                 name = configsJson?.optString("title"),
                 secondName = configsJson?.optString("default_operator"),
                 avatarUrl = UrlUtil.getStaticUrl(configsJson?.optString("image"))
             )
 
+            var contacts: MutableList<Configs.Contact>? = null
+            var phones: List<String>? = null
             if (contactsJson != null) {
-                val contacts = mutableListOf<Configs.Contact>()
-
+                contacts = mutableListOf()
+                phones = listOf()
                 for (key in contactsJson.keys()) {
                     val value = contactsJson[key]
 
                     if (value is String) {
                         contacts.add(Configs.Contact(key, value))
                     } else if (value is JSONArray) {
-                        configs.phones = value.parse()
+                        phones = value.parse()
                     }
                 }
-
-                configs.contacts = contacts
             }
 
-            configs.workingHours = Configs.WorkingHours(
+            val workingHours = Configs.WorkingHours(
                 configsJson?.optString("message_kk"),
                 configsJson?.optString("message_ru")
             )
 
-            val infoBlocks = mutableListOf<Configs.InfoBlock>()
+            var infoBlocks: MutableList<Configs.InfoBlock>? = null
             if (infoBlocksJson != null) {
+                infoBlocks = mutableListOf()
                 for (i in 0 until infoBlocksJson.length()) {
                     val infoBlock = infoBlocksJson[i] as JSONObject
 
@@ -88,8 +87,12 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                     )
                 }
             }
-            configs.infoBlocks = infoBlocks
 
+            var isChabotEnabled = false
+            var isAudioCallEnabled = false
+            var isVideoCallEnabled = false
+            var isContactSectionsShown = false
+            var isPhonesListShown = false
             if (booleansJson != null) {
                 val keys = booleansJson.keys()
                 while (keys.hasNext()) {
@@ -101,19 +104,32 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                     if (value is Boolean) {
                         when (key) {
                             "chatbot_enabled" ->
-                                configs.isChabotEnabled = value
+                                isChabotEnabled = value
                             "audio_call_enabled" ->
-                                configs.isAudioCallEnabled = value
+                                isAudioCallEnabled = value
                             "video_call_enabled" ->
-                                configs.isVideoCallEnabled = value
+                                isVideoCallEnabled = value
                             "contact_sections_shown" ->
-                                configs.isContactSectionsShown = value
+                                isContactSectionsShown = value
+                            "phones_list_shown" ->
+                                isPhonesListShown = value
                         }
                     }
                 }
             }
 
-            return configs
+            return Configs(
+                isChabotEnabled = isChabotEnabled,
+                isAudioCallEnabled = isAudioCallEnabled,
+                isVideoCallEnabled = isVideoCallEnabled,
+                isContactSectionsShown = isContactSectionsShown,
+                isPhonesListShown = isPhonesListShown,
+                opponent = opponent,
+                contacts = contacts,
+                phones = phones,
+                workingHours = workingHours,
+                infoBlocks = infoBlocks
+            )
         } catch (e: Exception) {
 //            e.printStackTrace()
             Log.e(TAG, "ERROR! $e")

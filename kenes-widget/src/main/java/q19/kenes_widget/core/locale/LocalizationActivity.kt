@@ -81,7 +81,4 @@ abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListen
         return localizationDelegate.getLanguage(this)
     }
 
-    val currentLanguage: String
-        get() = getCurrentLanguage().language
-
 }

@@ -3,11 +3,11 @@ package q19.kenes
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import q19.kenes_widget.KenesWidgetV2Activity
+import q19.kenes_widget.KenesWidget
 
 class MainActivity : AppCompatActivity() {
 
-    private val openWidget by lazy {
+    private val openWidget by lazy(LazyThreadSafetyMode.NONE) {
         findViewById<Button>(R.id.openWidget)
     }
 
@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openWidget() {
-        startActivity(KenesWidgetV2Activity.newIntent(this, "https://kenes.vlx.kz"))
+        startActivity(KenesWidget.open(this, "https://kenes.vlx.kz"))
     }
 
 }

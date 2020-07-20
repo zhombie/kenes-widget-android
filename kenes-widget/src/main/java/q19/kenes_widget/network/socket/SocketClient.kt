@@ -41,7 +41,7 @@ internal class SocketClient {
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        debug(TAG, "[JSONObject] data: $data")
+        debug(TAG, "[OPERATOR_GREET] data: $data")
 
 //        val name = data.optString("name")
         val fullName = data.optString("full_name")
@@ -95,13 +95,13 @@ internal class SocketClient {
     }
 
     private val onFeedback = Emitter.Listener { args ->
-        debug(TAG, "event [FEEDBACK]: $args")
+//        debug(TAG, "event [FEEDBACK]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        debug(TAG, "[JSONObject] data: $data")
+        debug(TAG, "[FEEDBACK] data: $data")
 
         val buttonsJson = data.optJSONArray("buttons")
 
@@ -140,13 +140,13 @@ internal class SocketClient {
     }
 
     private val onMessage = Emitter.Listener { args ->
-        debug(TAG, "event [MESSAGE]: $args")
+//        debug(TAG, "event [MESSAGE]: $args")
 
         if (args.size != 1) return@Listener
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-        debug(TAG, "[JSONObject] data: $data")
+        debug(TAG, "[MESSAGE] data: $data")
 
         val text = data.getNullableString("text")?.trim()
         val noOnline = data.optBoolean("no_online")
@@ -273,6 +273,8 @@ internal class SocketClient {
                 listener?.onMediaMessage(Media(fileUrl = file, hash = name, ext = ext), time)
             }
         }
+
+        listener?.onEmptyMessage()
     }
 
     private val onCategoryList = Emitter.Listener { args ->
@@ -325,25 +327,27 @@ internal class SocketClient {
         socket?.connect()
     }
 
-    fun textCall(language: String? = null) {
-        socket?.emit("initialize", jsonObject {
-            put("video", false)
-            put("lang", fetchLanguage(language))
-        })
-    }
-
-    fun audioCall(language: String? = null) {
-        socket?.emit("initialize", jsonObject {
-            put("audio", true)
-            put("lang", fetchLanguage(language))
-        })
-    }
-
-    fun videoCall(language: String? = null) {
-        socket?.emit("initialize", jsonObject {
-            put("video", true)
-            put("lang", fetchLanguage(language))
-        })
+    fun callOperator(operatorCall: OperatorCall, language: String? = null) {
+        when (operatorCall) {
+            OperatorCall.TEXT -> {
+                socket?.emit("initialize", jsonObject {
+                    put("video", false)
+                    put("lang", fetchLanguage(language))
+                })
+            }
+            OperatorCall.AUDIO -> {
+                socket?.emit("initialize", jsonObject {
+                    put("audio", true)
+                    put("lang", fetchLanguage(language))
+                })
+            }
+            OperatorCall.VIDEO -> {
+                socket?.emit("initialize", jsonObject {
+                    put("video", true)
+                    put("lang", fetchLanguage(language))
+                })
+            }
+        }
     }
 
     fun getBasicCategories(language: String? = null) {
@@ -473,6 +477,7 @@ internal class SocketClient {
 
         fun onTextMessage(text: String, attachments: List<Attachment>? = null, timestamp: Long)
         fun onMediaMessage(media: Media, timestamp: Long)
+        fun onEmptyMessage()
 
         fun onCategories(categories: List<Category>)
 

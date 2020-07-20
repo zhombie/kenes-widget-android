@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package q19.kenes_widget.util
 
 import android.content.ContentResolver
@@ -15,12 +13,12 @@ import java.util.*
 
 internal object FileUtil {
 
-    val IMAGE_ENTENSIONS = setOf("jpg", "jpeg", "png")
-    val AUDIO_ENTENSIONS = setOf("mp3", "wav", "opus", "ogg")
-    val VIDEO_ENTENSIONS = setOf("mp4", "mov", "webm", "mkv", "avi")
-    val DOCUMENT_ENTENSIONS = setOf("doc", "docx", "xls", "xlsx", "pdf")
+    private val IMAGE_ENTENSIONS = setOf("jpg", "jpeg", "png")
+    private val AUDIO_ENTENSIONS = setOf("mp3", "wav", "opus", "ogg")
+    private val VIDEO_ENTENSIONS = setOf("mp4", "mov", "webm", "mkv", "avi")
+    private val DOCUMENT_ENTENSIONS = setOf("doc", "docx", "xls", "xlsx", "pdf")
 
-    val ALL_EXTENSIONS = mapOf(
+    private val ALL_EXTENSIONS = mapOf(
         IMAGE_ENTENSIONS to "image",
         AUDIO_ENTENSIONS to "audio",
         VIDEO_ENTENSIONS to "video"

@@ -1,15 +1,12 @@
 package q19.kenes_widget.network.file
 
-import android.content.Context
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.FileAsyncHttpResponseHandler
 import com.loopj.android.http.RequestHandle
 import cz.msebera.android.httpclient.Header
-import q19.kenes_widget.R
 import java.io.File
 
 internal fun AsyncHttpClient.downloadFile(
-    context: Context,
     file: File,
     url: String,
     listener: (DownloadResult) -> Unit
@@ -32,7 +29,7 @@ internal fun AsyncHttpClient.downloadFile(
             throwable: Throwable?,
             file: File?
         ) {
-            listener(DownloadResult.Error(context.getString(R.string.kenes_file_download_error)))
+            listener(DownloadResult.Error())
         }
     })
 }
