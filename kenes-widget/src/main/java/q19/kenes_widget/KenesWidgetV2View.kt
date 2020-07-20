@@ -20,6 +20,8 @@ internal interface KenesWidgetV2View {
     fun showNavButton(bottomNavigation: BottomNavigation)
     fun hideNavButton(bottomNavigation: BottomNavigation)
 
+    fun hideHangupButton()
+
     fun showFileDownloadStatus(status: Message.File.DownloadStatus, itemPosition: Int)
     fun showFileDownloadProgress(progress: Int, fileType: String, itemPosition: Int)
 
@@ -64,6 +66,7 @@ internal interface KenesWidgetV2View {
     fun showNoOnlineCallAgentsAlert(text: String)
     fun showOpenLinkConfirmAlert(url: String)
     fun showFormSentSuccessAlert()
+    fun showHangupConfirmationAlert()
 
     fun createPeerConnection(
         isMicrophoneEnabled: Boolean,
@@ -79,6 +82,4 @@ internal interface KenesWidgetV2View {
     fun addRemoteIceCandidate(iceCandidate: IceCandidate)
 
     fun scrollToBottom()
-
-    fun showHangupConfirmationAlert()
 }

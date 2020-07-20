@@ -17,7 +17,7 @@
 
         <provider
             android:name="q19.kenes_widget.core.file.KenesWidgetFileProvider"
-            android:authorities="q19.kenes"
+            android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

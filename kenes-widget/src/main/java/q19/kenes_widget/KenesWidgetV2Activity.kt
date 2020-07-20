@@ -19,7 +19,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -178,9 +177,12 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     private var mediaPlayer: MediaPlayer? = null
     private var handler = Handler()
-    @Volatile private var currentAudioPlayingItemPosition: Int = -1
-    @Volatile private var isAudioPlayCompleted = false
-    @Volatile private var isAudioPaused: Boolean = false
+    @Volatile
+    private var currentAudioPlayingItemPosition: Int = -1
+    @Volatile
+    private var isAudioPlayCompleted = false
+    @Volatile
+    private var isAudioPaused: Boolean = false
 
     private lateinit var presenter: KenesWidgetV2Presenter
 
@@ -198,7 +200,6 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
         // --------------------- [BEGIN] Default screen setups ----------------------------
 
-        headerView.hideHangupButton()
 
         feedbackView.setDefaultState()
         footerView.setDefaultState()
@@ -595,7 +596,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     }
 
     override fun clearChatMessages() {
-        chatFooterAdapter?.clear()
+        chatAdapter?.clear()
     }
 
     override fun restoreChatListViewState(chatListViewState: Parcelable) {
@@ -651,6 +652,12 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     override fun hideNavButton(bottomNavigation: BottomNavigation) {
         runOnUiThread {
             bottomNavigationView.hideNavButton(bottomNavigation)
+        }
+    }
+
+    override fun hideHangupButton() {
+        runOnUiThread {
+            headerView.hideHangupButton()
         }
     }
 
@@ -822,15 +829,15 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun openFile(file: File) {
         try {
-            file.openFile(this)
+            file.openFile(applicationContext)
         } catch (e: Exception) {
             e.printStackTrace()
-            Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
+            toast("")
         }
     }
 
     override fun playAudio(path: String, itemPosition: Int) {
-        debug(TAG, "playAudio: -> currentAudioPlayingItemPosition: $currentAudioPlayingItemPosition, itemPosition: $itemPosition")
+        debug(TAG, "playAudio -> currentAudioPlayingItemPosition: $currentAudioPlayingItemPosition, itemPosition: $itemPosition")
 
         if (currentAudioPlayingItemPosition == itemPosition) {
             if (mediaPlayer?.isPlaying == true) {
@@ -1624,8 +1631,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     }
 
     private fun throwError() {
-        Toast.makeText(this, R.string.kenes_error_invalid_hostname, Toast.LENGTH_SHORT)
-            .show()
+        toast(R.string.kenes_error_invalid_hostname)
         finish()
     }
 

@@ -24,7 +24,7 @@ internal object FileUtil {
         VIDEO_ENTENSIONS to "video"
     )
 
-    fun Context.getRootDirPath(): String? {
+    fun Context.getRootDirPath(): String {
         return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
             val file = ContextCompat.getExternalFilesDirs(this, null)[0]
             file.absolutePath
@@ -43,11 +43,11 @@ internal object FileUtil {
     }
 
     fun File.openFile(context: Context) {
-        val data = FileProvider.getUriForFile(context, "q19.kenes", this)
-        context.grantUriPermission(context.packageName, data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val uri = FileProvider.getUriForFile(context, context.packageName + ".provider", this)
+        context.grantUriPermission(context.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         val mimeType = Uri.fromFile(this).getMimeType(context)
         val intent = Intent(Intent.ACTION_VIEW)
-            .setDataAndType(data, mimeType)
+            .setDataAndType(uri, mimeType)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         context.startActivity(intent)
     }

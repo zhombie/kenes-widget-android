@@ -14,7 +14,7 @@ import q19.kenes_widget.network.http.IceServersTask
 import q19.kenes_widget.network.http.WidgetConfigsTask
 import q19.kenes_widget.network.socket.SocketClient
 import q19.kenes_widget.util.FileUtil.getFileType
-import q19.kenes_widget.util.Logger
+import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
@@ -102,6 +102,8 @@ internal class KenesWidgetV2Presenter(
 
         view?.showLanguage(language)
 
+        view?.hideHangupButton()
+
         chatBot.callback = object : ChatBot.Callback {
             override fun onBasicCategoriesLoaded(categories: List<Category>) {
                 val messages = categories
@@ -131,7 +133,7 @@ internal class KenesWidgetV2Presenter(
         if (socketUrl.isNullOrBlank()) {
             throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
         } else {
-            Logger.debug(TAG, "initSocket -> socketUrl: $socketUrl")
+            debug(TAG, "initSocket() -> socketUrl: $socketUrl")
             socketClient = SocketClient()
             socketClient?.start(socketUrl, language.locale.language)
         }
@@ -156,7 +158,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onOperatorGreet(fullName: String, photoUrl: String?, text: String) {
-                Logger.debug(TAG, "onCallAgentGreet -> viewState: $viewState")
+                debug(TAG, "onCallAgentGreet -> viewState: $viewState")
 
                 if (viewState is ViewState.TextDialog) {
                     viewState = ViewState.TextDialog.Live
@@ -176,7 +178,7 @@ internal class KenesWidgetV2Presenter(
             override fun onFormInit(dynamicForm: DynamicForm) {}
 
             override fun onFeedback(text: String, ratingButtons: List<RatingButton>) {
-                Logger.debug(TAG, "onFeedback -> viewState: $viewState")
+                debug(TAG, "onFeedback -> viewState: $viewState")
 
                 view?.showFeedback(text, ratingButtons)
 
@@ -209,7 +211,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
-                Logger.debug(TAG, "onNoResultsFound -> viewState: $viewState")
+                debug(TAG, "onNoResultsFound -> viewState: $viewState")
 
                 view?.addNewMessage(
                     Message(
@@ -231,7 +233,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean {
-                Logger.debug(TAG, "onFuzzyTaskOffered -> viewState: $viewState")
+                debug(TAG, "onFuzzyTaskOffered -> viewState: $viewState")
 
                 view?.addNewMessage(
                     Message(
@@ -248,7 +250,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onNoOnlineOperators(text: String): Boolean {
-                Logger.debug(TAG, "onNoOnlineCallAgents -> viewState: $viewState")
+                debug(TAG, "onNoOnlineCallAgents -> viewState: $viewState")
 
                 dialog.isInitiator = false
 
@@ -271,7 +273,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onChatTimeout(text: String, timestamp: Long): Boolean {
-                Logger.debug(TAG, "onChatTimeout -> viewState: $viewState")
+                debug(TAG, "onChatTimeout -> viewState: $viewState")
 
                 disconnect(text, timestamp)
 
@@ -279,7 +281,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onOperatorDisconnected(text: String, timestamp: Long): Boolean {
-                Logger.debug(TAG, "onCallAgentDisconnected -> viewState: $viewState")
+                debug(TAG, "onCallAgentDisconnected -> viewState: $viewState")
 
                 disconnect(text, timestamp)
 
@@ -300,7 +302,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onCallAccept() {
-                Logger.debug(TAG, "onCallAccept -> viewState: $viewState")
+                debug(TAG, "onCallAccept -> viewState: $viewState")
 
                 if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog.Start
@@ -328,7 +330,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onRTCPrepare() {
-                Logger.debug(TAG, "onRTCPrepare: $viewState")
+                debug(TAG, "onRTCPrepare: $viewState")
 
                 if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog.Preparation
@@ -346,7 +348,7 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onRTCReady() {
-                Logger.debug(TAG, "onRTCReady -> viewState: $viewState")
+                debug(TAG, "onRTCReady -> viewState: $viewState")
 
                 if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog.Ready
@@ -383,7 +385,7 @@ internal class KenesWidgetV2Presenter(
                 attachments: List<Attachment>?,
                 timestamp: Long
             ) {
-                Logger.debug(TAG, "onTextMessage -> viewState: $viewState")
+                debug(TAG, "onTextMessage -> viewState: $viewState")
 
                 if (chatBot.activeCategory != null) {
                     view?.setNewMessages(
@@ -444,7 +446,7 @@ internal class KenesWidgetV2Presenter(
                 )
 
                 if (viewState is ViewState.ChatBot) {
-                    Logger.debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
+                    debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
 
                     view?.showGoToHomeButton()
 
@@ -518,13 +520,13 @@ internal class KenesWidgetV2Presenter(
 
     private fun fetchWidgetConfigs() {
         val url = UrlUtil.buildUrl("/configs") ?: return
-        Logger.debug(TAG, "fetchWidgetConfigs() -> url: $url")
+        debug(TAG, "fetchWidgetConfigs() -> url: $url")
 
         val task = WidgetConfigsTask(url)
 
         val data = task.run()
 
-        Logger.debug(TAG, "fetchWidgetConfigs() -> data: $data")
+        debug(TAG, "fetchWidgetConfigs() -> data: $data")
 
         if (data == null) {
             view?.showOpponentInfo(Configs.Opponent.getDefault())
@@ -591,7 +593,7 @@ internal class KenesWidgetV2Presenter(
 
     private fun fetchIceServers() {
         val url = UrlUtil.buildUrl("/ice_servers") ?: return
-        Logger.debug(TAG, "fetchIceServers -> url: $url")
+        debug(TAG, "fetchIceServers -> url: $url")
 
         val task = IceServersTask(url)
 
@@ -676,9 +678,7 @@ internal class KenesWidgetV2Presenter(
 
         when (bottomNavigation) {
             BottomNavigation.HOME -> {
-                if (configs?.isChabotEnabled == false) {
-                    return
-                }
+                if (configs?.isChabotEnabled == false) return
 
                 if (dialog.isInitiator) {
                     view?.showAlreadyCallingAlert(bottomNavigation)
@@ -776,22 +776,18 @@ internal class KenesWidgetV2Presenter(
 
     fun onCallOperatorClicked(operatorCall: OperatorCall) {
         if (operatorCall == OperatorCall.AUDIO) {
-            if (configs?.isAudioCallEnabled == false) {
-                return
-            }
+            if (configs?.isAudioCallEnabled == false) return
 
             view?.resolvePermissions(operatorCall)
         } else if (operatorCall == OperatorCall.VIDEO) {
-            if (configs?.isVideoCallEnabled == false) {
-                return
-            }
+            if (configs?.isVideoCallEnabled == false) return
 
             view?.resolvePermissions(operatorCall)
         }
     }
 
     fun onCallOperator(operatorCall: OperatorCall) {
-        Logger.debug(TAG, "onCallOperator() -> viewState: $viewState")
+        debug(TAG, "onCallOperator() -> viewState: $viewState")
 
         if (dialog.isInitiator) {
             view?.showAlreadyCallingAlert(operatorCall)
@@ -799,6 +795,8 @@ internal class KenesWidgetV2Presenter(
         }
 
         dialog.isInitiator = true
+
+        view?.clearChatMessages()
 
         viewState = when (operatorCall) {
             OperatorCall.TEXT -> ViewState.TextDialog.Pending
@@ -810,7 +808,7 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onSendMessageButtonClicked(message: String) {
-        Logger.debug(TAG, "onSendMessageButtonClicked -> viewState: $viewState")
+        debug(TAG, "onSendMessageButtonClicked -> viewState: $viewState")
 
         if (message.isNotBlank()) {
             if (viewState is ViewState.ChatBot) {
@@ -822,13 +820,15 @@ internal class KenesWidgetV2Presenter(
     }
 
     private fun sendUserMessage(message: String, isInputClearText: Boolean = true) {
-        socketClient?.sendUserMessage(message)
+        val cleanMessage = message.trim()
+
+        socketClient?.sendUserMessage(cleanMessage)
 
         if (isInputClearText) {
             view?.clearMessageInputViewText()
         }
 
-        view?.addNewMessage(Message(type = Message.Type.USER, text = message))
+        view?.addNewMessage(Message(type = Message.Type.USER, text = cleanMessage))
     }
 
     fun onGoToActiveDialogButtonClicked() {
@@ -898,7 +898,7 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onUrlInTextClicked(url: String) {
-        Logger.debug(TAG, "onUrlInTextClicked -> viewState: $viewState")
+        debug(TAG, "onUrlInTextClicked -> viewState: $viewState")
 
         if (url.startsWith("#")) {
             if (viewState is ViewState.ChatBot) {
@@ -962,7 +962,7 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onFormCancelClicked() {
-        Logger.debug(TAG, "onCancelClicked -> viewState: $viewState")
+        debug(TAG, "onCancelClicked -> viewState: $viewState")
 
         viewState = ViewState.ChatBot.UserPrompt(false)
     }
@@ -983,7 +983,7 @@ internal class KenesWidgetV2Presenter(
         }
 
         httpClient.uploadFile(UrlUtil.buildUrl("/upload") ?: return, params) { path, hash ->
-            Logger.debug(TAG, "uploadFile: $path, $hash")
+            debug(TAG, "uploadFile: $path, $hash")
 
             socketClient?.sendUserMediaMessage(type, path)
 
@@ -1031,13 +1031,13 @@ internal class KenesWidgetV2Presenter(
             PeerConnection.IceConnectionState.COMPLETED -> {
                 if (viewState is ViewState.AudioDialog) {
                     if (viewState is ViewState.AudioDialog.Live && (viewState as ViewState.AudioDialog.Live).isDialogScreenShown) {
-                        Logger.debug(TAG, "Already is on Live Mode")
+                        debug(TAG, "Already is on Live Mode")
                     } else {
                         viewState = ViewState.AudioDialog.Live(true)
                     }
                 } else if (viewState is ViewState.VideoDialog) {
                     if (viewState is ViewState.VideoDialog.Live && (viewState as ViewState.VideoDialog.Live).isDialogScreenShown) {
-                        Logger.debug(TAG, "Already is on Live Mode")
+                        debug(TAG, "Already is on Live Mode")
                     } else {
                         viewState = ViewState.VideoDialog.Live(true)
                     }
@@ -1051,7 +1051,7 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onCloseLiveCall() {
-        Logger.debug(TAG, "closeLiveCall -> viewState: $viewState")
+        debug(TAG, "closeLiveCall -> viewState: $viewState")
 
         dialog.clear()
 
@@ -1118,7 +1118,7 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onFormSendClicked(name: String, email: String, phone: String) {
-        Logger.debug(TAG, "onSendClicked -> viewState: $viewState")
+        debug(TAG, "onSendClicked -> viewState: $viewState")
 
         socketClient?.sendFuzzyTaskConfirmation(name, email, phone)
 
@@ -1130,9 +1130,8 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onNewChatMessagesInserted() {
-        if (viewState is ViewState.ChatBot.Categories) {
-            return
-        }
+        if (viewState is ViewState.ChatBot.Categories) return
+
         view?.scrollToBottom()
     }
 

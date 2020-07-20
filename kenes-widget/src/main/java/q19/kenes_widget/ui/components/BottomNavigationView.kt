@@ -87,7 +87,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     private fun setActiveNavButton(appCompatImageButton: AppCompatImageButton?) {
         if (appCompatImageButton == null) return
         val index = navButtons.indexOf(appCompatImageButton)
-        Logger.debug(TAG, "navButtons: $navButtons")
+//        Logger.debug(TAG, "navButtons: $navButtons")
         Logger.debug(TAG, "setActiveNavButton: $index")
         if (index >= 0) {
             activeNavButtonIndex = index

@@ -28,7 +28,7 @@ internal class SocketClient {
 
     var listener: Listener? = null
 
-    private var onConnect = Emitter.Listener {
+    private val onConnect = Emitter.Listener {
         debug(TAG, "event [EVENT_CONNECT]")
 
         listener?.onConnect()
@@ -60,7 +60,7 @@ internal class SocketClient {
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        debug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[FORM_INIT] data: $data")
 
         val formJson = data.getJSONObject("form")
         val formFieldsJsonArray = data.getJSONArray("form_fields")
@@ -68,15 +68,17 @@ internal class SocketClient {
         val dynamicFormFields = mutableListOf<DynamicFormField>()
         for (i in 0 until formFieldsJsonArray.length()) {
             val formFieldJson = formFieldsJsonArray[i] as JSONObject
-            dynamicFormFields.add(DynamicFormField(
-                id = formFieldJson.getLong("id"),
-                title = formFieldJson.getNullableString("title"),
-                prompt = formFieldJson.getNullableString("prompt"),
-                type = formFieldJson.getString("type"),
-                default = formFieldJson.getNullableString("default"),
-                formId = formFieldJson.getLong("form_id"),
-                level = formFieldJson.optInt("level", -1)
-            ))
+            dynamicFormFields.add(
+                DynamicFormField(
+                    id = formFieldJson.getLong("id"),
+                    title = formFieldJson.getNullableString("title"),
+                    prompt = formFieldJson.getNullableString("prompt"),
+                    type = formFieldJson.getString("type"),
+                    default = formFieldJson.getNullableString("default"),
+                    formId = formFieldJson.getLong("form_id"),
+                    level = formFieldJson.optInt("level", -1)
+                )
+            )
         }
 
         val form = DynamicForm(
@@ -131,7 +133,7 @@ internal class SocketClient {
 
         val data = args[0] as? JSONObject? ?: return@Listener
 
-//        debug(TAG, "[JSONObject] data: $data")
+//        debug(TAG, "[USER_QUEUE] data: $data")
 
         val count = data.getInt("count")
 //            val channel = userQueue.getInt("channel")
@@ -192,8 +194,10 @@ internal class SocketClient {
                 RTC.Type.START?.value -> {
                     when (action) {
                         "call_accept" -> listener?.onCallAccept()
-                        "call_redirect" -> {}
-                        "call_redial" -> {}
+                        "call_redirect" -> {
+                        }
+                        "call_redial" -> {
+                        }
                     }
                 }
                 RTC.Type.PREPARE?.value -> listener?.onRTCPrepare()
@@ -245,7 +249,11 @@ internal class SocketClient {
                         )
                     }
 
-                    listener?.onTextMessage(text = text, attachments = newAttachments, timestamp = time)
+                    listener?.onTextMessage(
+                        text = text,
+                        attachments = newAttachments,
+                        timestamp = time
+                    )
                 } else {
                     listener?.onTextMessage(text = text, timestamp = time)
                 }
@@ -398,7 +406,11 @@ internal class SocketClient {
         })
     }
 
-    fun sendMessage(rtc: RTC? = null, action: UserMessage.Action? = null, language: String? = null): Emitter? {
+    fun sendMessage(
+        rtc: RTC? = null,
+        action: UserMessage.Action? = null,
+        language: String? = null
+    ): Emitter? {
         val userMessage = UserMessage(rtc, action).toJsonObject()
         userMessage.put("lang", fetchLanguage(language))
 
@@ -456,7 +468,7 @@ internal class SocketClient {
     interface Listener {
         fun onConnect()
 
-//        fun onCall(type: String, media: String, operator: String, instance: String)
+        //        fun onCall(type: String, media: String, operator: String, instance: String)
         fun onOperatorGreet(fullName: String, photoUrl: String?, text: String)
         fun onFormInit(dynamicForm: DynamicForm)
         fun onFeedback(text: String, ratingButtons: List<RatingButton>)
