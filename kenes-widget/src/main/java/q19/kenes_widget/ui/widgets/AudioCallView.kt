@@ -1,4 +1,4 @@
-package q19.kenes_widget.ui.components
+package q19.kenes_widget.ui.widgets
 
 import android.content.Context
 import android.util.AttributeSet
@@ -29,37 +29,45 @@ internal class AudioCallView @JvmOverloads constructor(
         queueCountView = view.findViewById(R.id.queueCountView)
     }
 
-    fun setDefaultState() {
-        setEnabledState()
-
-        audioCallInfoView.text = null
-        audioCallInfoView.visibility = View.GONE
-
-        queueCountView.text = null
-        queueCountView.visibility = View.GONE
+    fun setCallButtonEnabled() {
+        setCallButtonEnabled(true)
     }
 
-    fun setEnabledState() {
-        setState(true)
+    fun setCallButtonDisabled() {
+        setCallButtonEnabled(false)
     }
 
-    fun setDisabledState() {
-        setState(false)
-    }
-
-    private fun setState(isEnabled: Boolean) {
+    private fun setCallButtonEnabled(isEnabled: Boolean) {
         if (audioCallButton.isEnabled == isEnabled) return
         audioCallButton.isEnabled = isEnabled
     }
 
-    fun setInfoText(text: String) {
+    fun setInfoViewText(text: String?) {
         audioCallInfoView.text = text
+    }
+
+    fun showInfoViewText() {
+        if (audioCallInfoView.visibility == View.VISIBLE) return
         audioCallInfoView.visibility = View.VISIBLE
     }
 
-    fun setPendingQueueCount(count: Int) {
-        queueCountView.text = context.getString(R.string.kenes_queue_count, count)
+    fun hideInfoViewText() {
+        if (audioCallInfoView.visibility == View.GONE) return
+        audioCallInfoView.visibility = View.GONE
+    }
+
+    fun setPendingQueueCountViewText(text: String?) {
+        queueCountView.text = text
+    }
+
+    fun showPendingQueueCountView() {
+        if (queueCountView.visibility == View.VISIBLE) return
         queueCountView.visibility = View.VISIBLE
+    }
+
+    fun hidePendingQueueCountView() {
+        if (queueCountView.visibility == View.GONE) return
+        queueCountView.visibility = View.GONE
     }
 
     fun setOnCallClickListener(callback: () -> Unit) {

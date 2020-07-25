@@ -1,4 +1,4 @@
-package q19.kenes_widget.ui.components
+package q19.kenes_widget.ui.widgets
 
 import android.content.Context
 import android.util.AttributeSet
@@ -31,18 +31,6 @@ internal class VideoCallView @JvmOverloads constructor(
         queueCountView = view.findViewById(R.id.queueCountView)
     }
 
-    fun setDefaultState() {
-        setCallButtonEnabled()
-
-        hideCancelCallButton()
-
-        videoCallInfoView.text = null
-        videoCallInfoView.visibility = View.GONE
-
-        queueCountView.text = null
-        queueCountView.visibility = View.GONE
-    }
-
     fun setCallButtonEnabled() {
         setCallButtonEnabled(true)
     }
@@ -68,23 +56,31 @@ internal class VideoCallView @JvmOverloads constructor(
         cancelCallButton.visibility = if (isVisible) View.VISIBLE else View.INVISIBLE
     }
 
-    fun setInfoText(text: String) {
+    fun setInfoViewText(text: String?) {
         videoCallInfoView.text = text
+    }
+
+    fun showInfoViewText() {
+        if (videoCallInfoView.visibility == View.VISIBLE) return
         videoCallInfoView.visibility = View.VISIBLE
     }
 
-    fun hideInfoText() {
-        videoCallInfoView.text = null
+    fun hideInfoViewText() {
+        if (videoCallInfoView.visibility == View.GONE) return
         videoCallInfoView.visibility = View.GONE
     }
 
-    fun setPendingQueueCount(count: Int) {
-        queueCountView.text = context.getString(R.string.kenes_queue_count, count)
+    fun setPendingQueueCountViewText(text: String?) {
+        queueCountView.text = text
+    }
+
+    fun showPendingQueueCountView() {
+        if (queueCountView.visibility == View.VISIBLE) return
         queueCountView.visibility = View.VISIBLE
     }
 
-    fun hidePendingQueueCount() {
-        queueCountView.text = null
+    fun hidePendingQueueCountView() {
+        if (queueCountView.visibility == View.GONE) return
         queueCountView.visibility = View.GONE
     }
 

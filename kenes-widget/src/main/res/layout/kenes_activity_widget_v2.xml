@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <q19.kenes_widget.ui.components.HeaderView
+        <q19.kenes_widget.ui.widgets.HeaderView
             android:id="@+id/headerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -29,49 +29,49 @@
             tools:itemCount="5"
             tools:listitem="@layout/kenes_cell_user_message" />
 
-        <q19.kenes_widget.ui.components.VideoCallView
+        <q19.kenes_widget.ui.widgets.VideoCallView
             android:id="@+id/videoCallView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.AudioCallView
+        <q19.kenes_widget.ui.widgets.AudioCallView
             android:id="@+id/audioCallView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.InfoView
+        <q19.kenes_widget.ui.widgets.InfoView
             android:id="@+id/infoView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.FeedbackView
+        <q19.kenes_widget.ui.widgets.FeedbackView
             android:id="@+id/feedbackView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.ProgressView
+        <q19.kenes_widget.ui.widgets.ProgressView
             android:id="@+id/progressView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.ContactsView
+        <q19.kenes_widget.ui.widgets.ContactsView
             android:id="@+id/contactsView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.FormView
+        <q19.kenes_widget.ui.widgets.FormView
             android:id="@+id/formView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -85,25 +85,25 @@
 <!--            android:layout_weight="1"-->
 <!--            android:visibility="gone" />-->
 
-        <q19.kenes_widget.ui.components.FooterView
+        <q19.kenes_widget.ui.widgets.FooterView
             android:id="@+id/footerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <q19.kenes_widget.ui.components.BottomNavigationView
+        <q19.kenes_widget.ui.widgets.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
 
-    <q19.kenes_widget.ui.components.VideoDialogView
+    <q19.kenes_widget.ui.widgets.VideoDialogView
         android:id="@+id/videoDialogView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <q19.kenes_widget.ui.components.AudioDialogView
+    <q19.kenes_widget.ui.widgets.AudioDialogView
         android:id="@+id/audioDialogView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

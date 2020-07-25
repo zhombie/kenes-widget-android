@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.ui.presentation
 
 import android.os.Parcelable
 import org.webrtc.IceCandidate
@@ -8,7 +8,7 @@ import q19.kenes_widget.model.*
 import java.io.File
 
 internal interface KenesWidgetV2View {
-    fun showLanguage(language: Language)
+    fun showCurrentLanguage(language: Language)
     fun showContacts(contacts: List<Configs.Contact>)
     fun showPhones(phones: List<String>)
     fun showOpponentInfo(opponent: Configs.Opponent)
@@ -26,6 +26,10 @@ internal interface KenesWidgetV2View {
     fun showFileDownloadProgress(progress: Int, fileType: String, itemPosition: Int)
 
     fun setViewState(viewState: ViewState)
+
+    fun setDefaultFooterView()
+    fun setDefaultAudioCallView()
+    fun setDefaultVideoCallView()
 
     fun setAudioCallInfoText(text: String)
     fun setAudioCallPendingQueueCount(count: Int)
@@ -74,8 +78,8 @@ internal interface KenesWidgetV2View {
         iceServers: List<PeerConnection.IceServer>
     )
 
-    fun initLocalStream()
-    fun startLocalStream()
+    fun initLocalVideoStream()
+    fun startLocalMediaStream()
     fun sendOfferToOpponent()
     fun sendAnswerToOpponent()
     fun setRemoteDescription(sessionDescription: SessionDescription)

@@ -1,4 +1,4 @@
-package q19.kenes_widget.ui.components
+package q19.kenes_widget.ui.widgets
 
 import android.content.Context
 import android.text.Editable
@@ -54,14 +54,6 @@ internal class FooterView @JvmOverloads constructor(
         }
 
         inputView.setOnClickListener { callback?.onInputViewClicked() }
-    }
-
-    fun setDefaultState() {
-        disableAttachmentButton()
-
-        setGoToActiveDialogButtonState(null)
-
-        disableSendMessageButton()
     }
 
     fun setGoToActiveDialogButtonState(@StringRes stringRes: Int? = null) {

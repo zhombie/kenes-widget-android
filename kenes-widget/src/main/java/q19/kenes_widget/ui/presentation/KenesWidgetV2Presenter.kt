@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.ui.presentation
 
 import android.os.Parcelable
 import com.loopj.android.http.AsyncHttpClient
@@ -100,7 +100,7 @@ internal class KenesWidgetV2Presenter(
 
         view?.showOpponentInfo(Configs.Opponent.getDefault())
 
-        view?.showLanguage(language)
+        view?.showCurrentLanguage(language)
 
         view?.hideHangupButton()
 
@@ -323,7 +323,7 @@ internal class KenesWidgetV2Presenter(
                         iceServers = iceServers
                     )
 
-                    view?.initLocalStream()
+                    view?.initLocalVideoStream()
 
                     socketClient?.sendMessage(rtc = rtc { type = RTC.Type.PREPARE })
                 }
@@ -335,13 +335,13 @@ internal class KenesWidgetV2Presenter(
                 if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog.Preparation
 
-                    view?.startLocalStream()
+                    view?.startLocalMediaStream()
 
                     socketClient?.sendMessage(rtc = rtc { type = RTC.Type.READY })
                 } else if (viewState is ViewState.VideoDialog) {
                     viewState = ViewState.VideoDialog.Preparation
 
-                    view?.startLocalStream()
+                    view?.startLocalMediaStream()
 
                     socketClient?.sendMessage(rtc = rtc { type = RTC.Type.READY })
                 }
@@ -353,12 +353,12 @@ internal class KenesWidgetV2Presenter(
                 if (viewState is ViewState.AudioDialog) {
                     viewState = ViewState.AudioDialog.Ready
 
-                    view?.startLocalStream()
+                    view?.startLocalMediaStream()
                     view?.sendOfferToOpponent()
                 } else if (viewState is ViewState.VideoDialog) {
                     viewState = ViewState.VideoDialog.Ready
 
-                    view?.startLocalStream()
+                    view?.startLocalMediaStream()
                     view?.sendOfferToOpponent()
                 }
             }
@@ -564,18 +564,21 @@ internal class KenesWidgetV2Presenter(
                 }
 
                 if (configs.isChabotEnabled) {
+                    view?.setDefaultFooterView()
                     view?.showNavButton(BottomNavigation.HOME)
                 } else {
                     view?.hideNavButton(BottomNavigation.HOME)
                 }
 
                 if (configs.isAudioCallEnabled) {
+                    view?.setDefaultAudioCallView()
                     view?.showNavButton(BottomNavigation.AUDIO)
                 } else {
                     view?.hideNavButton(BottomNavigation.AUDIO)
                 }
 
                 if (configs.isVideoCallEnabled) {
+                    view?.setDefaultVideoCallView()
                     view?.showNavButton(BottomNavigation.VIDEO)
                 } else {
                     view?.hideNavButton(BottomNavigation.VIDEO)
