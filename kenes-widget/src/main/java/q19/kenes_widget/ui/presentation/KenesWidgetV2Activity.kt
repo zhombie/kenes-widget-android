@@ -28,12 +28,12 @@ import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
-import q19.kenes_widget.PermissionManager
 import q19.kenes_widget.R
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.ChatFooterAdapter
 import q19.kenes_widget.core.locale.LocalizationActivity
+import q19.kenes_widget.core.permission.PermissionManager
 import q19.kenes_widget.model.*
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
@@ -52,10 +52,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         private const val FILE_PICKER_REQUEST_CODE = 101
 
         @JvmStatic
-        fun newIntent(context: Context, hostname: String): Intent {
-            return Intent(context, KenesWidgetV2Activity::class.java)
+        fun newIntent(context: Context, hostname: String): Intent =
+            Intent(context, KenesWidgetV2Activity::class.java)
                 .putExtra(KEY_HOSTNAME, hostname)
-        }
     }
 
     // -------------------------- Binding views -----------------------------------
@@ -146,7 +145,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     // ------------------------------------------------------------------------
 
-    private val permissionManager by lazy { PermissionManager(this) }
+    private val permissionManager by lazy {
+        PermissionManager(this)
+    }
 
     // ------------------------------------------------------------------------
 

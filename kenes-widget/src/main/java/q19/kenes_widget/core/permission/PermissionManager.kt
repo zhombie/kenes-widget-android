@@ -1,4 +1,4 @@
-package q19.kenes_widget
+package q19.kenes_widget.core.permission
 
 import android.Manifest
 import androidx.fragment.app.FragmentActivity
@@ -8,6 +8,7 @@ import com.fondesa.kpermissions.anyShouldShowRationale
 import com.fondesa.kpermissions.extension.permissionsBuilder
 import com.fondesa.kpermissions.extension.send
 import com.fondesa.kpermissions.request.PermissionRequest
+import q19.kenes_widget.R
 import q19.kenes_widget.util.createAppSettingsIntent
 import q19.kenes_widget.util.showPermanentlyDeniedDialog
 
