@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.KenesWidget
+import q19.kenes_widget.model.EntryParams
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openWidget() {
-        startActivity(KenesWidget.open(this, "https://kenes.vlx.kz"))
+        startActivity(KenesWidget.open(this, EntryParams(hostname = "https://kenes.vlx.kz")))
     }
 
 }
