@@ -43,7 +43,7 @@ internal class FooterView @JvmOverloads constructor(
 
         goToActiveDialogButton.setOnClickListener { callback?.onGoToActiveDialogButtonClicked() }
 
-        attachmentButton.setOnClickListener { callback?.onAttachmentButtonClicked() }
+        attachmentButton.setOnClickListener { callback?.onAddAttachmentButtonClicked() }
 
         sendMessageButton.setOnClickListener {
             callback?.onSendMessageButtonClicked(inputView?.text?.toString() ?: return@setOnClickListener)
@@ -54,16 +54,6 @@ internal class FooterView @JvmOverloads constructor(
         }
 
         inputView.setOnClickListener { callback?.onInputViewClicked() }
-    }
-
-    fun setDefaultState() {
-        disableAttachmentButton()
-
-        setGoToActiveDialogButtonState(null)
-
-        clearInputViewText()
-
-        disableSendMessageButton()
     }
 
     fun setGoToActiveDialogButtonState(@StringRes stringRes: Int? = null) {
@@ -128,7 +118,7 @@ internal class FooterView @JvmOverloads constructor(
 
     interface Callback {
         fun onGoToActiveDialogButtonClicked()
-        fun onAttachmentButtonClicked()
+        fun onAddAttachmentButtonClicked()
         fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean)
         fun onInputViewClicked()
         fun onSendMessageButtonClicked(message: String)

@@ -5,11 +5,14 @@ import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.AttrRes
+import androidx.annotation.ColorRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
+import q19.kenes_widget.model.BottomNavigation
 import q19.kenes_widget.util.DebouncedOnClickListener
+import q19.kenes_widget.util.Logger
 
 internal class BottomNavigationView @JvmOverloads constructor(
     context: Context,
@@ -18,14 +21,18 @@ internal class BottomNavigationView @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private var bottomNavigationView: LinearLayout? = null
-    private var homeNavButton: AppCompatImageButton? = null
-    private var videoNavButton: AppCompatImageButton? = null
-    private var audioNavButton: AppCompatImageButton? = null
-    private var infoNavButton: AppCompatImageButton? = null
+    companion object {
+        private const val TAG = "BottomNavigationView"
+    }
 
-    private val navButtons
-        get() = listOf(homeNavButton, videoNavButton, audioNavButton, infoNavButton)
+    private var bottomNavigationView: LinearLayout? = null
+    private var homeButton: AppCompatImageButton? = null
+    private var videoButton: AppCompatImageButton? = null
+    private var audioButton: AppCompatImageButton? = null
+    private var contactsButton: AppCompatImageButton? = null
+    private var infoButton: AppCompatImageButton? = null
+
+    private val navButtons = mutableListOf<AppCompatImageButton>()
 
     private var activeNavButtonIndex = 0
         set(value) {
@@ -45,62 +52,46 @@ internal class BottomNavigationView @JvmOverloads constructor(
         val view = inflate(context, R.layout.kenes_view_bottom_navigation, this)
 
         bottomNavigationView = view.findViewById(R.id.bottomNavigationView)
-        homeNavButton = view.findViewById(R.id.homeButton)
-        videoNavButton = view.findViewById(R.id.videoButton)
-        audioNavButton = view.findViewById(R.id.audioButton)
-        infoNavButton = view.findViewById(R.id.infoButton)
-
-        homeNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                if (callback?.onHomeNavButtonClicked() == true) {
-                    setHomeNavButtonActive()
-                }
-            }
-        })
-
-        videoNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                if (callback?.onVideoNavButtonClicked() == true) {
-                    setVideoNavButtonActive()
-                }
-            }
-        })
-
-        audioNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                if (callback?.onAudioNavButtonClicked() == true) {
-                    setAudioNavButtonActive()
-                }
-            }
-        })
-
-        infoNavButton?.setOnClickListener(object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                if (callback?.onInfoNavButtonClicked() == true) {
-                    setInfoNavButtonActive()
-                }
-            }
-        })
+        homeButton = view.findViewById(R.id.homeButton)
+        videoButton = view.findViewById(R.id.videoButton)
+        audioButton = view.findViewById(R.id.audioButton)
+        contactsButton = view.findViewById(R.id.contactsButton)
+        infoButton = view.findViewById(R.id.infoButton)
     }
 
-    fun setHomeNavButtonActive() {
-        setActiveNavButton(0)
+    fun getFirstNavButton(): BottomNavigation? {
+        return when {
+            isNavButtonFirst(homeButton) -> BottomNavigation.HOME
+            isNavButtonFirst(videoButton) -> BottomNavigation.VIDEO
+            isNavButtonFirst(audioButton) -> BottomNavigation.AUDIO
+            isNavButtonFirst(contactsButton) -> BottomNavigation.CONTACTS
+            isNavButtonFirst(infoButton) -> BottomNavigation.INFO
+            else -> null
+        }
     }
 
-    fun setVideoNavButtonActive() {
-        setActiveNavButton(1)
+    private fun isNavButtonFirst(appCompatImageButton: AppCompatImageButton?): Boolean {
+        return navButtons.isNotEmpty() && navButtons.first() == appCompatImageButton
     }
 
-    fun setAudioNavButtonActive() {
-        setActiveNavButton(2)
+    fun setNavButtonActive(bottomNavigation: BottomNavigation) {
+        when (bottomNavigation) {
+            BottomNavigation.HOME -> setActiveNavButton(homeButton)
+            BottomNavigation.VIDEO -> setActiveNavButton(videoButton)
+            BottomNavigation.AUDIO -> setActiveNavButton(audioButton)
+            BottomNavigation.CONTACTS -> setActiveNavButton(contactsButton)
+            BottomNavigation.INFO -> setActiveNavButton(infoButton)
+        }
     }
 
-    fun setInfoNavButtonActive() {
-        setActiveNavButton(3)
-    }
-
-    private fun setActiveNavButton(index: Int) {
-        activeNavButtonIndex = index
+    private fun setActiveNavButton(appCompatImageButton: AppCompatImageButton?) {
+        if (appCompatImageButton == null) return
+        val index = navButtons.indexOf(appCompatImageButton)
+//        Logger.debug(TAG, "navButtons: $navButtons")
+        Logger.debug(TAG, "setActiveNavButton: $index")
+        if (index >= 0) {
+            activeNavButtonIndex = index
+        }
     }
 
     fun setNavButtonsEnabled() {
@@ -113,7 +104,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     private fun setIsNavButtonEnabled(isEnabled: Boolean) {
         navButtons.forEach {
-            it?.isEnabled = isEnabled
+            it.isEnabled = isEnabled
         }
     }
 
@@ -127,30 +118,99 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     private fun setActiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
-        appCompatImageButton?.setColorFilter(ContextCompat.getColor(context, R.color.kenes_blue))
+        setAppCompatImageButtonColorFilter(appCompatImageButton, R.color.kenes_blue)
     }
 
     private fun setInactiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
-        appCompatImageButton?.setColorFilter(ContextCompat.getColor(context, R.color.kenes_gray))
+        setAppCompatImageButtonColorFilter(appCompatImageButton, R.color.kenes_gray)
     }
 
-    fun showButtons() {
-        setButtonsVisibility(true)
+    private fun setAppCompatImageButtonColorFilter(
+        appCompatImageButton: AppCompatImageButton?,
+        @ColorRes colorResId: Int
+    ) {
+        appCompatImageButton?.setColorFilter(ContextCompat.getColor(context, colorResId))
     }
 
-    fun hideButtons() {
-        setButtonsVisibility(false)
+    fun showBottomNavigationView() {
+        setBottomNavigationViewVisibility(true)
     }
 
-    private fun setButtonsVisibility(isEnabled: Boolean) {
-        bottomNavigationView?.visibility = if (isEnabled) View.VISIBLE else View.GONE
+    fun hideBottomNavigationView() {
+        setBottomNavigationViewVisibility(false)
+    }
+
+    private fun setBottomNavigationViewVisibility(isVisible: Boolean) {
+        bottomNavigationView?.visibility = if (isVisible) View.VISIBLE else View.GONE
+    }
+
+    fun showNavButton(bottomNavigation: BottomNavigation) {
+        Logger.debug(TAG, "showNavButton() -> bottomNavigation: $bottomNavigation")
+
+        val listener = object : DebouncedOnClickListener() {
+            override fun onDebouncedClick(v: View) {
+                callback?.onNavButtonClicked(bottomNavigation)
+            }
+        }
+
+        when (bottomNavigation) {
+            BottomNavigation.HOME ->
+                showNavButton(homeButton, 0, listener)
+            BottomNavigation.VIDEO -> {
+                val index = navButtons.size / 2
+                showNavButton(videoButton, index, listener)
+            }
+            BottomNavigation.AUDIO -> {
+                val index = navButtons.size / 2
+                showNavButton(audioButton, index, listener)
+            }
+            BottomNavigation.CONTACTS -> {
+                val index = navButtons.size / 2
+                showNavButton(contactsButton, index, listener)
+            }
+            BottomNavigation.INFO -> {
+                var index = navButtons.size
+                if (index > 0) {
+                    index -= 1
+                }
+                showNavButton(infoButton, index, listener)
+            }
+        }
+    }
+
+    fun hideNavButton(bottomNavigation: BottomNavigation) {
+        Logger.debug(TAG, "hideNavButton() -> bottomNavigation: $bottomNavigation")
+        when (bottomNavigation) {
+            BottomNavigation.HOME -> hideNavButton(homeButton)
+            BottomNavigation.VIDEO -> hideNavButton(videoButton)
+            BottomNavigation.AUDIO -> hideNavButton(audioButton)
+            BottomNavigation.CONTACTS -> hideNavButton(contactsButton)
+            BottomNavigation.INFO -> hideNavButton(infoButton)
+        }
+    }
+
+    private fun showNavButton(
+        appCompatImageButton: AppCompatImageButton?,
+        index: Int,
+        listener: DebouncedOnClickListener
+    ) {
+        if (appCompatImageButton != null) {
+            appCompatImageButton.setOnClickListener(listener)
+            appCompatImageButton.visibility = View.VISIBLE
+            navButtons.add(index, appCompatImageButton)
+        }
+    }
+
+    private fun hideNavButton(appCompatImageButton: AppCompatImageButton?) {
+        if (appCompatImageButton != null) {
+            appCompatImageButton.setOnClickListener(null)
+            appCompatImageButton.visibility = View.GONE
+            navButtons.remove(appCompatImageButton)
+        }
     }
 
     interface Callback {
-        fun onHomeNavButtonClicked(): Boolean
-        fun onVideoNavButtonClicked(): Boolean
-        fun onAudioNavButtonClicked(): Boolean
-        fun onInfoNavButtonClicked(): Boolean
+        fun onNavButtonClicked(bottomNavigation: BottomNavigation)
     }
 
 }

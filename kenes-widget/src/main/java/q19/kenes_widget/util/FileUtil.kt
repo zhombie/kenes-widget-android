@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate")
-
 package q19.kenes_widget.util
 
 import android.content.ContentResolver
@@ -15,18 +13,18 @@ import java.util.*
 
 internal object FileUtil {
 
-    val IMAGE_ENTENSIONS = setOf("jpg", "jpeg", "png")
-    val AUDIO_ENTENSIONS = setOf("mp3", "wav", "opus", "ogg")
-    val VIDEO_ENTENSIONS = setOf("mp4", "mov", "webm", "mkv", "avi")
-    val DOCUMENT_ENTENSIONS = setOf("doc", "docx", "xls", "xlsx", "pdf")
+    private val IMAGE_ENTENSIONS = setOf("jpg", "jpeg", "png")
+    private val AUDIO_ENTENSIONS = setOf("mp3", "wav", "opus", "ogg")
+    private val VIDEO_ENTENSIONS = setOf("mp4", "mov", "webm", "mkv", "avi")
+    private val DOCUMENT_ENTENSIONS = setOf("doc", "docx", "xls", "xlsx", "pdf")
 
-    val ALL_EXTENSIONS = mapOf(
+    private val ALL_EXTENSIONS = mapOf(
         IMAGE_ENTENSIONS to "image",
         AUDIO_ENTENSIONS to "audio",
         VIDEO_ENTENSIONS to "video"
     )
 
-    fun Context.getRootDirPath(): String? {
+    fun Context.getRootDirPath(): String {
         return if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
             val file = ContextCompat.getExternalFilesDirs(this, null)[0]
             file.absolutePath
@@ -45,11 +43,11 @@ internal object FileUtil {
     }
 
     fun File.openFile(context: Context) {
-        val data = FileProvider.getUriForFile(context, "q19.kenes", this)
-        context.grantUriPermission(context.packageName, data, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val uri = FileProvider.getUriForFile(context, context.packageName + ".provider", this)
+        context.grantUriPermission(context.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         val mimeType = Uri.fromFile(this).getMimeType(context)
         val intent = Intent(Intent.ACTION_VIEW)
-            .setDataAndType(data, mimeType)
+            .setDataAndType(uri, mimeType)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         context.startActivity(intent)
     }

@@ -6,8 +6,7 @@ import q19.kenes_widget.model.WidgetIceServer
 
 internal class IceServersTask(private val url: String) : BaseTask<List<WidgetIceServer>> {
 
-    override val tag: String
-        get() = "IceServersTask"
+    override val TAG = "IceServersTask"
 
     override fun run(): List<WidgetIceServer>? {
         try {
@@ -40,7 +39,7 @@ internal class IceServersTask(private val url: String) : BaseTask<List<WidgetIce
             return iceServers
         } catch (e: Exception) {
 //            e.printStackTrace()
-            Log.e(tag, "ERROR! $e")
+            Log.e(TAG, "ERROR! $e")
             return null
         }
     }

@@ -21,8 +21,9 @@ internal class Language(val key: String, val value: String) {
 //        val English: Language
 //            get() = Language(KEY_ENGLISH, "Eng")
 
-        val AllLanguages: Array<Language>
-            get() = arrayOf(Kazakh, Russian)
+        fun getSupportedLanguages(): Array<Language> {
+            return arrayOf(Kazakh, Russian)
+        }
 
         fun from(locale: Locale): Language {
             return by(locale.language)

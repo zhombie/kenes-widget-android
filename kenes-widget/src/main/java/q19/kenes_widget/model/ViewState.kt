@@ -45,5 +45,7 @@ internal sealed class ViewState {
 
     object Form : ViewState()
 
+    object Contacts : ViewState()
+
     object Info : ViewState()
 }

@@ -33,8 +33,11 @@
     <string name="kenes_open_link_confirm">Do you want to open %s ?</string>
 
     <string name="kenes_permissions_necessity_info">
-        Please, provide all those permissions\n\n1. Camera\n2. Record audio\n3. Storage\n\nthey are needed for widget proper work
+        Please, grant the application the following permissions:\n\n%s\n\because they are required for the widget to work correctly
     </string>
+    <string name="kenes_camera">Camera</string>
+    <string name="kenes_microphone">Microphone</string>
+    <string name="kenes_storage">Storage</string>
     <string name="kenes_to_settings">To Settings</string>
 
     <string name="kenes_text_file">Text file</string>
@@ -69,7 +72,9 @@
     <string name="kenes_file_pending_download">File is downloading</string>
     <string name="kenes_file_download_error">File not downloaded</string>
 
-    <string name="kenes_add_attachment_button_disabled">File attachment is available only when talking with the call agent</string>
+    <string name="kenes_add_attachment_button_disabled">
+        File attachment is available only during active conversation/dialogue with the operator
+    </string>
 
     <string name="kenes_queue_count">Queue (%d)</string>
 </resources>

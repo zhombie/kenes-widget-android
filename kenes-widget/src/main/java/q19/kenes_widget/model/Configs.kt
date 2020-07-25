@@ -1,13 +1,20 @@
 package q19.kenes_widget.model
 
 import androidx.annotation.DrawableRes
+import org.json.JSONObject
 import q19.kenes_widget.R
 
 internal data class Configs(
-    var opponent: Opponent = Opponent(),
-    var contacts: List<Contact> = listOf(),
-    var phones: List<String> = listOf(),
-    var workingHours: WorkingHours = WorkingHours()
+    val isChabotEnabled: Boolean = false,
+    val isAudioCallEnabled: Boolean = false,
+    val isVideoCallEnabled: Boolean = false,
+    val isContactSectionsShown: Boolean = false,
+    val isPhonesListShown: Boolean = false,
+    val opponent: Opponent? = null,
+    val contacts: List<Contact>? = null,
+    val phones: List<String>? = null,
+    val workingHours: WorkingHours? = null,
+    val infoBlocks: List<InfoBlock>? = null
 ) {
 
     data class Opponent(
@@ -16,10 +23,17 @@ internal data class Configs(
         var avatarUrl: String? = null,
 
         @DrawableRes
-        var drawableRes: Int = UNDEFINED_DRAWABLE_RES
+        val drawableRes: Int = UNDEFINED_DRAWABLE_RES
     ) {
         companion object {
             private const val UNDEFINED_DRAWABLE_RES = -1
+
+            fun getDefault(): Opponent {
+                return Opponent(
+                    secondName = "Smart Bot",
+                    drawableRes = R.drawable.kenes_ic_robot
+                )
+            }
         }
 
         val isDrawableResAvailable: Boolean
@@ -69,18 +83,39 @@ internal data class Configs(
     }
 
     data class WorkingHours(
-        var messageKk: String? = null,
-        var messageRu: String? = null
+        val messageKk: String? = null,
+        val messageRu: String? = null
+    )
+
+    data class InfoBlock(
+        val title: I18NString,
+        val description: I18NString,
+        val items: List<Item>
+    )
+
+    class I18NString(
+        val value: JSONObject
     ) {
-        fun clear() {
-            messageKk = null
-            messageRu = null
+        companion object {
+            fun JSONObject.parse(): I18NString {
+                return I18NString(this)
+            }
+        }
+
+        fun get(language: Language): String {
+            return value.optString(language.key)
         }
     }
 
+    data class Item(
+        val icon: String?,
+        val text: String,
+        val description: I18NString,
+        val action: String
+    )
+
     fun clear() {
-        opponent.clear()
-        workingHours.clear()
+        opponent?.clear()
     }
 
 }

@@ -44,8 +44,10 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (data[0].type == type) {
                 return
             } else {
-                data[0] = Footer(type)
-                notifyItemChanged(0)
+                data.clear()
+                notifyItemRemoved(0)
+                data.add(0, Footer(type))
+                notifyItemInserted(0)
             }
         }
     }

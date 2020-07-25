@@ -3,7 +3,7 @@ package q19.kenes_widget.adapter
 import android.content.Context
 import android.graphics.Rect
 import android.view.View
-import androidx.recyclerview.widget.MergeAdapter
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 
@@ -19,7 +19,7 @@ internal class ChatAdapterItemDecoration(context: Context) : RecyclerView.ItemDe
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = parent.adapter as? MergeAdapter?
+        val adapter = parent.adapter as? ConcatAdapter?
 
         val position = parent.layoutManager?.getPosition(view)
 

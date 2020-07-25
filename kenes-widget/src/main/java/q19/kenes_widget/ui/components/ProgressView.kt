@@ -32,12 +32,8 @@ internal class ProgressView @JvmOverloads constructor(
         visibility = View.GONE
     }
 
-    fun isProgressShown(): Boolean {
-        return visibility == View.VISIBLE
-    }
+    fun isProgressShown(): Boolean = visibility == View.VISIBLE
 
-    fun isProgressHidden(): Boolean {
-        return visibility == View.GONE
-    }
+    fun isProgressHidden(): Boolean = visibility == View.GONE
 
 }

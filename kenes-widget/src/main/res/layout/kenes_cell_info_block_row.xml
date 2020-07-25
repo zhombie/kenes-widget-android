@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/kenes_info_block_horizontal_spacing"
+    android:paddingTop="13dp"
+    android:paddingEnd="@dimen/kenes_info_block_horizontal_spacing"
+    android:paddingBottom="13dp">
+
+    <ImageView
+        android:id="@+id/iconView"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="13dp"
+        android:visibility="gone"
+        tools:srcCompat="@tools:sample/avatars"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="sans-serif-medium"
+        android:includeFontPadding="false"
+        android:minWidth="80dp"
+        android:textColor="@color/kenes_black"
+        android:textSize="16sp"
+        tools:text="1499" />
+
+    <TextView
+        android:id="@+id/descriptionView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:visibility="gone"
+        tools:text="С городских: бесплатно, с мобильных: 18 тг/мин"
+        tools:visibility="visible" />
+
+</LinearLayout>

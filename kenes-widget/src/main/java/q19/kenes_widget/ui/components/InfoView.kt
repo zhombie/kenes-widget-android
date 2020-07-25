@@ -104,8 +104,9 @@ private class MenuAdapter(
             if (position < phones.size) {
                 holder.bind(phones[position])
             } else if (position >= phones.size && position < phones.size + contacts.size) {
-                holder.bind(contacts[contacts.size - position])
-            } else {
+                val index = position - phones.size
+                holder.bind(contacts[index])
+            } else if (position == phones.size + contacts.size) {
                 holder.bind(language)
             }
         }
@@ -123,8 +124,8 @@ private class MenuAdapter(
         fun bind(language: Language) {
             textView?.setText(R.string.kenes_change_language)
 
-            subView?.visibility = View.VISIBLE
             subView?.text = language.value
+            subView?.visibility = View.VISIBLE
 
             textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_globe, 35)
 
@@ -134,21 +135,31 @@ private class MenuAdapter(
         fun bind(phoneNumber: String) {
             subView?.visibility = View.GONE
 
-            textView?.text = phoneNumber
+            if (phoneNumber.isBlank()) {
+                textView?.visibility = View.GONE
+            } else {
+                textView?.text = phoneNumber
+                textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_phone_blue, 35)
 
-            textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_phone_blue, 35)
+                textView?.visibility = View.VISIBLE
 
-            itemView.setOnClickListener { callback.onPhoneNumberClicked(phoneNumber) }
+                itemView.setOnClickListener { callback.onPhoneNumberClicked(phoneNumber) }
+            }
         }
 
         fun bind(contact: Configs.Contact) {
             subView?.visibility = View.GONE
 
-            textView?.text = itemView.context.getString(R.string.kenes_chat_bot, contact.social?.title)
+            if (contact.social == null || contact.social?.title.isNullOrBlank()) {
+                textView?.visibility = View.GONE
+            } else {
+                textView?.text = itemView.context.getString(R.string.kenes_chat_bot, contact.social?.title)
+                textView?.showCompoundDrawableOnfLeft(contact.social?.icon ?: 0, 35)
 
-            textView?.showCompoundDrawableOnfLeft(contact.social?.icon ?: 0, 35)
+                textView?.visibility = View.VISIBLE
 
-            itemView.setOnClickListener { callback.onSocialClicked(contact) }
+                itemView.setOnClickListener { callback.onSocialClicked(contact) }
+            }
         }
     }
 
@@ -168,8 +179,8 @@ private class MenuAdapter(
         }
 
         override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-            val startX = parent.paddingLeft + 100
-            val stopX = parent.width - parent.paddingRight - 35
+            val startX = parent.paddingStart + 100
+            val stopX = parent.width - parent.paddingEnd - 35
 
             val childCount = parent.childCount
             for (i in 0 until childCount - 1) {

@@ -30,7 +30,10 @@ internal fun Context.showHangupConfirmAlert(callback: () -> Unit): AlertDialog? 
         .show()
 }
 
-internal fun Context.showLanguageSelectionAlert(items: Array<String>, callback: (which: Int) -> Unit): AlertDialog? {
+internal fun Context.showLanguageSelectionAlert(
+    items: Array<String>,
+    callback: (which: Int) -> Unit
+): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_select_language_from_list)
         .setSingleChoiceItems(items, -1) { dialog, which ->
@@ -43,7 +46,10 @@ internal fun Context.showLanguageSelectionAlert(items: Array<String>, callback: 
         .show()
 }
 
-internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> Unit): AlertDialog? {
+internal fun Context.showOpenLinkConfirmAlert(
+    message: String,
+    callback: () -> Unit
+): AlertDialog? {
     val messageView = FrameLayout(this)
 
     val textView = TextView(this)
@@ -51,8 +57,14 @@ internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> U
     textView.setTextColor(ContextCompat.getColor(this, R.color.kenes_black))
 
     val colorStateList = ColorStateListBuilder()
-        .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(this, R.color.kenes_light_blue))
-        .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(this, R.color.kenes_light_blue))
+        .addState(
+            IntArray(1) { android.R.attr.state_pressed },
+            ContextCompat.getColor(this, R.color.kenes_light_blue)
+        )
+        .addState(
+            IntArray(1) { android.R.attr.state_selected },
+            ContextCompat.getColor(this, R.color.kenes_light_blue)
+        )
         .addState(intArrayOf(), ContextCompat.getColor(this, R.color.kenes_blue))
         .build()
 
@@ -92,12 +104,16 @@ internal fun Context.showOpenLinkConfirmAlert(message: String, callback: () -> U
         .show()
 }
 
-internal fun Context.showPermanentlyDeniedDialog(message: String, callback: (isPositive: Boolean) -> Unit): AlertDialog? {
+internal fun Context.showPermanentlyDeniedDialog(
+    message: String,
+    positiveButtonText: String,
+    callback: (isPositive: Boolean) -> Unit
+): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(message)
         .setCancelable(false)
-        .setPositiveButton(R.string.kenes_to_settings) { dialog, _ ->
+        .setPositiveButton(positiveButtonText) { dialog, _ ->
             dialog.dismiss()
             callback(true)
         }
@@ -122,7 +138,10 @@ internal fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit): AlertDi
         .show()
 }
 
-internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Unit): AlertDialog? {
+internal fun Context.showNoOnlineCallAgents(
+    message: String?,
+    callback: () -> Unit
+): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(message)
@@ -139,7 +158,9 @@ internal fun Context.showNoOnlineCallAgents(message: String?, callback: () -> Un
         .show()
 }
 
-internal fun Context.showAlreadyCallingAlert(callback: (isPositive: Boolean) -> Unit): AlertDialog? {
+internal fun Context.showAlreadyCallingAlert(
+    callback: (isPositive: Boolean) -> Unit
+): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_already_calling_to_operator)
