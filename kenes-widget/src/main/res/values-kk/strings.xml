@@ -31,8 +31,11 @@
     <string name="kenes_open_link_confirm">%s сілтеме арқылы өтесіз бе?</string>
 
     <string name="kenes_permissions_necessity_info">
-        Өтініш, барлық көрсетілген рұқсаттарды\n\n1. Бейнекамера\n2. Микрофон\n3. Телефон жады\n\nберуіңізді сұраймыз, виджеттің дұрыс жұмыс істеуі үшін қажет
+        Өтініш, қосымшаға келесі рұқсаттарды беруіңізді сұраймыз:\n\n%s\n\nсебебі олар виджеттің дұрыс жұмыс істеуі үшін қажет
     </string>
+    <string name="kenes_camera">Бейнекамера</string>
+    <string name="kenes_microphone">Микрофон</string>
+    <string name="kenes_storage">Телефон жады</string>
     <string name="kenes_to_settings">Баптауларға</string>
 
     <string name="kenes_text_file">Мәтіндік файл</string>
@@ -67,7 +70,9 @@
     <string name="kenes_file_pending_download">Файл жүктелуде</string>
     <string name="kenes_file_download_error">Файл жүктелмеді</string>
 
-    <string name="kenes_add_attachment_button_disabled">Файлды жүктеу тек оператормен байланыс кезінде қолжетімді</string>
+    <string name="kenes_add_attachment_button_disabled">
+        Файлды жүктеу тек оператормен байланыс/диалог кезінде қолжетімді
+    </string>
 
     <string name="kenes_queue_count">Кезекте (%d)</string>
 </resources>

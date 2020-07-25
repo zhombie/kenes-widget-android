@@ -1142,4 +1142,8 @@ internal class KenesWidgetV2Presenter(
         view?.showHangupConfirmationAlert()
     }
 
+    fun onAddAttachmentButtonClicked() {
+        view?.showAttachmentPicker()
+    }
+
 }

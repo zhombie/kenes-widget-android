@@ -31,8 +31,11 @@
     <string name="kenes_open_link_confirm">Вы хотите открыть %s ?</string>
 
     <string name="kenes_permissions_necessity_info">
-        Пожалуйста, предоставьте все эти разрешения\n\n1. Камера\n2. Микрофон\n3. Хранилище\n\nтак как они необходимы для правильной работы виджета
+        Пожалуйста, предоставьте приложению следующие разрешения:\n\n%s\n\nтак как они крайне необходимы для корректной работы виджета
     </string>
+    <string name="kenes_camera">Камера</string>
+    <string name="kenes_microphone">Микрофон</string>
+    <string name="kenes_storage">Хранилище</string>
     <string name="kenes_to_settings">В Настройки</string>
 
     <string name="kenes_text_file">Текстовый файл</string>
@@ -67,7 +70,9 @@
     <string name="kenes_file_pending_download">Файл загружается</string>
     <string name="kenes_file_download_error">Файл не загрузился</string>
 
-    <string name="kenes_add_attachment_button_disabled">Приклепление файла доступно только при разговоре с оператором</string>
+    <string name="kenes_add_attachment_button_disabled">
+        Приклепление файла доступно только при активном разговоре/диалоге с оператором
+    </string>
 
     <string name="kenes_queue_count">В очереди (%d)</string>
 </resources>

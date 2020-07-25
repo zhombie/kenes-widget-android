@@ -86,4 +86,6 @@ internal interface KenesWidgetV2View {
     fun addRemoteIceCandidate(iceCandidate: IceCandidate)
 
     fun scrollToBottom()
+
+    fun showAttachmentPicker()
 }

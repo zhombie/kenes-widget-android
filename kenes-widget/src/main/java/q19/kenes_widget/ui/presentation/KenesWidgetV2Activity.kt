@@ -22,11 +22,11 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.fondesa.kpermissions.PermissionStatus
 import com.fondesa.kpermissions.allGranted
 import com.fondesa.kpermissions.anyPermanentlyDenied
 import com.fondesa.kpermissions.anyShouldShowRationale
 import com.fondesa.kpermissions.extension.permissionsBuilder
+import com.fondesa.kpermissions.extension.send
 import com.fondesa.kpermissions.request.PermissionRequest
 import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
@@ -48,7 +48,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.webrtc.PeerConnectionClient
 import java.io.File
 
-internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View, PermissionRequest.Listener {
+internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     companion object {
         private const val TAG = "KenesWidgetV2Activity"
@@ -152,7 +152,23 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     // ------------------------------------------------------------------------
 
-    private val permissionsRequest by lazy {
+    private val externalStoragePermissionRequest by lazy {
+        permissionsBuilder(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ).build()
+    }
+
+    private val audioCallPermissionRequest by lazy {
+        permissionsBuilder(
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.BLUETOOTH
+        ).build()
+    }
+
+    private val videoCallPermissionRequest by lazy {
         permissionsBuilder(
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
@@ -218,9 +234,6 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         presenter.attachView(this)
 
         // ------------------------------------------------------------------------
-
-        permissionsRequest.addListener(this)
-        permissionsRequest.send()
 
         if (Picasso.get() == null) {
             Picasso.setSingletonInstance(Picasso.Builder(this).build())
@@ -311,24 +324,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                 presenter.onGoToActiveDialogButtonClicked()
             }
 
-            override fun onAttachmentButtonClicked() {
-                val isPermissionRequestSent = checkPermissions()
-
-                if (isPermissionRequestSent) {
-                    return
-                }
-
-                if (footerView.isAttachmentButtonEnabled) {
-                    MaterialFilePicker()
-                        .withActivity(this@KenesWidgetV2Activity)
-                        .withHiddenFiles(true)
-                        .withFilterDirectories(false)
-                        .withCloseMenu(true)
-                        .withRequestCode(FILE_PICKER_REQUEST_CODE)
-                        .start()
-                } else {
-                    showAddAttachmentButtonDisabledAlert {}
-                }
+            override fun onAddAttachmentButtonClicked() {
+                presenter.onAddAttachmentButtonClicked()
             }
 
             override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
@@ -543,34 +540,6 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                 hideKeyboard()
             }
             false
-        }
-    }
-
-    private fun checkPermissions(): Boolean {
-        val permissions = permissionsRequest.checkStatus()
-        return if (permissions.allGranted()) {
-            false
-        } else {
-            permissionsRequest.send()
-            true
-        }
-    }
-
-    override fun onPermissionsResult(result: List<PermissionStatus>) {
-        if (result.allGranted()) {
-            return
-        }
-        showPermanentlyDeniedDialog(getString(R.string.kenes_permissions_necessity_info)) { isPositive ->
-            if (isPositive) {
-                if (result.anyPermanentlyDenied()) {
-                    val intent = createAppSettingsIntent()
-                    startActivity(intent)
-                } else if (result.anyShouldShowRationale()) {
-                    permissionsRequest.send()
-                }
-            } else {
-                finish()
-            }
         }
     }
 
@@ -990,10 +959,84 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         chatAdapter?.setProgress(progress, fileType, itemPosition)
     }
 
+    private fun formatEachWithIndex(vararg args: String): String {
+        return args
+            .mapIndexed { index, s -> "${(index + 1)}. $s" }
+            .joinToString(separator = "\n")
+    }
+
+    private fun checkPermissions(
+        permissionRequest: PermissionRequest,
+        alertText: String,
+        callback: (isPositive: Boolean) -> Unit
+    ) {
+        val permissionStatuses = permissionRequest.checkStatus()
+
+        if (permissionStatuses.allGranted()) {
+            callback(true)
+        } else {
+            permissionRequest.send { result ->
+                if (result.allGranted()) {
+                    callback(true)
+                    return@send
+                }
+
+                val isAnyPermanentlyDenied = result.anyPermanentlyDenied()
+                val isAnyShouldShowRationale = result.anyShouldShowRationale()
+
+                val positiveButtonText = if (isAnyPermanentlyDenied) {
+                    getString(R.string.kenes_to_settings)
+                } else {
+                    getString(R.string.kenes_ok)
+                }
+
+                showPermanentlyDeniedDialog(alertText, positiveButtonText) { isPositive ->
+                    if (isPositive) {
+                        if (isAnyPermanentlyDenied) {
+                            startActivity(createAppSettingsIntent())
+                        } else if (isAnyShouldShowRationale) {
+                            permissionRequest.send()
+                        }
+                    } else {
+                        callback(false)
+                    }
+                }
+            }
+        }
+    }
+
     override fun resolvePermissions(operatorCall: OperatorCall) {
-        val isPermissionRequestSent = checkPermissions()
-        if (!isPermissionRequestSent) {
-            presenter.onCallOperator(operatorCall)
+        if (operatorCall == OperatorCall.AUDIO) {
+            checkPermissions(
+                audioCallPermissionRequest,
+                getString(
+                    R.string.kenes_permissions_necessity_info,
+                    formatEachWithIndex(
+                        getString(R.string.kenes_microphone),
+                        getString(R.string.kenes_storage)
+                    )
+                )
+            ) {
+                if (it) {
+                    presenter.onCallOperator(operatorCall)
+                }
+            }
+        } else if (operatorCall == OperatorCall.VIDEO) {
+            checkPermissions(
+                videoCallPermissionRequest,
+                getString(
+                    R.string.kenes_permissions_necessity_info,
+                    formatEachWithIndex(
+                        getString(R.string.kenes_camera),
+                        getString(R.string.kenes_microphone),
+                        getString(R.string.kenes_storage)
+                    )
+                )
+            ) {
+                if (it) {
+                    presenter.onCallOperator(operatorCall)
+                }
+            }
         }
     }
 
@@ -1107,6 +1150,32 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     override fun scrollToBottom() {
         recyclerView.adapter?.let { adapter ->
             recyclerView.scrollToPosition(adapter.itemCount - 1)
+        }
+    }
+
+    override fun showAttachmentPicker() {
+        checkPermissions(
+            externalStoragePermissionRequest,
+            getString(
+                R.string.kenes_permissions_necessity_info,
+                formatEachWithIndex(
+                    getString(R.string.kenes_storage)
+                )
+            )
+        ) {
+            if (it) {
+                if (footerView.isAttachmentButtonEnabled) {
+                    MaterialFilePicker()
+                        .withActivity(this@KenesWidgetV2Activity)
+                        .withHiddenFiles(true)
+                        .withFilterDirectories(false)
+                        .withCloseMenu(true)
+                        .withRequestCode(FILE_PICKER_REQUEST_CODE)
+                        .start()
+                } else {
+                    showAddAttachmentButtonDisabledAlert {}
+                }
+            }
         }
     }
 
@@ -1615,6 +1684,10 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         presenter.detachView()
 
         presenter.onCloseLiveCall()
+
+        audioCallPermissionRequest.removeAllListeners()
+        videoCallPermissionRequest.removeAllListeners()
+        externalStoragePermissionRequest.removeAllListeners()
 
         peerConnectionClient?.removeListeners()
         peerConnectionClient = null
