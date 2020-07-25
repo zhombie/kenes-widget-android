@@ -1,4 +1,4 @@
-package q19.kenes_widget.ui.widgets
+package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.graphics.Canvas

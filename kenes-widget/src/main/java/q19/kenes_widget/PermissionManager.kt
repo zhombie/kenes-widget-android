@@ -11,15 +11,12 @@ import com.fondesa.kpermissions.request.PermissionRequest
 import q19.kenes_widget.util.createAppSettingsIntent
 import q19.kenes_widget.util.showPermanentlyDeniedDialog
 
-class AndroidPermissionManager(private val fragmentActivity: FragmentActivity) {
+internal class PermissionManager(private val fragmentActivity: FragmentActivity) {
 
-    private val videoCallPermissionRequest by lazy {
+    private val externalStoragePermissionRequest by lazy {
         fragmentActivity.permissionsBuilder(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.BLUETOOTH
+            Manifest.permission.READ_EXTERNAL_STORAGE
         ).build()
     }
 
@@ -32,10 +29,13 @@ class AndroidPermissionManager(private val fragmentActivity: FragmentActivity) {
         ).build()
     }
 
-    private val externalStoragePermissionRequest by lazy {
+    private val videoCallPermissionRequest by lazy {
         fragmentActivity.permissionsBuilder(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.BLUETOOTH
         ).build()
     }
 
@@ -45,7 +45,10 @@ class AndroidPermissionManager(private val fragmentActivity: FragmentActivity) {
         VIDEO_CALL
     }
 
-    fun checkPermission(permission: Permission, callback: () -> Unit) {
+    fun checkPermission(
+        permission: Permission,
+        callback: (isPositive: Boolean) -> Unit
+    ) {
         val permissionRequest: PermissionRequest
         val formattedPermissions: String
 
@@ -80,7 +83,7 @@ class AndroidPermissionManager(private val fragmentActivity: FragmentActivity) {
                 formattedPermissions
             )
         ) {
-            callback()
+            callback(it)
         }
     }
 
@@ -131,6 +134,12 @@ class AndroidPermissionManager(private val fragmentActivity: FragmentActivity) {
                 }
             }
         }
+    }
+
+    fun removeAllListeners() {
+        externalStoragePermissionRequest.removeAllListeners()
+        audioCallPermissionRequest.removeAllListeners()
+        videoCallPermissionRequest.removeAllListeners()
     }
 
 }

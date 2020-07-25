@@ -1,6 +1,5 @@
 package q19.kenes_widget.ui.presentation
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -22,12 +21,6 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.fondesa.kpermissions.allGranted
-import com.fondesa.kpermissions.anyPermanentlyDenied
-import com.fondesa.kpermissions.anyShouldShowRationale
-import com.fondesa.kpermissions.extension.permissionsBuilder
-import com.fondesa.kpermissions.extension.send
-import com.fondesa.kpermissions.request.PermissionRequest
 import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
@@ -35,13 +28,14 @@ import org.webrtc.IceCandidate
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
+import q19.kenes_widget.PermissionManager
 import q19.kenes_widget.R
 import q19.kenes_widget.adapter.ChatAdapter
 import q19.kenes_widget.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.adapter.ChatFooterAdapter
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.model.*
-import q19.kenes_widget.ui.widgets.*
+import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.util.*
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.Logger.debug
@@ -152,31 +146,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     // ------------------------------------------------------------------------
 
-    private val externalStoragePermissionRequest by lazy {
-        permissionsBuilder(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ).build()
-    }
-
-    private val audioCallPermissionRequest by lazy {
-        permissionsBuilder(
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.BLUETOOTH
-        ).build()
-    }
-
-    private val videoCallPermissionRequest by lazy {
-        permissionsBuilder(
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.BLUETOOTH
-        ).build()
-    }
+    private val permissionManager by lazy { PermissionManager(this) }
 
     // ------------------------------------------------------------------------
 
@@ -959,83 +929,16 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         chatAdapter?.setProgress(progress, fileType, itemPosition)
     }
 
-    private fun formatEachWithIndex(vararg args: String): String {
-        return args
-            .mapIndexed { index, s -> "${(index + 1)}. $s" }
-            .joinToString(separator = "\n")
-    }
-
-    private fun checkPermissions(
-        permissionRequest: PermissionRequest,
-        alertText: String,
-        callback: (isPositive: Boolean) -> Unit
-    ) {
-        val permissionStatuses = permissionRequest.checkStatus()
-
-        if (permissionStatuses.allGranted()) {
-            callback(true)
-        } else {
-            permissionRequest.send { result ->
-                if (result.allGranted()) {
-                    callback(true)
-                    return@send
-                }
-
-                val isAnyPermanentlyDenied = result.anyPermanentlyDenied()
-                val isAnyShouldShowRationale = result.anyShouldShowRationale()
-
-                val positiveButtonText = if (isAnyPermanentlyDenied) {
-                    getString(R.string.kenes_to_settings)
-                } else {
-                    getString(R.string.kenes_ok)
-                }
-
-                showPermanentlyDeniedDialog(alertText, positiveButtonText) { isPositive ->
-                    if (isPositive) {
-                        if (isAnyPermanentlyDenied) {
-                            startActivity(createAppSettingsIntent())
-                        } else if (isAnyShouldShowRationale) {
-                            permissionRequest.send()
-                        }
-                    } else {
-                        callback(false)
-                    }
-                }
-            }
-        }
-    }
-
     override fun resolvePermissions(operatorCall: OperatorCall) {
-        if (operatorCall == OperatorCall.AUDIO) {
-            checkPermissions(
-                audioCallPermissionRequest,
-                getString(
-                    R.string.kenes_permissions_necessity_info,
-                    formatEachWithIndex(
-                        getString(R.string.kenes_microphone),
-                        getString(R.string.kenes_storage)
-                    )
-                )
-            ) {
-                if (it) {
-                    presenter.onCallOperator(operatorCall)
-                }
+        permissionManager.checkPermission(
+            when (operatorCall) {
+                OperatorCall.AUDIO -> PermissionManager.Permission.AUDIO_CALL
+                OperatorCall.VIDEO -> PermissionManager.Permission.VIDEO_CALL
+                else -> return
             }
-        } else if (operatorCall == OperatorCall.VIDEO) {
-            checkPermissions(
-                videoCallPermissionRequest,
-                getString(
-                    R.string.kenes_permissions_necessity_info,
-                    formatEachWithIndex(
-                        getString(R.string.kenes_camera),
-                        getString(R.string.kenes_microphone),
-                        getString(R.string.kenes_storage)
-                    )
-                )
-            ) {
-                if (it) {
-                    presenter.onCallOperator(operatorCall)
-                }
+        ) {
+            if (it) {
+                presenter.onCallOperator(operatorCall)
             }
         }
     }
@@ -1154,15 +1057,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     }
 
     override fun showAttachmentPicker() {
-        checkPermissions(
-            externalStoragePermissionRequest,
-            getString(
-                R.string.kenes_permissions_necessity_info,
-                formatEachWithIndex(
-                    getString(R.string.kenes_storage)
-                )
-            )
-        ) {
+        permissionManager.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
             if (it) {
                 if (footerView.isAttachmentButtonEnabled) {
                     MaterialFilePicker()
@@ -1685,9 +1580,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
         presenter.onCloseLiveCall()
 
-        audioCallPermissionRequest.removeAllListeners()
-        videoCallPermissionRequest.removeAllListeners()
-        externalStoragePermissionRequest.removeAllListeners()
+        permissionManager.removeAllListeners()
 
         peerConnectionClient?.removeListeners()
         peerConnectionClient = null
