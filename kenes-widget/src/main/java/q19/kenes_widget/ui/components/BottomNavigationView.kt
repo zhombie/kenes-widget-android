@@ -187,7 +187,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
     ) {
         if (appCompatImageButton != null) {
             appCompatImageButton.setOnClickListener(listener)
-            appCompatImageButton.visibility = View.VISIBLE
+            if (appCompatImageButton.visibility != View.VISIBLE) {
+                appCompatImageButton.visibility = View.VISIBLE
+            }
             navButtons.add(index, appCompatImageButton)
         }
     }
@@ -195,7 +197,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
     private fun hideNavButton(appCompatImageButton: AppCompatImageButton?) {
         if (appCompatImageButton != null) {
             appCompatImageButton.setOnClickListener(null)
-            appCompatImageButton.visibility = View.GONE
+            if (appCompatImageButton.visibility != View.GONE) {
+                appCompatImageButton.visibility = View.GONE
+            }
             navButtons.remove(appCompatImageButton)
         }
     }

@@ -96,6 +96,7 @@ internal class KenesWidgetV2Presenter(
             view?.hideNavButton(it)
         }
         view?.showNavButton(BottomNavigation.INFO)
+//        viewState = ViewState.Info
 
         view?.showOpponentInfo(Configs.Opponent.getDefault())
 
@@ -128,9 +129,9 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onResume() {
-        if (!dialog.isActive && viewState is ViewState.ChatBot) {
-            socketClient?.getBasicCategories()
-        }
+//        if (configs?.isChabotEnabled == true && !dialog.isActive && viewState is ViewState.ChatBot) {
+//            socketClient?.getBasicCategories()
+//        }
     }
 
     private fun initSocket() {
