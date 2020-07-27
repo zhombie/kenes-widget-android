@@ -128,7 +128,7 @@ internal class KenesWidgetV2Presenter(
     }
 
     fun onResume() {
-        if (viewState is ViewState.ChatBot) {
+        if (!dialog.isActive && viewState is ViewState.ChatBot) {
             socketClient?.getBasicCategories()
         }
     }
@@ -164,6 +164,7 @@ internal class KenesWidgetV2Presenter(
                 debug(TAG, "onCallAgentGreet -> viewState: $viewState")
 
                 if (viewState is ViewState.TextDialog) {
+                    dialog.isActive = true
                     viewState = ViewState.TextDialog.Live
                 }
 
@@ -299,6 +300,8 @@ internal class KenesWidgetV2Presenter(
                 debug(TAG, "onCallAccept -> viewState: $viewState")
 
                 if (viewState is ViewState.AudioDialog) {
+                    dialog.isActive = true
+
                     viewState = ViewState.AudioDialog.Start
 
                     view?.createPeerConnection(
@@ -309,6 +312,8 @@ internal class KenesWidgetV2Presenter(
 
                     socketClient?.sendMessage(rtc = rtc { type = RTC.Type.PREPARE })
                 } else if (viewState is ViewState.VideoDialog) {
+                    dialog.isActive = true
+
                     viewState = ViewState.VideoDialog.Start
 
                     view?.createPeerConnection(

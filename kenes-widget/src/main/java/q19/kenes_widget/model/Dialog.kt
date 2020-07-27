@@ -17,9 +17,12 @@ internal class Dialog {
             }
         }
 
+    var isActive = false
+
     fun clear() {
         isInitiator = false
         unreadMessages = 0
+        isActive = false
     }
 
 }
