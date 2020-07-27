@@ -75,4 +75,8 @@
     </string>
 
     <string name="kenes_queue_count">Кезекте (%d)</string>
+
+    <string name="kenes_call_with_operator">Оператормен байланыс</string>
+    <string name="kenes_audio_call_to_operator">Оператормен аудио қоңырау арқылы байланысу</string>
+    <string name="kenes_video_call_to_operator">Оператормен видео қоңырау арқылы байланысу</string>
 </resources>

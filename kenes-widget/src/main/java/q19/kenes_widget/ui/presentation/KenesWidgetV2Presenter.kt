@@ -56,7 +56,7 @@ internal class KenesWidgetV2Presenter(
         set(value) {
             field = value
 
-            if (value is ViewState.ChatBot || value is ViewState.Contacts || value is ViewState.Info || value is ViewState.TextDialog.IDLE || value is ViewState.AudioDialog.IDLE || value is ViewState.VideoDialog.IDLE) {
+            if (value is ViewState.ChatBot || value is ViewState.Contacts || value is ViewState.Info || value is ViewState.TextDialog.IDLE || value is ViewState.OperatorCall) {
                 configs?.opponent?.let { view?.showOpponentInfo(it) }
             }
 
@@ -90,8 +90,7 @@ internal class KenesWidgetV2Presenter(
     private fun onFirstViewAttach() {
         listOf(
             BottomNavigation.HOME,
-            BottomNavigation.VIDEO,
-            BottomNavigation.AUDIO,
+            BottomNavigation.OPERATOR_CALL,
             BottomNavigation.CONTACTS
         ).forEach {
             view?.hideNavButton(it)
@@ -145,10 +144,8 @@ internal class KenesWidgetV2Presenter(
                     ViewState.ChatBot.Categories(true)
                 } else {
                     when {
-                        configs?.isVideoCallEnabled == true ->
-                            ViewState.VideoDialog.IDLE
-                        configs?.isAudioCallEnabled == true ->
-                            ViewState.AudioDialog.IDLE
+                        configs?.isAudioCallEnabled == true || configs?.isVideoCallEnabled == true ->
+                            ViewState.OperatorCall
                         configs?.isContactSectionsShown == true ->
                             ViewState.Contacts
                         else ->
@@ -193,19 +190,12 @@ internal class KenesWidgetV2Presenter(
             }
 
             override fun onPendingUsersQueueCount(text: String?, count: Int) {
-                if (viewState is ViewState.AudioDialog) {
+                if (viewState is ViewState.AudioDialog || viewState is ViewState.VideoDialog) {
                     if (!text.isNullOrBlank()) {
-                        view?.setAudioCallInfoText(text)
+                        view?.setOperatorCallInfoText(text)
                     }
                     if (count > 1) {
-                        view?.setAudioCallPendingQueueCount(count)
-                    }
-                } else if (viewState is ViewState.VideoDialog) {
-                    if (!text.isNullOrBlank()) {
-                        view?.setVideoCallInfoText(text)
-                    }
-                    if (count > 1) {
-                        view?.setVideoCallPendingQueueCount(count)
+                        view?.setOperatorCallPendingQueueCount(count)
                     }
                 }
             }
@@ -263,10 +253,8 @@ internal class KenesWidgetV2Presenter(
                         view?.showGoToHomeButton()
                         viewState = ViewState.ChatBot.UserPrompt(false)
                     }
-                    is ViewState.AudioDialog ->
-                        viewState = ViewState.AudioDialog.IDLE
-                    is ViewState.VideoDialog ->
-                        viewState = ViewState.VideoDialog.IDLE
+                    is ViewState.AudioDialog, is ViewState.VideoDialog ->
+                        viewState = ViewState.OperatorCall
                 }
 
                 return true
@@ -534,10 +522,8 @@ internal class KenesWidgetV2Presenter(
             viewState = when {
                 configs?.isChabotEnabled == true ->
                     ViewState.ChatBot.Categories(false)
-                configs?.isVideoCallEnabled == true ->
-                    ViewState.VideoDialog.IDLE
-                configs?.isAudioCallEnabled == true ->
-                    ViewState.AudioDialog.IDLE
+                configs?.isAudioCallEnabled == true || configs?.isVideoCallEnabled == true ->
+                    ViewState.OperatorCall
                 configs?.isContactSectionsShown == true ->
                     ViewState.Contacts
                 else ->
@@ -570,18 +556,20 @@ internal class KenesWidgetV2Presenter(
                     view?.hideNavButton(BottomNavigation.HOME)
                 }
 
-                if (configs.isAudioCallEnabled) {
-                    view?.setDefaultAudioCallView()
-                    view?.showNavButton(BottomNavigation.AUDIO)
+                if (configs.isAudioCallEnabled || configs.isVideoCallEnabled) {
+                    if (configs.isAudioCallEnabled) {
+                        view?.showOperatorCallButton(OperatorCall.AUDIO)
+                    } else {
+                        view?.hideOperatorCallButton(OperatorCall.AUDIO)
+                    }
+                    if (configs.isVideoCallEnabled) {
+                        view?.showOperatorCallButton(OperatorCall.VIDEO)
+                    } else {
+                        view?.hideOperatorCallButton(OperatorCall.VIDEO)
+                    }
+                    view?.showNavButton(BottomNavigation.OPERATOR_CALL)
                 } else {
-                    view?.hideNavButton(BottomNavigation.AUDIO)
-                }
-
-                if (configs.isVideoCallEnabled) {
-                    view?.setDefaultVideoCallView()
-                    view?.showNavButton(BottomNavigation.VIDEO)
-                } else {
-                    view?.hideNavButton(BottomNavigation.VIDEO)
+                    view?.hideNavButton(BottomNavigation.OPERATOR_CALL)
                 }
 
                 if (configs.isContactSectionsShown && !configs.infoBlocks.isNullOrEmpty()) {
@@ -693,7 +681,7 @@ internal class KenesWidgetV2Presenter(
                 socketClient?.getBasicCategories()
                 viewState = ViewState.ChatBot.Categories(true)
             }
-            BottomNavigation.AUDIO -> {
+            BottomNavigation.OPERATOR_CALL -> {
                 if (dialog.isInitiator) {
                     view?.showAlreadyCallingAlert(bottomNavigation)
                     return
@@ -701,17 +689,7 @@ internal class KenesWidgetV2Presenter(
 
                 clear()
 
-                viewState = ViewState.AudioDialog.IDLE
-            }
-            BottomNavigation.VIDEO -> {
-                if (dialog.isInitiator) {
-                    view?.showAlreadyCallingAlert(bottomNavigation)
-                    return
-                }
-
-                clear()
-
-                viewState = ViewState.VideoDialog.IDLE
+                viewState = ViewState.OperatorCall
             }
             BottomNavigation.CONTACTS -> {
                 if (dialog.isInitiator) {
@@ -770,8 +748,7 @@ internal class KenesWidgetV2Presenter(
 
                 ViewState.ChatBot.Categories(true)
             }
-            BottomNavigation.AUDIO -> ViewState.AudioDialog.IDLE
-            BottomNavigation.VIDEO -> ViewState.VideoDialog.IDLE
+            BottomNavigation.OPERATOR_CALL -> ViewState.OperatorCall
             BottomNavigation.CONTACTS -> ViewState.Contacts
             BottomNavigation.INFO -> ViewState.Info
         }
@@ -920,17 +897,11 @@ internal class KenesWidgetV2Presenter(
 
     fun onGoToHomeClicked() {
         when (viewState) {
-            is ViewState.AudioDialog -> {
+            is ViewState.AudioDialog, is ViewState.VideoDialog -> {
                 view?.clearChatMessages()
                 view?.clearChatFooterMessages()
 
-                viewState = ViewState.AudioDialog.IDLE
-            }
-            is ViewState.VideoDialog -> {
-                view?.clearChatMessages()
-                view?.clearChatFooterMessages()
-
-                viewState = ViewState.VideoDialog.IDLE
+                viewState = ViewState.OperatorCall
             }
             else -> {
                 val messages = chatBot.basicCategories.map { category ->
@@ -954,13 +925,16 @@ internal class KenesWidgetV2Presenter(
         }
     }
 
-    fun onCallCancelClicked(operatorCall: OperatorCall) {
+    fun onCallCancelClicked(operatorCall: OperatorCall? = null) {
         cancelPendingCall()
 
-        viewState = when (operatorCall) {
-            OperatorCall.TEXT -> ViewState.ChatBot.UserPrompt(false)
-            OperatorCall.AUDIO -> ViewState.AudioDialog.IDLE
-            OperatorCall.VIDEO -> ViewState.VideoDialog.IDLE
+        viewState = if (operatorCall == null) {
+            ViewState.OperatorCall
+        } else {
+            when (operatorCall) {
+                OperatorCall.TEXT -> ViewState.ChatBot.UserPrompt(false)
+                OperatorCall.AUDIO, OperatorCall.VIDEO -> ViewState.OperatorCall
+            }
         }
     }
 

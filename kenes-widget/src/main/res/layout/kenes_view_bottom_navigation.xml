@@ -32,17 +32,7 @@
             android:src="@drawable/kenes_ic_home" />
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/videoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:src="@drawable/kenes_ic_camera_gray" />
-
-        <androidx.appcompat.widget.AppCompatImageButton
-            android:id="@+id/audioButton"
+            android:id="@+id/operatorCallButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

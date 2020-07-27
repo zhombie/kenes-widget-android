@@ -28,14 +28,13 @@ internal interface KenesWidgetV2View {
     fun setViewState(viewState: ViewState)
 
     fun setDefaultFooterView()
-    fun setDefaultAudioCallView()
-    fun setDefaultVideoCallView()
+    fun setDefaultOperatorCallView()
 
-    fun setAudioCallInfoText(text: String)
-    fun setAudioCallPendingQueueCount(count: Int)
+    fun showOperatorCallButton(operatorCall: OperatorCall)
+    fun hideOperatorCallButton(operatorCall: OperatorCall)
 
-    fun setVideoCallInfoText(text: String)
-    fun setVideoCallPendingQueueCount(count: Int)
+    fun setOperatorCallInfoText(text: String)
+    fun setOperatorCallPendingQueueCount(count: Int)
 
     fun setUnreadMessagesCountOnCall(operatorCall: OperatorCall, count: String)
 

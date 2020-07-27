@@ -77,4 +77,8 @@
     </string>
 
     <string name="kenes_queue_count">Queue (%d)</string>
+
+    <string name="kenes_call_with_operator">Call with the operator</string>
+    <string name="kenes_audio_call_to_operator">Contact the operator using an audio call</string>
+    <string name="kenes_video_call_to_operator">Contact the operator using an video call</string>
 </resources>

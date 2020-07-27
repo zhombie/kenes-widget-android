@@ -27,8 +27,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     private var bottomNavigationView: LinearLayout? = null
     private var homeButton: AppCompatImageButton? = null
-    private var videoButton: AppCompatImageButton? = null
-    private var audioButton: AppCompatImageButton? = null
+    private var operatorCallButton: AppCompatImageButton? = null
     private var contactsButton: AppCompatImageButton? = null
     private var infoButton: AppCompatImageButton? = null
 
@@ -53,8 +52,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
         bottomNavigationView = view.findViewById(R.id.bottomNavigationView)
         homeButton = view.findViewById(R.id.homeButton)
-        videoButton = view.findViewById(R.id.videoButton)
-        audioButton = view.findViewById(R.id.audioButton)
+        operatorCallButton = view.findViewById(R.id.operatorCallButton)
         contactsButton = view.findViewById(R.id.contactsButton)
         infoButton = view.findViewById(R.id.infoButton)
     }
@@ -62,8 +60,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     fun getFirstNavButton(): BottomNavigation? {
         return when {
             isNavButtonFirst(homeButton) -> BottomNavigation.HOME
-            isNavButtonFirst(videoButton) -> BottomNavigation.VIDEO
-            isNavButtonFirst(audioButton) -> BottomNavigation.AUDIO
+            isNavButtonFirst(operatorCallButton) -> BottomNavigation.OPERATOR_CALL
             isNavButtonFirst(contactsButton) -> BottomNavigation.CONTACTS
             isNavButtonFirst(infoButton) -> BottomNavigation.INFO
             else -> null
@@ -77,8 +74,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     fun setNavButtonActive(bottomNavigation: BottomNavigation) {
         when (bottomNavigation) {
             BottomNavigation.HOME -> setActiveNavButton(homeButton)
-            BottomNavigation.VIDEO -> setActiveNavButton(videoButton)
-            BottomNavigation.AUDIO -> setActiveNavButton(audioButton)
+            BottomNavigation.OPERATOR_CALL -> setActiveNavButton(operatorCallButton)
             BottomNavigation.CONTACTS -> setActiveNavButton(contactsButton)
             BottomNavigation.INFO -> setActiveNavButton(infoButton)
         }
@@ -156,13 +152,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
         when (bottomNavigation) {
             BottomNavigation.HOME ->
                 showNavButton(homeButton, 0, listener)
-            BottomNavigation.VIDEO -> {
+            BottomNavigation.OPERATOR_CALL -> {
                 val index = navButtons.size / 2
-                showNavButton(videoButton, index, listener)
-            }
-            BottomNavigation.AUDIO -> {
-                val index = navButtons.size / 2
-                showNavButton(audioButton, index, listener)
+                showNavButton(operatorCallButton, index, listener)
             }
             BottomNavigation.CONTACTS -> {
                 val index = navButtons.size / 2
@@ -182,8 +174,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         Logger.debug(TAG, "hideNavButton() -> bottomNavigation: $bottomNavigation")
         when (bottomNavigation) {
             BottomNavigation.HOME -> hideNavButton(homeButton)
-            BottomNavigation.VIDEO -> hideNavButton(videoButton)
-            BottomNavigation.AUDIO -> hideNavButton(audioButton)
+            BottomNavigation.OPERATOR_CALL -> hideNavButton(operatorCallButton)
             BottomNavigation.CONTACTS -> hideNavButton(contactsButton)
             BottomNavigation.INFO -> hideNavButton(infoButton)
         }

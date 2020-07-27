@@ -29,15 +29,8 @@
             tools:itemCount="5"
             tools:listitem="@layout/kenes_cell_user_message" />
 
-        <q19.kenes_widget.ui.components.VideoCallView
-            android:id="@+id/videoCallView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:visibility="gone" />
-
-        <q19.kenes_widget.ui.components.AudioCallView
-            android:id="@+id/audioCallView"
+        <q19.kenes_widget.ui.components.OperatorCallView
+            android:id="@+id/operatorCallView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -105,6 +98,12 @@
 
     <q19.kenes_widget.ui.components.AudioDialogView
         android:id="@+id/audioDialogView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <q19.kenes_widget.ui.components.OperatorCallPendingView
+        android:id="@+id/operatorCallPendingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />

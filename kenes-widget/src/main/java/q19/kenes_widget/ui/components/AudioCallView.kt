@@ -10,6 +10,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import q19.kenes_widget.R
 
+@Deprecated("Use [OperatorCallView]")
 internal class AudioCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/operatorPendingCallView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CC000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/kenes_horizontal_spacing"
+    android:paddingTop="100dp"
+    android:paddingEnd="@dimen/kenes_horizontal_spacing"
+    android:paddingBottom="50dp">
+
+    <TextView
+        android:id="@+id/callTypeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/helvetica_neue_bold"
+        android:textColor="@color/kenes_white"
+        android:textSize="26sp"
+        tools:text="@string/kenes_audio_call" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/infoTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:fontFamily="@font/helvetica_light"
+            android:gravity="center_horizontal"
+            android:lineSpacingExtra="6sp"
+            android:maxWidth="200dp"
+            android:textColor="@color/kenes_white"
+            android:textSize="17sp"
+            tools:text="@string/kenes_file_pending_download" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center|center_horizontal|center_vertical"
+            android:indeterminate="true"
+            android:indeterminateTint="#FFFFFF"
+            android:progressTint="#FFFFFF"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/cancelCallButton"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:background="@null"
+        android:clickable="true"
+        android:focusable="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/kenes_selector_phone" />
+
+</LinearLayout>

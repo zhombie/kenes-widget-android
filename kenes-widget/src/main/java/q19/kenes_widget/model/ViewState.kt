@@ -15,8 +15,9 @@ internal sealed class ViewState {
         class UserFeedback(val isFeedbackSent: Boolean) : TextDialog()
     }
 
+    object OperatorCall : ViewState()
+
     sealed class AudioDialog : ViewState() {
-        object IDLE : AudioDialog()
         object Pending : AudioDialog()
 
         object Start : AudioDialog()
@@ -30,7 +31,6 @@ internal sealed class ViewState {
     }
 
     sealed class VideoDialog : ViewState() {
-        object IDLE : VideoDialog()
         object Pending : VideoDialog()
 
         object Start : VideoDialog()

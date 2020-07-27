@@ -70,14 +70,11 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     private val headerView by bind<HeaderView>(R.id.headerView)
 
     /**
-     * Video call [videoCallView] screen view.
+     * Audio call [operatorCallView] screen view.
      */
-    private val videoCallView by bind<VideoCallView>(R.id.videoCallView)
+    private val operatorCallView by bind<OperatorCallView>(R.id.operatorCallView)
 
-    /**
-     * Audio call [audioCallView] screen view.
-     */
-    private val audioCallView by bind<AudioCallView>(R.id.audioCallView)
+    private val operatorCallPendingView by bind<OperatorCallPendingView>(R.id.operatorCallPendingView)
 
     /**
      * Info screen view [infoView] with extra information & contacts.
@@ -231,16 +228,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             }
         }
 
-        videoCallView.setOnCallClickListener {
-            presenter.onCallOperatorClicked(OperatorCall.VIDEO)
-        }
-
-        videoCallView.setOnCancelCallClickListener {
-            presenter.onCallCancelClicked(OperatorCall.VIDEO)
-        }
-
-        audioCallView.setOnCallClickListener {
-            presenter.onCallOperatorClicked(OperatorCall.AUDIO)
+        operatorCallPendingView.setOnCancelCallButtonClickListener {
+            presenter.onCallCancelClicked()
         }
 
         contactsView.callback = object : ContactsView.Callback {
@@ -621,29 +610,35 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         }
     }
 
-    override fun setDefaultAudioCallView() {
+    override fun showOperatorCallButton(operatorCall: OperatorCall) {
         runOnUiThread {
-            audioCallView.setCallButtonEnabled()
-
-            audioCallView.setInfoViewText(null)
-            audioCallView.hideInfoViewText()
-
-            audioCallView.setPendingQueueCountViewText(null)
-            audioCallView.hidePendingQueueCountView()
+            operatorCallView.showCallButton(operatorCall)
+            operatorCallView.setCallButtonEnabled(operatorCall)
+            operatorCallView.setOnAudioCallClickListener(operatorCall) {
+                presenter.onCallOperatorClicked(it)
+            }
         }
     }
 
-    override fun setDefaultVideoCallView() {
+    override fun hideOperatorCallButton(operatorCall: OperatorCall) {
         runOnUiThread {
-            videoCallView.setCallButtonEnabled()
+            operatorCallView.hideCallButton(operatorCall)
+            operatorCallView.setCallButtonDisabled(operatorCall)
+            operatorCallView.removeListener(operatorCall)
+        }
+    }
 
-            videoCallView.hideCancelCallButton()
+    override fun setDefaultOperatorCallView() {
+        runOnUiThread {
+            operatorCallPendingView.setCallTypeViewText(null)
+            operatorCallPendingView.hideProgress()
+            operatorCallPendingView.setInfoViewText(null)
+            operatorCallPendingView.hideInfoViewText()
+            operatorCallPendingView.setCancelCallButtonDisabled()
+            operatorCallPendingView.visibility = View.GONE
 
-            videoCallView.setInfoViewText(null)
-            videoCallView.hideInfoViewText()
-
-            videoCallView.setPendingQueueCountViewText(null)
-            videoCallView.hidePendingQueueCountView()
+            operatorCallView.setCallButtonEnabled(OperatorCall.AUDIO)
+            operatorCallView.setCallButtonEnabled(OperatorCall.VIDEO)
         }
     }
 
@@ -710,31 +705,20 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         }
     }
 
-    override fun setAudioCallInfoText(text: String) {
+    override fun setOperatorCallInfoText(text: String) {
         runOnUiThread {
-            audioCallView.setInfoViewText(text)
-            audioCallView.showInfoViewText()
+            operatorCallPendingView.hideProgress()
+            operatorCallPendingView.setInfoViewText(text)
+            operatorCallPendingView.showInfoViewText()
         }
     }
 
-    override fun setAudioCallPendingQueueCount(count: Int) {
+    override fun setOperatorCallPendingQueueCount(count: Int) {
         runOnUiThread {
-            audioCallView.setPendingQueueCountViewText(getString(R.string.kenes_queue_count, count))
-            audioCallView.showPendingQueueCountView()
-        }
-    }
-
-    override fun setVideoCallInfoText(text: String) {
-        runOnUiThread {
-            videoCallView.setInfoViewText(text)
-            videoCallView.showInfoViewText()
-        }
-    }
-
-    override fun setVideoCallPendingQueueCount(count: Int) {
-        runOnUiThread {
-            videoCallView.setPendingQueueCountViewText(getString(R.string.kenes_queue_count, count))
-            videoCallView.showPendingQueueCountView()
+            operatorCallPendingView.setPendingQueueCountViewText(
+                getString(R.string.kenes_queue_count, count)
+            )
+            operatorCallPendingView.showPendingQueueCountView()
         }
     }
 
@@ -1085,11 +1069,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
             headerView.hideHangupButton()
 
-            setDefaultAudioCallView()
-            audioCallView.visibility = View.GONE
-
-            setDefaultVideoCallView()
-            videoCallView.visibility = View.GONE
+            setDefaultOperatorCallView()
+            operatorCallView.visibility = View.GONE
+            operatorCallPendingView.visibility = View.GONE
 
             audioDialogView.setDefaultState()
             audioDialogView.visibility = View.GONE
@@ -1111,11 +1093,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                 runOnUiThread {
                     headerView.hideHangupButton()
 
-                    setDefaultAudioCallView()
-                    audioCallView.visibility = View.GONE
-
-                    setDefaultVideoCallView()
-                    videoCallView.visibility = View.GONE
+                    operatorCallView.visibility = View.GONE
+                    operatorCallPendingView.visibility = View.GONE
 
                     audioDialogView.setDefaultState()
                     audioDialogView.visibility = View.GONE
@@ -1255,50 +1234,59 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                     }
                 }
             }
+            is ViewState.OperatorCall -> {
+                runOnUiThread {
+                    progressView.hide()
+
+                    infoView.visibility = View.GONE
+
+                    contactsView.visibility = View.GONE
+
+                    chatFooterAdapter?.clear()
+
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+                    headerView.hideHangupButton()
+
+                    audioDialogView.setDefaultState()
+                    audioDialogView.visibility = View.GONE
+
+                    videoDialogView.setDefaultState()
+                    videoDialogView.visibility = View.GONE
+
+                    feedbackView.setDefaultState()
+                    feedbackView.visibility = View.GONE
+
+                    recyclerView.visibility = View.GONE
+
+                    footerView.setGoToActiveDialogButtonState(null)
+                    footerView.disableAttachmentButton()
+                    footerView.visibility = View.GONE
+
+                    bottomNavigationView.setNavButtonsEnabled()
+                    bottomNavigationView.setNavButtonActive(BottomNavigation.OPERATOR_CALL)
+
+                    setDefaultOperatorCallView()
+                    operatorCallView.visibility = View.VISIBLE
+                }
+            }
             is ViewState.AudioDialog -> {
                 runOnUiThread {
                     infoView.visibility = View.GONE
 
                     contactsView.visibility = View.GONE
-
-                    videoCallView.visibility = View.GONE
                 }
 
                 when (viewState) {
-                    ViewState.AudioDialog.IDLE -> {
-                        runOnUiThread {
-                            progressView.hide()
-
-                            chatFooterAdapter?.clear()
-
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-                            headerView.hideHangupButton()
-
-                            audioDialogView.setDefaultState()
-                            audioDialogView.visibility = View.GONE
-
-                            feedbackView.setDefaultState()
-                            feedbackView.visibility = View.GONE
-
-                            recyclerView.visibility = View.GONE
-
-                            footerView.setGoToActiveDialogButtonState(null)
-                            footerView.disableAttachmentButton()
-                            footerView.visibility = View.GONE
-
-                            bottomNavigationView.setNavButtonsEnabled()
-                            bottomNavigationView.setNavButtonActive(BottomNavigation.AUDIO)
-
-                            setDefaultAudioCallView()
-                            audioCallView.visibility = View.VISIBLE
-                        }
-                    }
                     ViewState.AudioDialog.Pending -> {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            audioCallView.setCallButtonDisabled()
+                            operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
+                            operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_audio_call))
+                            operatorCallPendingView.showProgress()
+                            operatorCallPendingView.setCancelCallButtonEnabled()
+                            operatorCallPendingView.visibility = View.VISIBLE
                         }
                     }
                     ViewState.AudioDialog.Start -> {
@@ -1311,8 +1299,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
                             headerView.showHangupButton()
 
-                            audioCallView.setCallButtonDisabled()
-                            audioCallView.visibility = View.GONE
+                            operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
+                            operatorCallView.visibility = View.GONE
+                            operatorCallPendingView.visibility = View.GONE
 
                             recyclerView.visibility = View.VISIBLE
 
@@ -1382,7 +1371,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                             } else {
                                 hideKeyboard(footerView.inputView)
 
-                                audioCallView.visibility = View.GONE
+                                operatorCallView.visibility = View.GONE
+                                operatorCallPendingView.visibility = View.GONE
 
                                 recyclerView.visibility = View.GONE
 
@@ -1400,45 +1390,19 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
                     contactsView.visibility = View.GONE
 
-                    audioCallView.visibility = View.GONE
+                    operatorCallPendingView.visibility = View.GONE
                 }
 
                 when (viewState) {
-                    ViewState.VideoDialog.IDLE -> {
-                        runOnUiThread {
-                            progressView.hide()
-
-                            chatFooterAdapter?.clear()
-
-                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-                            headerView.hideHangupButton()
-
-                            videoDialogView.setDefaultState()
-                            videoDialogView.visibility = View.GONE
-
-                            feedbackView.setDefaultState()
-                            feedbackView.visibility = View.GONE
-
-                            recyclerView.visibility = View.GONE
-
-                            footerView.setGoToActiveDialogButtonState(null)
-                            footerView.disableAttachmentButton()
-                            footerView.visibility = View.GONE
-
-                            bottomNavigationView.setNavButtonsEnabled()
-                            bottomNavigationView.setNavButtonActive(BottomNavigation.VIDEO)
-
-                            setDefaultVideoCallView()
-                            videoCallView.visibility = View.VISIBLE
-                        }
-                    }
                     ViewState.VideoDialog.Pending -> {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            videoCallView.setCallButtonDisabled()
-                            videoCallView.showCancelCallButton()
+                            operatorCallView.setCallButtonDisabled(OperatorCall.VIDEO)
+                            operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_video_call))
+                            operatorCallPendingView.showProgress()
+                            operatorCallPendingView.setCancelCallButtonEnabled()
+                            operatorCallPendingView.visibility = View.VISIBLE
                         }
                     }
                     ViewState.VideoDialog.Start -> {
@@ -1451,8 +1415,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
                             headerView.showHangupButton()
 
-                            setDefaultVideoCallView()
-                            videoCallView.visibility = View.GONE
+                            setDefaultOperatorCallView()
+                            operatorCallView.visibility = View.GONE
+                            operatorCallPendingView.visibility = View.GONE
 
                             recyclerView.visibility = View.VISIBLE
 
@@ -1524,7 +1489,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                             } else {
                                 hideKeyboard(footerView.inputView)
 
-                                videoCallView.visibility = View.GONE
+                                operatorCallView.visibility = View.GONE
+                                operatorCallPendingView.visibility = View.GONE
 
                                 recyclerView.visibility = View.GONE
 
@@ -1588,15 +1554,12 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
 //        headerView = null
 
-        setDefaultAudioCallView()
-//        audioCallView = null
+        setDefaultOperatorCallView()
+//        operatorCallView = null
 
         audioDialogView.setDefaultState()
         audioDialogView.callback = null
 //        audioDialogView = null
-
-        setDefaultVideoCallView()
-//        videoCallView = null
 
         videoDialogView.setDefaultState()
         videoDialogView.callback = null
