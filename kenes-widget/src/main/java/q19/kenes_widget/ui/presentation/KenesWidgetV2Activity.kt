@@ -513,6 +513,11 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        presenter.onResume()
+    }
+
     override fun onPause() {
         super.onPause()
         releaseMediaPlayer()

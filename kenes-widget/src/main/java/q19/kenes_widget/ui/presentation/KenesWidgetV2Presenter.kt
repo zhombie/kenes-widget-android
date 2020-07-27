@@ -127,6 +127,12 @@ internal class KenesWidgetV2Presenter(
         initSocket()
     }
 
+    fun onResume() {
+        if (viewState is ViewState.ChatBot) {
+            socketClient?.getBasicCategories()
+        }
+    }
+
     private fun initSocket() {
         val socketUrl = UrlUtil.getSocketUrl()
         if (socketUrl.isNullOrBlank()) {
