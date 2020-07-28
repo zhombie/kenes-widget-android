@@ -14,6 +14,6 @@ class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startActivity(KenesWidget.open(this, new KenesWidget.EntryParams("https://kenes.vlx.kz")));
+        startActivity(new KenesWidget(this, "https://kenes.vlx.kz").open());
     }
 }

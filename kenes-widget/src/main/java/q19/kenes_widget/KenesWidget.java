@@ -7,24 +7,24 @@ import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity;
 
 public class KenesWidget {
 
-    public static class EntryParams {
-        String hostname;
+    Context context;
+    String hostname;
 
-        public EntryParams(String hostname) {
-            this.hostname = hostname;
-        }
-
-        public String getHostname() {
-            return hostname;
-        }
-
-        public void setHostname(String hostname) {
-            this.hostname = hostname;
-        }
+    public KenesWidget(Context context, String hostname) {
+        this.context = context;
+        this.hostname = hostname;
     }
 
-    public static Intent open(Context context, EntryParams entryParams) {
-        return KenesWidgetV2Activity.newIntent(context, entryParams.hostname);
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
+    public Intent open() {
+        return KenesWidgetV2Activity.newIntent(context, hostname);
     }
 
 }
