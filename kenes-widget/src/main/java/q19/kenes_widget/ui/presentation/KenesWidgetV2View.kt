@@ -84,6 +84,7 @@ internal interface KenesWidgetV2View {
     fun setRemoteDescription(sessionDescription: SessionDescription)
     fun addRemoteIceCandidate(iceCandidate: IceCandidate)
 
+    fun scrollToTop()
     fun scrollToBottom()
 
     fun showAttachmentPicker()

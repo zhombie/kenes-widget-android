@@ -1040,9 +1040,17 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         }
     }
 
+    override fun scrollToTop() {
+        runOnUiThread {
+            recyclerView.scrollToPosition(0)
+        }
+    }
+
     override fun scrollToBottom() {
-        recyclerView.adapter?.let { adapter ->
-            recyclerView.scrollToPosition(adapter.itemCount - 1)
+        runOnUiThread {
+            recyclerView.adapter?.let { adapter ->
+                recyclerView.scrollToPosition(adapter.itemCount - 1)
+            }
         }
     }
 

@@ -397,6 +397,7 @@ internal class KenesWidgetV2Presenter(
                             category = chatBot.activeCategory
                         )
                     )
+                    view?.scrollToTop()
                     view?.showGoToHomeButton()
 
                     viewState = ViewState.ChatBot.Categories(false)
@@ -504,6 +505,7 @@ internal class KenesWidgetV2Presenter(
                             category = chatBot.activeCategory
                         )
                     )
+                    view?.scrollToTop()
                     view?.showGoToHomeButton()
                 }
 
