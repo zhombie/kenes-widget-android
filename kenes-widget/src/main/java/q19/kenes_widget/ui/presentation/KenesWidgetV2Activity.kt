@@ -42,7 +42,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.webrtc.PeerConnectionClient
 import java.io.File
 
-internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
+class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     companion object {
         private const val TAG = "KenesWidgetV2Activity"

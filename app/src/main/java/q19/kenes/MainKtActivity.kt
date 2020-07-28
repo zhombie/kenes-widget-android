@@ -22,10 +22,10 @@ class MainKtActivity : AppCompatActivity() {
 
     private fun openWidget() {
         startActivity(
-            KenesWidget(
+            KenesWidget.open(
                 this,
-                "https://kenes.vlx.kz"
-            ).open()
+                KenesWidget.EntryParams("https://kenes.vlx.kz")
+            )
         )
     }
 

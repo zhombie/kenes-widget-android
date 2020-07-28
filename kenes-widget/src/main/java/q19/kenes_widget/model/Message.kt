@@ -6,7 +6,7 @@ import android.text.Spanned
 import android.text.format.DateFormat
 import java.util.*
 
-internal data class Message(
+data class Message(
     var id: String? = null,
     var type: Type = Type.OPPONENT,
     var text: String,
