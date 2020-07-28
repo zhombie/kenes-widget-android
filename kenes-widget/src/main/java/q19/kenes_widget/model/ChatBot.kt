@@ -1,6 +1,6 @@
 package q19.kenes_widget.model
 
-class ChatBot {
+internal class ChatBot {
 
     /**
      * State variables
@@ -53,7 +53,7 @@ class ChatBot {
 }
 
 
-class ObservableList : ArrayList<Category>() {
+internal class ObservableList : ArrayList<Category>() {
 
     var callback: Callback? = null
 

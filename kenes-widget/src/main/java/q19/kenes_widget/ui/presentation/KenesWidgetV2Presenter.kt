@@ -18,7 +18,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
-class KenesWidgetV2Presenter(
+internal class KenesWidgetV2Presenter(
     private val language: Language,
     private val palette: IntArray
 ) {

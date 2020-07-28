@@ -4,16 +4,14 @@ import android.content.Context
 import android.content.Intent
 import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity
 
-class KenesWidget {
+object KenesWidget {
 
-    class EntryParams(
+    data class EntryParams(
         val hostname: String
     )
 
-    companion object {
-        @JvmStatic
-        fun open(context: Context, entryParams: EntryParams): Intent =
-            KenesWidgetV2Activity.newIntent(context, hostname = entryParams.hostname)
-    }
+    @JvmStatic
+    fun open(context: Context, entryParams: EntryParams): Intent =
+        KenesWidgetV2Activity.newIntent(context, hostname = entryParams.hostname)
 
 }

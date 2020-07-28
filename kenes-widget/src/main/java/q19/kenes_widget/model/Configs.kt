@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import org.json.JSONObject
 import q19.kenes_widget.R
 
-data class Configs(
+internal data class Configs(
     val isChabotEnabled: Boolean = false,
     val isAudioCallEnabled: Boolean = false,
     val isVideoCallEnabled: Boolean = false,

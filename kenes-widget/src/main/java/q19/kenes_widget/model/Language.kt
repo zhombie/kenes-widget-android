@@ -2,7 +2,7 @@ package q19.kenes_widget.model
 
 import java.util.*
 
-class Language(val key: String, val value: String) {
+internal class Language(val key: String, val value: String) {
 
     companion object {
         private const val KEY_KAZAKH = "kk"

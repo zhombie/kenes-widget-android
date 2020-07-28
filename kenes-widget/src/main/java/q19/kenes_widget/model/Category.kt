@@ -9,7 +9,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.util.JsonUtil.getNullableLong
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 
-data class Category(
+internal data class Category(
     var id: Long,
     var title: String,
     var lang: Int,

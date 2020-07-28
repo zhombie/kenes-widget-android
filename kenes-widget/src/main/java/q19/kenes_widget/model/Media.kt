@@ -6,7 +6,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.util.FileUtil.getRootDirPath
 import java.io.File
 
-data class Media(
+internal data class Media(
     var imageUrl: String? = null,
     var audioUrl: String? = null,
     var fileUrl: String? = null,
