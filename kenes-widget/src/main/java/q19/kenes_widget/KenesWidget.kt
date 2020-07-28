@@ -11,7 +11,8 @@ object KenesWidget {
     )
 
     @JvmStatic
-    fun open(context: Context, entryParams: EntryParams): Intent =
+    @JvmName("open")
+    public fun open(context: Context, entryParams: EntryParams): Intent =
         KenesWidgetV2Activity.newIntent(context, hostname = entryParams.hostname)
 
 }
