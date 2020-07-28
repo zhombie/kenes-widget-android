@@ -29,6 +29,5 @@
     native <methods>;
 }
 
--keep class q19.kenes_widget.KenesWidget.** { *; }
 -keepnames class q19.kenes_widget.ui.presentation.KenesWidgetV2Activity
 -keep class q19.kenes_widget.core.file.KenesWidgetFileProvider
