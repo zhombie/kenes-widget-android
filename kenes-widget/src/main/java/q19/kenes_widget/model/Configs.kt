@@ -58,17 +58,17 @@ internal data class Configs(
         ) {
             FACEBOOK("fb", "Facebook", R.drawable.kenes_ic_messenger),
             TELEGRAM("tg", "Telegram", R.drawable.kenes_ic_telegram),
+            TWITTER("tw", "Twitter", R.drawable.kenes_ic_twitter),
             VK("vk", "ВКонтакте", R.drawable.kenes_ic_vk)
         }
 
         val social: Social?
-            get() {
-                return when(key) {
-                    Social.FACEBOOK.key -> Social.FACEBOOK
-                    Social.TELEGRAM.key -> Social.TELEGRAM
-                    Social.VK.key -> Social.VK
-                    else -> null
-                }
+            get() = when(key) {
+                Social.FACEBOOK.key -> Social.FACEBOOK
+                Social.TELEGRAM.key -> Social.TELEGRAM
+                Social.TWITTER.key -> Social.TWITTER
+                Social.VK.key -> Social.VK
+                else -> null
             }
 
         val url: String

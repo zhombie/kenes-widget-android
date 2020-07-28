@@ -1,6 +1,7 @@
 package q19.kenes;
 
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +15,14 @@ class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startActivity(KenesWidget.open(this, new KenesWidget.EntryParams("https://kenes.vlx.kz")));
+        Button openWidget = findViewById(R.id.openWidget);
+
+        openWidget();
+
+        openWidget.setOnClickListener(v -> openWidget());
+    }
+
+    private void openWidget() {
+        startActivity(KenesWidget.open(this, new KenesWidget.EntryParams("https://help.post.kz")));
     }
 }

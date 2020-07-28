@@ -105,7 +105,10 @@ private class MenuAdapter(
                 holder.bind(phones[position])
             } else if (position >= phones.size && position < phones.size + contacts.size) {
                 val index = position - phones.size
-                holder.bind(contacts[index])
+                val contact = contacts[index]
+                if (contact.social != null) {
+                    holder.bind(contact)
+                }
             } else if (position == phones.size + contacts.size) {
                 holder.bind(language)
             }
@@ -150,10 +153,11 @@ private class MenuAdapter(
         fun bind(contact: Configs.Contact) {
             subView?.visibility = View.GONE
 
-            if (contact.social == null || contact.social?.title.isNullOrBlank()) {
+            if (contact.social?.title.isNullOrBlank()) {
                 textView?.visibility = View.GONE
             } else {
-                textView?.text = itemView.context.getString(R.string.kenes_chat_bot, contact.social?.title)
+                textView?.text =
+                    itemView.context.getString(R.string.kenes_chat_bot, contact.social?.title)
                 textView?.showCompoundDrawableOnfLeft(contact.social?.icon ?: 0, 35)
 
                 textView?.visibility = View.VISIBLE
