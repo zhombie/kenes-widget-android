@@ -29,7 +29,7 @@
     native <methods>;
 }
 
+-keepattributes InnerClasses
 -keep class q19.kenes_widget.KenesWidget { *; }
--keepclassmembers class q19.kenes_widget.KenesWidget { public *; }
--keep class q19.kenes_widget.KenesWidget.EntryParams { *; }
+-keep class q19.kenes_widget.KenesWidget$* { *; }
 -keep class q19.kenes_widget.core.file.KenesWidgetFileProvider
