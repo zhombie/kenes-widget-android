@@ -3,7 +3,7 @@ package q19.kenes
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import q19.kenes_widget.KenesWidget
+import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity
 
 class MainKtActivity : AppCompatActivity() {
 
@@ -22,9 +22,9 @@ class MainKtActivity : AppCompatActivity() {
 
     private fun openWidget() {
         startActivity(
-            KenesWidget.open(
+            KenesWidgetV2Activity.newIntent(
                 this,
-                KenesWidget.EntryParams("https://kenes.vlx.kz")
+                KenesWidgetV2Activity.EntryParams("https://kenes.vlx.kz")
             )
         )
     }

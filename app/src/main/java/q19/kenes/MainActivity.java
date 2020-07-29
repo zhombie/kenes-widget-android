@@ -6,7 +6,7 @@ import android.widget.Button;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import q19.kenes_widget.KenesWidget;
+import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity;
 
 class MainActivity extends AppCompatActivity {
 
@@ -23,6 +23,7 @@ class MainActivity extends AppCompatActivity {
     }
 
     private void openWidget() {
-        startActivity(KenesWidget.open(this, new KenesWidget.EntryParams("https://help.post.kz")));
+        startActivity(KenesWidgetV2Activity.newIntent(this, new KenesWidgetV2Activity.EntryParams("https://help.post.kz")));
     }
+
 }
