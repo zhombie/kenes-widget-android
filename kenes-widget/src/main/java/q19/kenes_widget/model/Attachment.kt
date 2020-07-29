@@ -4,7 +4,7 @@ import android.content.Context
 import q19.kenes_widget.util.FileUtil.getRootDirPath
 import java.io.File
 
-internal data class Attachment(
+data class Attachment(
     var title: String? = null,
     var ext: String? = null,
     var type: String? = null,
