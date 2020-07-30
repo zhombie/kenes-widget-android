@@ -82,7 +82,7 @@ data class Category(
 }
 
 
-internal fun parse(jsonObject: JSONObject): Category {
+fun parse(jsonObject: JSONObject): Category {
     return Category(
         id = jsonObject.optLong("id"),
         title = jsonObject.optString("title").trim(),

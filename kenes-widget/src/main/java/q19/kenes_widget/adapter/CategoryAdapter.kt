@@ -8,7 +8,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.util.inflate
 
-internal class CategoryAdapter(
+class CategoryAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

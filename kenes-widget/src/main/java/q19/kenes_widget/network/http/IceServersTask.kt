@@ -4,7 +4,7 @@ import android.util.Log
 import org.json.JSONObject
 import q19.kenes_widget.model.WidgetIceServer
 
-internal class IceServersTask(private val url: String) : BaseTask<List<WidgetIceServer>> {
+class IceServersTask(private val url: String) : BaseTask<List<WidgetIceServer>> {
 
     override val TAG = "IceServersTask"
 

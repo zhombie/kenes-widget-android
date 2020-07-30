@@ -1,6 +1,6 @@
 package q19.kenes_widget.util
 
-internal object AssertionUtil {
+object AssertionUtil {
 
     /**
      * Helper method which throws an exception when an assertion has failed

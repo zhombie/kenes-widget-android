@@ -1,6 +1,6 @@
 package q19.kenes_widget.util
 
-internal object ThreadUtil {
+object ThreadUtil {
 
     /**
      * Helper method for building a string of thread information.

@@ -9,7 +9,7 @@ import androidx.annotation.StyleRes
 import q19.kenes_widget.R
 import q19.kenes_widget.model.OperatorCall
 
-internal class OperatorCallView @JvmOverloads constructor(
+class OperatorCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

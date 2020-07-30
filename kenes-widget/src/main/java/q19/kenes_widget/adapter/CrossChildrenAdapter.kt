@@ -8,7 +8,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.util.inflate
 
-internal class CrossChildrenAdapter(
+class CrossChildrenAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

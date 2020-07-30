@@ -22,7 +22,7 @@ import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.loadCircleImage
 import q19.kenes_widget.util.setOverscrollColor
 
-internal class ContactsView @JvmOverloads constructor(
+class ContactsView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

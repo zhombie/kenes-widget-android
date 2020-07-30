@@ -1,6 +1,6 @@
 package q19.kenes_widget.model
 
-internal class Dialog {
+class Dialog {
 
     companion object {
         const val MAX_UNREAD_MESSAGES_COUNT = 9

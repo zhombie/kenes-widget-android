@@ -18,7 +18,7 @@ import q19.kenes_widget.model.DynamicForm
 import q19.kenes_widget.model.DynamicFormField
 import q19.kenes_widget.util.inflate
 
-internal class DynamicFormView @JvmOverloads constructor(
+class DynamicFormView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

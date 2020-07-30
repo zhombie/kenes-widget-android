@@ -16,7 +16,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
 
-internal class FooterView @JvmOverloads constructor(
+class FooterView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

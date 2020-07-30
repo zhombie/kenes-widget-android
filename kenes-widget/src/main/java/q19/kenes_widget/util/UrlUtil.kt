@@ -1,6 +1,6 @@
 package q19.kenes_widget.util
 
-internal object UrlUtil {
+object UrlUtil {
 
     private val URL_REGEX = """^(http://|https://)\w""".toRegex()
 

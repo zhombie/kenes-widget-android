@@ -9,7 +9,7 @@ import android.text.util.Linkify
 import android.view.View
 import android.widget.TextView
 
-internal class HtmlTextViewManager {
+class HtmlTextViewManager {
 
     private var listener: ((view: View, url: String) -> Unit)? = null
 

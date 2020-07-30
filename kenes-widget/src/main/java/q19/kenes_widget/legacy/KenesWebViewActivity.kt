@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.R
 import q19.kenes_widget.util.bind
 
-internal class KenesWebViewActivity : AppCompatActivity() {
+class KenesWebViewActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_URL = "extraUrl"

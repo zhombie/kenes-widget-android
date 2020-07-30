@@ -11,7 +11,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
 
-internal class OperatorCallPendingView @JvmOverloads constructor(
+class OperatorCallPendingView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

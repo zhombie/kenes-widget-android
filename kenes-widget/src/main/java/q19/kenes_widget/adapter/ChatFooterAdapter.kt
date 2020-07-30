@@ -13,7 +13,7 @@ import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 import java.util.*
 
-internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         val LAYOUT_FOOTER = R.layout.kenes_cell_footer

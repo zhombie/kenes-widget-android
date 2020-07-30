@@ -10,7 +10,7 @@ import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 
-internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
+class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
 
     override val TAG = "WidgetConfigsTask"
 

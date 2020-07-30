@@ -29,7 +29,7 @@ import q19.kenes_widget.util.*
 import q19.kenes_widget.util.Logger.debug
 import java.util.concurrent.TimeUnit
 
-internal class ChatAdapter(
+class ChatAdapter(
     var callback: Callback? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

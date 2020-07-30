@@ -12,7 +12,7 @@ import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 
-internal class SocketClient {
+class SocketClient {
 
     companion object {
         const val TAG = "SocketClient"

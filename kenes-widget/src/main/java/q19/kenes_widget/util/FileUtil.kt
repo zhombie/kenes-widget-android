@@ -11,7 +11,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.util.*
 
-internal object FileUtil {
+object FileUtil {
 
     private val IMAGE_ENTENSIONS = setOf("jpg", "jpeg", "png")
     private val AUDIO_ENTENSIONS = setOf("mp3", "wav", "opus", "ogg")

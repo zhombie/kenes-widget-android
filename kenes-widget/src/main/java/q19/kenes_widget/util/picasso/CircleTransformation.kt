@@ -3,7 +3,7 @@ package q19.kenes_widget.util.picasso
 import android.graphics.*
 import com.squareup.picasso.Transformation
 
-internal class CircleTransformation : Transformation {
+class CircleTransformation : Transformation {
 
     override fun transform(source: Bitmap?): Bitmap? {
         if (source == null) {
