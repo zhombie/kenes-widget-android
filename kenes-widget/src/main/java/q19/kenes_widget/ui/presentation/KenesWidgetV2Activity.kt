@@ -44,10 +44,6 @@ import java.io.File
 
 class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
-    data class EntryParams(
-        val hostname: String
-    )
-
     companion object {
         private const val TAG = "KenesWidgetV2Activity"
 
@@ -56,9 +52,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         private const val FILE_PICKER_REQUEST_CODE = 101
 
         @JvmStatic
-        fun newIntent(context: Context, entryParams: EntryParams): Intent =
+        fun newIntent(context: Context, hostname: String): Intent =
             Intent(context, KenesWidgetV2Activity::class.java)
-                .putExtra(KEY_HOSTNAME, entryParams.hostname)
+                .putExtra(KEY_HOSTNAME, hostname)
     }
 
     // -------------------------- Binding views -----------------------------------

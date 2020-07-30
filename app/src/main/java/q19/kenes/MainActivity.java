@@ -23,7 +23,7 @@ class MainActivity extends AppCompatActivity {
     }
 
     private void openWidget() {
-        startActivity(KenesWidgetV2Activity.newIntent(this, new KenesWidgetV2Activity.EntryParams("https://help.post.kz")));
+        startActivity(KenesWidgetV2Activity.newIntent(this, "https://help.post.kz"));
     }
 
 }
