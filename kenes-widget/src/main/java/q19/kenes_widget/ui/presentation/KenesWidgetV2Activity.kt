@@ -804,7 +804,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             file.openFile(applicationContext)
         } catch (e: Exception) {
             e.printStackTrace()
-            toast("")
+            toast(e.toString())
         }
     }
 
