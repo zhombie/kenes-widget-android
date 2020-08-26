@@ -21,12 +21,7 @@ class MainKtActivity : AppCompatActivity() {
     }
 
     private fun openWidget() {
-        startActivity(
-            KenesWidget.open(
-                this,
-                KenesWidget.EntryParams("https://kenes.vlx.kz")
-            )
-        )
+        startActivity(KenesWidget.open(this, KenesWidget.EntryParams(Configs.HOSTNAME)))
     }
 
 }

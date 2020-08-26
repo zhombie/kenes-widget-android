@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="kenes_black">#474747</color>
+    <color name="kenes_dark_black">#000000</color>
     <color name="kenes_blue">#409EFF</color>
     <color name="kenes_light_blue">#8CC5FF</color>
     <color name="kenes_transparent">#00000000</color>

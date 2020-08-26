@@ -17,6 +17,8 @@ interface KenesWidgetV2View {
     fun showAudioCallerInformation(fullName: String, photoUrl: String?)
     fun showFeedback(text: String, ratingButtons: List<RatingButton>)
 
+    fun showCallScopes(parentCallScope: Configs.CallScope? = null, callScopes: List<Configs.CallScope>)
+
     fun showNavButton(bottomNavigation: BottomNavigation)
     fun hideNavButton(bottomNavigation: BottomNavigation)
 

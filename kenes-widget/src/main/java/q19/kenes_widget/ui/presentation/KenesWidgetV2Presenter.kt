@@ -146,14 +146,14 @@ class KenesWidgetV2Presenter(
 
         socketClient?.listener = object : SocketClient.Listener {
             override fun onConnect() {
-                viewState = if (configs?.isChabotEnabled == true) {
+                viewState = if (configs?.booleans?.isChabotEnabled == true) {
                     socketClient?.getBasicCategories()
                     ViewState.ChatBot.Categories(true)
                 } else {
                     when {
-                        configs?.isAudioCallEnabled == true || configs?.isVideoCallEnabled == true ->
+                        configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                             ViewState.OperatorCall
-                        configs?.isContactSectionsShown == true ->
+                        configs?.booleans?.isContactSectionsShown == true ->
                             ViewState.Contacts
                         else ->
                             ViewState.Info
@@ -526,7 +526,7 @@ class KenesWidgetV2Presenter(
 
         val task = WidgetConfigsTask(url)
 
-        val data = task.run()
+        val data = task.execute()
 
         debug(TAG, "fetchWidgetConfigs() -> data: $data")
 
@@ -534,11 +534,11 @@ class KenesWidgetV2Presenter(
             view?.showOpponentInfo(Configs.Opponent.getDefault())
 
             viewState = when {
-                configs?.isChabotEnabled == true ->
+                configs?.booleans?.isChabotEnabled == true ->
                     ViewState.ChatBot.Categories(false)
-                configs?.isAudioCallEnabled == true || configs?.isVideoCallEnabled == true ->
+                configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                     ViewState.OperatorCall
-                configs?.isContactSectionsShown == true ->
+                configs?.booleans?.isContactSectionsShown == true ->
                     ViewState.Contacts
                 else ->
                     ViewState.Info
@@ -551,7 +551,7 @@ class KenesWidgetV2Presenter(
                     }
                 }
 
-                if (configs.isPhonesListShown) {
+                if (configs.booleans.isPhonesListShown) {
                     configs.phones?.let { phones ->
                         if (!phones.isNullOrEmpty()) {
                             view?.showPhones(phones)
@@ -563,30 +563,42 @@ class KenesWidgetV2Presenter(
                     view?.showOpponentInfo(it)
                 }
 
-                if (configs.isChabotEnabled) {
+                if (configs.booleans.isChabotEnabled) {
                     view?.setDefaultFooterView()
                     view?.showNavButton(BottomNavigation.HOME)
                 } else {
                     view?.hideNavButton(BottomNavigation.HOME)
                 }
 
-                if (configs.isAudioCallEnabled || configs.isVideoCallEnabled) {
-                    if (configs.isAudioCallEnabled) {
-                        view?.showOperatorCallButton(OperatorCall.AUDIO)
+                if (configs.booleans.isAudioCallEnabled || configs.booleans.isVideoCallEnabled) {
+                    if (configs.booleans.isOperatorsScoped) {
+                        if (!configs.callScopes.isNullOrEmpty()) {
+                            val parentScopes = Configs.CallScope.getParentCallScopes(configs.callScopes)
+                            if (!parentScopes.isNullOrEmpty()) {
+                                view?.showCallScopes(callScopes = parentScopes)
+                            }
+
+                            view?.showNavButton(BottomNavigation.OPERATOR_CALL)
+                        }
                     } else {
-                        view?.hideOperatorCallButton(OperatorCall.AUDIO)
+                        if (configs.booleans.isAudioCallEnabled) {
+                            view?.showOperatorCallButton(OperatorCall.AUDIO)
+                        } else {
+                            view?.hideOperatorCallButton(OperatorCall.AUDIO)
+                        }
+                        if (configs.booleans.isVideoCallEnabled) {
+                            view?.showOperatorCallButton(OperatorCall.VIDEO)
+                        } else {
+                            view?.hideOperatorCallButton(OperatorCall.VIDEO)
+                        }
+
+                        view?.showNavButton(BottomNavigation.OPERATOR_CALL)
                     }
-                    if (configs.isVideoCallEnabled) {
-                        view?.showOperatorCallButton(OperatorCall.VIDEO)
-                    } else {
-                        view?.hideOperatorCallButton(OperatorCall.VIDEO)
-                    }
-                    view?.showNavButton(BottomNavigation.OPERATOR_CALL)
                 } else {
                     view?.hideNavButton(BottomNavigation.OPERATOR_CALL)
                 }
 
-                if (configs.isContactSectionsShown && !configs.infoBlocks.isNullOrEmpty()) {
+                if (configs.booleans.isContactSectionsShown && !configs.infoBlocks.isNullOrEmpty()) {
                     view?.showInfoBlocks(configs.infoBlocks)
                     view?.showNavButton(BottomNavigation.CONTACTS)
                 } else {
@@ -602,7 +614,7 @@ class KenesWidgetV2Presenter(
 
         val task = IceServersTask(url)
 
-        val data = task.run()
+        val data = task.execute()
 
         data?.let {
             iceServers = data.map {
@@ -683,7 +695,7 @@ class KenesWidgetV2Presenter(
 
         when (bottomNavigation) {
             BottomNavigation.HOME -> {
-                if (configs?.isChabotEnabled == false) return
+                if (configs?.booleans?.isChabotEnabled == false) return
 
                 if (dialog.isInitiator) {
                     view?.showAlreadyCallingAlert(bottomNavigation)
@@ -702,6 +714,11 @@ class KenesWidgetV2Presenter(
                 }
 
                 clear()
+
+                val parentScopes = Configs.CallScope.getParentCallScopes(configs?.callScopes)
+                if (!parentScopes.isNullOrEmpty()) {
+                    view?.showCallScopes(callScopes = parentScopes)
+                }
 
                 viewState = ViewState.OperatorCall
             }
@@ -770,11 +787,11 @@ class KenesWidgetV2Presenter(
 
     fun onCallOperatorClicked(operatorCall: OperatorCall) {
         if (operatorCall == OperatorCall.AUDIO) {
-            if (configs?.isAudioCallEnabled == false) return
+            if (configs?.booleans?.isAudioCallEnabled == false) return
 
             view?.resolvePermissions(operatorCall)
         } else if (operatorCall == OperatorCall.VIDEO) {
-            if (configs?.isVideoCallEnabled == false) return
+            if (configs?.booleans?.isVideoCallEnabled == false) return
 
             view?.resolvePermissions(operatorCall)
         }
@@ -799,6 +816,18 @@ class KenesWidgetV2Presenter(
         }
 
         socketClient?.callOperator(operatorCall)
+    }
+
+    fun onCallScopeClicked(callScope: Configs.CallScope) {
+        debug(TAG, "onCallScopeClicked() -> callScope: $callScope")
+        val callScopes = configs?.callScopes?.filter {
+            it.parentId == callScope.id
+        }
+        debug(TAG, "onCallScopeClicked() -> configs.callScopes: ${configs?.callScopes}")
+        debug(TAG, "onCallScopeClicked() -> callScopes: $callScopes")
+        if (!callScopes.isNullOrEmpty()) {
+            view?.showCallScopes(parentCallScope = callScope, callScopes = callScopes)
+        }
     }
 
     fun onSendMessageButtonClicked(message: String) {

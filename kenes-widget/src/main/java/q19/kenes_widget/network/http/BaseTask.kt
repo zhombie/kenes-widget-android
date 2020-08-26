@@ -4,5 +4,5 @@ internal interface BaseTask<T> {
     @Suppress("PropertyName")
     val TAG: String
 
-    fun run(): T?
+    fun execute(): T?
 }

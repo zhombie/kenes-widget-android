@@ -30,4 +30,7 @@
     <dimen name="kenes_dialog_spacing">24dp</dimen>
 
     <dimen name="kenes_form_edit_text_width">235dp</dimen>
+
+    <dimen name="kenes_call_button_padding">20dp</dimen>
+    <dimen name="kenes_call_icon_height">37dp</dimen>
 </resources>

@@ -26,6 +26,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import q19.kenes_widget.model.Language
 import java.util.*
 
 abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListener {
@@ -77,8 +78,12 @@ abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListen
         localizationDelegate.setLanguage(this, locale)
     }
 
-    fun getCurrentLanguage(): Locale {
+    fun getCurrentLocale(): Locale {
         return localizationDelegate.getLanguage(this)
+    }
+
+    fun getCurrentLanguage(): Language {
+        return Language.from(getCurrentLocale())
     }
 
 }

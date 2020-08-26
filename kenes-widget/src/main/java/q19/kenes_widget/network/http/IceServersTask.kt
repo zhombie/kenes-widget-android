@@ -8,7 +8,7 @@ internal class IceServersTask(private val url: String) : BaseTask<List<WidgetIce
 
     override val TAG = "IceServersTask"
 
-    override fun run(): List<WidgetIceServer>? {
+    override fun execute(): List<WidgetIceServer>? {
         try {
             val asyncTask = HttpRequestHandler(url = url)
             val response = asyncTask.execute().get()

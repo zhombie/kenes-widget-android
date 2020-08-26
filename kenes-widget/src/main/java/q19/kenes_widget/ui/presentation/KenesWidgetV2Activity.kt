@@ -196,7 +196,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         // ------------------------------------------------------------------------
 
         presenter = KenesWidgetV2Presenter(
-            language = Language.from(getCurrentLanguage()),
+            language = getCurrentLanguage(),
             palette = palette
         )
         presenter.attachView(this)
@@ -225,6 +225,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         headerView.callback = object : HeaderView.Callback {
             override fun onHangupButtonClicked() {
                 presenter.onHangupButtonClicked()
+            }
+        }
+
+        operatorCallView.callback = object : OperatorCallView.Callback {
+            override fun onOperatorCallClicked(operatorCall: OperatorCall) {
+                presenter.onCallOperatorClicked(operatorCall)
+            }
+
+            override fun onCallScopeClicked(callScope: Configs.CallScope) {
+                presenter.onCallScopeClicked(callScope)
             }
         }
 
@@ -558,7 +568,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     override fun showInfoBlocks(infoBlocks: List<Configs.InfoBlock>) {
         runOnUiThread {
-            contactsView.show(infoBlocks, Language.from(getCurrentLanguage()))
+            contactsView.show(infoBlocks, getCurrentLanguage())
         }
     }
 
@@ -619,9 +629,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         runOnUiThread {
             operatorCallView.showCallButton(operatorCall)
             operatorCallView.setCallButtonEnabled(operatorCall)
-            operatorCallView.setOnAudioCallClickListener(operatorCall) {
-                presenter.onCallOperatorClicked(it)
-            }
         }
     }
 
@@ -707,6 +714,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             feedbackView.setOnRateButtonClickListener { ratingButton ->
                 presenter.onRateButtonClicked(ratingButton)
             }
+        }
+    }
+
+    override fun showCallScopes(parentCallScope: Configs.CallScope?, callScopes: List<Configs.CallScope>) {
+        runOnUiThread {
+            operatorCallView.showCallScopes(parentCallScope, callScopes, getCurrentLanguage())
         }
     }
 

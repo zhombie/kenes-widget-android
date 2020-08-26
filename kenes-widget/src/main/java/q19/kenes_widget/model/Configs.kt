@@ -5,16 +5,13 @@ import org.json.JSONObject
 import q19.kenes_widget.R
 
 data class Configs(
-    val isChabotEnabled: Boolean = false,
-    val isAudioCallEnabled: Boolean = false,
-    val isVideoCallEnabled: Boolean = false,
-    val isContactSectionsShown: Boolean = false,
-    val isPhonesListShown: Boolean = false,
+    val booleans: Booleans = Booleans(),
     val opponent: Opponent? = null,
     val contacts: List<Contact>? = null,
     val phones: List<String>? = null,
     val workingHours: WorkingHours? = null,
-    val infoBlocks: List<InfoBlock>? = null
+    val infoBlocks: List<InfoBlock>? = null,
+    val callScopes: List<CallScope>? = null
 ) {
 
     data class Opponent(
@@ -85,7 +82,22 @@ data class Configs(
     data class WorkingHours(
         val messageKk: String? = null,
         val messageRu: String? = null
-    )
+    ) {
+
+        fun getMessage(language: Language): String? {
+            return when (language) {
+                Language.Kazakh -> messageKk
+                Language.Russian -> messageRu
+                else -> {
+                    /**
+                     * [messageRu] is a default value.
+                     */
+                    messageRu
+                }
+            }
+        }
+
+    }
 
     data class InfoBlock(
         val title: I18NString,
@@ -93,7 +105,7 @@ data class Configs(
         val items: List<Item>
     )
 
-    class I18NString(
+    data class I18NString(
         val value: JSONObject
     ) {
         companion object {
@@ -113,6 +125,43 @@ data class Configs(
         val description: I18NString,
         val action: String
     )
+
+    data class Booleans(
+        val isChabotEnabled: Boolean = false,
+        val isAudioCallEnabled: Boolean = false,
+        val isVideoCallEnabled: Boolean = false,
+        val isContactSectionsShown: Boolean = false,
+        val isPhonesListShown: Boolean = false,
+        val isOperatorsScoped: Boolean = false
+    )
+
+    data class CallScope(
+        val id: Long,
+        val type: String,
+        val scope: String? = null,
+        val title: I18NString,
+        val parentId: Long,
+        val chatType: String,
+        val action: String? = null
+    ) {
+
+        companion object {
+            private const val PARENT_ID = 0L
+
+            fun getParentCallScopes(callScopes: List<CallScope>?): List<CallScope>? {
+                if (callScopes.isNullOrEmpty()) return null
+                return callScopes
+                    .filter { it.chatType == "audio" || it.chatType == "video" }
+                    .filter { it.parentId == PARENT_ID }
+            }
+
+            fun isAllParentCallScopes(callScopes: List<CallScope>?): Boolean {
+                if (callScopes.isNullOrEmpty()) return false
+                return callScopes.all { it.parentId == PARENT_ID }
+            }
+        }
+
+    }
 
     fun clear() {
         opponent?.clear()

@@ -14,7 +14,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
 
     override val TAG = "WidgetConfigsTask"
 
-    override fun run(): Configs? {
+    override fun execute(): Configs? {
         try {
             val asyncTask = HttpRequestHandler(url = url)
             val response = asyncTask.execute().get()
@@ -29,6 +29,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             val contactsJson = json?.optJSONObject("contacts")
             val infoBlocksJson = json?.optJSONArray("info_blocks")
             val booleansJson = json?.optJSONObject("booleans")
+            val callScopesJson = json?.optJSONArray("call_scopes")
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
             val opponent = Configs.Opponent(
@@ -93,6 +94,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             var isVideoCallEnabled = false
             var isContactSectionsShown = false
             var isPhonesListShown = false
+            var isOperatorsScoped = false
             if (booleansJson != null) {
                 val keys = booleansJson.keys()
                 while (keys.hasNext()) {
@@ -113,22 +115,47 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                                 isContactSectionsShown = value
                             "phones_list_shown" ->
                                 isPhonesListShown = value
+                            "operators_scoped" ->
+                                isOperatorsScoped = value
                         }
                     }
                 }
             }
-
-            return Configs(
+            val booleans = Configs.Booleans(
                 isChabotEnabled = isChabotEnabled,
                 isAudioCallEnabled = isAudioCallEnabled,
                 isVideoCallEnabled = isVideoCallEnabled,
                 isContactSectionsShown = isContactSectionsShown,
                 isPhonesListShown = isPhonesListShown,
+                isOperatorsScoped = isOperatorsScoped
+            )
+
+            val callScopes = mutableListOf<Configs.CallScope>()
+            if (callScopesJson != null) {
+                for (i in 0 until callScopesJson.length()) {
+                    val callScope = callScopesJson[i] as JSONObject
+                    callScopes.add(
+                        Configs.CallScope(
+                            id = callScope.getLong("id"),
+                            type = callScope.getString("type"),
+                            scope = callScope.getString("scope"),
+                            title = callScope.getJSONObject("title").parse(),
+                            parentId = callScope.getLong("parent_id"),
+                            chatType = callScope.getString("chat_type"),
+                            action = callScope.getNullableString("action")
+                        )
+                    )
+                }
+            }
+
+            return Configs(
+                booleans = booleans,
                 opponent = opponent,
                 contacts = contacts,
                 phones = phones,
                 workingHours = workingHours,
-                infoBlocks = infoBlocks
+                infoBlocks = infoBlocks,
+                callScopes = callScopes
             )
         } catch (e: Exception) {
 //            e.printStackTrace()
