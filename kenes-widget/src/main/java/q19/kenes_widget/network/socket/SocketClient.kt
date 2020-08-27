@@ -335,23 +335,32 @@ internal class SocketClient {
         socket?.connect()
     }
 
-    fun callOperator(operatorCall: OperatorCall, language: String? = null) {
+    fun callOperator(operatorCall: OperatorCall, scope: String? = null, language: String? = null) {
         when (operatorCall) {
             OperatorCall.TEXT -> {
                 socket?.emit("initialize", jsonObject {
                     put("video", false)
+                    if (!scope.isNullOrBlank()) {
+                        put("scope", scope)
+                    }
                     put("lang", fetchLanguage(language))
                 })
             }
             OperatorCall.AUDIO -> {
                 socket?.emit("initialize", jsonObject {
                     put("audio", true)
+                    if (!scope.isNullOrBlank()) {
+                        put("scope", scope)
+                    }
                     put("lang", fetchLanguage(language))
                 })
             }
             OperatorCall.VIDEO -> {
                 socket?.emit("initialize", jsonObject {
                     put("video", true)
+                    if (!scope.isNullOrBlank()) {
+                        put("scope", scope)
+                    }
                     put("lang", fetchLanguage(language))
                 })
             }

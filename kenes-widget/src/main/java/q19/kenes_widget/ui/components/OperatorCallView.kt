@@ -18,9 +18,11 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
+import q19.kenes_widget.core.errors.ViewHolderViewTypeException
 import q19.kenes_widget.model.Configs
 import q19.kenes_widget.model.Language
 import q19.kenes_widget.model.OperatorCall
+import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.px
 
@@ -237,7 +239,6 @@ internal class OperatorCallView @JvmOverloads constructor(
                 RecyclerView.LayoutParams.MATCH_PARENT,
                 RecyclerView.LayoutParams.WRAP_CONTENT
             )
-            titleView?.setFont(R.font.helvetica_black)
             titleView?.setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_black))
             titleView?.setTextSize(TypedValue.COMPLEX_UNIT_PX, 20.px.toFloat())
             titleView?.setPadding(
@@ -248,10 +249,17 @@ internal class OperatorCallView @JvmOverloads constructor(
             )
         }
 
+        // TODO: Set font only once
+        titleView?.setFont(R.font.helvetica_black)
+
         if (parentCallScope == null) {
             titleView?.setText(R.string.kenes_call_with_operator)
+
+            adapter?.isFooterEnabled = false
         } else {
             titleView?.text = parentCallScope.title.get(language)
+
+            adapter?.isFooterEnabled = true
         }
 
         if (!isViewAdded(titleView)) {
@@ -289,9 +297,15 @@ internal class OperatorCallView @JvmOverloads constructor(
         }
 
         if (adapter == null) {
-            adapter = CallScopesAdapter(language) {
-                callback?.onCallScopeClicked(it)
-            }
+            adapter = CallScopesAdapter(language, object : CallScopesAdapter.Callback {
+                override fun onCallScopeClicked(callScope: Configs.CallScope) {
+                    callback?.onCallScopeClicked(callScope)
+                }
+
+                override fun onCallScopeBackClicked() {
+                    callback?.onCallScopeBackClicked()
+                }
+            })
 
             recyclerView?.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -313,6 +327,8 @@ internal class OperatorCallView @JvmOverloads constructor(
 
     interface Callback {
         fun onCallScopeClicked(callScope: Configs.CallScope)
+        fun onCallScopeBackClicked()
+
         fun onOperatorCallClicked(operatorCall: OperatorCall)
     }
 
@@ -321,11 +337,16 @@ internal class OperatorCallView @JvmOverloads constructor(
 
 private class CallScopesAdapter(
     private val language: Language,
-    private val callback: (callScope: Configs.CallScope) -> Unit
+    private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val LAYOUT_SCOPE = R.layout.kenes_cell_scope
+        private const val TAG = "CallScopesAdapter"
+
+        private val LAYOUT_CALL_SCOPE = R.layout.kenes_cell_scope
+
+        const val VIEW_TYPE_CALL_SCOPE = 100
+        const val VIEW_TYPE_FOOTER = 101
     }
 
     var callScopes: List<Configs.CallScope> = emptyList()
@@ -334,28 +355,75 @@ private class CallScopesAdapter(
             notifyDataSetChanged()
         }
 
-    var isBackShown: Boolean = false
+    var isFooterEnabled: Boolean = false
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
-    override fun getItemCount(): Int = callScopes.size + if (isBackShown) 1 else 0
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(LAYOUT_SCOPE))
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolder) {
-            holder.bind(callScopes[position])
+    override fun getItemViewType(position: Int): Int {
+        return if (isFooterEnabled) {
+            if (position == itemCount - 1) {
+                VIEW_TYPE_FOOTER
+            }  else {
+                VIEW_TYPE_CALL_SCOPE
+            }
+        } else {
+            VIEW_TYPE_CALL_SCOPE
         }
     }
 
-    private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    override fun getItemCount(): Int = callScopes.size + if (isFooterEnabled) 1 else 0
+
+    fun getItem(position: Int): Configs.CallScope? {
+        if (position < 0) {
+            return null
+        }
+        return callScopes[position]
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            VIEW_TYPE_CALL_SCOPE -> CallScopeViewHolder(parent.inflate(LAYOUT_CALL_SCOPE))
+            VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_CALL_SCOPE))
+            else -> throw ViewHolderViewTypeException(viewType)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is CallScopeViewHolder) {
+            val item = getItem(position)
+            item?.let { holder.bind(it) }
+        } else if (holder is FooterViewHolder) {
+            holder.bind()
+        }
+    }
+
+    private inner class CallScopeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
 
         fun bind(callScope: Configs.CallScope) {
             textView.text = callScope.title.get(language)
 
-            itemView.setOnClickListener { callback(callScope) }
+            debug(TAG, "callScope: $callScope")
+
+            itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
         }
+    }
+
+    private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
+
+        fun bind() {
+            textView.setText(R.string.kenes_back)
+
+            itemView.setOnClickListener { callback.onCallScopeBackClicked() }
+        }
+    }
+
+    interface Callback {
+        fun onCallScopeClicked(callScope: Configs.CallScope)
+        fun onCallScopeBackClicked()
     }
 
 }
@@ -426,6 +494,12 @@ private class CallScopesAdapterItemDecoration(
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        val adapter = (parent.adapter as? CallScopesAdapter?) ?: return
+
+//        val childCount = parent.childCount
+
+        val itemCount = adapter.itemCount
+
         if (parent.childCount == 1) {
             val child = parent.getChildAt(0)
             c.drawRoundRect(
@@ -438,42 +512,80 @@ private class CallScopesAdapterItemDecoration(
                 paint
             )
         } else {
-            for (i in 0 until parent.childCount) {
-                val child = parent.getChildAt(i)
-                val params = child.layoutParams as RecyclerView.LayoutParams
+            for (index in 0 until itemCount) {
+                val child = parent.getChildAt(index)
 
-                if (parent.childCount > 3 && i < parent.childCount - 1) {
-//                    val startX = parent.paddingStart
-//                    val stopX = parent.width
-//                    val y = child.bottom + params.bottomMargin
-//                    c.drawLine(startX.toFloat(), y.toFloat(), stopX.toFloat(), y.toFloat(), paint)
-                }
+                val layoutParams = child.layoutParams as RecyclerView.LayoutParams
 
-                when (i) {
-                    0 -> {
+                val viewType = adapter.getItemViewType(index)
+
+                if (viewType == CallScopesAdapter.VIEW_TYPE_FOOTER) {
+                    val path = getPathOfRoundedRectF(
+                        child,
+                        topLeftRadius = 10.px.toFloat(),
+                        topRightRadius = 10.px.toFloat(),
+                        bottomLeftRadius = 10.px.toFloat(),
+                        bottomRightRadius = 10.px.toFloat()
+                    )
+                    c.drawPath(path, paint)
+                } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+                    // Divider
+                    if (itemCount > 3 && index < itemCount - 1) {
+                        val startX = parent.paddingStart
+                        val stopX = parent.width
+                        val y = child.bottom + layoutParams.bottomMargin
+                        c.drawLine(
+                            startX.toFloat(),
+                            y.toFloat(),
+                            stopX.toFloat(),
+                            y.toFloat(),
+                            paint
+                        )
+                    }
+
+                    val relationalItemCount = if (adapter.isFooterEnabled) {
+                        itemCount - 1
+                    } else {
+                        itemCount
+                    }
+
+                    if (relationalItemCount == 1) {
                         val path = getPathOfRoundedRectF(
                             child,
                             topLeftRadius = 10.px.toFloat(),
-                            topRightRadius = 10.px.toFloat()
-                        )
-                        c.drawPath(path, paint)
-                    }
-                    parent.childCount - 1 -> {
-                        val path = getPathOfRoundedRectF(
-                            child,
+                            topRightRadius = 10.px.toFloat(),
                             bottomLeftRadius = 10.px.toFloat(),
                             bottomRightRadius = 10.px.toFloat()
                         )
                         c.drawPath(path, paint)
-                    }
-                    else -> {
-                        val path = Path()
-                        path.moveTo(child.left.toFloat(), child.top.toFloat())
-                        path.lineTo(child.left.toFloat(), child.bottom.toFloat())
-                        path.moveTo(child.right.toFloat(), child.top.toFloat())
-                        path.lineTo(child.right.toFloat(), child.bottom.toFloat())
-                        path.close()
-                        c.drawPath(path, paint)
+                    } else {
+                        when (index) {
+                            0 -> {
+                                val path = getPathOfRoundedRectF(
+                                    child,
+                                    topLeftRadius = 10.px.toFloat(),
+                                    topRightRadius = 10.px.toFloat()
+                                )
+                                c.drawPath(path, paint)
+                            }
+                            relationalItemCount - 1 -> {
+                                val path = getPathOfRoundedRectF(
+                                    child,
+                                    bottomLeftRadius = 10.px.toFloat(),
+                                    bottomRightRadius = 10.px.toFloat()
+                                )
+                                c.drawPath(path, paint)
+                            }
+                            else -> {
+                                val path = Path()
+                                path.moveTo(child.left.toFloat(), child.top.toFloat())
+                                path.lineTo(child.left.toFloat(), child.bottom.toFloat())
+                                path.moveTo(child.right.toFloat(), child.top.toFloat())
+                                path.lineTo(child.right.toFloat(), child.bottom.toFloat())
+                                path.close()
+                                c.drawPath(path, paint)
+                            }
+                        }
                     }
                 }
             }
@@ -569,17 +681,49 @@ private class CallScopesAdapterItemDecoration(
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val itemCount = parent.adapter?.itemCount ?: 0
+        val adapter = (parent.adapter as? CallScopesAdapter?) ?: return
 
+        val itemCount = adapter.itemCount
+
+        val position = parent.layoutManager?.getPosition(view) ?: -1
+
+        val viewType = adapter.getItemViewType(position)
+
+        // Offset between elements
+        when (viewType) {
+            CallScopesAdapter.VIEW_TYPE_FOOTER -> {
+                outRect.top = 15.px
+            }
+            CallScopesAdapter.VIEW_TYPE_CALL_SCOPE -> {
+                outRect.setEmpty()
+            }
+            else -> {
+                outRect.setEmpty()
+            }
+        }
+
+        // Draw rounded background
         if (cornerRadius.compareTo(0f) != 0) {
-            val roundMode = if (itemCount == 1) {
+            val roundMode = if (viewType == CallScopesAdapter.VIEW_TYPE_FOOTER) {
                 RoundMode.ALL
-            } else {
-                when (parent.getChildAdapterPosition(view)) {
-                    0 -> RoundMode.TOP
-                    itemCount - 1 -> RoundMode.BOTTOM
-                    else -> RoundMode.NONE
+            } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+                val relationalItemCount = if (adapter.isFooterEnabled) {
+                    itemCount - 1
+                } else {
+                    itemCount
                 }
+
+                if (relationalItemCount == 1) {
+                    RoundMode.ALL
+                } else {
+                    when (parent.getChildAdapterPosition(view)) {
+                        0 -> RoundMode.TOP
+                        relationalItemCount - 1 -> RoundMode.BOTTOM
+                        else -> RoundMode.NONE
+                    }
+                }
+            } else {
+                RoundMode.NONE
             }
 
             val outlineProvider = view.outlineProvider

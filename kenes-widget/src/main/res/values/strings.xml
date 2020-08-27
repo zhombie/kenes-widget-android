@@ -9,6 +9,7 @@
     <string name="kenes_no">No</string>
     <string name="kenes_cancel">Cancel</string>
     <string name="kenes_ok" translatable="false">OK</string>
+    <string name="kenes_back">Back</string>
 
     <string name="kenes_message">Message</string>
     <string name="kenes_video_call">Video Call</string>

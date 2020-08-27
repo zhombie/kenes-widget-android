@@ -141,9 +141,19 @@ data class Configs(
         val scope: String? = null,
         val title: I18NString,
         val parentId: Long,
-        val chatType: String,
-        val action: String? = null
+        val chatType: ChatType? = null,
+        val action: Action? = null
     ) {
+
+        enum class Action(val value: String) {
+            AUDIO_CALL("audio_call"),
+            VIDEO_CALL("video_call")
+        }
+
+        enum class ChatType(val value: String) {
+            AUDIO("audio"),
+            VIDEO("video")
+        }
 
         companion object {
             private const val PARENT_ID = 0L
@@ -151,7 +161,7 @@ data class Configs(
             fun getParentCallScopes(callScopes: List<CallScope>?): List<CallScope>? {
                 if (callScopes.isNullOrEmpty()) return null
                 return callScopes
-                    .filter { it.chatType == "audio" || it.chatType == "video" }
+                    .filter { it.chatType == ChatType.AUDIO || it.chatType == ChatType.VIDEO }
                     .filter { it.parentId == PARENT_ID }
             }
 
@@ -159,6 +169,22 @@ data class Configs(
                 if (callScopes.isNullOrEmpty()) return false
                 return callScopes.all { it.parentId == PARENT_ID }
             }
+        }
+
+        fun isAudioChatType(): Boolean {
+            return chatType == ChatType.AUDIO
+        }
+
+        fun isVideoChatType(): Boolean {
+            return chatType == ChatType.VIDEO
+        }
+
+        fun isAudioCallAction(): Boolean {
+            return action == Action.AUDIO_CALL
+        }
+
+        fun isVideoCallAction(): Boolean {
+            return action == Action.VIDEO_CALL
         }
 
     }

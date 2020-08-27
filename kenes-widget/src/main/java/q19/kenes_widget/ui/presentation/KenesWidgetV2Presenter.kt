@@ -29,6 +29,8 @@ class KenesWidgetV2Presenter(
 
     private var view: KenesWidgetV2View? = null
 
+    private var activeCallScope: Configs.CallScope? = null
+
     fun attachView(view: KenesWidgetV2View) {
         this.view = view
 
@@ -786,18 +788,22 @@ class KenesWidgetV2Presenter(
     }
 
     fun onCallOperatorClicked(operatorCall: OperatorCall) {
+        tryToCall(operatorCall)
+    }
+
+    private fun tryToCall(operatorCall: OperatorCall, scope: String? = null) {
         if (operatorCall == OperatorCall.AUDIO) {
             if (configs?.booleans?.isAudioCallEnabled == false) return
 
-            view?.resolvePermissions(operatorCall)
+            view?.resolvePermissions(operatorCall, scope)
         } else if (operatorCall == OperatorCall.VIDEO) {
             if (configs?.booleans?.isVideoCallEnabled == false) return
 
-            view?.resolvePermissions(operatorCall)
+            view?.resolvePermissions(operatorCall, scope)
         }
     }
 
-    fun onCallOperator(operatorCall: OperatorCall) {
+    fun onCallOperator(operatorCall: OperatorCall, scope: String? = null) {
         debug(TAG, "onCallOperator() -> viewState: $viewState")
 
         if (dialog.isInitiator) {
@@ -815,18 +821,50 @@ class KenesWidgetV2Presenter(
             OperatorCall.VIDEO -> ViewState.VideoDialog.Pending
         }
 
-        socketClient?.callOperator(operatorCall)
+        socketClient?.callOperator(operatorCall, scope = scope)
     }
 
     fun onCallScopeClicked(callScope: Configs.CallScope) {
         debug(TAG, "onCallScopeClicked() -> callScope: $callScope")
-        val callScopes = configs?.callScopes?.filter {
-            it.parentId == callScope.id
+
+        if (callScope.isAudioCallAction()) {
+            tryToCall(OperatorCall.AUDIO, scope = callScope.scope)
+        } else if (callScope.isVideoCallAction()) {
+            tryToCall(OperatorCall.VIDEO, scope = callScope.scope)
+        } else {
+            val callScopes = configs?.callScopes?.filter {
+                it.parentId == callScope.id
+            }
+            debug(TAG, "onCallScopeClicked() -> configs.callScopes: ${configs?.callScopes}")
+            debug(TAG, "onCallScopeClicked() -> callScopes: $callScopes")
+            if (!callScopes.isNullOrEmpty()) {
+                activeCallScope = callScope
+
+                view?.showCallScopes(parentCallScope = callScope, callScopes = callScopes)
+            }
         }
-        debug(TAG, "onCallScopeClicked() -> configs.callScopes: ${configs?.callScopes}")
-        debug(TAG, "onCallScopeClicked() -> callScopes: $callScopes")
-        if (!callScopes.isNullOrEmpty()) {
-            view?.showCallScopes(parentCallScope = callScope, callScopes = callScopes)
+    }
+
+    fun onCallScopeBackClicked() {
+        debug(TAG, "onCallScopeBackClicked() -> callScope: $activeCallScope")
+
+        activeCallScope?.let { callScope ->
+            activeCallScope = configs?.callScopes?.find {
+                it.id == callScope.parentId
+            }
+            val callScopes = configs?.callScopes?.filter {
+                it.parentId == activeCallScope?.id
+            }
+            if (callScopes.isNullOrEmpty()) {
+                val parentScopes = Configs.CallScope.getParentCallScopes(configs?.callScopes)
+                if (!parentScopes.isNullOrEmpty()) {
+                    view?.showCallScopes(callScopes = parentScopes)
+                } else {
+                    null
+                }
+            } else {
+                view?.showCallScopes(parentCallScope = activeCallScope, callScopes = callScopes)
+            }
         }
     }
 

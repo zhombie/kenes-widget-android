@@ -236,6 +236,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             override fun onCallScopeClicked(callScope: Configs.CallScope) {
                 presenter.onCallScopeClicked(callScope)
             }
+
+            override fun onCallScopeBackClicked() {
+                presenter.onCallScopeBackClicked()
+            }
         }
 
         operatorCallPendingView.setOnCancelCallButtonClickListener {
@@ -932,7 +936,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         chatAdapter?.setProgress(progress, fileType, itemPosition)
     }
 
-    override fun resolvePermissions(operatorCall: OperatorCall) {
+    override fun resolvePermissions(operatorCall: OperatorCall, scope: String?) {
         permissionManager.checkPermission(
             when (operatorCall) {
                 OperatorCall.AUDIO -> PermissionManager.Permission.AUDIO_CALL
@@ -941,7 +945,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
         ) {
             if (it) {
-                presenter.onCallOperator(operatorCall)
+                presenter.onCallOperator(operatorCall, scope)
             }
         }
     }

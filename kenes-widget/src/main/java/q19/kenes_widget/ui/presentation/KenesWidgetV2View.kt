@@ -58,7 +58,7 @@ interface KenesWidgetV2View {
     fun clearChatFooterMessages()
     fun clearMessageInputViewText()
 
-    fun resolvePermissions(operatorCall: OperatorCall)
+    fun resolvePermissions(operatorCall: OperatorCall, scope: String? = null)
 
     fun restoreChatListViewState(chatListViewState: Parcelable)
 
