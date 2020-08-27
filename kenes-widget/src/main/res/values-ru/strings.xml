@@ -2,6 +2,11 @@
 <resources>
     <string name="kenes_notification_channel_name">Уведомление Кенес Виджет</string>
 
+    <string name="kenes_home">Главная</string>
+    <string name="kenes_calls">Звонки</string>
+    <string name="kenes_services">Услуги</string>
+    <string name="kenes_contacts">Контакты</string>
+
     <string name="kenes_exit_widget_title">Выход из виджета</string>
     <string name="kenes_exit_widget_text">Вы действительно хотите выйти из виджета?</string>
     <string name="kenes_yes">Да</string>

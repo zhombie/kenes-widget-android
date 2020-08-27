@@ -246,7 +246,7 @@ internal class OperatorCallView @JvmOverloads constructor(
                 RecyclerView.LayoutParams.WRAP_CONTENT
             )
             titleView?.setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_black))
-            titleView?.setTextSize(TypedValue.COMPLEX_UNIT_PX, 20.px.toFloat())
+            titleView?.setTextSize(TypedValue.COMPLEX_UNIT_PX, 22.px.toFloat())
             titleView?.setPadding(
                 resources.getDimensionPixelOffset(R.dimen.kenes_horizontal_spacing),
                 20.px,

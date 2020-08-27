@@ -63,7 +63,9 @@
         <item name="android:background">@null</item>
     </style>
 
-    <style name="RoundedButton" parent="Widget.AppCompat.Button.Borderless" />
+    <style name="BorderlessButton" parent="Widget.AppCompat.Button.Borderless" />
+
+    <style name="RoundedButton" parent="BorderlessButton" />
 
     <style name="SmallRoundedButton" parent="RoundedButton">
         <item name="android:layout_width">wrap_content</item>
@@ -89,6 +91,23 @@
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/kenes_selector_blue_to_light_blue</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="BottomNavigationButton" parent="BorderlessButton">
+        <item name="background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:drawablePadding">7dp</item>
+        <item name="fontFamily">@font/helvetica_roman</item>
+        <item name="android:fontFamily">@font/helvetica_roman</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textAlignment">center</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/kenes_gray</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
 </resources>

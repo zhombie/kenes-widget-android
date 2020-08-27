@@ -7,12 +7,14 @@ import android.widget.LinearLayout
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorRes
 import androidx.annotation.StyleRes
-import androidx.appcompat.widget.AppCompatImageButton
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import q19.kenes_widget.R
 import q19.kenes_widget.model.BottomNavigation
 import q19.kenes_widget.util.DebouncedOnClickListener
 import q19.kenes_widget.util.Logger
+import q19.kenes_widget.util.getCompoundDrawableOnTop
 
 internal class BottomNavigationView @JvmOverloads constructor(
     context: Context,
@@ -26,12 +28,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     private var bottomNavigationView: LinearLayout? = null
-    private var homeButton: AppCompatImageButton? = null
-    private var operatorCallButton: AppCompatImageButton? = null
-    private var contactsButton: AppCompatImageButton? = null
-    private var infoButton: AppCompatImageButton? = null
+    private var homeButton: AppCompatButton? = null
+    private var operatorCallButton: AppCompatButton? = null
+    private var contactsButton: AppCompatButton? = null
+    private var infoButton: AppCompatButton? = null
 
-    private val navButtons = mutableListOf<AppCompatImageButton>()
+    private val navButtons = mutableListOf<AppCompatButton>()
 
     private var activeNavButtonIndex = 0
         set(value) {
@@ -67,8 +69,8 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun isNavButtonFirst(appCompatImageButton: AppCompatImageButton?): Boolean {
-        return navButtons.isNotEmpty() && navButtons.first() == appCompatImageButton
+    private fun isNavButtonFirst(appCompatButton: AppCompatButton?): Boolean {
+        return navButtons.isNotEmpty() && navButtons.first() == appCompatButton
     }
 
     fun setNavButtonActive(bottomNavigation: BottomNavigation) {
@@ -80,9 +82,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun setActiveNavButton(appCompatImageButton: AppCompatImageButton?) {
-        if (appCompatImageButton == null) return
-        val index = navButtons.indexOf(appCompatImageButton)
+    private fun setActiveNavButton(appCompatButton: AppCompatButton?) {
+        if (appCompatButton == null) return
+        val index = navButtons.indexOf(appCompatButton)
 //        Logger.debug(TAG, "navButtons: $navButtons")
         Logger.debug(TAG, "setActiveNavButton: $index")
         if (index >= 0) {
@@ -113,19 +115,29 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun setActiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
-        setAppCompatImageButtonColorFilter(appCompatImageButton, R.color.kenes_blue)
+    private fun setActiveNavButtonTintColor(appCompatButton: AppCompatButton?) {
+        setAppCompatButtonColor(appCompatButton, R.color.kenes_blue)
     }
 
-    private fun setInactiveNavButtonTintColor(appCompatImageButton: AppCompatImageButton?) {
-        setAppCompatImageButtonColorFilter(appCompatImageButton, R.color.kenes_gray)
+    private fun setInactiveNavButtonTintColor(appCompatButton: AppCompatButton?) {
+        setAppCompatButtonColor(appCompatButton, R.color.kenes_gray)
     }
 
-    private fun setAppCompatImageButtonColorFilter(
-        appCompatImageButton: AppCompatImageButton?,
+    private fun setAppCompatButtonColor(
+        appCompatButton: AppCompatButton?,
         @ColorRes colorResId: Int
     ) {
-        appCompatImageButton?.setColorFilter(ContextCompat.getColor(context, colorResId))
+        if (appCompatButton == null) return
+
+        val compoundDrawable = appCompatButton.getCompoundDrawableOnTop()
+        val color = ContextCompat.getColor(context, colorResId)
+
+        if (compoundDrawable != null) {
+            val drawableWrap = DrawableCompat.wrap(compoundDrawable).mutate()
+            DrawableCompat.setTint(drawableWrap, color)
+        }
+
+        appCompatButton.setTextColor(color)
     }
 
     fun showBottomNavigationView() {
@@ -181,26 +193,26 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     private fun showNavButton(
-        appCompatImageButton: AppCompatImageButton?,
+        appCompatButton: AppCompatButton?,
         index: Int,
         listener: DebouncedOnClickListener
     ) {
-        if (appCompatImageButton != null) {
-            appCompatImageButton.setOnClickListener(listener)
-            if (appCompatImageButton.visibility != View.VISIBLE) {
-                appCompatImageButton.visibility = View.VISIBLE
+        if (appCompatButton != null) {
+            appCompatButton.setOnClickListener(listener)
+            if (appCompatButton.visibility != View.VISIBLE) {
+                appCompatButton.visibility = View.VISIBLE
             }
-            navButtons.add(index, appCompatImageButton)
+            navButtons.add(index, appCompatButton)
         }
     }
 
-    private fun hideNavButton(appCompatImageButton: AppCompatImageButton?) {
-        if (appCompatImageButton != null) {
-            appCompatImageButton.setOnClickListener(null)
-            if (appCompatImageButton.visibility != View.GONE) {
-                appCompatImageButton.visibility = View.GONE
+    private fun hideNavButton(appCompatButton: AppCompatButton?) {
+        if (appCompatButton != null) {
+            appCompatButton.setOnClickListener(null)
+            if (appCompatButton.visibility != View.GONE) {
+                appCompatButton.visibility = View.GONE
             }
-            navButtons.remove(appCompatImageButton)
+            navButtons.remove(appCompatButton)
         }
     }
 

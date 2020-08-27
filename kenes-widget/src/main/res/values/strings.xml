@@ -3,6 +3,11 @@
 
     <string name="kenes_notification_channel_name">Kenes Widget Notification</string>
 
+    <string name="kenes_home">Home</string>
+    <string name="kenes_calls">Calls</string>
+    <string name="kenes_services">Services</string>
+    <string name="kenes_contacts">Contacts</string>
+
     <string name="kenes_exit_widget_title">Exit widget</string>
     <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
     <string name="kenes_yes">Yes</string>

@@ -82,7 +82,12 @@ internal class ObservableList : ArrayList<Category>() {
     }
 
     override fun addAll(elements: Collection<Category>): Boolean {
-        if (any { elements.contains(it) }) {
+        // Fix on potential exception (java.util.ConcurrentModificationException)
+        try {
+            if (any { elements.contains(it) }) {
+                return false
+            }
+        } catch (e: Exception) {
             return false
         }
 
