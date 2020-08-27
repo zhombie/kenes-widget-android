@@ -2,6 +2,9 @@ package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.RippleDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 import android.os.Build
 import android.util.AttributeSet
 import android.util.TypedValue
@@ -22,9 +25,8 @@ import q19.kenes_widget.core.errors.ViewHolderViewTypeException
 import q19.kenes_widget.model.Configs
 import q19.kenes_widget.model.Language
 import q19.kenes_widget.model.OperatorCall
+import q19.kenes_widget.util.*
 import q19.kenes_widget.util.Logger.debug
-import q19.kenes_widget.util.inflate
-import q19.kenes_widget.util.px
 
 internal class OperatorCallView @JvmOverloads constructor(
     context: Context,
@@ -32,6 +34,10 @@ internal class OperatorCallView @JvmOverloads constructor(
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
+
+    companion object {
+        private const val TAG = "OperatorCallView"
+    }
 
     private var contentView: LinearLayout? = null
 
@@ -235,7 +241,7 @@ internal class OperatorCallView @JvmOverloads constructor(
     fun showCallScopes(parentCallScope: Configs.CallScope?, callScopes: List<Configs.CallScope>, language: Language) {
         if (titleView == null) {
             titleView = TextView(context)
-            titleView?.layoutParams = RecyclerView.LayoutParams(
+            titleView?.layoutParams = MarginLayoutParams(
                 RecyclerView.LayoutParams.MATCH_PARENT,
                 RecyclerView.LayoutParams.WRAP_CONTENT
             )
@@ -253,11 +259,41 @@ internal class OperatorCallView @JvmOverloads constructor(
         titleView?.setFont(R.font.helvetica_black)
 
         if (parentCallScope == null) {
+            if (!titleView?.compoundDrawables.isNullOrEmpty()) {
+                titleView?.removeCompoundDrawables()
+            }
+
             titleView?.setText(R.string.kenes_call_with_operator)
+
+            titleView?.isClickable = false
+            titleView?.isFocusable = false
+
+            titleView?.background = null
+
+            if (titleView?.hasOnClickListeners() == true) {
+                titleView?.setOnClickListener(null)
+            }
 
             adapter?.isFooterEnabled = false
         } else {
+            titleView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_arrow_left_black, 10.px)
+
             titleView?.text = parentCallScope.title.get(language)
+
+            titleView?.isClickable = true
+            titleView?.isFocusable = true
+
+            titleView?.background = RippleDrawable(
+                ColorStateListBuilder()
+                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_gray))
+                    .build(),
+                null,
+                ShapeDrawable(RectShape())
+            )
+
+            if (titleView?.hasOnClickListeners() == false) {
+                titleView?.setOnClickListener { callback?.onCallScopeBackClicked() }
+            }
 
             adapter?.isFooterEnabled = true
         }
@@ -407,6 +443,8 @@ private class CallScopesAdapter(
 
             debug(TAG, "callScope: $callScope")
 
+            textView.showCompoundDrawableOnRight(R.drawable.kenes_ic_arrow)
+
             itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
         }
     }
@@ -416,6 +454,8 @@ private class CallScopesAdapter(
 
         fun bind() {
             textView.setText(R.string.kenes_back)
+
+            textView.removeCompoundDrawables()
 
             itemView.setOnClickListener { callback.onCallScopeBackClicked() }
         }
@@ -529,8 +569,14 @@ private class CallScopesAdapterItemDecoration(
                     )
                     c.drawPath(path, paint)
                 } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+                    val relationalItemCount = if (adapter.isFooterEnabled) {
+                        itemCount - 1
+                    } else {
+                        itemCount
+                    }
+
                     // Divider
-                    if (itemCount > 3 && index < itemCount - 1) {
+                    if (itemCount > 3 && index < relationalItemCount - 1) {
                         val startX = parent.paddingStart
                         val stopX = parent.width
                         val y = child.bottom + layoutParams.bottomMargin
@@ -541,12 +587,6 @@ private class CallScopesAdapterItemDecoration(
                             y.toFloat(),
                             paint
                         )
-                    }
-
-                    val relationalItemCount = if (adapter.isFooterEnabled) {
-                        itemCount - 1
-                    } else {
-                        itemCount
                     }
 
                     if (relationalItemCount == 1) {
