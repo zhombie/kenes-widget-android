@@ -247,7 +247,14 @@ internal class OperatorCallView @JvmOverloads constructor(
             titleView?.layoutParams = MarginLayoutParams(
                 MarginLayoutParams.MATCH_PARENT,
                 MarginLayoutParams.WRAP_CONTENT
-            )
+            ).also {
+                it.setMargins(
+                    0,
+                    0,
+                    0,
+                    context.resources.getDimensionPixelOffset(R.dimen.kenes_header_title_bottom_offset)
+                )
+            }
             titleView?.setPadding(
                 resources.getDimensionPixelOffset(R.dimen.kenes_horizontal_spacing),
                 resources.getDimensionPixelOffset(R.dimen.kenes_header_title_padding),

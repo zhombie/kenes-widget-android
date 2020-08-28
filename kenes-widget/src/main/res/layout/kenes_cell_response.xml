@@ -10,17 +10,19 @@
         android:id="@+id/titleView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="@dimen/kenes_header_title_bottom_offset"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:drawablePadding="8dp"
         android:focusable="true"
         android:gravity="center_vertical"
         android:paddingStart="@dimen/kenes_horizontal_spacing"
+        android:paddingTop="@dimen/kenes_header_title_padding"
         android:paddingEnd="@dimen/kenes_horizontal_spacing"
+        android:paddingBottom="@dimen/kenes_header_title_padding"
         android:textAppearance="@style/HeaderTitle"
-        tools:text="Бизнесу"
-        app:drawableStartCompat="@drawable/kenes_ic_arrow_left_black" />
+        app:drawableStartCompat="@drawable/kenes_ic_arrow_left_black"
+        tools:text="Бизнесу" />
 
     <TextView
         android:id="@+id/textView"
@@ -50,7 +52,6 @@
         android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
         android:background="@drawable/kenes_bg_button_light_blue_rounded_4dp"
         android:clickable="true"
-        android:drawableStart="@drawable/kenes_selector_file"
         android:drawablePadding="10dp"
         android:focusable="true"
         android:padding="10dp"
@@ -58,7 +59,8 @@
         android:textSize="13sp"
         android:visibility="gone"
         tools:text="тарифы_день_в_день.pdf"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        app:drawableStartCompat="@drawable/kenes_selector_file" />
 
     <TextView
         android:id="@+id/timeView"

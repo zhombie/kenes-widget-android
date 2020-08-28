@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -19,14 +20,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:drawableStart="@drawable/kenes_shape_line"
-        android:drawableEnd="@drawable/kenes_shape_line"
         android:drawablePadding="15dp"
         android:gravity="center_horizontal"
         android:text="@string/kenes_or"
         android:textAllCaps="false"
         android:textColor="#A0A0A0"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        app:drawableStartCompat="@drawable/kenes_shape_line"
+        app:drawableEndCompat="@drawable/kenes_shape_line" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button2"
