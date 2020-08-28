@@ -34,6 +34,14 @@
     <dimen name="kenes_call_button_padding">20dp</dimen>
     <dimen name="kenes_call_icon_height">37dp</dimen>
 
-    <dimen name="kenes_header_title_padding">10dp</dimen>
-    <dimen name="kenes_header_title_bottom_offset">5dp</dimen>
+    <dimen name="kenes_title_padding">10dp</dimen>
+    <dimen name="kenes_title_compound_drawable_padding">10dp</dimen>
+    <dimen name="kenes_title_bottom_offset">10dp</dimen>
+
+    <dimen name="kenes_rounded_border_radius">10dp</dimen>
+    <dimen name="kenes_rounded_border_width">1dp</dimen>
+
+    <dimen name="kenes_footer_vertical_offset">15dp</dimen>
+
+    <dimen name="kenes_section_padding">35dp</dimen>
 </resources>

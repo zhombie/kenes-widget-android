@@ -100,28 +100,28 @@
         <item name="fontFamily">sans-serif</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingTop">10dp</item>
-        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingTop">7.5dp</item>
+        <item name="android:paddingBottom">7.5dp</item>
         <item name="android:textAlignment">center</item>
         <item name="textAllCaps">true</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/kenes_gray</item>
-        <item name="android:textSize">10sp</item>
+        <item name="android:textSize">9sp</item>
         <item name="android:textStyle">normal</item>
     </style>
 
-    <style name="HeaderTitle" parent="TextAppearance.AppCompat">
+    <style name="BoldTitle" parent="TextAppearance.AppCompat">
         <item name="fontFamily">sans-serif-black</item>
         <item name="android:fontFamily">sans-serif-black</item>
-        <item name="android:letterSpacing">0.015</item>
+        <item name="android:letterSpacing">0.025</item>
         <item name="textAllCaps">false</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">@color/kenes_dark_black</item>
-        <item name="android:textSize">18sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textStyle">normal</item>
     </style>
 
-    <style name="HeaderSubtitle" parent="TextAppearance.AppCompat">
+    <style name="StandardSubtitle" parent="TextAppearance.AppCompat">
         <item name="fontFamily">sans-serif</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:letterSpacing">0.01</item>

@@ -18,6 +18,7 @@ interface KenesWidgetV2View {
     fun showFeedback(text: String, ratingButtons: List<RatingButton>)
 
     fun showCallScopes(parentCallScope: Configs.CallScope? = null, callScopes: List<Configs.CallScope>)
+    fun showExternalServices(parentService: Service? = null, services: List<Service>)
 
     fun showNavButton(bottomNavigation: BottomNavigation)
     fun hideNavButton(bottomNavigation: BottomNavigation)

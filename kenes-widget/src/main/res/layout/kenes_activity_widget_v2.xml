@@ -57,8 +57,15 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes_widget.ui.components.ContactsView
-            android:id="@+id/contactsView"
+<!--        <q19.kenes_widget.ui.components.ContactsView-->
+<!--            android:id="@+id/contactsView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:visibility="gone" />-->
+
+        <q19.kenes_widget.ui.components.ServicesView
+            android:id="@+id/servicesView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

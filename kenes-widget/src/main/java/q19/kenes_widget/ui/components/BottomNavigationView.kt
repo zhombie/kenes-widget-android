@@ -30,7 +30,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     private var bottomNavigationView: LinearLayout? = null
     private var homeButton: AppCompatButton? = null
     private var operatorCallButton: AppCompatButton? = null
-    private var contactsButton: AppCompatButton? = null
+    private var servicesButton: AppCompatButton? = null
     private var infoButton: AppCompatButton? = null
 
     private val navButtons = mutableListOf<AppCompatButton>()
@@ -55,7 +55,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         bottomNavigationView = view.findViewById(R.id.bottomNavigationView)
         homeButton = view.findViewById(R.id.homeButton)
         operatorCallButton = view.findViewById(R.id.operatorCallButton)
-        contactsButton = view.findViewById(R.id.contactsButton)
+        servicesButton = view.findViewById(R.id.servicesButton)
         infoButton = view.findViewById(R.id.infoButton)
     }
 
@@ -63,7 +63,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         return when {
             isNavButtonFirst(homeButton) -> BottomNavigation.HOME
             isNavButtonFirst(operatorCallButton) -> BottomNavigation.OPERATOR_CALL
-            isNavButtonFirst(contactsButton) -> BottomNavigation.CONTACTS
+            isNavButtonFirst(servicesButton) -> BottomNavigation.SERVICES
             isNavButtonFirst(infoButton) -> BottomNavigation.INFO
             else -> null
         }
@@ -77,7 +77,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         when (bottomNavigation) {
             BottomNavigation.HOME -> setActiveNavButton(homeButton)
             BottomNavigation.OPERATOR_CALL -> setActiveNavButton(operatorCallButton)
-            BottomNavigation.CONTACTS -> setActiveNavButton(contactsButton)
+            BottomNavigation.SERVICES -> setActiveNavButton(servicesButton)
             BottomNavigation.INFO -> setActiveNavButton(infoButton)
         }
     }
@@ -168,9 +168,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
                 val index = navButtons.size / 2
                 showNavButton(operatorCallButton, index, listener)
             }
-            BottomNavigation.CONTACTS -> {
+            BottomNavigation.SERVICES -> {
                 val index = navButtons.size / 2
-                showNavButton(contactsButton, index, listener)
+                showNavButton(servicesButton, index, listener)
             }
             BottomNavigation.INFO -> {
                 var index = navButtons.size
@@ -187,7 +187,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         when (bottomNavigation) {
             BottomNavigation.HOME -> hideNavButton(homeButton)
             BottomNavigation.OPERATOR_CALL -> hideNavButton(operatorCallButton)
-            BottomNavigation.CONTACTS -> hideNavButton(contactsButton)
+            BottomNavigation.SERVICES -> hideNavButton(servicesButton)
             BottomNavigation.INFO -> hideNavButton(infoButton)
         }
     }

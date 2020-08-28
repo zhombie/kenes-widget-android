@@ -5,32 +5,24 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import androidx.annotation.AttrRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
-import q19.kenes_widget.model.Configs
 import q19.kenes_widget.model.Language
-import q19.kenes_widget.model.OperatorCall
-import q19.kenes_widget.ui.components.core.TextView
+import q19.kenes_widget.model.Service
 import q19.kenes_widget.ui.components.core.TitleView
 import q19.kenes_widget.ui.helpers.*
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables
-import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 
-internal class OperatorCallView @JvmOverloads constructor(
+internal class ServicesView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
@@ -38,17 +30,12 @@ internal class OperatorCallView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     companion object {
-        private const val TAG = "OperatorCallView"
+        private const val TAG = "ServicesView"
     }
-
-    private var contentView: LinearLayout? = null
-
-    private var audioCallButton: LinearLayout? = null
-    private var videoCallButton: LinearLayout? = null
 
     private var titleView: TitleView? = null
     private var recyclerView: RecyclerView? = null
-    private var adapter: CallScopesAdapter? = null
+    private var adapter: ServicesAdapter? = null
 
     var callback: Callback? = null
 
@@ -56,189 +43,14 @@ internal class OperatorCallView @JvmOverloads constructor(
         orientation = VERTICAL
     }
 
-    private fun buildContentView() {
-        val scrollView = ScrollView(context)
-        scrollView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-
-        contentView = LinearLayout(context)
-        contentView?.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        contentView?.setPadding(
-            resources.getDimensionPixelOffset(R.dimen.kenes_horizontal_spacing),
-            0,
-            resources.getDimensionPixelOffset(R.dimen.kenes_horizontal_spacing),
-            0
-        )
-        contentView?.orientation = VERTICAL
-
-        scrollView.addView(contentView)
-
-        addView(scrollView)
-    }
-
-    private fun buildButtonView(
-        @DrawableRes background: Int,
-        @DrawableRes icon: Int,
-        titleHexColor: String,
-        @StringRes titleText: Int,
-        definitionHexColor: String,
-        @StringRes definitionText: Int
-    ): LinearLayout {
-        // Parent view
-        val callButton = LinearLayout(context)
-        callButton.setPadding(
-            context.resources.getDimensionPixelOffset(R.dimen.kenes_call_button_padding),
-            context.resources.getDimensionPixelOffset(R.dimen.kenes_call_button_padding),
-            context.resources.getDimensionPixelOffset(R.dimen.kenes_call_button_padding),
-            context.resources.getDimensionPixelOffset(R.dimen.kenes_call_button_padding)
-        )
-        callButton.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        callButton.orientation = VERTICAL
-        callButton.background = ResourcesCompat.getDrawable(
-            resources,
-            background,
-            context.theme
-        )
-        callButton.isClickable = true
-        callButton.isFocusable = true
-
-        // Icon
-        val callIconView = ImageView(context)
-        val callIconViewLayoutParams = MarginLayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            context.resources.getDimensionPixelOffset(R.dimen.kenes_call_icon_height)
-        )
-        callIconViewLayoutParams.bottomMargin = 15
-        callIconView.layoutParams = callIconViewLayoutParams
-        callIconView.adjustViewBounds = true
-        callIconView.setImageResource(icon)
-
-        callButton.addView(callIconView)
-
-        // Title
-        val titleView = TextView(context)
-        titleView.layoutParams =
-            MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        titleView.setTextAppearance(R.style.BoldTitle)
-        titleView.setText(titleText)
-        titleView.setTextColor(Color.parseColor(titleHexColor))
-
-        callButton.addView(titleView)
-
-        // Definition
-        val definitionView = TextView(context)
-        val definitionViewLayoutParams =
-            MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        definitionViewLayoutParams.topMargin = 3
-        definitionView.layoutParams = definitionViewLayoutParams
-        definitionView.setTextAppearance(R.style.StandardSubtitle)
-        definitionView.setText(definitionText)
-        definitionView.setTextColor(Color.parseColor(definitionHexColor))
-
-        callButton.addView(definitionView)
-
-        return callButton
-    }
-
-    fun showCallButton(operatorCall: OperatorCall) {
-        setCallButtonVisibility(operatorCall, true)
-    }
-
-    fun hideCallButton(operatorCall: OperatorCall) {
-        setCallButtonVisibility(operatorCall, false)
-    }
-
-    private fun setCallButtonVisibility(operatorCall: OperatorCall, isVisible: Boolean) {
-        if ((operatorCall == OperatorCall.AUDIO || operatorCall == OperatorCall.VIDEO) &&
-            contentView == null
-        ) {
-            buildContentView()
-        }
-
-        if (operatorCall == OperatorCall.AUDIO) {
-            if (isVisible) {
-                if (!contentView.isViewAdded(audioCallButton)) {
-                    audioCallButton = buildButtonView(
-                        background = R.drawable.kenes_bg_orange,
-                        icon = R.drawable.kenes_ic_man_raising_hand,
-                        titleHexColor = "#FFA000",
-                        titleText = R.string.kenes_audio_call,
-                        definitionHexColor = "#95FFA000",
-                        definitionText = R.string.kenes_audio_call_to_operator
-                    )
-
-                    audioCallButton?.setOnClickListener {
-                        callback?.onOperatorCallClicked(operatorCall)
-                    }
-
-                    contentView?.addView(audioCallButton)
-                }
-            } else {
-                if (contentView.isViewAdded(audioCallButton)) {
-                    contentView?.removeView(audioCallButton)
-                }
-            }
-        } else if (operatorCall == OperatorCall.VIDEO) {
-            if (isVisible) {
-                if (!contentView.isViewAdded(videoCallButton)) {
-                    videoCallButton = buildButtonView(
-                        background = R.drawable.kenes_bg_green,
-                        icon = R.drawable.kenes_ic_female_technologist,
-                        titleHexColor = "#4BB34B",
-                        titleText = R.string.kenes_video_call,
-                        definitionHexColor = "#954BB34B",
-                        definitionText = R.string.kenes_video_call_to_operator
-                    )
-
-                    videoCallButton?.setOnClickListener {
-                        callback?.onOperatorCallClicked(operatorCall)
-                    }
-
-                    if (contentView.isViewAdded(audioCallButton)) {
-                        (videoCallButton?.layoutParams as? MarginLayoutParams)?.topMargin = 15
-                    }
-
-                    contentView?.addView(videoCallButton)
-                }
-            } else {
-                if (contentView.isViewAdded(videoCallButton)) {
-                    contentView?.removeView(videoCallButton)
-                }
-            }
-        }
-    }
-
     private fun ViewGroup?.isViewAdded(view: View?): Boolean {
         if (this == null) return false
         return view != null && this.indexOfChild(view) != -1
     }
 
-    fun setCallButtonEnabled(operatorCall: OperatorCall) {
-        setCallButtonEnabled(operatorCall, true)
-    }
-
-    fun setCallButtonDisabled(operatorCall: OperatorCall) {
-        setCallButtonEnabled(operatorCall, false)
-    }
-
-    private fun setCallButtonEnabled(operatorCall: OperatorCall, isEnabled: Boolean) {
-        if (operatorCall == OperatorCall.AUDIO) {
-            if (audioCallButton?.isEnabled == isEnabled) return
-            audioCallButton?.isEnabled = isEnabled
-        } else if (operatorCall == OperatorCall.VIDEO) {
-            if (videoCallButton?.isEnabled == isEnabled) return
-            videoCallButton?.isEnabled = isEnabled
-        }
-    }
-
-    fun showCallScopes(
-        parentCallScope: Configs.CallScope?,
-        callScopes: List<Configs.CallScope>,
+    fun showServices(
+        parentService: Service?,
+        services: List<Service>,
         language: Language
     ) {
         if (titleView == null) {
@@ -262,10 +74,10 @@ internal class OperatorCallView @JvmOverloads constructor(
             )
         }
 
-        if (parentCallScope == null) {
+        if (parentService == null) {
             titleView?.hideBackButtonOnLeft()
 
-            titleView?.setText(R.string.kenes_call_with_operator)
+            titleView?.setText(R.string.kenes_services)
 
             titleView?.isClickable = false
 
@@ -277,14 +89,14 @@ internal class OperatorCallView @JvmOverloads constructor(
         } else {
             titleView?.showBackButtonOnLeft()
 
-            titleView?.text = parentCallScope.title.get(language)
+            titleView?.text = parentService.title.get(language)
 
             titleView?.isClickable = true
 
             titleView?.setRippleBackground()
 
             if (titleView?.hasOnClickListeners() == false) {
-                titleView?.setOnClickListener { callback?.onCallScopeBackClicked() }
+                titleView?.setOnClickListener { callback?.onServiceBackClicked() }
             }
 
             adapter?.isFooterEnabled = true
@@ -308,6 +120,8 @@ internal class OperatorCallView @JvmOverloads constructor(
                 0
             )
 
+            recyclerView?.layoutParams = layoutParams
+
             recyclerView?.setPadding(
                 0,
                 0,
@@ -317,8 +131,6 @@ internal class OperatorCallView @JvmOverloads constructor(
 
             recyclerView?.clipToPadding = false
 
-            recyclerView?.layoutParams = layoutParams
-
             recyclerView?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
@@ -327,13 +139,13 @@ internal class OperatorCallView @JvmOverloads constructor(
         }
 
         if (adapter == null) {
-            adapter = CallScopesAdapter(language, object : CallScopesAdapter.Callback {
-                override fun onCallScopeClicked(callScope: Configs.CallScope) {
-                    callback?.onCallScopeClicked(callScope)
+            adapter = ServicesAdapter(language, object : ServicesAdapter.Callback {
+                override fun onServiceClicked(service: Service) {
+                    callback?.onServiceClicked(service)
                 }
 
-                override fun onCallScopeBackClicked() {
-                    callback?.onCallScopeBackClicked()
+                override fun onServiceBackClicked() {
+                    callback?.onServiceBackClicked()
                 }
             })
 
@@ -341,48 +153,38 @@ internal class OperatorCallView @JvmOverloads constructor(
                 LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
             recyclerView?.adapter = adapter
 
-            recyclerView?.addItemDecoration(CallScopesAdapterItemDecoration(
+            recyclerView?.addItemDecoration(ServicesAdapterItemDecoration(
                 resources.getDimension(R.dimen.kenes_rounded_border_width),
                 resources.getDimension(R.dimen.kenes_rounded_border_radius)
             ))
         }
 
-        adapter?.callScopes = callScopes
-    }
-
-    fun removeListener(operatorCall: OperatorCall) {
-        if (operatorCall == OperatorCall.AUDIO) {
-            audioCallButton?.setOnClickListener(null)
-        } else if (operatorCall == OperatorCall.VIDEO) {
-            videoCallButton?.setOnClickListener(null)
-        }
+        adapter?.services = services
     }
 
     interface Callback {
-        fun onCallScopeClicked(callScope: Configs.CallScope)
-        fun onCallScopeBackClicked()
-
-        fun onOperatorCallClicked(operatorCall: OperatorCall)
+        fun onServiceClicked(service: Service)
+        fun onServiceBackClicked()
     }
 
 }
 
 
-private class CallScopesAdapter(
+private class ServicesAdapter(
     private val language: Language,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TAG = "CallScopesAdapter"
+        private const val TAG = "ServicesAdapter"
 
-        private val LAYOUT_CALL_SCOPE = R.layout.kenes_cell_horizontal_button
+        private val LAYOUT_HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
 
         const val VIEW_TYPE_CALL_SCOPE = 100
         const val VIEW_TYPE_FOOTER = 101
     }
 
-    var callScopes: List<Configs.CallScope> = emptyList()
+    var services: List<Service> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -406,25 +208,25 @@ private class CallScopesAdapter(
         }
     }
 
-    override fun getItemCount(): Int = callScopes.size + if (isFooterEnabled) 1 else 0
+    override fun getItemCount(): Int = services.size + if (isFooterEnabled) 1 else 0
 
-    fun getItem(position: Int): Configs.CallScope? {
+    fun getItem(position: Int): Service? {
         if (position < 0) {
             return null
         }
-        return callScopes[position]
+        return services[position]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_CALL_SCOPE -> CallScopeViewHolder(parent.inflate(LAYOUT_CALL_SCOPE))
-            VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_CALL_SCOPE))
+            VIEW_TYPE_CALL_SCOPE -> ServiceViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
+            VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
             else -> throw ViewHolderViewTypeException(viewType)
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is CallScopeViewHolder) {
+        if (holder is ServiceViewHolder) {
             val item = getItem(position)
             item?.let { holder.bind(it) }
         } else if (holder is FooterViewHolder) {
@@ -432,17 +234,17 @@ private class CallScopesAdapter(
         }
     }
 
-    private inner class CallScopeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class ServiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private var imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
-        fun bind(callScope: Configs.CallScope) {
-            textView.text = callScope.title.get(language)
+        fun bind(service: Service) {
+            textView.text = service.title.get(language)
 
-            debug(TAG, "callScope: $callScope")
+            debug(TAG, "service: $service")
 
             when {
-                callScope.isFolderType() -> {
+                service.isFolderType() -> {
                     imageView.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                     imageView.visibility = View.VISIBLE
 
@@ -453,45 +255,19 @@ private class CallScopesAdapter(
 
                     itemView.background = buildRippleDrawable(itemView.context)
 
-                    itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                    itemView.setOnClickListener { callback.onServiceClicked(service) }
                 }
-                callScope.isLinkType() -> {
+                service.isLinkType() -> {
                     imageView.visibility = View.GONE
 
-                    when {
-                        callScope.isAudioCallAction() -> {
-                            val drawable = setDrawableTint(
-                                itemView.context,
-                                R.drawable.kenes_ic_headphones_blue,
-                                Color.parseColor("#487AFC")
-                            )
-                            textView.showCompoundDrawableOnfLeft(
-                                drawable,
-                                itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
-                            )
-                        }
-                        callScope.isVideoCallAction() -> {
-                            val drawable = setDrawableTint(
-                                itemView.context,
-                                R.drawable.kenes_ic_camera_blue,
-                                Color.parseColor("#487AFC")
-                            )
-                            textView.showCompoundDrawableOnfLeft(
-                                drawable,
-                                itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
-                            )
-                        }
-                        else -> {
-                            textView.removeCompoundDrawables()
-                        }
-                    }
+                    textView.removeCompoundDrawables()
 
                     itemView.isClickable = true
                     itemView.isFocusable = true
 
                     itemView.background = buildRippleDrawable(itemView.context)
 
-                    itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                    itemView.setOnClickListener { callback.onServiceClicked(service) }
                 }
                 else -> {
                     imageView.visibility = View.GONE
@@ -522,19 +298,19 @@ private class CallScopesAdapter(
 
             itemView.background = buildRippleDrawable(itemView.context)
 
-            itemView.setOnClickListener { callback.onCallScopeBackClicked() }
+            itemView.setOnClickListener { callback.onServiceBackClicked() }
         }
     }
 
     interface Callback {
-        fun onCallScopeClicked(callScope: Configs.CallScope)
-        fun onCallScopeBackClicked()
+        fun onServiceClicked(service: Service)
+        fun onServiceBackClicked()
     }
 
 }
 
 
-private class CallScopesAdapterItemDecoration(
+private class ServicesAdapterItemDecoration(
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
@@ -549,9 +325,10 @@ private class CallScopesAdapterItemDecoration(
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        val adapter = (parent.adapter as? CallScopesAdapter?) ?: return
+        val adapter = (parent.adapter as? ServicesAdapter?) ?: return
 
         val itemCount = parent.childCount
+//
 //        val itemCount = adapter.itemCount
 
         if (parent.childCount == 1) {
@@ -573,13 +350,13 @@ private class CallScopesAdapterItemDecoration(
 
                 val viewType = adapter.getItemViewType(index)
 
-                if (viewType == CallScopesAdapter.VIEW_TYPE_FOOTER) {
+                if (viewType == ServicesAdapter.VIEW_TYPE_FOOTER) {
                     val path = getPathOfRoundedRectF(
                         child,
                         radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                     )
                     c.drawPath(path, paint)
-                } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+                } else if (viewType == ServicesAdapter.VIEW_TYPE_CALL_SCOPE) {
                     val relationalItemCount = if (adapter.isFooterEnabled) {
                         itemCount - 1
                     } else {
@@ -646,10 +423,10 @@ private class CallScopesAdapterItemDecoration(
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = (parent.adapter as? CallScopesAdapter?) ?: return
+        val adapter = (parent.adapter as? ServicesAdapter?) ?: return
 
-//        val itemCount = parent.childCount
         val itemCount = adapter.itemCount
+//        val itemCount = parent.childCount
 
         val position = parent.layoutManager?.getPosition(view) ?: -1
 
@@ -657,10 +434,10 @@ private class CallScopesAdapterItemDecoration(
 
         // Offset between elements
         when (viewType) {
-            CallScopesAdapter.VIEW_TYPE_FOOTER -> {
+            ServicesAdapter.VIEW_TYPE_FOOTER -> {
                 outRect.top = parent.context.resources.getDimensionPixelOffset(R.dimen.kenes_footer_vertical_offset)
             }
-            CallScopesAdapter.VIEW_TYPE_CALL_SCOPE -> {
+            ServicesAdapter.VIEW_TYPE_CALL_SCOPE -> {
                 outRect.setEmpty()
             }
             else -> {
@@ -670,9 +447,9 @@ private class CallScopesAdapterItemDecoration(
 
         // Draw rounded background
         if (cornerRadius.compareTo(0f) != 0) {
-            val roundMode = if (viewType == CallScopesAdapter.VIEW_TYPE_FOOTER) {
+            val roundMode = if (viewType == ServicesAdapter.VIEW_TYPE_FOOTER) {
                 RoundMode.ALL
-            } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+            } else if (viewType == ServicesAdapter.VIEW_TYPE_CALL_SCOPE) {
                 val relationalItemCount = if (adapter.isFooterEnabled) {
                     itemCount - 1
                 } else {

@@ -9,6 +9,7 @@ import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.parse
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
+import q19.kenes_widget.util.findEnumBy
 
 internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
 
@@ -95,6 +96,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             var isContactSectionsShown = false
             var isPhonesListShown = false
             var isOperatorsScoped = false
+            var isServicesEnabled = false
             if (booleansJson != null) {
                 val keys = booleansJson.keys()
                 while (keys.hasNext()) {
@@ -117,6 +119,8 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                                 isPhonesListShown = value
                             "operators_scoped" ->
                                 isOperatorsScoped = value
+                            "services_enabled" ->
+                                isServicesEnabled = value
                         }
                     }
                 }
@@ -127,7 +131,8 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                 isVideoCallEnabled = isVideoCallEnabled,
                 isContactSectionsShown = isContactSectionsShown,
                 isPhonesListShown = isPhonesListShown,
-                isOperatorsScoped = isOperatorsScoped
+                isOperatorsScoped = isOperatorsScoped,
+                isServicesEnabled = isServicesEnabled
             )
 
             val callScopes = mutableListOf<Configs.CallScope>()
@@ -135,33 +140,15 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                 for (i in 0 until callScopesJson.length()) {
                     val callScope = callScopesJson[i] as JSONObject
 
-                    val type = when (callScope.getNullableString("type")) {
-                        Configs.CallScope.Type.FOLDER.value -> Configs.CallScope.Type.FOLDER
-                        Configs.CallScope.Type.LINK.value -> Configs.CallScope.Type.LINK
-                        else -> null
-                    }
-
-                    val chatType = when (callScope.getNullableString("chat_type")) {
-                        Configs.CallScope.ChatType.AUDIO.value -> Configs.CallScope.ChatType.AUDIO
-                        Configs.CallScope.ChatType.VIDEO.value -> Configs.CallScope.ChatType.VIDEO
-                        else -> null
-                    }
-
-                    val action = when (callScope.getNullableString("action")) {
-                        Configs.CallScope.Action.AUDIO_CALL.value -> Configs.CallScope.Action.AUDIO_CALL
-                        Configs.CallScope.Action.VIDEO_CALL.value -> Configs.CallScope.Action.VIDEO_CALL
-                        else -> null
-                    }
-
                     callScopes.add(
                         Configs.CallScope(
                             id = callScope.getLong("id"),
-                            type = type,
+                            type = findEnumBy { it.value == callScope.getNullableString("type") },
                             scope = callScope.getString("scope"),
                             title = callScope.getJSONObject("title").parse(),
                             parentId = callScope.getLong("parent_id"),
-                            chatType = chatType,
-                            action = action
+                            chatType = findEnumBy { it.value == callScope.getNullableString("chat_type") },
+                            action = findEnumBy { it.value == callScope.getNullableString("action") }
                         )
                     )
                 }

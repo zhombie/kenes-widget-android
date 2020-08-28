@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_home"
+            android:drawableTop="@drawable/kenes_ic_home_gray"
             android:ellipsize="end"
             android:text="@string/kenes_home" />
 
@@ -40,12 +40,12 @@
             android:text="@string/kenes_calls" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/contactsButton"
+            android:id="@+id/servicesButton"
             style="@style/BottomNavigationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_phone_gray"
+            android:drawableTop="@drawable/kenes_ic_service_gray"
             android:ellipsize="end"
             android:text="@string/kenes_services" />
 
@@ -55,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_list"
+            android:drawableTop="@drawable/kenes_ic_list_gray"
             android:ellipsize="end"
             android:text="@string/kenes_contacts" />
 

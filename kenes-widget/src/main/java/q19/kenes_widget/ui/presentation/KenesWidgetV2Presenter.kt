@@ -58,7 +58,7 @@ class KenesWidgetV2Presenter(
         set(value) {
             field = value
 
-            if (value is ViewState.ChatBot || value is ViewState.Contacts || value is ViewState.Info || value is ViewState.TextDialog.IDLE || value is ViewState.OperatorCall) {
+            if (value is ViewState.ChatBot || value is ViewState.Services || value is ViewState.Info || value is ViewState.TextDialog.IDLE || value is ViewState.OperatorCall) {
                 configs?.opponent?.let { view?.showOpponentInfo(it) }
             }
 
@@ -93,7 +93,7 @@ class KenesWidgetV2Presenter(
         listOf(
             BottomNavigation.HOME,
             BottomNavigation.OPERATOR_CALL,
-            BottomNavigation.CONTACTS
+            BottomNavigation.SERVICES
         ).forEach {
             view?.hideNavButton(it)
         }
@@ -155,8 +155,8 @@ class KenesWidgetV2Presenter(
                     when {
                         configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                             ViewState.OperatorCall
-                        configs?.booleans?.isContactSectionsShown == true ->
-                            ViewState.Contacts
+                        configs?.booleans?.isServicesEnabled == true ->
+                            ViewState.Services
                         else ->
                             ViewState.Info
                     }
@@ -540,8 +540,8 @@ class KenesWidgetV2Presenter(
                     ViewState.ChatBot.Categories(false)
                 configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                     ViewState.OperatorCall
-                configs?.booleans?.isContactSectionsShown == true ->
-                    ViewState.Contacts
+                configs?.booleans?.isServicesEnabled == true ->
+                    ViewState.Services
                 else ->
                     ViewState.Info
             }
@@ -602,11 +602,15 @@ class KenesWidgetV2Presenter(
                     view?.hideNavButton(BottomNavigation.OPERATOR_CALL)
                 }
 
-                if (configs.booleans.isContactSectionsShown && !configs.infoBlocks.isNullOrEmpty()) {
-                    view?.showInfoBlocks(configs.infoBlocks)
-                    view?.showNavButton(BottomNavigation.CONTACTS)
+                if (configs.booleans.isServicesEnabled) {
+                    val services = Configs.CallScope.getParentExternalServices(configs.callScopes)
+                    debug(TAG, "services: $services")
+                    if (!services.isNullOrEmpty()) {
+                        view?.showExternalServices(services = services)
+                    }
+                    view?.showNavButton(BottomNavigation.SERVICES)
                 } else {
-                    view?.hideNavButton(BottomNavigation.CONTACTS)
+                    view?.hideNavButton(BottomNavigation.SERVICES)
                 }
             }
         }
@@ -728,7 +732,7 @@ class KenesWidgetV2Presenter(
 
                 viewState = ViewState.OperatorCall
             }
-            BottomNavigation.CONTACTS -> {
+            BottomNavigation.SERVICES -> {
                 if (dialog.isInitiator) {
                     view?.showAlreadyCallingAlert(bottomNavigation)
                     return
@@ -736,7 +740,7 @@ class KenesWidgetV2Presenter(
 
                 clear()
 
-                viewState = ViewState.Contacts
+                viewState = ViewState.Services
             }
             BottomNavigation.INFO -> {
                 if (dialog.isInitiator) {
@@ -786,7 +790,7 @@ class KenesWidgetV2Presenter(
                 ViewState.ChatBot.Categories(true)
             }
             BottomNavigation.OPERATOR_CALL -> ViewState.OperatorCall
-            BottomNavigation.CONTACTS -> ViewState.Contacts
+            BottomNavigation.SERVICES -> ViewState.Services
             BottomNavigation.INFO -> ViewState.Info
         }
     }

@@ -133,7 +133,8 @@ data class Configs(
         val isVideoCallEnabled: Boolean = false,
         val isContactSectionsShown: Boolean = false,
         val isPhonesListShown: Boolean = false,
-        val isOperatorsScoped: Boolean = false
+        val isOperatorsScoped: Boolean = false,
+        val isServicesEnabled: Boolean = false
     )
 
     data class CallScope(
@@ -159,6 +160,24 @@ data class Configs(
             fun isAllParentCallScopes(callScopes: List<CallScope>?): Boolean {
                 if (callScopes.isNullOrEmpty()) return false
                 return callScopes.all { it.parentId == PARENT_ID }
+            }
+
+            fun getParentExternalServices(callScopes: List<CallScope>?): List<Service> {
+                if (callScopes.isNullOrEmpty()) return emptyList()
+                return callScopes
+                    .filter { it.isExternalChatType() }
+                    .filter { it.parentId == PARENT_ID }
+                    .map {
+                        Service(
+                            id = it.id,
+                            type = it.type,
+                            scope = it.scope,
+                            title = it.title,
+                            parentId = it.parentId,
+                            chatType = it.chatType,
+                            action = it.action
+                        )
+                    }
             }
 
             fun empty(): CallScope {
@@ -190,7 +209,8 @@ data class Configs(
 
         enum class ChatType(val value: String) {
             AUDIO("audio"),
-            VIDEO("video")
+            VIDEO("video"),
+            EXTERNAL("external")
         }
 
         fun isFolderType(): Boolean {
@@ -209,6 +229,10 @@ data class Configs(
             return chatType == ChatType.VIDEO
         }
 
+        fun isExternalChatType(): Boolean {
+            return chatType == ChatType.EXTERNAL
+        }
+
         fun isAudioCallAction(): Boolean {
             return action == Action.AUDIO_CALL
         }
@@ -224,3 +248,5 @@ data class Configs(
     }
 
 }
+
+typealias Service = Configs.CallScope

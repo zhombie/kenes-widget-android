@@ -1,4 +1,4 @@
-package q19.kenes_widget.ui.components
+package q19.kenes_widget.ui.components.core
 
 import android.content.Context
 import android.os.Build
@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatTextView
 
-class TextView @JvmOverloads constructor(
+open class TextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

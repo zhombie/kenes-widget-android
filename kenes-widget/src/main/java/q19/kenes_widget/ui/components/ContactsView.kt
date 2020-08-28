@@ -22,6 +22,7 @@ import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.loadCircleImage
 import q19.kenes_widget.util.setOverscrollColor
 
+@Deprecated("Not used anymore")
 internal class ContactsView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -39,7 +40,8 @@ internal class ContactsView @JvmOverloads constructor(
         val view = inflate(context, R.layout.kenes_view_contacts, this)
 
         recyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recyclerView.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         recyclerView.setOverscrollColor(R.color.kenes_light_blue)
         recyclerView.addItemDecoration(InfoBlocksAdapterItemDecoration(context))
     }
@@ -99,7 +101,8 @@ private class InfoBlocksAdapter(
             descriptionView.visibility = View.GONE
             recyclerView.visibility = View.GONE
 
-            recyclerView.layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
+            recyclerView.layoutManager =
+                LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
             adapter = InfoBlockRowsAdapter(language) {
                 callback(it)
             }
@@ -139,7 +142,8 @@ private class InfoBlocksAdapter(
 
 private class InfoBlocksAdapterItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
 
-    private var verticalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_info_block_vertical_spacing)
+    private var verticalSpacing: Int =
+        context.resources.getDimensionPixelOffset(R.dimen.kenes_info_block_vertical_spacing)
 
     override fun getItemOffsets(
         outRect: Rect,
@@ -219,7 +223,8 @@ private class InfoBlockRowsAdapter(
 
 private class InfoBlockRowsAdapterItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
 
-    private val horizonalSpacing = context.resources.getDimensionPixelOffset(R.dimen.kenes_info_block_horizontal_spacing)
+    private val horizonalSpacing =
+        context.resources.getDimensionPixelOffset(R.dimen.kenes_info_block_horizontal_spacing)
 
     private var paint: Paint = Paint()
 

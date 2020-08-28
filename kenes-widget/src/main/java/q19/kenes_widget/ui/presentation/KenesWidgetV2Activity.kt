@@ -117,7 +117,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
      */
     private val audioDialogView by bind<AudioDialogView>(R.id.audioDialogView)
 
-    private val contactsView by bind<ContactsView>(R.id.contactsView)
+//    private val contactsView by bind<ContactsView>(R.id.contactsView)
+
+    private val servicesView by bind<ServicesView>(R.id.servicesView)
 
     // ------------------------------------------------------------------------
 
@@ -246,14 +248,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             presenter.onCallCancelClicked()
         }
 
-        contactsView.callback = object : ContactsView.Callback {
-            override fun onInfoBlockItemClicked(item: Configs.Item) {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.action))
-                    startActivity(intent)
-                } catch (e: ActivityNotFoundException) {
-                    e.printStackTrace()
-                }
+//        contactsView.callback = object : ContactsView.Callback {
+//            override fun onInfoBlockItemClicked(item: Configs.Item) {
+//                try {
+//                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(item.action))
+//                    startActivity(intent)
+//                } catch (e: ActivityNotFoundException) {
+//                    e.printStackTrace()
+//                }
+//            }
+//        }
+
+        servicesView.callback = object : ServicesView.Callback {
+            override fun onServiceClicked(service: Service) {
+
+            }
+
+            override fun onServiceBackClicked() {
+
             }
         }
 
@@ -572,7 +584,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     override fun showInfoBlocks(infoBlocks: List<Configs.InfoBlock>) {
         runOnUiThread {
-            contactsView.show(infoBlocks, getCurrentLanguage())
+//            contactsView.show(infoBlocks, getCurrentLanguage())
         }
     }
 
@@ -724,6 +736,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
     override fun showCallScopes(parentCallScope: Configs.CallScope?, callScopes: List<Configs.CallScope>) {
         runOnUiThread {
             operatorCallView.showCallScopes(parentCallScope, callScopes, getCurrentLanguage())
+        }
+    }
+
+    override fun showExternalServices(parentService: Service?, services: List<Service>) {
+        runOnUiThread {
+            servicesView.showServices(parentService, services, getCurrentLanguage())
         }
     }
 
@@ -1139,7 +1157,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                     infoView.visibility = View.GONE
 
-                    contactsView.visibility = View.GONE
+//                    contactsView.visibility = View.GONE
+                    servicesView.visibility = View.GONE
 
                     bottomNavigationView.setNavButtonsEnabled()
                     bottomNavigationView.setNavButtonActive(BottomNavigation.HOME)
@@ -1270,7 +1289,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                     infoView.visibility = View.GONE
 
-                    contactsView.visibility = View.GONE
+//                    contactsView.visibility = View.GONE
+                    servicesView.visibility = View.GONE
 
                     chatFooterAdapter?.clear()
 
@@ -1304,7 +1324,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 runOnUiThread {
                     infoView.visibility = View.GONE
 
-                    contactsView.visibility = View.GONE
+//                    contactsView.visibility = View.GONE
+                    servicesView.visibility = View.GONE
                 }
 
                 when (viewState) {
@@ -1418,7 +1439,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 runOnUiThread {
                     infoView.visibility = View.GONE
 
-                    contactsView.visibility = View.GONE
+//                    contactsView.visibility = View.GONE
+                    servicesView.visibility = View.GONE
 
                     operatorCallPendingView.visibility = View.GONE
                 }
@@ -1543,22 +1565,34 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     formView.visibility = View.VISIBLE
                 }
             }
-            ViewState.Contacts -> {
+//            ViewState.Contacts -> {
+//                runOnUiThread {
+//                    hideOtherViews()
+//
+//                    infoView.visibility = View.GONE
+//
+//                    bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
+//
+//                    contactsView.visibility = View.VISIBLE
+//                }
+//            }
+            ViewState.Services -> {
                 runOnUiThread {
                     hideOtherViews()
 
                     infoView.visibility = View.GONE
 
-                    bottomNavigationView.setNavButtonActive(BottomNavigation.CONTACTS)
+                    bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
 
-                    contactsView.visibility = View.VISIBLE
+                    servicesView.visibility = View.VISIBLE
                 }
             }
             ViewState.Info -> {
                 runOnUiThread {
                     hideOtherViews()
 
-                    contactsView.visibility = View.GONE
+//                    contactsView.visibility = View.GONE
+                    servicesView.visibility = View.GONE
 
                     bottomNavigationView.setNavButtonActive(BottomNavigation.INFO)
 
