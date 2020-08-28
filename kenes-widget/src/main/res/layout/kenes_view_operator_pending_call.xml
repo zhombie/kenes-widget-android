@@ -18,9 +18,10 @@
         android:id="@+id/callTypeView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/helvetica_neue_bold"
+        android:fontFamily="sans-serif-medium"
         android:textColor="@color/kenes_white"
         android:textSize="26sp"
+        android:textStyle="normal"
         tools:text="@string/kenes_audio_call" />
 
     <FrameLayout
@@ -33,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center|center_horizontal|center_vertical"
-            android:fontFamily="@font/helvetica_light"
+            android:fontFamily="sans-serif-light"
             android:gravity="center_horizontal"
             android:lineSpacingExtra="6sp"
             android:maxWidth="200dp"

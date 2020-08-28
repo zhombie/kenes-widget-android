@@ -13,11 +13,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="@dimen/kenes_horizontal_spacing"
-        android:layout_marginBottom="15dp"
         android:layout_toStartOf="@id/showAllButton"
-        android:fontFamily="sans-serif-black"
-        android:textColor="@color/black"
-        android:textSize="20sp"
+        android:paddingTop="@dimen/kenes_header_title_padding"
+        android:paddingBottom="@dimen/kenes_header_title_padding"
+        android:textAppearance="@style/HeaderTitle"
         tools:text="Бизнесу" />
 
     <TextView

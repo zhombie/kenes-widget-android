@@ -33,4 +33,6 @@
 
     <dimen name="kenes_call_button_padding">20dp</dimen>
     <dimen name="kenes_call_icon_height">37dp</dimen>
+
+    <dimen name="kenes_header_title_padding">10dp</dimen>
 </resources>

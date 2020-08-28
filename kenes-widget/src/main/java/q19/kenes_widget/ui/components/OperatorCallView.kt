@@ -9,7 +9,6 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.os.Build
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
@@ -126,11 +125,9 @@ internal class OperatorCallView @JvmOverloads constructor(
         val titleView = TextView(context)
         titleView.layoutParams =
             MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        titleView.setFont(R.font.helvetica_neue_bold, Typeface.BOLD)
-        titleView.letterSpacing = 0.015F
+        titleView.setTextAppearance(R.style.HeaderTitle)
         titleView.setText(titleText)
         titleView.setTextColor(Color.parseColor(titleHexColor))
-        titleView.textSize = 26F
 
         callButton.addView(titleView)
 
@@ -140,11 +137,9 @@ internal class OperatorCallView @JvmOverloads constructor(
             MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         definitionViewLayoutParams.topMargin = 3
         definitionView.layoutParams = definitionViewLayoutParams
-        definitionView.setFont(R.font.helvetica_roman)
-        definitionView.letterSpacing = 0.01F
+        definitionView.setTextAppearance(R.style.HeaderSubtitle)
         definitionView.setText(definitionText)
         definitionView.setTextColor(Color.parseColor(definitionHexColor))
-        definitionView.textSize = 14F
 
         callButton.addView(definitionView)
 
@@ -250,21 +245,17 @@ internal class OperatorCallView @JvmOverloads constructor(
         if (titleView == null) {
             titleView = TextView(context)
             titleView?.layoutParams = MarginLayoutParams(
-                RecyclerView.LayoutParams.MATCH_PARENT,
-                RecyclerView.LayoutParams.WRAP_CONTENT
+                MarginLayoutParams.MATCH_PARENT,
+                MarginLayoutParams.WRAP_CONTENT
             )
-            titleView?.setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_black))
-            titleView?.setTextSize(TypedValue.COMPLEX_UNIT_PX, 22.px.toFloat())
             titleView?.setPadding(
                 resources.getDimensionPixelOffset(R.dimen.kenes_horizontal_spacing),
-                20.px,
+                resources.getDimensionPixelOffset(R.dimen.kenes_header_title_padding),
                 resources.getDimensionPixelOffset(R.dimen.kenes_horizontal_spacing),
-                20.px
+                resources.getDimensionPixelOffset(R.dimen.kenes_header_title_padding)
             )
+            titleView?.setTextAppearance(R.style.HeaderTitle)
         }
-
-        // TODO: Set font only once
-        titleView?.setFont(R.font.helvetica_black)
 
         if (parentCallScope == null) {
             if (!titleView?.compoundDrawables.isNullOrEmpty()) {
