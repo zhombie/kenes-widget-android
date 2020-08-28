@@ -261,11 +261,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         servicesView.callback = object : ServicesView.Callback {
             override fun onServiceClicked(service: Service) {
-
+                presenter.onServiceClicked(service)
             }
 
             override fun onServiceBackClicked() {
-
+                presenter.onServiceBackClicked()
             }
         }
 

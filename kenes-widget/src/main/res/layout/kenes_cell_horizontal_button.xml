@@ -17,7 +17,7 @@
         android:ellipsize="end"
         android:fontFamily="sans-serif"
         android:gravity="center"
-        android:maxLines="2"
+        android:maxLines="3"
         android:singleLine="false"
         android:textColor="#487AFC"
         android:textSize="15sp"

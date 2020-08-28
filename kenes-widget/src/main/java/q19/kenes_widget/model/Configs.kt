@@ -150,34 +150,38 @@ data class Configs(
         companion object {
             private const val PARENT_ID = 0L
 
-            fun getParentCallScopes(callScopes: List<CallScope>?): List<CallScope>? {
-                if (callScopes.isNullOrEmpty()) return null
-                return callScopes
-                    .filter { it.chatType == ChatType.AUDIO || it.chatType == ChatType.VIDEO }
-                    .filter { it.parentId == PARENT_ID }
-            }
-
             fun isAllParentCallScopes(callScopes: List<CallScope>?): Boolean {
                 if (callScopes.isNullOrEmpty()) return false
                 return callScopes.all { it.parentId == PARENT_ID }
             }
 
-            fun getParentExternalServices(callScopes: List<CallScope>?): List<Service> {
-                if (callScopes.isNullOrEmpty()) return emptyList()
-                return callScopes
-                    .filter { it.isExternalChatType() }
-                    .filter { it.parentId == PARENT_ID }
-                    .map {
-                        Service(
-                            id = it.id,
-                            type = it.type,
-                            scope = it.scope,
-                            title = it.title,
-                            parentId = it.parentId,
-                            chatType = it.chatType,
-                            action = it.action
-                        )
-                    }
+            fun getCallScopes(callScopes: List<CallScope>?, id: Long?): List<CallScope>? {
+                if (callScopes.isNullOrEmpty()) return null
+                return callScopes.filter { it.parentId == id }
+            }
+
+            fun getMediaCallScopes(callScopes: List<CallScope>?, id: Long = PARENT_ID): List<CallScope>? {
+                return getCallScopes(
+                    callScopes = callScopes?.filter { it.isAudioChatType() || it.isVideoChatType() },
+                    id = id
+                )
+            }
+
+            fun getExternalServices(callScopes: List<CallScope>?, id: Long = PARENT_ID): List<Service>? {
+                return getCallScopes(
+                    callScopes = callScopes?.filter { it.isExternalChatType() },
+                    id = id
+                )?.map {
+                    Service(
+                        id = it.id,
+                        type = it.type,
+                        scope = it.scope,
+                        title = it.title,
+                        parentId = it.parentId,
+                        chatType = it.chatType,
+                        action = it.action
+                    )
+                }
             }
 
             fun empty(): CallScope {

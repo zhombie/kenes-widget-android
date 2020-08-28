@@ -29,8 +29,6 @@ class KenesWidgetV2Presenter(
 
     private var view: KenesWidgetV2View? = null
 
-    private var activeCallScope: Configs.CallScope? = null
-
     fun attachView(view: KenesWidgetV2View) {
         this.view = view
 
@@ -80,6 +78,9 @@ class KenesWidgetV2Presenter(
     private var configs: Configs? = null
     private var chatBot = ChatBot()
     private var dialog = Dialog()
+
+    private var activeCallScope: Configs.CallScope? = null
+    private var activeService: Service? = null
 
     private var iceServers = listOf<PeerConnection.IceServer>()
 
@@ -575,7 +576,7 @@ class KenesWidgetV2Presenter(
                 if (configs.booleans.isAudioCallEnabled || configs.booleans.isVideoCallEnabled) {
                     if (configs.booleans.isOperatorsScoped) {
                         if (!configs.callScopes.isNullOrEmpty()) {
-                            val parentScopes = Configs.CallScope.getParentCallScopes(configs.callScopes)
+                            val parentScopes = Configs.CallScope.getMediaCallScopes(configs.callScopes)
                             if (parentScopes.isNullOrEmpty()) {
                                 view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
                             } else {
@@ -603,10 +604,12 @@ class KenesWidgetV2Presenter(
                 }
 
                 if (configs.booleans.isServicesEnabled) {
-                    val services = Configs.CallScope.getParentExternalServices(configs.callScopes)
-                    debug(TAG, "services: $services")
-                    if (!services.isNullOrEmpty()) {
-                        view?.showExternalServices(services = services)
+                    val parentServices = Configs.CallScope.getExternalServices(configs.callScopes)
+                    debug(TAG, "parentServices: $parentServices")
+                    if (parentServices.isNullOrEmpty()) {
+                        view?.showExternalServices(services = listOf(Configs.CallScope.empty()))
+                    } else {
+                        view?.showExternalServices(services = parentServices)
                     }
                     view?.showNavButton(BottomNavigation.SERVICES)
                 } else {
@@ -723,7 +726,7 @@ class KenesWidgetV2Presenter(
 
                 clear()
 
-                val parentScopes = Configs.CallScope.getParentCallScopes(configs?.callScopes)
+                val parentScopes = Configs.CallScope.getMediaCallScopes(configs?.callScopes)
                 if (parentScopes.isNullOrEmpty()) {
                     view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
                 } else {
@@ -836,9 +839,10 @@ class KenesWidgetV2Presenter(
         debug(TAG, "onCallScopeClicked() -> callScope: $callScope")
 
         if (callScope.isFolderType()) {
-            val callScopes = configs?.callScopes?.filter {
-                it.parentId == callScope.id
-            }
+            val callScopes = Configs.CallScope.getCallScopes(
+                configs?.callScopes,
+                callScope.id
+            )
             debug(TAG, "onCallScopeClicked() -> configs.callScopes: ${configs?.callScopes}")
             debug(TAG, "onCallScopeClicked() -> callScopes: $callScopes")
             if (callScopes.isNullOrEmpty()) {
@@ -863,17 +867,18 @@ class KenesWidgetV2Presenter(
     }
 
     fun onCallScopeBackClicked() {
-        debug(TAG, "onCallScopeBackClicked() -> callScope: $activeCallScope")
+        debug(TAG, "onCallScopeBackClicked() -> activeCallScope: $activeCallScope")
 
         activeCallScope?.let { callScope ->
             activeCallScope = configs?.callScopes?.find {
                 it.id == callScope.parentId
             }
-            val callScopes = configs?.callScopes?.filter {
-                it.parentId == activeCallScope?.id
-            }
+            val callScopes = Configs.CallScope.getCallScopes(
+                configs?.callScopes,
+                activeCallScope?.id
+            )
             if (callScopes.isNullOrEmpty()) {
-                val parentScopes = Configs.CallScope.getParentCallScopes(configs?.callScopes)
+                val parentScopes = Configs.CallScope.getMediaCallScopes(configs?.callScopes)
                 if (parentScopes.isNullOrEmpty()) {
                     view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
                 } else {
@@ -881,6 +886,57 @@ class KenesWidgetV2Presenter(
                 }
             } else {
                 view?.showCallScopes(parentCallScope = activeCallScope, callScopes = callScopes)
+            }
+        }
+    }
+
+    fun onServiceClicked(service: Service) {
+        debug(TAG, "onServiceClicked() -> service: $service")
+
+        if (service.isFolderType()) {
+            val services = Configs.CallScope.getCallScopes(
+                configs?.callScopes,
+                service.id
+            )
+            debug(TAG, "onCallScopeClicked() -> configs.callScopes: ${configs?.callScopes}")
+            debug(TAG, "onCallScopeClicked() -> services: $services")
+            if (services.isNullOrEmpty()) {
+                activeService = service
+
+                view?.showExternalServices(
+                    parentService = service,
+                    services = listOf(Configs.CallScope.empty())
+                )
+            } else {
+                activeService = service
+
+                view?.showExternalServices(parentService = service, services = services)
+            }
+        } else if (service.isLinkType()) {
+            // ignored
+        }
+    }
+
+    fun onServiceBackClicked() {
+        debug(TAG, "onServiceBackClicked() -> activeService: $activeService")
+
+        activeService?.let { callScope ->
+            activeService = configs?.callScopes?.find {
+                it.id == callScope.parentId
+            }
+            val callScopes = Configs.CallScope.getCallScopes(
+                configs?.callScopes,
+                activeService?.id
+            )
+            if (callScopes.isNullOrEmpty()) {
+                val parentServices = Configs.CallScope.getExternalServices(configs?.callScopes)
+                if (parentServices.isNullOrEmpty()) {
+                    view?.showExternalServices(services = listOf(Configs.CallScope.empty()))
+                } else {
+                    view?.showExternalServices(services = parentServices)
+                }
+            } else {
+                view?.showExternalServices(parentService = activeService, services = callScopes)
             }
         }
     }
