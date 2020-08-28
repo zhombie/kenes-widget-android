@@ -157,7 +157,7 @@ class KenesWidgetV2Presenter(
                         configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                             ViewState.OperatorCall
                         configs?.booleans?.isServicesEnabled == true ->
-                            ViewState.Services
+                            ViewState.Services.IDLE
                         else ->
                             ViewState.Info
                     }
@@ -385,6 +385,7 @@ class KenesWidgetV2Presenter(
 
             override fun onTextMessage(
                 text: String,
+                replyMarkup: Message.ReplyMarkup?,
                 attachments: List<Attachment>?,
                 timestamp: Long
             ) {
@@ -395,6 +396,7 @@ class KenesWidgetV2Presenter(
                         Message(
                             type = Message.Type.RESPONSE,
                             text = text,
+                            replyMarkup = replyMarkup,
                             attachments = attachments,
                             timestamp = timestamp,
                             category = chatBot.activeCategory
@@ -444,6 +446,7 @@ class KenesWidgetV2Presenter(
                     Message(
                         type = Message.Type.OPPONENT,
                         text = text,
+                        replyMarkup = replyMarkup,
                         attachments = attachments,
                         timestamp = timestamp
                     )
@@ -458,12 +461,17 @@ class KenesWidgetV2Presenter(
                 }
             }
 
-            override fun onMediaMessage(media: Media, timestamp: Long) {
+            override fun onMediaMessage(
+                media: Media,
+                replyMarkup: Message.ReplyMarkup?,
+                timestamp: Long
+            ) {
                 if (media.isImage || media.isAudio || media.isFile) {
                     view?.addNewMessage(
                         Message(
                             type = Message.Type.OPPONENT,
                             media = media,
+                            replyMarkup = replyMarkup,
                             timestamp = timestamp
                         )
                     )
@@ -542,7 +550,7 @@ class KenesWidgetV2Presenter(
                 configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                     ViewState.OperatorCall
                 configs?.booleans?.isServicesEnabled == true ->
-                    ViewState.Services
+                    ViewState.Services.IDLE
                 else ->
                     ViewState.Info
             }
@@ -743,7 +751,7 @@ class KenesWidgetV2Presenter(
 
                 clear()
 
-                viewState = ViewState.Services
+                viewState = ViewState.Services.IDLE
             }
             BottomNavigation.INFO -> {
                 if (dialog.isInitiator) {
@@ -793,7 +801,7 @@ class KenesWidgetV2Presenter(
                 ViewState.ChatBot.Categories(true)
             }
             BottomNavigation.OPERATOR_CALL -> ViewState.OperatorCall
-            BottomNavigation.SERVICES -> ViewState.Services
+            BottomNavigation.SERVICES -> ViewState.Services.IDLE
             BottomNavigation.INFO -> ViewState.Info
         }
     }
@@ -913,7 +921,13 @@ class KenesWidgetV2Presenter(
                 view?.showExternalServices(parentService = service, services = services)
             }
         } else if (service.isLinkType()) {
-            // ignored
+            val text = service.title.get(language)
+
+            socketClient?.sendUserMessage(text)
+
+            view?.addNewMessage(Message(type = Message.Type.USER, text = text))
+
+            viewState = ViewState.Services.Process
         }
     }
 
@@ -1272,6 +1286,12 @@ class KenesWidgetV2Presenter(
 
     fun onAddAttachmentButtonClicked() {
         view?.showAttachmentPicker()
+    }
+
+    fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
+        view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
+
+        socketClient?.sendExternal(button.callbackData)
     }
 
 }

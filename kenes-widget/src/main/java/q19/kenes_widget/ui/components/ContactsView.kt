@@ -226,7 +226,7 @@ private class InfoBlockRowsAdapterItemDecoration(context: Context) : RecyclerVie
     private val horizonalSpacing =
         context.resources.getDimensionPixelOffset(R.dimen.kenes_info_block_horizontal_spacing)
 
-    private var paint: Paint = Paint()
+    private val paint: Paint = Paint()
 
     init {
         paint.color = Color.parseColor("#BFF3F3F3")

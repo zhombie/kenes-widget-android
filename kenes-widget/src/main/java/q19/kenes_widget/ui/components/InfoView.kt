@@ -175,7 +175,7 @@ private class MenuAdapter(
 
     class ItemDecoration : RecyclerView.ItemDecoration() {
 
-        private var paint: Paint = Paint()
+        private val paint: Paint = Paint()
 
         init {
             paint.color = Color.parseColor("#BFF3F3F3")

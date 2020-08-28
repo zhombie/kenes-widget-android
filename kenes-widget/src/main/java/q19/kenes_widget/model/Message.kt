@@ -10,6 +10,7 @@ data class Message(
     var id: String? = null,
     var type: Type = Type.OPPONENT,
     var text: String,
+    var replyMarkup: ReplyMarkup? = null,
     var media: Media? = null,
     var attachments: List<Attachment>? = null,
     var date: Calendar = now(),
@@ -41,6 +42,7 @@ data class Message(
     constructor(
         type: Type,
         text: String? = null,
+        replyMarkup: ReplyMarkup? = null,
         media: Media? = null,
         attachments: List<Attachment>? = null,
         timestamp: Long? = null,
@@ -49,6 +51,7 @@ data class Message(
         id = null,
         type = type,
         text = text?.trim() ?: "",
+        replyMarkup = replyMarkup,
         media = media,
         attachments = attachments,
         date = timestamp?.let { fromTimestamp(it) } ?: now(),
@@ -70,6 +73,35 @@ data class Message(
                 }
             } else null
         }
+
+    data class ReplyMarkup(
+        val rows: List<List<Button>> = emptyList()
+    ) {
+
+        data class Button(
+            val text: String,
+            val callbackData: String? = null
+        )
+
+        fun getAllButtons(): MutableList<Button> {
+            val buttons = mutableListOf<Button>()
+            rows.forEach {
+                it.forEach { button ->
+                    buttons.add(button)
+                }
+            }
+            return buttons
+        }
+
+        fun getColumnsCount(): Int {
+            return if (rows.isNullOrEmpty()) {
+                0
+            } else {
+                rows.first().size
+            }
+        }
+
+    }
 
     class File(
         var type: String? = null
@@ -117,10 +149,6 @@ data class Message(
         CATEGORY,
         CROSS_CHILDREN,
         RESPONSE
-    }
-
-    override fun toString(): String {
-        return "Message(type=$type, text=\"$text\", category=$category)"
     }
 
 }

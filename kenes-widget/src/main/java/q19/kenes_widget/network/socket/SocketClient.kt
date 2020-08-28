@@ -3,6 +3,7 @@ package q19.kenes_widget.network.socket
 import io.socket.client.IO
 import io.socket.client.Socket
 import io.socket.emitter.Emitter
+import org.json.JSONArray
 import org.json.JSONObject
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
@@ -162,7 +163,41 @@ internal class SocketClient {
         val rtc = data.optJSONObject("rtc")
         val fuzzyTask = data.optBoolean("fuzzy_task")
 //        val form = message.optJSONObject("form")
-        val attachments = data.optJSONArray("attachments")
+        val attachmentsJson = data.optJSONArray("attachments")
+        val replyMarkupJson = data.optJSONObject("reply_markup")
+
+        debug(TAG, "replyMarkupJson: $replyMarkupJson")
+
+        var replyMarkup: Message.ReplyMarkup? = null
+        if (replyMarkupJson != null) {
+            val rows = mutableListOf<List<Message.ReplyMarkup.Button>>()
+
+            val inlineKeyboard = replyMarkupJson.optJSONArray("inline_keyboard")
+            debug(TAG, "inlineKeyboard: $inlineKeyboard")
+            if (inlineKeyboard != null) {
+                for (i in 0 until inlineKeyboard.length()) {
+                    val row = inlineKeyboard[i] as? JSONArray?
+
+                    debug(TAG, "row: $row")
+
+                    val buttons = mutableListOf<Message.ReplyMarkup.Button>()
+                    for (j in 0 until (row?.length() ?: 0)) {
+                        val button = row?.get(j) as? JSONObject?
+                        debug(TAG, "button: $button")
+
+                        buttons.add(
+                            Message.ReplyMarkup.Button(
+                                text = button?.getString("text") ?: "",
+                                callbackData = button?.getNullableString("callback_data")
+                            )
+                        )
+                    }
+                    rows.add(buttons)
+                }
+            }
+
+            replyMarkup = Message.ReplyMarkup(rows)
+        }
 
         if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank() && !text.isNullOrBlank()) {
             val isHandled = listener?.onNoResultsFound(text, time)
@@ -233,13 +268,13 @@ internal class SocketClient {
             if (!data.isNull("queued")) {
                 val queued = data.optInt("queued")
                 listener?.onPendingUsersQueueCount(text, queued)
-                listener?.onTextMessage(text = text, timestamp = time)
+                listener?.onTextMessage(text = text, replyMarkup = replyMarkup, timestamp = time)
             } else {
-                if (attachments != null) {
-                    val newAttachments = mutableListOf<Attachment>()
-                    for (i in 0 until attachments.length()) {
-                        val attachment = attachments[i] as? JSONObject?
-                        newAttachments.add(
+                if (attachmentsJson != null) {
+                    val attachments = mutableListOf<Attachment>()
+                    for (i in 0 until attachmentsJson.length()) {
+                        val attachment = attachmentsJson[i] as? JSONObject?
+                        attachments.add(
                             Attachment(
                                 title = attachment?.getNullableString("title"),
                                 ext = attachment?.getNullableString("ext"),
@@ -251,11 +286,16 @@ internal class SocketClient {
 
                     listener?.onTextMessage(
                         text = text,
-                        attachments = newAttachments,
+                        replyMarkup = replyMarkup,
+                        attachments = attachments,
                         timestamp = time
                     )
                 } else {
-                    listener?.onTextMessage(text = text, timestamp = time)
+                    listener?.onTextMessage(
+                        text = text,
+                        replyMarkup = replyMarkup,
+                        timestamp = time
+                    )
                 }
             }
 
@@ -270,15 +310,27 @@ internal class SocketClient {
             val ext = media.getNullableString("ext")
 
             if (!image.isNullOrBlank() && !ext.isNullOrBlank()) {
-                listener?.onMediaMessage(Media(imageUrl = image, hash = name, ext = ext), time)
+                listener?.onMediaMessage(
+                    media = Media(imageUrl = image, hash = name, ext = ext),
+                    replyMarkup = replyMarkup,
+                    timestamp = time
+                )
             }
 
             if (!audio.isNullOrBlank() && !ext.isNullOrBlank()) {
-                listener?.onMediaMessage(Media(audioUrl = audio, hash = name, ext = ext), time)
+                listener?.onMediaMessage(
+                    media = Media(audioUrl = audio, hash = name, ext = ext),
+                    replyMarkup = replyMarkup,
+                    timestamp = time
+                )
             }
 
             if (!file.isNullOrBlank() && !ext.isNullOrBlank()) {
-                listener?.onMediaMessage(Media(fileUrl = file, hash = name, ext = ext), time)
+                listener?.onMediaMessage(
+                    media = Media(fileUrl = file, hash = name, ext = ext),
+                    replyMarkup = replyMarkup,
+                    timestamp = time
+                )
             }
         }
 
@@ -445,6 +497,14 @@ internal class SocketClient {
         })
     }
 
+    fun sendExternal(callbackData: String?) {
+        debug(TAG, "sendExternal: $callbackData")
+
+        socket?.emit("external", jsonObject {
+            put("callback_data", callbackData)
+        })
+    }
+
     fun cancelPendingCall() {
         debug(TAG, "cancelPendingCall")
 
@@ -496,8 +556,17 @@ internal class SocketClient {
         fun onRTCIceCandidate(iceCandidate: IceCandidate)
         fun onRTCHangup()
 
-        fun onTextMessage(text: String, attachments: List<Attachment>? = null, timestamp: Long)
-        fun onMediaMessage(media: Media, timestamp: Long)
+        fun onTextMessage(
+            text: String,
+            replyMarkup: Message.ReplyMarkup? = null,
+            attachments: List<Attachment>? = null,
+            timestamp: Long
+        )
+        fun onMediaMessage(
+            media: Media,
+            replyMarkup: Message.ReplyMarkup? = null,
+            timestamp: Long
+        )
         fun onEmptyMessage()
 
         fun onCategories(categories: List<Category>)

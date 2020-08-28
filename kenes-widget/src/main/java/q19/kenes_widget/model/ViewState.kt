@@ -47,7 +47,10 @@ sealed class ViewState {
 
 //    object Contacts : ViewState()
 
-    object Services : ViewState()
+    sealed class Services : ViewState() {
+        object IDLE : Services()
+        object Process : Services()
+    }
 
     object Info : ViewState()
 }

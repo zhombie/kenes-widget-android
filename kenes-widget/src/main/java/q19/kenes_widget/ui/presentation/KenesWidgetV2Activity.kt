@@ -460,19 +460,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             override fun onImageLoadCompleted() {
             }
 
-            override fun onStopTrackingTouch(progress: Int, itemPosition: Int) {
-                debug(TAG, "onStopTrackingTouch -> progress: $progress, itemPosition: $itemPosition")
-
-                if (currentAudioPlayingItemPosition == itemPosition) {
-                    isAudioPaused = false
-                    isAudioPlayCompleted = false
-                    val milliseconds = (progress * (mediaPlayer?.duration ?: 1)) / 100
-                    mediaPlayer?.seekTo(milliseconds)
-                    mediaPlayer?.start()
-                    updateProgress(itemPosition)
-                }
-            }
-
             override fun onMediaClicked(media: Media, itemPosition: Int) {
                 debug(TAG, "onMediaClicked: $media, itemPosition: $itemPosition")
 
@@ -485,6 +472,23 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                 val file = attachment.getFile(this@KenesWidgetV2Activity)
                 presenter.onAttachmentClicked(attachment, file, itemPosition)
+            }
+
+            override fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
+                presenter.onReplyMarkupButtonClicked(button)
+            }
+
+            override fun onStopTrackingTouch(progress: Int, itemPosition: Int) {
+                debug(TAG, "onStopTrackingTouch -> progress: $progress, itemPosition: $itemPosition")
+
+                if (currentAudioPlayingItemPosition == itemPosition) {
+                    isAudioPaused = false
+                    isAudioPlayCompleted = false
+                    val milliseconds = (progress * (mediaPlayer?.duration ?: 1)) / 100
+                    mediaPlayer?.seekTo(milliseconds)
+                    mediaPlayer?.start()
+                    updateProgress(itemPosition)
+                }
             }
         })
 
@@ -1576,15 +1580,29 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 //                    contactsView.visibility = View.VISIBLE
 //                }
 //            }
-            ViewState.Services -> {
-                runOnUiThread {
-                    hideOtherViews()
+            is ViewState.Services -> {
+                when (viewState) {
+                    ViewState.Services.IDLE -> {
+                        runOnUiThread {
+                            hideOtherViews()
 
-                    infoView.visibility = View.GONE
+                            infoView.visibility = View.GONE
 
-                    bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
+                            bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
 
-                    servicesView.visibility = View.VISIBLE
+                            servicesView.visibility = View.VISIBLE
+                        }
+                    }
+                    ViewState.Services.Process -> {
+                        runOnUiThread {
+                            servicesView.visibility = View.GONE
+
+                            recyclerView.visibility = View.VISIBLE
+
+                            footerView.enableAttachmentButton()
+                            footerView.visibility = View.VISIBLE
+                        }
+                    }
                 }
             }
             ViewState.Info -> {

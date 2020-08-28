@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
@@ -38,6 +39,7 @@ internal class ChatAdapter(
 
         private val LAYOUT_USER_MESSAGE = R.layout.kenes_cell_user_message
         private val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
+        private val LAYOUT_MESSAGE_KEYBOARD = R.layout.kenes_cell_message_keyboard
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
         private val LAYOUT_TYPING = R.layout.kenes_cell_typing
         private val LAYOUT_CATEGORY = R.layout.kenes_cell_category
@@ -164,11 +166,17 @@ internal class ChatAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return if (messages.isNotEmpty()) {
-            when (getItem(position).type) {
+            val item = getItem(position)
+            when (item.type) {
                 Message.Type.USER ->
                     LAYOUT_USER_MESSAGE
-                Message.Type.OPPONENT ->
-                    LAYOUT_OPPONENT_MESSAGE
+                Message.Type.OPPONENT -> {
+                    if (item.replyMarkup != null) {
+                        LAYOUT_MESSAGE_KEYBOARD
+                    } else {
+                        LAYOUT_OPPONENT_MESSAGE
+                    }
+                }
                 Message.Type.NOTIFICATION ->
                     LAYOUT_NOTIFICATION
                 Message.Type.TYPING ->
@@ -190,6 +198,7 @@ internal class ChatAdapter(
         return when (viewType) {
             LAYOUT_USER_MESSAGE -> UserMessageViewHolder(view)
             LAYOUT_OPPONENT_MESSAGE -> OpponentMessageViewHolder(view)
+            LAYOUT_MESSAGE_KEYBOARD -> MessageKeyboardViewHolder(view)
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
             LAYOUT_CATEGORY -> CategoryViewHolder(view)
@@ -205,8 +214,13 @@ internal class ChatAdapter(
         when (message.type) {
             Message.Type.USER ->
                 if (holder is UserMessageViewHolder) holder.bind(message)
-            Message.Type.OPPONENT ->
-                if (holder is OpponentMessageViewHolder) holder.bind(message)
+            Message.Type.OPPONENT -> {
+                if (message.replyMarkup != null) {
+                    if (holder is MessageKeyboardViewHolder) holder.bind(message)
+                } else {
+                    if (holder is OpponentMessageViewHolder) holder.bind(message)
+                }
+            }
             Message.Type.NOTIFICATION ->
                 if (holder is NotificationViewHolder) holder.bind(message)
             Message.Type.TYPING ->
@@ -264,12 +278,12 @@ internal class ChatAdapter(
     }
 
     private inner class UserMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var imageView = view.findViewById<ImageView>(R.id.imageView)
-        private var mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
-        private var iconView = view.findViewById<ImageView>(R.id.iconView)
-        private var mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
-        private var textView = view.findViewById<TextView>(R.id.textView)
-        private var timeView = view.findViewById<TextView>(R.id.timeView)
+        private val imageView = view.findViewById<ImageView>(R.id.imageView)
+        private val mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
+        private val iconView = view.findViewById<ImageView>(R.id.iconView)
+        private val mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
+        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val timeView = view.findViewById<TextView>(R.id.timeView)
 
         init {
             timeView.visibility = View.GONE
@@ -384,18 +398,18 @@ internal class ChatAdapter(
     }
 
     private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var imageView = view.findViewById<ImageView>(R.id.imageView)
-        private var mediaView = view.findViewById<RelativeLayout>(R.id.mediaView)
-        private var iconView = view.findViewById<ImageView>(R.id.iconView)
-        private var progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-        private var mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
-        private var mediaPlaySeekBar = view.findViewById<SeekBar>(R.id.mediaPlaySeekBar)
-        private var mediaPlayTimeView = view.findViewById<TextView>(R.id.mediaPlayTimeView)
-        private var textView = view.findViewById<TextView>(R.id.textView)
-        private var timeView = view.findViewById<TextView>(R.id.timeView)
-        private var attachmentView = view.findViewById<TextView>(R.id.attachmentView)
+        private val imageView = view.findViewById<ImageView>(R.id.imageView)
+        private val mediaView = view.findViewById<RelativeLayout>(R.id.mediaView)
+        private val iconView = view.findViewById<ImageView>(R.id.iconView)
+        private val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+        private val mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
+        private val mediaPlaySeekBar = view.findViewById<SeekBar>(R.id.mediaPlaySeekBar)
+        private val mediaPlayTimeView = view.findViewById<TextView>(R.id.mediaPlayTimeView)
+        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val timeView = view.findViewById<TextView>(R.id.timeView)
+        private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
-        private var htmlTextViewManager = HtmlTextViewManager()
+        private val htmlTextViewManager = HtmlTextViewManager()
 
         init {
             timeView.visibility = View.GONE
@@ -686,9 +700,58 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class NotificationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView = view.findViewById<TextView>(R.id.textView)
-        private var timeView = view.findViewById<TextView>(R.id.timeView)
+    private inner class MessageKeyboardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+
+        private var keyboardAdapter: KeyboardAdapter? = null
+
+        private var itemDecoration = KeyboardAdapterItemDecoration(
+            itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
+            itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+        )
+
+        init {
+            recyclerView.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+        }
+
+        fun bind(message: Message) {
+            textView?.text = message.text
+
+            val replyMarkup = message.replyMarkup
+            if (replyMarkup != null) {
+                if (keyboardAdapter == null) {
+                    keyboardAdapter = KeyboardAdapter {
+                        callback?.onReplyMarkupButtonClicked(it)
+                    }
+                }
+
+                if (recyclerView.adapter == null) {
+                    recyclerView.adapter = keyboardAdapter
+                }
+
+                recyclerView.addItemDecoration(itemDecoration)
+
+                val columnsCount = replyMarkup.getColumnsCount()
+
+                debug(TAG, "columnsCount: $columnsCount")
+
+                recyclerView.layoutManager = GridLayoutManager(
+                    itemView.context,
+                    columnsCount,
+                    GridLayoutManager.VERTICAL,
+                    false
+                )
+            }
+
+            keyboardAdapter?.replyMarkup = replyMarkup
+        }
+
+    }
+
+    private class NotificationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val timeView = view.findViewById<TextView>(R.id.timeView)
 
         fun bind(message: Message) {
             textView?.text = message.text
@@ -696,18 +759,18 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class TypingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private class TypingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind() {
         }
     }
 
     private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), CategoryAdapter.Callback {
-        private var titleView = view.findViewById<TextView>(R.id.titleView)
-        private var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        private var showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
+        private val titleView = view.findViewById<TextView>(R.id.titleView)
+        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        private val showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
 
-        private var categoryAdapter: CategoryAdapter
-        private var layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+        private val categoryAdapter: CategoryAdapter
+        private val layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
 
         init {
             recyclerView?.layoutManager = layoutManager
@@ -752,11 +815,11 @@ internal class ChatAdapter(
     }
 
     private inner class CrossChildrenViewHolder(view: View) : RecyclerView.ViewHolder(view), CrossChildrenAdapter.Callback {
-        private var titleView = view.findViewById<TextView>(R.id.titleView)
-        private var recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        private val titleView = view.findViewById<TextView>(R.id.titleView)
+        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        private var crossChildrenAdapter: CrossChildrenAdapter
-        private var layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
+        private val crossChildrenAdapter: CrossChildrenAdapter
+        private val layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
 
         init {
             recyclerView?.layoutManager = layoutManager
@@ -801,12 +864,12 @@ internal class ChatAdapter(
     }
 
     private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var titleView = view.findViewById<TextView>(R.id.titleView)
-        private var textView = view.findViewById<TextView>(R.id.textView)
-        private var timeView = view.findViewById<TextView>(R.id.timeView)
-        private var attachmentView = view.findViewById<TextView>(R.id.attachmentView)
+        private val titleView = view.findViewById<TextView>(R.id.titleView)
+        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val timeView = view.findViewById<TextView>(R.id.timeView)
+        private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
-        private var htmlTextViewManager = HtmlTextViewManager()
+        private val htmlTextViewManager = HtmlTextViewManager()
 
         fun bind(message: Message) {
             val context = itemView.context
@@ -880,6 +943,8 @@ internal class ChatAdapter(
 
         fun onMediaClicked(media: Media, itemPosition: Int)
         fun onAttachmentClicked(attachment: Attachment, itemPosition: Int)
+
+        fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button)
 
         fun onStopTrackingTouch(progress: Int, itemPosition: Int)
     }

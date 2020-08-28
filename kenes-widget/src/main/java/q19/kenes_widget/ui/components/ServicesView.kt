@@ -315,7 +315,7 @@ private class ServicesAdapterItemDecoration(
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
 
-    private var paint: Paint = Paint()
+    private val paint: Paint = Paint()
 
     init {
         paint.color = Color.parseColor("#EBEEF5")
