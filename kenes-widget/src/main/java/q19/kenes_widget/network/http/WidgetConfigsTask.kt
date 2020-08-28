@@ -135,6 +135,12 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                 for (i in 0 until callScopesJson.length()) {
                     val callScope = callScopesJson[i] as JSONObject
 
+                    val type = when (callScope.getNullableString("type")) {
+                        Configs.CallScope.Type.FOLDER.value -> Configs.CallScope.Type.FOLDER
+                        Configs.CallScope.Type.LINK.value -> Configs.CallScope.Type.LINK
+                        else -> null
+                    }
+
                     val chatType = when (callScope.getNullableString("chat_type")) {
                         Configs.CallScope.ChatType.AUDIO.value -> Configs.CallScope.ChatType.AUDIO
                         Configs.CallScope.ChatType.VIDEO.value -> Configs.CallScope.ChatType.VIDEO
@@ -150,7 +156,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                     callScopes.add(
                         Configs.CallScope(
                             id = callScope.getLong("id"),
-                            type = callScope.getString("type"),
+                            type = type,
                             scope = callScope.getString("scope"),
                             title = callScope.getJSONObject("title").parse(),
                             parentId = callScope.getLong("parent_id"),

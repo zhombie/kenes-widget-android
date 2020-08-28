@@ -6,6 +6,8 @@
     <color name="kenes_light_blue">#8CC5FF</color>
     <color name="kenes_transparent">#00000000</color>
 
+    <color name="kenes_light_gray">#F3F3F3</color>
+    <color name="kenes_grayish">#BDBDBD</color>
     <color name="kenes_gray">#8D8D8D</color>
     <color name="kenes_red">#FB5252</color>
     <color name="kenes_white">#FFFFFF</color>

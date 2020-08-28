@@ -1,27 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FAFAFA"
-    android:foreground="?attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
     android:orientation="horizontal"
     android:padding="20dp">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/textView"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif"
         android:gravity="center"
+        android:maxLines="2"
+        android:singleLine="false"
         android:textColor="#487AFC"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:textStyle="normal"
-        app:drawableEndCompat="@drawable/kenes_ic_arrow"
-        tools:text="СПЕЦЦОН" />
+        app:fontFamily="sans-serif"
+        tools:text="СпецЦОН" />
 
-</LinearLayout>
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/textView"
+        android:layout_alignBottom="@id/textView"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"
+        tools:srcCompat="@drawable/kenes_ic_caret_right_blue"
+        tools:visibility="visible" />
+
+</RelativeLayout>

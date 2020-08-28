@@ -2,6 +2,8 @@ package q19.kenes_widget.ui.components
 
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
@@ -15,9 +17,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.annotation.*
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
@@ -238,7 +242,11 @@ internal class OperatorCallView @JvmOverloads constructor(
         }
     }
 
-    fun showCallScopes(parentCallScope: Configs.CallScope?, callScopes: List<Configs.CallScope>, language: Language) {
+    fun showCallScopes(
+        parentCallScope: Configs.CallScope?,
+        callScopes: List<Configs.CallScope>,
+        language: Language
+    ) {
         if (titleView == null) {
             titleView = TextView(context)
             titleView?.layoutParams = MarginLayoutParams(
@@ -285,7 +293,10 @@ internal class OperatorCallView @JvmOverloads constructor(
 
             titleView?.background = RippleDrawable(
                 ColorStateListBuilder()
-                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_gray))
+                    .addState(
+                        IntArray(1) { android.R.attr.state_pressed },
+                        ContextCompat.getColor(context, R.color.kenes_grayish)
+                    )
                     .build(),
                 null,
                 ShapeDrawable(RectShape())
@@ -401,7 +412,7 @@ private class CallScopesAdapter(
         return if (isFooterEnabled) {
             if (position == itemCount - 1) {
                 VIEW_TYPE_FOOTER
-            }  else {
+            } else {
                 VIEW_TYPE_CALL_SCOPE
             }
         } else {
@@ -437,15 +448,66 @@ private class CallScopesAdapter(
 
     private inner class CallScopeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
+        private var imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind(callScope: Configs.CallScope) {
             textView.text = callScope.title.get(language)
 
             debug(TAG, "callScope: $callScope")
 
-            textView.showCompoundDrawableOnRight(R.drawable.kenes_ic_arrow)
+            when {
+                callScope.isFolderType() -> {
+                    imageView.setImageResource(R.drawable.kenes_ic_caret_right_blue)
+                    imageView.visibility = View.VISIBLE
 
-            itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                    textView.removeCompoundDrawables()
+
+                    itemView.isClickable = true
+                    itemView.isFocusable = true
+
+                    itemView.background = buildRippleDrawableBackground(itemView.context)
+
+                    itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                }
+                callScope.isLinkType() -> {
+                    imageView.visibility = View.GONE
+
+                    when {
+                        callScope.isAudioCallAction() -> {
+                            val drawable = setDrawableTint(itemView.context, R.drawable.kenes_ic_headphones_blue)
+                            textView.showCompoundDrawableOnfLeft(drawable, 10.px)
+                        }
+                        callScope.isVideoCallAction() -> {
+                            val drawable = setDrawableTint(itemView.context, R.drawable.kenes_ic_camera_blue)
+                            textView.showCompoundDrawableOnfLeft(drawable, 10.px)
+                        }
+                        else -> {
+                            textView.removeCompoundDrawables()
+                        }
+                    }
+
+                    itemView.isClickable = true
+                    itemView.isFocusable = true
+
+                    itemView.background = buildRippleDrawableBackground(itemView.context)
+
+                    itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                }
+                else -> {
+                    imageView.visibility = View.GONE
+
+                    textView.removeCompoundDrawables()
+
+                    itemView.isClickable = false
+                    itemView.isFocusable = false
+
+                    val drawable = GradientDrawable()
+                    drawable.setColor(getDefaultBackgroundColor())
+                    itemView.background = drawable
+
+                    itemView.setOnClickListener(null)
+                }
+            }
         }
     }
 
@@ -453,12 +515,56 @@ private class CallScopesAdapter(
         private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
 
         fun bind() {
+            textView.removeCompoundDrawables()
+
             textView.setText(R.string.kenes_back)
 
-            textView.removeCompoundDrawables()
+            itemView.isClickable = true
+            itemView.isFocusable = true
+
+            itemView.background = buildRippleDrawableBackground(itemView.context)
 
             itemView.setOnClickListener { callback.onCallScopeBackClicked() }
         }
+    }
+
+    private fun getDefaultBackgroundColor(): Int {
+        return Color.parseColor("#FAFAFA")
+    }
+
+    private fun buildRippleDrawableBackground(context: Context): RippleDrawable {
+        val defaultColor = getDefaultBackgroundColor()
+        val content = GradientDrawable()
+        content.setColor(defaultColor)
+        return RippleDrawable(
+            ColorStateListBuilder()
+                .addState(
+                    IntArray(1) { android.R.attr.state_pressed },
+                    ContextCompat.getColor(context, R.color.kenes_grayish)
+                )
+                .addState(
+                    intArrayOf(),
+                    defaultColor
+                )
+                .build(),
+            content,
+            ShapeDrawable(RectShape())
+        )
+    }
+
+    private fun setDrawableTint(
+        context: Context,
+        @DrawableRes drawableRes: Int,
+        @ColorInt color: Int = Color.parseColor("#487AFC")
+    ): Drawable? {
+        val drawable = ResourcesCompat.getDrawable(
+            context.resources,
+            drawableRes,
+            context.theme
+        ) ?: return null
+        val drawableWrap = DrawableCompat.wrap(drawable).mutate()
+        DrawableCompat.setTint(drawableWrap, color)
+        return drawableWrap
     }
 
     interface Callback {

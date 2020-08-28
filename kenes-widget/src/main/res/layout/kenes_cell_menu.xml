@@ -40,7 +40,7 @@
         android:id="@+id/arrowView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/kenes_ic_arrow"
+        android:src="@drawable/kenes_ic_caret_right_gray"
         tools:ignore="ContentDescription" />
 
 </LinearLayout>

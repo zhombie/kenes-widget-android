@@ -14,6 +14,8 @@ class TextView @JvmOverloads constructor(
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
 
     fun setFont(@FontRes id: Int, style: Int = Typeface.NORMAL) {
+        setTypeface(typeface, style)
+        return
         ResourcesCompat.getFont(context, id, object : ResourcesCompat.FontCallback() {
             override fun onFontRetrieved(typeface: Typeface) {
                 if (style in setOf(Typeface.NORMAL, Typeface.ITALIC, Typeface.BOLD)) {

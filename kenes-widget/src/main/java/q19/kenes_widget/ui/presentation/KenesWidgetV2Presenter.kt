@@ -576,7 +576,9 @@ class KenesWidgetV2Presenter(
                     if (configs.booleans.isOperatorsScoped) {
                         if (!configs.callScopes.isNullOrEmpty()) {
                             val parentScopes = Configs.CallScope.getParentCallScopes(configs.callScopes)
-                            if (!parentScopes.isNullOrEmpty()) {
+                            if (parentScopes.isNullOrEmpty()) {
+                                view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
+                            } else {
                                 view?.showCallScopes(callScopes = parentScopes)
                             }
 
@@ -718,7 +720,9 @@ class KenesWidgetV2Presenter(
                 clear()
 
                 val parentScopes = Configs.CallScope.getParentCallScopes(configs?.callScopes)
-                if (!parentScopes.isNullOrEmpty()) {
+                if (parentScopes.isNullOrEmpty()) {
+                    view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
+                } else {
                     view?.showCallScopes(callScopes = parentScopes)
                 }
 
@@ -827,20 +831,29 @@ class KenesWidgetV2Presenter(
     fun onCallScopeClicked(callScope: Configs.CallScope) {
         debug(TAG, "onCallScopeClicked() -> callScope: $callScope")
 
-        if (callScope.isAudioCallAction()) {
-            tryToCall(OperatorCall.AUDIO, scope = callScope.scope)
-        } else if (callScope.isVideoCallAction()) {
-            tryToCall(OperatorCall.VIDEO, scope = callScope.scope)
-        } else {
+        if (callScope.isFolderType()) {
             val callScopes = configs?.callScopes?.filter {
                 it.parentId == callScope.id
             }
             debug(TAG, "onCallScopeClicked() -> configs.callScopes: ${configs?.callScopes}")
             debug(TAG, "onCallScopeClicked() -> callScopes: $callScopes")
-            if (!callScopes.isNullOrEmpty()) {
+            if (callScopes.isNullOrEmpty()) {
+                activeCallScope = callScope
+
+                view?.showCallScopes(
+                    parentCallScope = callScope,
+                    callScopes = listOf(Configs.CallScope.empty())
+                )
+            } else {
                 activeCallScope = callScope
 
                 view?.showCallScopes(parentCallScope = callScope, callScopes = callScopes)
+            }
+        } else if (callScope.isLinkType()) {
+            if (callScope.isAudioCallAction()) {
+                tryToCall(OperatorCall.AUDIO, scope = callScope.scope)
+            } else if (callScope.isVideoCallAction()) {
+                tryToCall(OperatorCall.VIDEO, scope = callScope.scope)
             }
         }
     }
@@ -857,10 +870,10 @@ class KenesWidgetV2Presenter(
             }
             if (callScopes.isNullOrEmpty()) {
                 val parentScopes = Configs.CallScope.getParentCallScopes(configs?.callScopes)
-                if (!parentScopes.isNullOrEmpty()) {
-                    view?.showCallScopes(callScopes = parentScopes)
+                if (parentScopes.isNullOrEmpty()) {
+                    view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
                 } else {
-                    null
+                    view?.showCallScopes(callScopes = parentScopes)
                 }
             } else {
                 view?.showCallScopes(parentCallScope = activeCallScope, callScopes = callScopes)

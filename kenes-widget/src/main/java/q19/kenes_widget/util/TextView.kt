@@ -44,6 +44,25 @@ fun TextView.removeCompoundDrawables() {
     compoundDrawablePadding = 0
 }
 
+fun TextView.showCompoundDrawableOnfLeft(drawable: Drawable?, padding: Int? = null) {
+    showCompoundDrawable(drawable, Alignment.LEFT, padding)
+}
+
+fun TextView.showCompoundDrawable(drawable: Drawable?, alignment: Alignment, padding: Int? = null) {
+    if (drawable == null) {
+        return
+    }
+    when (alignment) {
+        Alignment.LEFT -> setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null)
+        Alignment.TOP -> setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null)
+        Alignment.RIGHT -> setCompoundDrawablesWithIntrinsicBounds(null, null, drawable, null)
+        Alignment.BOTTOM -> setCompoundDrawablesWithIntrinsicBounds(null, null, null, drawable)
+    }
+    if (padding != null) {
+        compoundDrawablePadding = padding
+    }
+}
+
 fun TextView.getCompoundDrawableOnTop(): Drawable? {
     return compoundDrawables[1]
 }

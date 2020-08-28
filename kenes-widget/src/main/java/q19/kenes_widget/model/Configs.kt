@@ -3,6 +3,7 @@ package q19.kenes_widget.model
 import androidx.annotation.DrawableRes
 import org.json.JSONObject
 import q19.kenes_widget.R
+import q19.kenes_widget.util.JsonUtil.jsonObject
 
 data class Configs(
     val booleans: Booleans = Booleans(),
@@ -137,23 +138,13 @@ data class Configs(
 
     data class CallScope(
         val id: Long,
-        val type: String,
+        val type: Type? = null,
         val scope: String? = null,
         val title: I18NString,
-        val parentId: Long,
+        val parentId: Long = -1L,
         val chatType: ChatType? = null,
         val action: Action? = null
     ) {
-
-        enum class Action(val value: String) {
-            AUDIO_CALL("audio_call"),
-            VIDEO_CALL("video_call")
-        }
-
-        enum class ChatType(val value: String) {
-            AUDIO("audio"),
-            VIDEO("video")
-        }
 
         companion object {
             private const val PARENT_ID = 0L
@@ -169,6 +160,45 @@ data class Configs(
                 if (callScopes.isNullOrEmpty()) return false
                 return callScopes.all { it.parentId == PARENT_ID }
             }
+
+            fun empty(): CallScope {
+                return CallScope(
+                    id = -1L,
+                    type = null,
+                    scope = null,
+                    title = I18NString(jsonObject {
+                        put("en", "Nothing found :(")
+                        put("ru", "Ничего не найдено :(")
+                        put("kk", "Ештеңе табылмады :(")
+                    }),
+                    parentId = -1L,
+                    chatType = null,
+                    action = null
+                )
+            }
+        }
+
+        enum class Type(val value: String) {
+            FOLDER("folder"),
+            LINK("link")
+        }
+
+        enum class Action(val value: String) {
+            AUDIO_CALL("audio_call"),
+            VIDEO_CALL("video_call")
+        }
+
+        enum class ChatType(val value: String) {
+            AUDIO("audio"),
+            VIDEO("video")
+        }
+
+        fun isFolderType(): Boolean {
+            return type == Type.FOLDER
+        }
+
+        fun isLinkType(): Boolean {
+            return type == Type.LINK
         }
 
         fun isAudioChatType(): Boolean {
