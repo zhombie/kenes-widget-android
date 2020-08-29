@@ -74,7 +74,8 @@ data class Message(
 
         data class Button(
             val text: String,
-            val callbackData: String? = null
+            val callbackData: String? = null,
+            val url: String? = null
         )
 
         fun getAllButtons(): MutableList<Button> {

@@ -109,6 +109,8 @@ class KenesWidgetV2Presenter(
 
         chatBot.callback = object : ChatBot.Callback {
             override fun onBasicCategoriesLoaded(categories: List<Category>) {
+//                debug(TAG, "onBasicCategoriesLoaded() -> categories: $categories")
+
                 val messages = categories
                     .sortedBy { it.id }
                     .mapIndexed { index, category ->
@@ -487,7 +489,7 @@ class KenesWidgetV2Presenter(
             }
 
             override fun onCategories(categories: List<Category>) {
-//                debug(TAG, "onCategories -> viewState: $viewState")
+                debug(TAG, "onCategories() -> categories: $categories")
 
                 if (viewState is ViewState.ChatBot.UserPrompt) return
 
@@ -1297,14 +1299,20 @@ class KenesWidgetV2Presenter(
     fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
         view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
 
-        if (button.callbackData == "/cancel") {
-            socketClient?.cancelExternal()
+        when {
+            button.callbackData == "/cancel" -> {
+                socketClient?.cancelExternal()
 
-            view?.showGoToHomeButton()
+                view?.showGoToHomeButton()
 
-            viewState = ViewState.Services.Process(isCancelled = true)
-        } else {
-            socketClient?.sendExternal(button.callbackData)
+                viewState = ViewState.Services.Process(isCancelled = true)
+            }
+            !button.url.isNullOrBlank() -> {
+                view?.openLink(button.url)
+            }
+            else -> {
+                socketClient?.sendExternal(button.callbackData)
+            }
         }
     }
 

@@ -53,6 +53,8 @@ interface KenesWidgetV2View {
     fun showFooterView()
 
     fun openFile(file: File)
+    fun openLink(url: String)
+
     fun playAudio(path: String, itemPosition: Int)
 
     fun clearChatMessages()

@@ -1,5 +1,7 @@
 package q19.kenes_widget.model
 
+import q19.kenes_widget.util.Logger.debug
+
 internal class ChatBot {
 
     /**
@@ -55,6 +57,10 @@ internal class ChatBot {
 
 internal class ObservableList : ArrayList<Category>() {
 
+    companion object {
+        private const val TAG = "ObservableList"
+    }
+
     var callback: Callback? = null
 
     override fun add(element: Category): Boolean {
@@ -82,12 +88,15 @@ internal class ObservableList : ArrayList<Category>() {
     }
 
     override fun addAll(elements: Collection<Category>): Boolean {
+//        debug(TAG, "addAll() -> elements: $elements")
+
         // Fix on potential exception (java.util.ConcurrentModificationException)
         try {
             if (any { elements.contains(it) }) {
                 return false
             }
         } catch (e: Exception) {
+            debug(TAG, "addAll() -> exception: $e")
             return false
         }
 

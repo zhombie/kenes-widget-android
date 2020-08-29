@@ -68,10 +68,13 @@ internal class ChatAdapter(
     }
 
     fun setNewMessages(message: Message, isNotifyEnabled: Boolean = true) {
+        debug(TAG, "setNewMessages: $message")
         setNewMessages(listOf(message), isNotifyEnabled)
     }
 
     fun setNewMessages(messages: List<Message>, isNotifyEnabled: Boolean = true) {
+        debug(TAG, "setNewMessages: $messages")
+
         if (messages.isEmpty()) return
 
         if (this.messages.isNotEmpty()) {

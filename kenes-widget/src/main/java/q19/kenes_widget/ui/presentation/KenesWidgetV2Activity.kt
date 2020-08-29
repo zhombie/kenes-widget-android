@@ -745,7 +745,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
-    override fun showCallScopes(parentCallScope: Configs.CallScope?, callScopes: List<Configs.CallScope>) {
+    override fun showCallScopes(
+        parentCallScope: Configs.CallScope?,
+        callScopes: List<Configs.CallScope>
+    ) {
         runOnUiThread {
             operatorCallView.showCallScopes(parentCallScope, callScopes, getCurrentLanguage())
         }
@@ -852,6 +855,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         } catch (e: Exception) {
             e.printStackTrace()
             toast(e.toString())
+        }
+    }
+
+    override fun openLink(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
         }
     }
 
@@ -1611,22 +1623,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             recyclerView.visibility = View.VISIBLE
 
                             if (viewState.isCancelled) {
-                                keyboardView.setReplyMarkup(null)
-                                keyboardView.visibility = View.GONE
+                                clearChatFooterMessages()
+//                                keyboardView.setReplyMarkup(null)
+//                                keyboardView.visibility = View.GONE
                             } else {
-                                keyboardView.setReplyMarkup(
-                                    Message.ReplyMarkup(
-                                        listOf(
-                                            listOf(
-                                                Message.ReplyMarkup.Button(
-                                                    text = "⁡🏠 На главную",
-                                                    callbackData = "/cancel"
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                                keyboardView.visibility = View.VISIBLE
+                                showGoToHomeButton()
+//                                keyboardView.setReplyMarkup(
+//                                    Message.ReplyMarkup(
+//                                        listOf(
+//                                            listOf(
+//                                                Message.ReplyMarkup.Button(
+//                                                    text = "⁡🏠 На главную",
+//                                                    callbackData = "/cancel"
+//                                                )
+//                                            )
+//                                        )
+//                                    )
+//                                )
+//                                keyboardView.visibility = View.VISIBLE
                             }
 
                             footerView.enableAttachmentButton()
