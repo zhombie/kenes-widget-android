@@ -121,6 +121,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     private val servicesView by bind<ServicesView>(R.id.servicesView)
 
+    private val keyboardView by bind<KeyboardView>(R.id.keyboardView)
+
     // ------------------------------------------------------------------------
 
     private val palette by lazy {
@@ -266,6 +268,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
             override fun onServiceBackClicked() {
                 presenter.onServiceBackClicked()
+            }
+        }
+
+        keyboardView.callback = object : KeyboardView.Callback {
+            override fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
+                presenter.onReplyMarkupButtonClicked(button)
             }
         }
 
@@ -1588,16 +1596,38 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                             infoView.visibility = View.GONE
 
+                            keyboardView.setReplyMarkup(null)
+                            keyboardView.visibility = View.GONE
+
                             bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
 
                             servicesView.visibility = View.VISIBLE
                         }
                     }
-                    ViewState.Services.Process -> {
+                    is ViewState.Services.Process -> {
                         runOnUiThread {
                             servicesView.visibility = View.GONE
 
                             recyclerView.visibility = View.VISIBLE
+
+                            if (viewState.isCancelled) {
+                                keyboardView.setReplyMarkup(null)
+                                keyboardView.visibility = View.GONE
+                            } else {
+                                keyboardView.setReplyMarkup(
+                                    Message.ReplyMarkup(
+                                        listOf(
+                                            listOf(
+                                                Message.ReplyMarkup.Button(
+                                                    text = "⁡🏠 На главную",
+                                                    callbackData = "/cancel"
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                                keyboardView.visibility = View.VISIBLE
+                            }
 
                             footerView.enableAttachmentButton()
                             footerView.visibility = View.VISIBLE

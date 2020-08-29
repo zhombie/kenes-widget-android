@@ -49,7 +49,7 @@ sealed class ViewState {
 
     sealed class Services : ViewState() {
         object IDLE : Services()
-        object Process : Services()
+        class Process(val isCancelled: Boolean) : Services()
     }
 
     object Info : ViewState()

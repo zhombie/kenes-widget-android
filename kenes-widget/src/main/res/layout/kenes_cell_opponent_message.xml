@@ -125,7 +125,7 @@
 
         </RelativeLayout>
 
-        <TextView
+        <q19.kenes_widget.ui.components.core.HtmlTextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -150,7 +150,6 @@
         android:layout_marginTop="10dp"
         android:background="@drawable/kenes_bg_button_light_blue_rounded_4dp"
         android:clickable="true"
-        android:drawableStart="@drawable/kenes_selector_file"
         android:drawablePadding="10dp"
         android:focusable="true"
         android:padding="10dp"
@@ -158,7 +157,8 @@
         android:textSize="13sp"
         android:visibility="gone"
         tools:text="тарифы_день_в_день.pdf"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        app:drawableStartCompat="@drawable/kenes_selector_file" />
 
     <TextView
         android:id="@+id/timeView"

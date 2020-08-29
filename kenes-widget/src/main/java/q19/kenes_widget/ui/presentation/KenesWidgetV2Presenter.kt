@@ -927,7 +927,7 @@ class KenesWidgetV2Presenter(
 
             view?.addNewMessage(Message(type = Message.Type.USER, text = text))
 
-            viewState = ViewState.Services.Process
+            viewState = ViewState.Services.Process(isCancelled = false)
         }
     }
 
@@ -1070,6 +1070,12 @@ class KenesWidgetV2Presenter(
                 view?.clearChatFooterMessages()
 
                 viewState = ViewState.OperatorCall
+            }
+            is ViewState.Services -> {
+                view?.clearChatMessages()
+                view?.clearChatFooterMessages()
+
+                viewState = ViewState.Services.IDLE
             }
             else -> {
                 val messages = chatBot.basicCategories.map { category ->
@@ -1291,7 +1297,15 @@ class KenesWidgetV2Presenter(
     fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
         view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
 
-        socketClient?.sendExternal(button.callbackData)
+        if (button.callbackData == "/cancel") {
+            socketClient?.cancelExternal()
+
+            view?.showGoToHomeButton()
+
+            viewState = ViewState.Services.Process(isCancelled = true)
+        } else {
+            socketClient?.sendExternal(button.callbackData)
+        }
     }
 
 }

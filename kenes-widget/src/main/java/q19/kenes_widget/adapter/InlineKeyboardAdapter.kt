@@ -15,7 +15,7 @@ import q19.kenes_widget.ui.helpers.*
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 
-internal class KeyboardAdapter(
+internal class InlineKeyboardAdapter(
     private val callback: (button: Message.ReplyMarkup.Button) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -67,13 +67,13 @@ internal class KeyboardAdapter(
 }
 
 
-internal class KeyboardAdapterItemDecoration(
+internal class InlineKeyboardAdapterItemDecoration(
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
 
     companion object {
-        private const val TAG = "KeyboardAdapterItemDecoration"
+        private const val TAG = "InlineKeyboardAdapterItemDecoration"
     }
 
     private val paint: Paint = Paint()
@@ -117,22 +117,39 @@ internal class KeyboardAdapterItemDecoration(
                 }
             } else if (columnsCount == 2) {
                 if (itemCount >= 2) {
-                    when (index) {
-                        itemCount - 2 -> {
-                            val path = getPathOfRoundedRectF(
+                    debug(TAG, "itemCount % columnsCount > 0: ${itemCount % columnsCount > 0}, $itemCount, $columnsCount")
+                    if (itemCount % columnsCount == 0) {
+                        when (index) {
+                            itemCount - 2 -> {
+                                val path = getPathOfRoundedRectF(
+                                    child,
+                                    bottomLeftRadius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                )
+                                c.drawPath(path, paint)
+                            }
+                            itemCount - 1 -> {
+                                val path = getPathOfRoundedRectF(
+                                    child,
+                                    bottomRightRadius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                )
+                                c.drawPath(path, paint)
+                            }
+                            else -> {
+                                val path = getPathOfRoundedRectF(
+                                    child,
+                                    radius = 0F
+                                )
+                                c.drawPath(path, paint)
+                            }
+                        }
+                    } else {
+                        if (index == itemCount - 1) {
+                            val path = getPathOfQuadBottomRectF(
                                 child,
-                                bottomLeftRadius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                             )
                             c.drawPath(path, paint)
-                        }
-                        itemCount - 1 -> {
-                            val path = getPathOfRoundedRectF(
-                                child,
-                                bottomRightRadius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                            )
-                            c.drawPath(path, paint)
-                        }
-                        else -> {
+                        } else {
                             val path = getPathOfRoundedRectF(
                                 child,
                                 radius = 0F
@@ -153,7 +170,7 @@ internal class KeyboardAdapterItemDecoration(
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = (parent.adapter as? KeyboardAdapter?) ?: return
+        val adapter = (parent.adapter as? InlineKeyboardAdapter?) ?: return
 
         val itemCount = adapter.itemCount
 //        val itemCount = parent.childCount
@@ -164,7 +181,7 @@ internal class KeyboardAdapterItemDecoration(
 
         val columnsCount = layoutManager?.spanCount ?: 0
 
-        debug(TAG, "onDrawOver() -> columnsCount: $columnsCount")
+        debug(TAG, "getItemOffsets() -> columnsCount: $columnsCount, itemCount: $itemCount, position: $position")
 
         // Draw rounded background
         if (cornerRadius.compareTo(0f) != 0) {
@@ -176,14 +193,18 @@ internal class KeyboardAdapterItemDecoration(
                 }
             } else if (columnsCount == 2) {
                 if (itemCount >= 2) {
-                    when (position) {
-                        itemCount - 2 -> {
-                            RoundMode.BOTTOM
+                    if (itemCount % columnsCount == 0) {
+                        when (position) {
+                            // TODO: Round only left bottom corner (not full bottom)
+                            itemCount - 2 -> RoundMode.BOTTOM
+                            // TODO: Round only right bottom corner (not full bottom)
+                            itemCount - 1 -> RoundMode.BOTTOM
+                            else -> RoundMode.NONE
                         }
-                        itemCount - 1 -> {
+                    } else {
+                        if (position == itemCount - 1) {
                             RoundMode.BOTTOM
-                        }
-                        else -> {
+                        } else {
                             RoundMode.NONE
                         }
                     }

@@ -90,6 +90,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <q19.kenes_widget.ui.components.KeyboardView
+            android:id="@+id/keyboardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <q19.kenes_widget.ui.components.BottomNavigationView
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"

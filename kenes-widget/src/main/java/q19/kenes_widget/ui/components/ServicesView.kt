@@ -180,7 +180,7 @@ private class ServicesAdapter(
 
         private val LAYOUT_HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
 
-        const val VIEW_TYPE_CALL_SCOPE = 100
+        const val VIEW_TYPE_SERVICE = 100
         const val VIEW_TYPE_FOOTER = 101
     }
 
@@ -201,10 +201,10 @@ private class ServicesAdapter(
             if (position == itemCount - 1) {
                 VIEW_TYPE_FOOTER
             } else {
-                VIEW_TYPE_CALL_SCOPE
+                VIEW_TYPE_SERVICE
             }
         } else {
-            VIEW_TYPE_CALL_SCOPE
+            VIEW_TYPE_SERVICE
         }
     }
 
@@ -219,7 +219,7 @@ private class ServicesAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_CALL_SCOPE -> ServiceViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
+            VIEW_TYPE_SERVICE -> ServiceViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
             VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
             else -> throw ViewHolderViewTypeException(viewType)
         }
@@ -356,7 +356,7 @@ private class ServicesAdapterItemDecoration(
                         radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                     )
                     c.drawPath(path, paint)
-                } else if (viewType == ServicesAdapter.VIEW_TYPE_CALL_SCOPE) {
+                } else if (viewType == ServicesAdapter.VIEW_TYPE_SERVICE) {
                     val relationalItemCount = if (adapter.isFooterEnabled) {
                         itemCount - 1
                     } else {
@@ -437,7 +437,7 @@ private class ServicesAdapterItemDecoration(
             ServicesAdapter.VIEW_TYPE_FOOTER -> {
                 outRect.top = parent.context.resources.getDimensionPixelOffset(R.dimen.kenes_footer_vertical_offset)
             }
-            ServicesAdapter.VIEW_TYPE_CALL_SCOPE -> {
+            ServicesAdapter.VIEW_TYPE_SERVICE -> {
                 outRect.setEmpty()
             }
             else -> {
@@ -449,7 +449,7 @@ private class ServicesAdapterItemDecoration(
         if (cornerRadius.compareTo(0f) != 0) {
             val roundMode = if (viewType == ServicesAdapter.VIEW_TYPE_FOOTER) {
                 RoundMode.ALL
-            } else if (viewType == ServicesAdapter.VIEW_TYPE_CALL_SCOPE) {
+            } else if (viewType == ServicesAdapter.VIEW_TYPE_SERVICE) {
                 val relationalItemCount = if (adapter.isFooterEnabled) {
                     itemCount - 1
                 } else {

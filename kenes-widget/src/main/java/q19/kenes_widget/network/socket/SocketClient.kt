@@ -505,6 +505,13 @@ internal class SocketClient {
         })
     }
 
+    fun cancelExternal() {
+        debug(TAG, "cancelExternal")
+
+        socket?.emit("external_cancel", jsonObject {
+        })
+    }
+
     fun cancelPendingCall() {
         debug(TAG, "cancelPendingCall")
 

@@ -2,16 +2,13 @@ package q19.kenes_widget.adapter
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
-import android.text.method.LinkMovementMethod
 import android.text.style.ForegroundColorSpan
-import android.text.util.Linkify
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -26,8 +23,11 @@ import q19.kenes_widget.model.Attachment
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.model.Media
 import q19.kenes_widget.model.Message
-import q19.kenes_widget.util.*
+import q19.kenes_widget.ui.components.core.HtmlTextView
 import q19.kenes_widget.util.Logger.debug
+import q19.kenes_widget.util.inflate
+import q19.kenes_widget.util.loadRoundedImage
+import q19.kenes_widget.util.showPendingFileDownloadAlert
 import java.util.concurrent.TimeUnit
 
 internal class ChatAdapter(
@@ -282,7 +282,7 @@ internal class ChatAdapter(
         private val mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
         private val iconView = view.findViewById<ImageView>(R.id.iconView)
         private val mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
-        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val textView = view.findViewById<HtmlTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
 
         init {
@@ -307,7 +307,7 @@ internal class ChatAdapter(
 
                     imageView?.setOnClickListener {
                         callback?.onImageClicked(
-                            imageView ?: return@setOnClickListener,
+                            imageView,
                             media.imageUrl ?: return@setOnClickListener
                         )
                     }
@@ -346,18 +346,8 @@ internal class ChatAdapter(
                 textView?.text = message.text
                 timeView?.text = message.time
 
-                textView?.autoLinkMask = Linkify.ALL
-                textView?.movementMethod = LinkMovementMethod.getInstance()
-
-                val colorStateList = ColorStateListBuilder()
-                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_blue))
-                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(context, R.color.kenes_blue))
-                    .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
-                    .build()
-
-                textView?.highlightColor = Color.TRANSPARENT
-
-                textView?.setLinkTextColor(colorStateList)
+                textView?.enableAutoLinkMask()
+                textView?.enableLinkMovementMethod()
 
                 textView?.visibility = View.VISIBLE
                 timeView?.visibility = View.VISIBLE
@@ -405,11 +395,9 @@ internal class ChatAdapter(
         private val mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
         private val mediaPlaySeekBar = view.findViewById<SeekBar>(R.id.mediaPlaySeekBar)
         private val mediaPlayTimeView = view.findViewById<TextView>(R.id.mediaPlayTimeView)
-        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val textView = view.findViewById<HtmlTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
         private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
-
-        private val htmlTextViewManager = HtmlTextViewManager()
 
         init {
             timeView.visibility = View.GONE
@@ -525,20 +513,12 @@ internal class ChatAdapter(
             }
 
             if (message.text.isNotBlank()) {
-                htmlTextViewManager.setHtmlText(textView, message.htmlText)
-                htmlTextViewManager.setOnUrlClickListener { _, url ->
+                textView?.setHtmlText(message.htmlText) { _, url ->
                     callback?.onUrlInTextClicked(url)
                 }
 
-                val colorStateList = ColorStateListBuilder()
-                    .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_blue))
-                    .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(context, R.color.kenes_blue))
-                    .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
-                    .build()
-
-                textView?.highlightColor = Color.TRANSPARENT
-
-                textView?.setLinkTextColor(colorStateList)
+                textView?.enableAutoLinkMask()
+                textView?.enableLinkMovementMethod()
 
                 timeView?.text = message.time
 
@@ -550,7 +530,7 @@ internal class ChatAdapter(
 
             val attachments = message.attachments
             if (!attachments.isNullOrEmpty()) {
-                val attachment = attachments[0]
+                val attachment = attachments.first()
 
                 if (attachment.type == "image") {
                     imageView?.loadRoundedImage(
@@ -701,33 +681,40 @@ internal class ChatAdapter(
     }
 
     private inner class MessageKeyboardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val textView = view.findViewById<HtmlTextView>(R.id.textView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+        private val timeView = view.findViewById<TextView>(R.id.timeView)
 
-        private var keyboardAdapter: KeyboardAdapter? = null
+        private var inlineKeyboardAdapter: InlineKeyboardAdapter? = null
 
-        private var itemDecoration = KeyboardAdapterItemDecoration(
-            itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
-            itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-        )
+        private val itemDecoration by lazy {
+            InlineKeyboardAdapterItemDecoration(
+                itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
+                itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+            )
+        }
 
         init {
             recyclerView.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
         fun bind(message: Message) {
-            textView?.text = message.text
+            textView.setHtmlText(message.htmlText) { _, url ->
+                callback?.onUrlInTextClicked(url)
+            }
+
+            timeView?.text = message.time
 
             val replyMarkup = message.replyMarkup
             if (replyMarkup != null) {
-                if (keyboardAdapter == null) {
-                    keyboardAdapter = KeyboardAdapter {
+                if (inlineKeyboardAdapter == null) {
+                    inlineKeyboardAdapter = InlineKeyboardAdapter {
                         callback?.onReplyMarkupButtonClicked(it)
                     }
                 }
 
                 if (recyclerView.adapter == null) {
-                    recyclerView.adapter = keyboardAdapter
+                    recyclerView.adapter = inlineKeyboardAdapter
                 }
 
                 recyclerView.addItemDecoration(itemDecoration)
@@ -736,15 +723,28 @@ internal class ChatAdapter(
 
                 debug(TAG, "columnsCount: $columnsCount")
 
-                recyclerView.layoutManager = GridLayoutManager(
+                val layoutManager = GridLayoutManager(
                     itemView.context,
                     columnsCount,
                     GridLayoutManager.VERTICAL,
                     false
                 )
+
+                layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int {
+                        val itemCount = layoutManager.itemCount
+                        return if (columnsCount > 0 && itemCount % columnsCount > 0 && position == itemCount - 1) {
+                            columnsCount
+                        } else {
+                            1
+                        }
+                    }
+                }
+
+                recyclerView.layoutManager = layoutManager
             }
 
-            keyboardAdapter?.replyMarkup = replyMarkup
+            inlineKeyboardAdapter?.replyMarkup = replyMarkup
         }
 
     }
@@ -865,15 +865,11 @@ internal class ChatAdapter(
 
     private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
-        private val textView = view.findViewById<TextView>(R.id.textView)
+        private val textView = view.findViewById<HtmlTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
         private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
-        private val htmlTextViewManager = HtmlTextViewManager()
-
         fun bind(message: Message) {
-            val context = itemView.context
-
             val category = message.category
 
             if (category != null) {
@@ -889,20 +885,9 @@ internal class ChatAdapter(
                 }
 
                 if (message.text.isNotBlank()) {
-                    htmlTextViewManager.setHtmlText(textView, message.htmlText)
-                    htmlTextViewManager.setOnUrlClickListener { _, url ->
+                    textView.setHtmlText(message.htmlText) { _, url ->
                         callback?.onUrlInTextClicked(url)
                     }
-
-                    val colorStateList = ColorStateListBuilder()
-                        .addState(IntArray(1) { android.R.attr.state_pressed }, ContextCompat.getColor(context, R.color.kenes_blue))
-                        .addState(IntArray(1) { android.R.attr.state_selected }, ContextCompat.getColor(context, R.color.kenes_blue))
-                        .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
-                        .build()
-
-                    textView.highlightColor = Color.TRANSPARENT
-
-                    textView.setLinkTextColor(colorStateList)
 
                     timeView.text = message.time
 
