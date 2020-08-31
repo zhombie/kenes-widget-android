@@ -19,11 +19,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
-import q19.kenes_widget.model.Attachment
-import q19.kenes_widget.model.Category
-import q19.kenes_widget.model.Media
-import q19.kenes_widget.model.Message
-import q19.kenes_widget.ui.components.core.HtmlTextView
+import q19.kenes_widget.data.model.Attachment
+import q19.kenes_widget.data.model.Category
+import q19.kenes_widget.data.model.Media
+import q19.kenes_widget.data.model.Message
+import q19.kenes_widget.ui.components.base.HtmlTextView
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.loadRoundedImage

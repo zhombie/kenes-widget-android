@@ -12,7 +12,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.model.RatingButton
+import q19.kenes_widget.data.model.RatingButton
 import q19.kenes_widget.util.inflate
 
 internal class FeedbackView @JvmOverloads constructor(

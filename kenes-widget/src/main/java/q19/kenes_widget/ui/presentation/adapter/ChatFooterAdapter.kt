@@ -7,7 +7,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
-import q19.kenes_widget.model.Footer
+import q19.kenes_widget.ui.presentation.model.ChatFooter
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
@@ -20,25 +20,25 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         val LAYOUT_FOOTER_FUZZY = R.layout.kenes_cell_footer_fuzzy
     }
 
-    private var data = mutableListOf<Footer>()
+    private var data = mutableListOf<ChatFooter>()
 
     var callback: Callback? = null
 
     fun showGoToHomeButton() {
-        showButton(Footer.Type.GO_TO_HOME)
+        showButton(ChatFooter.Type.GO_TO_HOME)
     }
 
     fun showSwitchToCallAgentButton() {
-        showButton(Footer.Type.SWITCH_TO_CALL_AGENT)
+        showButton(ChatFooter.Type.SWITCH_TO_CALL_AGENT)
     }
 
     fun showFuzzyQuestionButtons() {
-        showButton(Footer.Type.FUZZY_QUESTION)
+        showButton(ChatFooter.Type.FUZZY_QUESTION)
     }
 
-    private fun showButton(type: Footer.Type) {
+    private fun showButton(type: ChatFooter.Type) {
         if (data.isEmpty()) {
-            data.add(0, Footer(type))
+            data.add(0, ChatFooter(type))
             notifyItemInserted(0)
         } else {
             if (data[0].type == type) {
@@ -46,7 +46,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
             } else {
                 data.clear()
                 notifyItemRemoved(0)
-                data.add(0, Footer(type))
+                data.add(0, ChatFooter(type))
                 notifyItemInserted(0)
             }
         }
@@ -62,9 +62,9 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     override fun getItemViewType(position: Int): Int {
         return if (data.isNotEmpty()) {
             when (data[position].type) {
-                Footer.Type.GO_TO_HOME -> LAYOUT_FOOTER
-                Footer.Type.SWITCH_TO_CALL_AGENT -> LAYOUT_FOOTER
-                Footer.Type.FUZZY_QUESTION -> LAYOUT_FOOTER_FUZZY
+                ChatFooter.Type.GO_TO_HOME -> LAYOUT_FOOTER
+                ChatFooter.Type.SWITCH_TO_CALL_AGENT -> LAYOUT_FOOTER
+                ChatFooter.Type.FUZZY_QUESTION -> LAYOUT_FOOTER_FUZZY
             }
         } else {
             super.getItemViewType(position)
@@ -96,12 +96,12 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val button = view.findViewById<AppCompatButton>(R.id.button)
 
-        fun bind(footer: Footer) {
-            if (footer.type == Footer.Type.GO_TO_HOME) {
+        fun bind(chatFooter: ChatFooter) {
+            if (chatFooter.type == ChatFooter.Type.GO_TO_HOME) {
                 button.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_arrow_left, 15)
                 button.setText(R.string.kenes_go_to_home)
                 button.setOnClickListener { callback?.onGoToHomeClicked() }
-            } else if (footer.type == Footer.Type.SWITCH_TO_CALL_AGENT) {
+            } else if (chatFooter.type == ChatFooter.Type.SWITCH_TO_CALL_AGENT) {
                 button.removeCompoundDrawables()
                 button.setText(R.string.kenes_switch_to_operator)
                 button.setOnClickListener { callback?.onSwitchToCallAgentClicked() }
@@ -114,8 +114,8 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
         private val orView = view.findViewById<TextView>(R.id.orView)
         private val button2 = view.findViewById<AppCompatButton>(R.id.button2)
 
-        fun bind(footer: Footer) {
-            if (footer.type == Footer.Type.FUZZY_QUESTION) {
+        fun bind(chatFooter: ChatFooter) {
+            if (chatFooter.type == ChatFooter.Type.FUZZY_QUESTION) {
                 button1.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_headphones, 15)
                 button1.setText(R.string.kenes_switch_to_operator)
                 button1.setOnClickListener { callback?.onSwitchToCallAgentClicked() }

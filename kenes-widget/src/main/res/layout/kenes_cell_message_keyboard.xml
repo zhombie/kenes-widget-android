@@ -8,7 +8,7 @@
     android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
     android:orientation="vertical">
 
-    <q19.kenes_widget.ui.components.core.HtmlTextView
+    <q19.kenes_widget.ui.components.base.HtmlTextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

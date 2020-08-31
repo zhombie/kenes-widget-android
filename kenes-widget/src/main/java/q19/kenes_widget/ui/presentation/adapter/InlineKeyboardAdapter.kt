@@ -10,8 +10,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.model.Message
-import q19.kenes_widget.ui.helpers.*
+import q19.kenes_widget.data.model.Message
+import q19.kenes_widget.ui.util.*
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 

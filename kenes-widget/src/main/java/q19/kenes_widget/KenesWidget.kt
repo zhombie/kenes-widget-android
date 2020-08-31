@@ -6,7 +6,7 @@ import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity
 
 object KenesWidget {
 
-    data class EntryParams(
+    data class EntryParams @JvmOverloads constructor(
         val hostname: String,
         val firstName: String? = null,
         val lastName: String? = null,

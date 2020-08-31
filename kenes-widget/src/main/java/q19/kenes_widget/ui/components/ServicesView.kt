@@ -14,10 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
-import q19.kenes_widget.model.Language
-import q19.kenes_widget.model.Service
-import q19.kenes_widget.ui.components.core.TitleView
-import q19.kenes_widget.ui.helpers.*
+import q19.kenes_widget.data.model.Language
+import q19.kenes_widget.data.model.Service
+import q19.kenes_widget.ui.components.base.TitleView
+import q19.kenes_widget.ui.util.*
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables

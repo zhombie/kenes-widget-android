@@ -24,7 +24,7 @@
         app:drawableStartCompat="@drawable/kenes_ic_arrow_left_black"
         tools:text="Бизнесу" />
 
-    <q19.kenes_widget.ui.components.core.HtmlTextView
+    <q19.kenes_widget.ui.components.base.HtmlTextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

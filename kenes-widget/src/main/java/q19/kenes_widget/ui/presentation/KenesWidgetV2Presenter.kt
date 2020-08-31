@@ -6,19 +6,25 @@ import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
-import q19.kenes_widget.model.*
-import q19.kenes_widget.network.file.DownloadResult
-import q19.kenes_widget.network.file.downloadFile
-import q19.kenes_widget.network.file.uploadFile
-import q19.kenes_widget.network.http.IceServersTask
-import q19.kenes_widget.network.http.WidgetConfigsTask
-import q19.kenes_widget.network.socket.SocketClient
+import q19.kenes_widget.data.model.*
+import q19.kenes_widget.data.network.file.DownloadResult
+import q19.kenes_widget.data.network.file.downloadFile
+import q19.kenes_widget.data.network.file.uploadFile
+import q19.kenes_widget.data.network.http.IceServersTask
+import q19.kenes_widget.data.network.http.WidgetConfigsTask
+import q19.kenes_widget.data.network.socket.SocketClient
+import q19.kenes_widget.di.AppProvider
+import q19.kenes_widget.ui.presentation.model.BottomNavigation
+import q19.kenes_widget.ui.presentation.model.ChatBot
+import q19.kenes_widget.ui.presentation.model.Dialog
+import q19.kenes_widget.ui.presentation.model.ViewState
 import q19.kenes_widget.util.FileUtil.getFileType
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
 class KenesWidgetV2Presenter(
+    private val appProvider: AppProvider,
     private val language: Language,
     private val palette: IntArray
 ) {
@@ -81,6 +87,8 @@ class KenesWidgetV2Presenter(
 
     private var activeCallScope: Configs.CallScope? = null
     private var activeService: Service? = null
+
+    private var activeServiceSession: Service? = null
 
     private var iceServers = listOf<PeerConnection.IceServer>()
 
@@ -923,6 +931,8 @@ class KenesWidgetV2Presenter(
                 view?.showExternalServices(parentService = service, services = services)
             }
         } else if (service.isLinkType()) {
+            activeServiceSession = service
+
             val text = service.title.get(language)
 
             socketClient?.sendUserMessage(text)
@@ -1066,6 +1076,8 @@ class KenesWidgetV2Presenter(
     }
 
     fun onGoToHomeClicked() {
+        debug(TAG, "onGoToHomeClicked() -> viewState: $viewState")
+
         when (viewState) {
             is ViewState.AudioDialog, is ViewState.VideoDialog -> {
                 view?.clearChatMessages()
@@ -1074,6 +1086,10 @@ class KenesWidgetV2Presenter(
                 viewState = ViewState.OperatorCall
             }
             is ViewState.Services -> {
+                if (activeService != null) {
+                    socketClient?.sendCancel()
+                }
+
                 view?.clearChatMessages()
                 view?.clearChatFooterMessages()
 
@@ -1302,15 +1318,7 @@ class KenesWidgetV2Presenter(
         } else {
             view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
 
-            if (button.callbackData == "/cancel") {
-                socketClient?.cancelExternal()
-
-                view?.showGoToHomeButton()
-
-                viewState = ViewState.Services.Process(isCancelled = true)
-            } else {
-                socketClient?.sendExternal(button.callbackData)
-            }
+            socketClient?.sendExternal(button.callbackData)
         }
     }
 

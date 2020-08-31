@@ -2,7 +2,7 @@ package q19.kenes_widget.core.locale
 
 import android.content.Context
 import androidx.annotation.VisibleForTesting
-import q19.kenes_widget.model.Language
+import q19.kenes_widget.data.model.Language
 import java.util.*
 
 internal object LanguageSetting {

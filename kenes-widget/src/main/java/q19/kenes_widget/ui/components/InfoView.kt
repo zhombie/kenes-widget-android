@@ -16,8 +16,8 @@ import androidx.annotation.StyleRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.model.Configs
-import q19.kenes_widget.model.Language
+import q19.kenes_widget.data.model.Configs
+import q19.kenes_widget.data.model.Language
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 
 internal class InfoView @JvmOverloads constructor(

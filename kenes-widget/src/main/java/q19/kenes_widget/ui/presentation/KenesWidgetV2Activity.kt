@@ -31,11 +31,14 @@ import org.webrtc.SessionDescription
 import q19.kenes_widget.R
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
-import q19.kenes_widget.model.*
+import q19.kenes_widget.data.model.*
+import q19.kenes_widget.di.AppProvider
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapterItemDecoration
 import q19.kenes_widget.ui.presentation.adapter.ChatFooterAdapter
+import q19.kenes_widget.ui.presentation.model.BottomNavigation
+import q19.kenes_widget.ui.presentation.model.ViewState
 import q19.kenes_widget.util.*
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.Logger.debug
@@ -212,6 +215,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         // ------------------------------------------------------------------------
 
         presenter = KenesWidgetV2Presenter(
+            appProvider = AppProvider(),
             language = getCurrentLanguage(),
             palette = palette
         )
@@ -1636,23 +1640,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                             if (viewState.isCancelled) {
                                 clearChatFooterMessages()
-//                                keyboardView.setReplyMarkup(null)
-//                                keyboardView.visibility = View.GONE
                             } else {
                                 showGoToHomeButton()
-//                                keyboardView.setReplyMarkup(
-//                                    Message.ReplyMarkup(
-//                                        listOf(
-//                                            listOf(
-//                                                Message.ReplyMarkup.Button(
-//                                                    text = "⁡🏠 На главную",
-//                                                    callbackData = "/cancel"
-//                                                )
-//                                            )
-//                                        )
-//                                    )
-//                                )
-//                                keyboardView.visibility = View.VISIBLE
                             }
 
                             footerView.enableAttachmentButton()

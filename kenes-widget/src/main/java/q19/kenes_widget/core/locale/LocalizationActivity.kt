@@ -26,7 +26,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import q19.kenes_widget.model.Language
+import q19.kenes_widget.data.model.Language
 import java.util.*
 
 abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListener {

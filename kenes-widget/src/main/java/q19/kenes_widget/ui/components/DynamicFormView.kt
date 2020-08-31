@@ -14,8 +14,8 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
-import q19.kenes_widget.model.DynamicForm
-import q19.kenes_widget.model.DynamicFormField
+import q19.kenes_widget.data.model.DynamicForm
+import q19.kenes_widget.data.model.DynamicFormField
 import q19.kenes_widget.util.inflate
 
 internal class DynamicFormView @JvmOverloads constructor(

@@ -4,7 +4,9 @@ import android.os.Parcelable
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
-import q19.kenes_widget.model.*
+import q19.kenes_widget.data.model.*
+import q19.kenes_widget.ui.presentation.model.BottomNavigation
+import q19.kenes_widget.ui.presentation.model.ViewState
 import java.io.File
 
 interface KenesWidgetV2View {

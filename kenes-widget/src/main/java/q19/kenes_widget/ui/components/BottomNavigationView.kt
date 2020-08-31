@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import q19.kenes_widget.R
-import q19.kenes_widget.model.BottomNavigation
+import q19.kenes_widget.ui.presentation.model.BottomNavigation
 import q19.kenes_widget.util.DebouncedOnClickListener
 import q19.kenes_widget.util.Logger
 import q19.kenes_widget.util.getCompoundDrawableOnTop

@@ -11,9 +11,9 @@ import androidx.annotation.StyleRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
+import q19.kenes_widget.data.model.Message
 import q19.kenes_widget.ui.presentation.adapter.InlineKeyboardAdapterItemDecoration
-import q19.kenes_widget.model.Message
-import q19.kenes_widget.ui.helpers.buildRippleDrawable
+import q19.kenes_widget.ui.util.buildRippleDrawable
 import q19.kenes_widget.util.inflate
 
 internal class KeyboardView @JvmOverloads constructor(

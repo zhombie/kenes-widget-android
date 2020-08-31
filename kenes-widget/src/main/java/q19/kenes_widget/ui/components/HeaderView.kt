@@ -11,7 +11,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
-import q19.kenes_widget.model.Configs
+import q19.kenes_widget.data.model.Configs
 import q19.kenes_widget.util.loadCircleImage
 
 internal class HeaderView @JvmOverloads constructor(
