@@ -715,11 +715,17 @@ class KenesWidgetV2Presenter(
         }
     }
 
-    fun onNavButtonClicked(bottomNavigation: BottomNavigation) {
+    fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation) {
         fun clear() {
             chatBot.clear()
+
             view?.clearChatMessages()
             view?.clearChatFooterMessages()
+
+            if (activeServiceSession != null) {
+                socketClient?.sendCancel()
+                activeServiceSession = null
+            }
         }
 
         when (bottomNavigation) {
@@ -759,9 +765,13 @@ class KenesWidgetV2Presenter(
                     return
                 }
 
-                clear()
+                viewState = if (activeServiceSession != null) {
+                    ViewState.Services.Process(isCancelled = false)
+                } else {
+                    clear()
 
-                viewState = ViewState.Services.IDLE
+                    ViewState.Services.IDLE
+                }
             }
             BottomNavigation.INFO -> {
                 if (dialog.isInitiator) {
@@ -1089,6 +1099,8 @@ class KenesWidgetV2Presenter(
                 if (activeService != null) {
                     socketClient?.sendCancel()
                 }
+
+                activeServiceSession = null
 
                 view?.clearChatMessages()
                 view?.clearChatFooterMessages()

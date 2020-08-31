@@ -157,7 +157,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
         val listener = object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
-                callback?.onNavButtonClicked(bottomNavigation)
+                callback?.onBottomNavigationButtonClicked(bottomNavigation)
             }
         }
 
@@ -217,7 +217,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onNavButtonClicked(bottomNavigation: BottomNavigation)
+        fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation)
     }
 
 }

@@ -234,8 +234,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
         bottomNavigationView.callback = object : BottomNavigationView.Callback {
-            override fun onNavButtonClicked(bottomNavigation: BottomNavigation) {
-                presenter.onNavButtonClicked(bottomNavigation)
+            override fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation) {
+                presenter.onBottomNavigationButtonClicked(bottomNavigation)
             }
         }
 
