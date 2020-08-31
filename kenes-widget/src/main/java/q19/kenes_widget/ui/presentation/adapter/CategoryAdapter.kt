@@ -1,4 +1,4 @@
-package q19.kenes_widget.adapter
+package q19.kenes_widget.ui.presentation.adapter
 
 import android.view.View
 import android.view.ViewGroup
@@ -8,12 +8,12 @@ import q19.kenes_widget.R
 import q19.kenes_widget.model.Category
 import q19.kenes_widget.util.inflate
 
-internal class CrossChildrenAdapter(
+internal class CategoryAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val LAYOUT_CROSS_CHILD = R.layout.kenes_cell_cross_child
+        private val LAYOUT_CATEGORY = R.layout.kenes_cell_category_child
     }
 
     var category: Category? = null
@@ -21,7 +21,7 @@ internal class CrossChildrenAdapter(
     override fun getItemCount(): Int = category?.children?.size ?: 0
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(LAYOUT_CROSS_CHILD))
+        return ViewHolder(parent.inflate(LAYOUT_CATEGORY))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -34,18 +34,22 @@ internal class CrossChildrenAdapter(
         private var textView = view.findViewById<TextView>(R.id.textView)
 
         fun bind(category: Category) {
-            val crossChild = category.children[absoluteAdapterPosition]
+            val child = category.children[absoluteAdapterPosition]
 
-            textView?.text = crossChild.title
+            textView?.text = child.title
+
+            textView?.setTextColor(category.color)
+
+            textView?.background = category.getDefaultBackground(itemView.resources)
 
             textView?.setOnClickListener {
-                callback.onCrossChildClicked(crossChild)
+                callback.onChildClicked(child)
             }
         }
     }
 
     interface Callback {
-        fun onCrossChildClicked(category: Category)
+        fun onChildClicked(category: Category)
     }
 
 }

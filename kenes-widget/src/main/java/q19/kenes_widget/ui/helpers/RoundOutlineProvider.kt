@@ -14,6 +14,8 @@ import androidx.annotation.RequiresApi
 internal enum class RoundMode {
     TOP,
     BOTTOM,
+    BOTTOM_LEFT,
+    BOTTOM_RIGHT,
     ALL,
     NONE
 }
@@ -30,30 +32,42 @@ internal class RoundOutlineProvider(
     var roundMode: RoundMode = RoundMode.NONE
 ) : ViewOutlineProvider() {
 
-    private val topOffset
+    private val topOffset: Int
         get() = when (roundMode) {
             RoundMode.ALL, RoundMode.TOP -> 0
-            RoundMode.NONE, RoundMode.BOTTOM -> cornerRadius.toInt()
+            else -> cornerRadius.toInt()
         }
 
-    private val bottomOffset
+    private val bottomOffset: Int
         get() = when (roundMode) {
-            RoundMode.ALL, RoundMode.BOTTOM -> 0
             RoundMode.NONE, RoundMode.TOP -> cornerRadius.toInt()
+            else -> 0
         }
 
-    private val cornerRadius
+    private val rightOffset: Int
+        get() = when (roundMode) {
+            RoundMode.BOTTOM_LEFT -> cornerRadius.toInt()
+            else -> 0
+        }
+
+    private val leftOffset: Int
+        get() = when (roundMode) {
+            RoundMode.BOTTOM_RIGHT -> cornerRadius.toInt()
+            else -> 0
+        }
+
+    private val cornerRadius: Float
         get() = if (roundMode == RoundMode.NONE) {
-            0f
+            0F
         } else {
             outlineRadius
         }
 
     override fun getOutline(view: View, outline: Outline) {
         outline.setRoundRect(
-            0,
+            0 - leftOffset,
             0 - topOffset,
-            view.width,
+            view.width + rightOffset,
             view.height + bottomOffset,
             cornerRadius
         )

@@ -1297,20 +1297,18 @@ class KenesWidgetV2Presenter(
     }
 
     fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
-        view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
+        if (!button.url.isNullOrBlank()) {
+            view?.openLink(button.url)
+        } else {
+            view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
 
-        when {
-            button.callbackData == "/cancel" -> {
+            if (button.callbackData == "/cancel") {
                 socketClient?.cancelExternal()
 
                 view?.showGoToHomeButton()
 
                 viewState = ViewState.Services.Process(isCancelled = true)
-            }
-            !button.url.isNullOrBlank() -> {
-                view?.openLink(button.url)
-            }
-            else -> {
+            } else {
                 socketClient?.sendExternal(button.callbackData)
             }
         }

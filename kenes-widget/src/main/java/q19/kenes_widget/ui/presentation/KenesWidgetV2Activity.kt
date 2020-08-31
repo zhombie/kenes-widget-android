@@ -29,13 +29,13 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 import q19.kenes_widget.R
-import q19.kenes_widget.adapter.ChatAdapter
-import q19.kenes_widget.adapter.ChatAdapterItemDecoration
-import q19.kenes_widget.adapter.ChatFooterAdapter
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
 import q19.kenes_widget.model.*
 import q19.kenes_widget.ui.components.*
+import q19.kenes_widget.ui.presentation.adapter.ChatAdapter
+import q19.kenes_widget.ui.presentation.adapter.ChatAdapterItemDecoration
+import q19.kenes_widget.ui.presentation.adapter.ChatFooterAdapter
 import q19.kenes_widget.util.*
 import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.Logger.debug
@@ -48,13 +48,25 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         private const val TAG = "KenesWidgetV2Activity"
 
         private const val KEY_HOSTNAME = "hostname"
+        private const val KEY_FIRST_NAME = "firstName"
+        private const val KEY_LAST_NAME = "lastName"
+        private const val KEY_PHONE_NUMBER = "phoneNumber"
 
         private const val FILE_PICKER_REQUEST_CODE = 101
 
         @JvmStatic
-        fun newIntent(context: Context, hostname: String): Intent =
+        fun newIntent(
+            context: Context,
+            hostname: String,
+            firstName: String? = null,
+            lastName: String? = null,
+            phoneNumber: String? = null
+        ): Intent =
             Intent(context, KenesWidgetV2Activity::class.java)
                 .putExtra(KEY_HOSTNAME, hostname)
+                .putExtra(KEY_FIRST_NAME, firstName)
+                .putExtra(KEY_LAST_NAME, lastName)
+                .putExtra(KEY_PHONE_NUMBER, phoneNumber)
     }
 
     // -------------------------- Binding views -----------------------------------

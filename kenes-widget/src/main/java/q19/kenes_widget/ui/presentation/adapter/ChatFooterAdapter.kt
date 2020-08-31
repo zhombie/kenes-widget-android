@@ -1,4 +1,4 @@
-package q19.kenes_widget.adapter
+package q19.kenes_widget.ui.presentation.adapter
 
 import android.view.View
 import android.view.ViewGroup

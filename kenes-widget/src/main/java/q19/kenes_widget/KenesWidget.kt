@@ -7,11 +7,20 @@ import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity
 object KenesWidget {
 
     data class EntryParams(
-        val hostname: String
+        val hostname: String,
+        val firstName: String? = null,
+        val lastName: String? = null,
+        val phoneNumber: String? = null
     )
 
     @JvmStatic
     fun open(context: Context, entryParams: EntryParams): Intent =
-        KenesWidgetV2Activity.newIntent(context, hostname = entryParams.hostname)
+        KenesWidgetV2Activity.newIntent(
+            context,
+            hostname = entryParams.hostname,
+            firstName = entryParams.firstName,
+            lastName = entryParams.lastName,
+            phoneNumber = entryParams.phoneNumber
+        )
 
 }

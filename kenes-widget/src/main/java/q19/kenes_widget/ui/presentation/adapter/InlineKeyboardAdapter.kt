@@ -1,4 +1,4 @@
-package q19.kenes_widget.adapter
+package q19.kenes_widget.ui.presentation.adapter
 
 import android.graphics.Canvas
 import android.graphics.Color
@@ -93,7 +93,7 @@ internal class InlineKeyboardAdapterItemDecoration(
 
             val child = parent.getChildAt(index)
 
-            val layoutParams = child.layoutParams as RecyclerView.LayoutParams
+//            val layoutParams = child.layoutParams as RecyclerView.LayoutParams
 
             val layoutManager = parent.layoutManager as? GridLayoutManager?
 
@@ -195,10 +195,8 @@ internal class InlineKeyboardAdapterItemDecoration(
                 if (itemCount >= 2) {
                     if (itemCount % columnsCount == 0) {
                         when (position) {
-                            // TODO: Round only left bottom corner (not full bottom)
-                            itemCount - 2 -> RoundMode.BOTTOM
-                            // TODO: Round only right bottom corner (not full bottom)
-                            itemCount - 1 -> RoundMode.BOTTOM
+                            itemCount - 2 -> RoundMode.BOTTOM_LEFT
+                            itemCount - 1 -> RoundMode.BOTTOM_RIGHT
                             else -> RoundMode.NONE
                         }
                     } else {
