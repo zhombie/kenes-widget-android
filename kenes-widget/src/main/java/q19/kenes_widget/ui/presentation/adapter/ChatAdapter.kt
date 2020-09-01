@@ -517,6 +517,7 @@ internal class ChatAdapter(
 
             if (message.text.isNotBlank()) {
                 textView?.setHtmlText(message.htmlText) { _, url ->
+                    debug(TAG, "OnClick: $url")
                     callback?.onUrlInTextClicked(url)
                 }
 
@@ -706,6 +707,9 @@ internal class ChatAdapter(
                 callback?.onUrlInTextClicked(url)
             }
 
+            textView.enableAutoLinkMask()
+            textView.enableLinkMovementMethod()
+
             timeView?.text = message.time
 
             val replyMarkup = message.replyMarkup
@@ -889,10 +893,14 @@ internal class ChatAdapter(
 
                 if (message.text.isNotBlank()) {
                     textView.setHtmlText(message.htmlText) { _, url ->
+                        debug(TAG, "OnClick: $url")
                         callback?.onUrlInTextClicked(url)
                     }
 
                     timeView.text = message.time
+
+                    textView.enableAutoLinkMask()
+                    textView.enableLinkMovementMethod()
 
                     textView.visibility = View.VISIBLE
                     timeView.visibility = View.VISIBLE
