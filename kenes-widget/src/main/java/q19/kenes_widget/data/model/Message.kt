@@ -7,7 +7,7 @@ import java.util.*
 
 data class Message(
     var id: String? = null,
-    var type: Type = Type.OPPONENT,
+    var type: Type = Type.INCOMING,
     var text: String,
     var replyMarkup: ReplyMarkup? = null,
     var media: Media? = null,
@@ -135,8 +135,8 @@ data class Message(
     }
 
     enum class Type {
-        USER,
-        OPPONENT,
+        OUTGOING,
+        INCOMING,
 
         NOTIFICATION,
 

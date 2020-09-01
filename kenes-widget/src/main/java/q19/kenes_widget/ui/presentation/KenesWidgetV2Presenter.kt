@@ -90,6 +90,8 @@ class KenesWidgetV2Presenter(
 
     private var activeServiceSession: Service? = null
 
+    private var activeDynamicForm: DynamicForm? = null
+
     private var iceServers = listOf<PeerConnection.IceServer>()
 
     private var chatListViewState: Parcelable? = null
@@ -190,13 +192,27 @@ class KenesWidgetV2Presenter(
                     view?.showAudioCallerInformation(fullName, photoUrl)
                 }
 
-                view?.addNewMessage(Message(type = Message.Type.OPPONENT, text = newText))
+                view?.addNewMessage(Message(type = Message.Type.INCOMING, text = newText))
             }
 
             override fun onFormInit(dynamicForm: DynamicForm) {
+                activeDynamicForm = dynamicForm
+
                 view?.showDynamicForm(dynamicForm)
 
                 viewState = ViewState.DynamicForm
+            }
+
+            override fun onFormFinal(text: String) {
+                view?.addNewMessage(Message(type = Message.Type.INCOMING, text = text))
+
+                activeDynamicForm = null
+
+                view?.clearDynamicForm()
+
+                view?.showGoToHomeButton()
+
+                viewState = ViewState.ChatBot.Categories(isLoading = false)
             }
 
             override fun onFeedback(text: String, ratingButtons: List<RatingButton>) {
@@ -230,7 +246,7 @@ class KenesWidgetV2Presenter(
 
                 view?.addNewMessage(
                     Message(
-                        type = Message.Type.OPPONENT,
+                        type = Message.Type.INCOMING,
                         text = text,
                         timestamp = timestamp
                     )
@@ -252,7 +268,7 @@ class KenesWidgetV2Presenter(
 
                 view?.addNewMessage(
                     Message(
-                        type = Message.Type.OPPONENT,
+                        type = Message.Type.INCOMING,
                         text = text,
                         timestamp = timestamp
                     )
@@ -269,7 +285,7 @@ class KenesWidgetV2Presenter(
 
                 dialog.isInitiator = false
 
-                view?.addNewMessage(Message(type = Message.Type.OPPONENT, text = text))
+                view?.addNewMessage(Message(type = Message.Type.INCOMING, text = text))
 
                 view?.showNoOnlineCallAgentsAlert(text)
 
@@ -459,7 +475,7 @@ class KenesWidgetV2Presenter(
 
                 view?.addNewMessage(
                     Message(
-                        type = Message.Type.OPPONENT,
+                        type = Message.Type.INCOMING,
                         text = text,
                         replyMarkup = replyMarkup,
                         attachments = attachments,
@@ -488,7 +504,7 @@ class KenesWidgetV2Presenter(
                 if (media.isImage || media.isAudio || media.isFile) {
                     view?.addNewMessage(
                         Message(
-                            type = Message.Type.OPPONENT,
+                            type = Message.Type.INCOMING,
                             media = media,
                             replyMarkup = replyMarkup,
                             timestamp = timestamp
@@ -956,7 +972,7 @@ class KenesWidgetV2Presenter(
 
             socketClient?.sendUserMessage(text)
 
-            view?.addNewMessage(Message(type = Message.Type.USER, text = text))
+            view?.addNewMessage(Message(type = Message.Type.OUTGOING, text = text))
 
             viewState = ViewState.Services.Process(isCancelled = false)
         }
@@ -1007,7 +1023,7 @@ class KenesWidgetV2Presenter(
             view?.clearMessageInputViewText()
         }
 
-        view?.addNewMessage(Message(type = Message.Type.USER, text = cleanMessage))
+        view?.addNewMessage(Message(type = Message.Type.OUTGOING, text = cleanMessage))
     }
 
     fun onGoToActiveDialogButtonClicked() {
@@ -1094,7 +1110,7 @@ class KenesWidgetV2Presenter(
 
     }
 
-    fun onGoToHomeClicked() {
+    fun onGoToHomeButtonClicked() {
         debug(TAG, "onGoToHomeClicked() -> viewState: $viewState")
 
         when (viewState) {
@@ -1115,6 +1131,15 @@ class KenesWidgetV2Presenter(
                 view?.clearChatFooterMessages()
 
                 viewState = ViewState.Services.IDLE
+            }
+            is ViewState.DynamicForm -> {
+                activeDynamicForm = null
+
+                view?.clearDynamicForm()
+
+                view?.clearChatFooterMessages()
+
+                viewState = ViewState.ChatBot.Categories(false)
             }
             else -> {
                 val messages = chatBot.basicCategories.map { category ->
@@ -1154,10 +1179,14 @@ class KenesWidgetV2Presenter(
     fun onFormCancelClicked() {
         debug(TAG, "onCancelClicked -> viewState: $viewState")
 
+        activeDynamicForm = null
+
+        view?.clearDynamicForm()
+
         viewState = ViewState.ChatBot.UserPrompt(false)
     }
 
-    fun onRegisterAppealClicked() {
+    fun onRegisterAppealButtonClicked() {
         view?.showGoToHomeButton()
 
         viewState = ViewState.Form
@@ -1195,7 +1224,7 @@ class KenesWidgetV2Presenter(
                 )
             }
 
-            view?.addNewMessage(Message(type = Message.Type.USER, media = media))
+            view?.addNewMessage(Message(type = Message.Type.OUTGOING, media = media))
         }
     }
 
@@ -1307,12 +1336,24 @@ class KenesWidgetV2Presenter(
         )
     }
 
-    fun onFormSendClicked(name: String, email: String, phone: String) {
+    fun onFormSendButtonClicked(name: String, email: String, phone: String) {
         debug(TAG, "onSendClicked -> viewState: $viewState")
 
         socketClient?.sendFuzzyTaskConfirmation(name, email, phone)
 
         view?.showFormSentSuccessAlert()
+    }
+
+    fun onFormSendButtonClicked(dynamicForm: DynamicForm) {
+        debug(TAG, "onSendClicked() -> dynamicForm: $dynamicForm")
+
+        socketClient?.sendFormFinal(dynamicForm)
+
+        activeDynamicForm = null
+
+        view?.clearDynamicForm()
+
+        viewState = ViewState.ChatBot.UserPrompt(false)
     }
 
     fun onAppealRegistered() {
@@ -1337,7 +1378,7 @@ class KenesWidgetV2Presenter(
         if (!button.url.isNullOrBlank()) {
             view?.openLink(button.url)
         } else {
-            view?.addNewMessage(Message(type = Message.Type.USER, text = button.text))
+            view?.addNewMessage(Message(type = Message.Type.OUTGOING, text = button.text))
 
             socketClient?.sendExternal(button.callbackData)
         }

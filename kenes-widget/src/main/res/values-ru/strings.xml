@@ -89,4 +89,6 @@
 
     <string name="kenes_select_file">Выбрать файл</string>
     <string name="kenes_attachment">Вложение</string>
+
+    <string name="kenes_fill_fields">Пожалуйста, заполните следующие поля: %s</string>
 </resources>

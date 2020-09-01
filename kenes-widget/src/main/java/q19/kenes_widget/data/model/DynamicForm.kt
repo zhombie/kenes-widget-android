@@ -24,7 +24,7 @@ data class DynamicFormField(
     val formId: Long,
     val configs: Configs? = null,
     val level: Int,
-    val value: String? = null
+    var value: String? = null
 ) {
 
     enum class Type(val value: String) {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/buttonsView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="right"
+    android:orientation="horizontal"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/cancelButton"
+        style="@style/NormalRoundedButton"
+        android:background="@drawable/kenes_bg_button_white_rounded_4dp"
+        android:text="@string/kenes_cancel"
+        android:textColor="@color/kenes_selector_dark_gray_to_gray" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/sendButton"
+        style="@style/NormalRoundedButton"
+        android:layout_marginStart="10dp"
+        android:text="@string/kenes_send" />
+
+</LinearLayout>

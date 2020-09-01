@@ -100,11 +100,11 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (chatFooter.type == ChatFooter.Type.GO_TO_HOME) {
                 button.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_arrow_left, 15)
                 button.setText(R.string.kenes_go_to_home)
-                button.setOnClickListener { callback?.onGoToHomeClicked() }
+                button.setOnClickListener { callback?.onGoToHomeButtonClicked() }
             } else if (chatFooter.type == ChatFooter.Type.SWITCH_TO_CALL_AGENT) {
                 button.removeCompoundDrawables()
                 button.setText(R.string.kenes_switch_to_operator)
-                button.setOnClickListener { callback?.onSwitchToCallAgentClicked() }
+                button.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
             }
         }
     }
@@ -118,21 +118,21 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (chatFooter.type == ChatFooter.Type.FUZZY_QUESTION) {
                 button1.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_headphones, 15)
                 button1.setText(R.string.kenes_switch_to_operator)
-                button1.setOnClickListener { callback?.onSwitchToCallAgentClicked() }
+                button1.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
 
                 orView.text = itemView.context.getString(R.string.kenes_or).toLowerCase(Locale.getDefault())
 
                 button2.removeCompoundDrawables()
                 button2.setText(R.string.kenes_register_appeal)
-                button2.setOnClickListener { callback?.onRegisterAppealClicked() }
+                button2.setOnClickListener { callback?.onRegisterAppealButtonClicked() }
             }
         }
     }
 
     interface Callback {
-        fun onGoToHomeClicked()
-        fun onSwitchToCallAgentClicked()
-        fun onRegisterAppealClicked()
+        fun onGoToHomeButtonClicked()
+        fun onSwitchToCallAgentButtonClicked()
+        fun onRegisterAppealButtonClicked()
     }
 
 }

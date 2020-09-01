@@ -299,17 +299,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
 
             override fun onSendClicked(name: String, email: String, phone: String) {
-                presenter.onFormSendClicked(name, email, phone)
+                presenter.onFormSendButtonClicked(name, email, phone)
             }
         }
 
         dynamicFormView.callback = object : DynamicFormView.Callback {
-            override fun onCancelClicked() {
+            override fun onCancelButtonClicked() {
                 presenter.onFormCancelClicked()
             }
 
-            override fun onSendClicked(dynamicForm: DynamicForm) {
-                debug(TAG, "onSendClicked() -> dynamicForm: $dynamicForm")
+            override fun onSendButtonClicked(dynamicForm: DynamicForm) {
+                presenter.onFormSendButtonClicked(dynamicForm)
             }
         }
 
@@ -537,16 +537,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         chatFooterAdapter = ChatFooterAdapter()
         chatFooterAdapter?.callback = object : ChatFooterAdapter.Callback {
-            override fun onGoToHomeClicked() {
-                presenter.onGoToHomeClicked()
+            override fun onGoToHomeButtonClicked() {
+                presenter.onGoToHomeButtonClicked()
             }
 
-            override fun onSwitchToCallAgentClicked() {
+            override fun onSwitchToCallAgentButtonClicked() {
                 presenter.onCallOperator(OperatorCall.TEXT)
             }
 
-            override fun onRegisterAppealClicked() {
-                presenter.onRegisterAppealClicked()
+            override fun onRegisterAppealButtonClicked() {
+                presenter.onRegisterAppealButtonClicked()
             }
         }
 
@@ -774,6 +774,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
     override fun showDynamicForm(dynamicForm: DynamicForm) {
         runOnUiThread {
             dynamicFormView.dynamicForm = dynamicForm
+        }
+    }
+
+    override fun clearDynamicForm() {
+        runOnUiThread {
+            dynamicFormView.resetData()
         }
     }
 

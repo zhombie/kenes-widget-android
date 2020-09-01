@@ -91,4 +91,6 @@
 
     <string name="kenes_select_file">Select file</string>
     <string name="kenes_attachment">Attachment</string>
+
+    <string name="kenes_fill_fields">Please, fill following fields: %s</string>
 </resources>

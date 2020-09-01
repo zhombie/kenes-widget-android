@@ -37,8 +37,8 @@ internal class ChatAdapter(
     companion object {
         private const val TAG = "ChatAdapter"
 
-        private val LAYOUT_USER_MESSAGE = R.layout.kenes_cell_user_message
-        private val LAYOUT_OPPONENT_MESSAGE = R.layout.kenes_cell_opponent_message
+        private val LAYOUT_OURGOING_MESSAGE = R.layout.kenes_cell_outgoing_message
+        private val LAYOUT_INCOMING_MESSAGE = R.layout.kenes_cell_incoming_message
         private val LAYOUT_MESSAGE_KEYBOARD = R.layout.kenes_cell_message_keyboard
         val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
         private val LAYOUT_TYPING = R.layout.kenes_cell_typing
@@ -171,13 +171,13 @@ internal class ChatAdapter(
         return if (messages.isNotEmpty()) {
             val item = getItem(position)
             when (item.type) {
-                Message.Type.USER ->
-                    LAYOUT_USER_MESSAGE
-                Message.Type.OPPONENT -> {
+                Message.Type.OUTGOING ->
+                    LAYOUT_OURGOING_MESSAGE
+                Message.Type.INCOMING -> {
                     if (item.replyMarkup != null) {
                         LAYOUT_MESSAGE_KEYBOARD
                     } else {
-                        LAYOUT_OPPONENT_MESSAGE
+                        LAYOUT_INCOMING_MESSAGE
                     }
                 }
                 Message.Type.NOTIFICATION ->
@@ -199,8 +199,8 @@ internal class ChatAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = parent.inflate(viewType)
         return when (viewType) {
-            LAYOUT_USER_MESSAGE -> UserMessageViewHolder(view)
-            LAYOUT_OPPONENT_MESSAGE -> OpponentMessageViewHolder(view)
+            LAYOUT_OURGOING_MESSAGE -> OutgoingMessageViewHolder(view)
+            LAYOUT_INCOMING_MESSAGE -> IncomingMessageViewHolder(view)
             LAYOUT_MESSAGE_KEYBOARD -> MessageKeyboardViewHolder(view)
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
@@ -215,13 +215,13 @@ internal class ChatAdapter(
         val message = getItem(position)
 
         when (message.type) {
-            Message.Type.USER ->
-                if (holder is UserMessageViewHolder) holder.bind(message)
-            Message.Type.OPPONENT -> {
+            Message.Type.OUTGOING ->
+                if (holder is OutgoingMessageViewHolder) holder.bind(message)
+            Message.Type.INCOMING -> {
                 if (message.replyMarkup != null) {
                     if (holder is MessageKeyboardViewHolder) holder.bind(message)
                 } else {
-                    if (holder is OpponentMessageViewHolder) holder.bind(message)
+                    if (holder is IncomingMessageViewHolder) holder.bind(message)
                 }
             }
             Message.Type.NOTIFICATION ->
@@ -244,7 +244,7 @@ internal class ChatAdapter(
     ) {
         val payload = payloads.lastOrNull()
         if (payload != null) {
-            if (holder is OpponentMessageViewHolder && payload is Bundle) {
+            if (holder is IncomingMessageViewHolder && payload is Bundle) {
                 val message = getItem(position)
                 val fileType = payload.getString(KEY_FILE_TYPE)
                 val progress = payload.getInt(KEY_PROGRESS)
@@ -280,7 +280,7 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class UserMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class OutgoingMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val imageView = view.findViewById<ImageView>(R.id.imageView)
         private val mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
         private val iconView = view.findViewById<ImageView>(R.id.iconView)
@@ -390,7 +390,7 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class OpponentMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class IncomingMessageViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val imageView = view.findViewById<ImageView>(R.id.imageView)
         private val mediaView = view.findViewById<RelativeLayout>(R.id.mediaView)
         private val iconView = view.findViewById<ImageView>(R.id.iconView)

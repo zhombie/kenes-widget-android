@@ -2,17 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/labelView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:fontFamily="sans-serif"
-        android:textColor="#474747"
-        android:textSize="14sp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/kenes_dark_black"
+        android:textSize="15sp"
+        android:textStyle="normal"
         tools:text="@string/kenes_name" />
 
     <androidx.appcompat.widget.AppCompatButton

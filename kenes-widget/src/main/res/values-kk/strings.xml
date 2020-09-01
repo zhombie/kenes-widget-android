@@ -89,4 +89,6 @@
 
     <string name="kenes_select_file">Файлды таңдау</string>
     <string name="kenes_attachment">Қосымша</string>
+
+    <string name="kenes_fill_fields">Өтініш, көрсетілген өрістерді толтырып шығыңыз: %s</string>
 </resources>

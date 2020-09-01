@@ -10,10 +10,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
-        android:fontFamily="sans-serif"
-        android:textColor="#474747"
-        android:textSize="14sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/kenes_dark_black"
+        android:textSize="15sp"
+        android:textStyle="normal"
         tools:text="@string/kenes_name" />
+
+    <TextView
+        android:id="@+id/infoView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/kenes_gray"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        tools:text="Укажите адрес, где произошло ДТП: область, горда, улица, трасса (шоссе). Если не знаете адрес, то отправьте текст НЕ ЗНАЮ" />
 
     <EditText
         android:id="@+id/editText"
@@ -21,15 +33,16 @@
         android:layout_height="wrap_content"
         android:background="@drawable/kenes_bg_input_view"
         android:ems="10"
-        android:imeOptions="actionNext"
+        android:imeOptions="actionDone"
         android:includeFontPadding="true"
         android:inputType="textPersonName"
-        android:maxLength="100"
-        android:maxLines="1"
+        android:maxLength="160"
+        android:maxLines="3"
         android:nextFocusForward="@id/emailEditText"
         android:padding="10dp"
-        android:singleLine="true"
-        android:textColor="#000000"
+        android:singleLine="false"
+        android:textColor="@color/kenes_black"
+        android:textCursorDrawable="@drawable/kenes_shape_cursor"
         android:textSize="14sp"
         tools:hint="@string/kenes_name" />
 

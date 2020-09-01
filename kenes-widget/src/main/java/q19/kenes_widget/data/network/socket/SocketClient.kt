@@ -94,6 +94,23 @@ internal class SocketClient(
         listener?.onFormInit(form)
     }
 
+    private val onFormFinal = Emitter.Listener { args ->
+//        debug(TAG, "event [FORM_FINAL]: $args")
+
+        if (args.size != 1) return@Listener
+
+        val data = args[0] as? JSONObject? ?: return@Listener
+
+        debug(TAG, "[FORM_FINAL] data: $data")
+
+        val taskJson = data.optJSONObject("task")
+        val trackId = taskJson?.getNullableString("track_id")
+        val message = data.getNullableString("message")
+        val success = data.optBoolean("success", false)
+
+        listener?.onFormFinal(text = trackId ?: "")
+    }
+
     private val onOperatorTyping = Emitter.Listener {
         debug(TAG, "event [OPERATOR_TYPING]")
     }
@@ -396,6 +413,7 @@ internal class SocketClient(
         socket?.on(Socket.EVENT_CONNECT, onConnect)
         socket?.on("operator_greet", onOperatorGreet)
         socket?.on("form_init", onFormInit)
+        socket?.on("form_final", onFormFinal)
         socket?.on("feedback", onFeedback)
         socket?.on("user_queue", onUserQueue)
         socket?.on("operator_typing", onOperatorTyping)
@@ -530,6 +548,37 @@ internal class SocketClient(
         })
     }
 
+    fun sendFormFinal(dynamicForm: DynamicForm) {
+        debug(TAG, "sendFormFinal() -> dynamicForm: $dynamicForm")
+
+        socket?.emit("form_final", jsonObject {
+            put("form_id", dynamicForm.id)
+
+            val nodes = JSONArray()
+            val fields = JSONObject()
+
+            dynamicForm.fields.forEach { field ->
+                debug(TAG, "sendFormFinal() -> forEach: $field")
+
+                if (field.isFlex) {
+                    nodes.put(jsonObject { put(field.type.value, field.value ?: "") })
+                } else {
+                    if (!field.title.isNullOrBlank()) {
+                        fields.put(field.title, jsonObject { put(field.type.value, field.value) })
+                    }
+                }
+            }
+
+            debug(TAG, "sendFormFinal() -> nodes: $nodes")
+            debug(TAG, "sendFormFinal() -> fields: $fields")
+
+            put("form_data", jsonObject {
+                put("nodes", nodes)
+                put("fields", fields)
+            })
+        })
+    }
+
     fun sendCancel() {
         debug(TAG, "sendCancel")
 
@@ -572,6 +621,7 @@ internal class SocketClient(
         //        fun onCall(type: String, media: String, operator: String, instance: String)
         fun onOperatorGreet(fullName: String, photoUrl: String?, text: String)
         fun onFormInit(dynamicForm: DynamicForm)
+        fun onFormFinal(text: String)
         fun onFeedback(text: String, ratingButtons: List<RatingButton>)
         fun onPendingUsersQueueCount(text: String? = null, count: Int)
         fun onNoOnlineOperators(text: String): Boolean
