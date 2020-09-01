@@ -12,6 +12,7 @@ import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
+import q19.kenes_widget.util.findEnumBy
 
 internal class SocketClient(
     private var socket: Socket? = null,
@@ -72,10 +73,12 @@ internal class SocketClient(
                     id = formFieldJson.getLong("id"),
                     title = formFieldJson.getNullableString("title"),
                     prompt = formFieldJson.getNullableString("prompt"),
-                    type = formFieldJson.getString("type"),
+                    type = findEnumBy { it.value == formFieldJson.getString("type") } ?: DynamicFormField.Type.TEXT,
                     default = formFieldJson.getNullableString("default"),
                     formId = formFieldJson.getLong("form_id"),
-                    level = formFieldJson.optInt("level", -1)
+                    configs = null,
+                    level = formFieldJson.optInt("level", -1),
+                    value = null
                 )
             )
         }
@@ -163,6 +166,7 @@ internal class SocketClient(
 //        val form = message.optJSONObject("form")
         val attachmentsJson = data.optJSONArray("attachments")
         val replyMarkupJson = data.optJSONObject("reply_markup")
+        val formJson = data.optJSONObject("form")
 
         debug(TAG, "replyMarkupJson: $replyMarkupJson")
 
@@ -196,6 +200,15 @@ internal class SocketClient(
             }
 
             replyMarkup = Message.ReplyMarkup(rows)
+        }
+
+        var dynamicForm: DynamicForm? = null
+        if (formJson != null) {
+            dynamicForm = DynamicForm(
+                id = formJson.getLong("id"),
+                title = formJson.getNullableString("title"),
+                prompt = formJson.getNullableString("prompt")
+            )
         }
 
         if (noResults && from.isNullOrBlank() && sender.isNullOrBlank() && action.isNullOrBlank() && !text.isNullOrBlank()) {
@@ -267,7 +280,12 @@ internal class SocketClient(
             if (!data.isNull("queued")) {
                 val queued = data.optInt("queued")
                 listener?.onPendingUsersQueueCount(text, queued)
-                listener?.onTextMessage(text = text, replyMarkup = replyMarkup, timestamp = time)
+                listener?.onTextMessage(
+                    text = text,
+                    replyMarkup = replyMarkup,
+                    dynamicForm = dynamicForm,
+                    timestamp = time
+                )
             } else {
                 if (attachmentsJson != null) {
                     val attachments = mutableListOf<Attachment>()
@@ -287,12 +305,14 @@ internal class SocketClient(
                         text = text,
                         replyMarkup = replyMarkup,
                         attachments = attachments,
+                        dynamicForm = dynamicForm,
                         timestamp = time
                     )
                 } else {
                     listener?.onTextMessage(
                         text = text,
                         replyMarkup = replyMarkup,
+                        dynamicForm = dynamicForm,
                         timestamp = time
                     )
                 }
@@ -504,6 +524,12 @@ internal class SocketClient(
         })
     }
 
+    fun sendFormInit(formId: Long) {
+        socket?.emit("form_init", jsonObject {
+            put("form_id", formId)
+        })
+    }
+
     fun sendCancel() {
         debug(TAG, "sendCancel")
 
@@ -566,6 +592,7 @@ internal class SocketClient(
             text: String,
             replyMarkup: Message.ReplyMarkup? = null,
             attachments: List<Attachment>? = null,
+            dynamicForm: DynamicForm? = null,
             timestamp: Long
         )
         fun onMediaMessage(

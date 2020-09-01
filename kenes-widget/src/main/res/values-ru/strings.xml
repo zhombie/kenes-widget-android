@@ -50,6 +50,7 @@
     <string name="kenes_microsoft_excel_document">Документ Microsoft Excel</string>
     <string name="kenes_html_text">HTML текст</string>
     <string name="kenes_file">Файл</string>
+    <string name="kenes_text">Текст</string>
 
     <string name="kenes_switch_to_operator">Переключиться на оператора</string>
     <string name="kenes_already_calling_to_operator">Извините, но Ваш прошлый звонок все еще в ожидании</string>
@@ -85,4 +86,7 @@
     <string name="kenes_call_with_operator">Связь с оператором</string>
     <string name="kenes_audio_call_to_operator">Cвязаться с оператором с помощью аудиозвонка</string>
     <string name="kenes_video_call_to_operator">Cвязаться с оператором с помощью видеозвонка</string>
+
+    <string name="kenes_select_file">Выбрать файл</string>
+    <string name="kenes_attachment">Вложение</string>
 </resources>

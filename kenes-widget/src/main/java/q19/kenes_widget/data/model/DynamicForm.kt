@@ -1,19 +1,37 @@
 package q19.kenes_widget.data.model
 
-internal data class DynamicForm(
+data class DynamicForm(
     val id: Long,
     val title: String? = null,
     val isFlex: Int = 0,
     val prompt: String? = null,
-    val fields: List<DynamicFormField>
-)
+    var fields: List<DynamicFormField> = emptyList()
+) {
 
-internal class DynamicFormField(
+    fun isFlexibleForm(): Boolean {
+        return isFlex == 1
+    }
+
+}
+
+data class DynamicFormField(
     val id: Long,
+    val isFlex: Boolean = false,
     val title: String? = null,
     val prompt: String? = null,
-    val type: String,
+    val type: Type,
     val default: String? = null,
     val formId: Long,
-    val level: Int
-)
+    val configs: Configs? = null,
+    val level: Int,
+    val value: String? = null
+) {
+
+    enum class Type(val value: String) {
+        TEXT("text"),
+        FILE("file")
+    }
+
+    class Configs
+
+}

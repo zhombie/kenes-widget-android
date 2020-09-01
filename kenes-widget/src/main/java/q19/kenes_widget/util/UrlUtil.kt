@@ -63,6 +63,7 @@ internal object UrlUtil {
                 "rtc.vlx.kz" in hostname -> "https://rtc.vlx.kz"
                 "bot.nitec.kz" in hostname || "kenes.1414.kz" in hostname -> "https://kenes2.1414.kz"
                 "help.post.kz" in hostname -> "https://help.post.kz"
+                "mvd.19.kz" in hostname || "help.mvd.gov.kz" in hostname -> "https://help.mvd.gov.kz"
                 else -> null
             }
 
@@ -94,7 +95,7 @@ internal object UrlUtil {
             val hostname = getHostname()
             if (hostname.isNullOrBlank()) return false
             if (hostname.contains("kenes.vlx.kz")) return true
-            if (hostname.contains("help.post.kz")) return true
+            if (hostname.contains("help.mvd.gov.kz")) return true
             return false
         }
 

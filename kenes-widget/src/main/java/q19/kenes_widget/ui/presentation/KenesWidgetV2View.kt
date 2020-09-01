@@ -18,6 +18,7 @@ interface KenesWidgetV2View {
     fun showInfoBlocks(infoBlocks: List<Configs.InfoBlock>)
     fun showAudioCallerInformation(fullName: String, photoUrl: String?)
     fun showFeedback(text: String, ratingButtons: List<RatingButton>)
+    fun showDynamicForm(dynamicForm: DynamicForm)
 
     fun showCallScopes(parentCallScope: Configs.CallScope? = null, callScopes: List<Configs.CallScope>)
     fun showExternalServices(parentService: Service? = null, services: List<Service>)

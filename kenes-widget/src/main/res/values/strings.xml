@@ -52,6 +52,7 @@
     <string name="kenes_microsoft_excel_document">Microsoft Excel document</string>
     <string name="kenes_html_text">HTML text</string>
     <string name="kenes_file">File</string>
+    <string name="kenes_text">Text</string>
 
     <string name="kenes_switch_to_operator">Switch to call agent</string>
     <string name="kenes_already_calling_to_operator">Sorry, but your previous call is already on waiting list</string>
@@ -87,4 +88,7 @@
     <string name="kenes_call_with_operator">Call with the operator</string>
     <string name="kenes_audio_call_to_operator">Contact the operator using an audio call</string>
     <string name="kenes_video_call_to_operator">Contact the operator using an video call</string>
+
+    <string name="kenes_select_file">Select file</string>
+    <string name="kenes_attachment">Attachment</string>
 </resources>

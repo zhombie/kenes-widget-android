@@ -193,7 +193,11 @@ class KenesWidgetV2Presenter(
                 view?.addNewMessage(Message(type = Message.Type.OPPONENT, text = newText))
             }
 
-            override fun onFormInit(dynamicForm: DynamicForm) {}
+            override fun onFormInit(dynamicForm: DynamicForm) {
+                view?.showDynamicForm(dynamicForm)
+
+                viewState = ViewState.DynamicForm
+            }
 
             override fun onFeedback(text: String, ratingButtons: List<RatingButton>) {
                 debug(TAG, "onFeedback -> viewState: $viewState")
@@ -397,6 +401,7 @@ class KenesWidgetV2Presenter(
                 text: String,
                 replyMarkup: Message.ReplyMarkup?,
                 attachments: List<Attachment>?,
+                dynamicForm: DynamicForm?,
                 timestamp: Long
             ) {
                 debug(TAG, "onTextMessage -> viewState: $viewState")
@@ -461,6 +466,10 @@ class KenesWidgetV2Presenter(
                         timestamp = timestamp
                     )
                 )
+
+                if (dynamicForm != null) {
+                    socketClient?.sendFormInit(formId = dynamicForm.id)
+                }
 
                 if (viewState is ViewState.ChatBot) {
                     debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")

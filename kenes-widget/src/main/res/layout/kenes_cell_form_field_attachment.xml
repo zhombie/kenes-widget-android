@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/labelView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:fontFamily="sans-serif"
+        android:textColor="#474747"
+        android:textSize="14sp"
+        tools:text="@string/kenes_name" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/selectAttachmentButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kenes_bg_import_button"
+        android:drawableLeft="@drawable/kenes_ic_import"
+        android:drawablePadding="15dp"
+        android:paddingStart="20dp"
+        android:paddingTop="12.5dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12.5dp"
+        android:text="@string/kenes_select_file"
+        android:textAllCaps="false"
+        android:textColor="#606266"
+        android:textSize="14sp"
+        android:textStyle="normal" />
+
+</LinearLayout>

@@ -50,6 +50,7 @@
     <string name="kenes_microsoft_excel_document">Microsoft Excel құжаты</string>
     <string name="kenes_html_text">HTML мәтіні</string>
     <string name="kenes_file">Файл</string>
+    <string name="kenes_text">Текст</string>
 
     <string name="kenes_switch_to_operator">Оператормен байланысу</string>
     <string name="kenes_already_calling_to_operator">Кешіріңіз, бірақ сіздің алдыңғы байланысыңыз желіде</string>
@@ -85,4 +86,7 @@
     <string name="kenes_call_with_operator">Оператормен байланыс</string>
     <string name="kenes_audio_call_to_operator">Оператормен аудио қоңырау арқылы байланысу</string>
     <string name="kenes_video_call_to_operator">Оператормен видео қоңырау арқылы байланысу</string>
+
+    <string name="kenes_select_file">Файлды таңдау</string>
+    <string name="kenes_attachment">Қосымша</string>
 </resources>

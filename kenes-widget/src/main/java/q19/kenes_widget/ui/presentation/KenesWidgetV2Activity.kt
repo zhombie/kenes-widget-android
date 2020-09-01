@@ -113,7 +113,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     private val formView by bind<FormView>(R.id.formView)
 
-//    private val dynamicFormView by bind<DynamicFormView>(R.id.dynamicFormView)
+    private val dynamicFormView by bind<DynamicFormView>(R.id.dynamicFormView)
 
     private val progressView by bind<ProgressView>(R.id.progressView)
 
@@ -300,6 +300,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
             override fun onSendClicked(name: String, email: String, phone: String) {
                 presenter.onFormSendClicked(name, email, phone)
+            }
+        }
+
+        dynamicFormView.callback = object : DynamicFormView.Callback {
+            override fun onCancelClicked() {
+                presenter.onFormCancelClicked()
+            }
+
+            override fun onSendClicked(dynamicForm: DynamicForm) {
+                debug(TAG, "onSendClicked() -> dynamicForm: $dynamicForm")
             }
         }
 
@@ -761,6 +771,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
+    override fun showDynamicForm(dynamicForm: DynamicForm) {
+        runOnUiThread {
+            dynamicFormView.dynamicForm = dynamicForm
+        }
+    }
+
     override fun showCallScopes(
         parentCallScope: Configs.CallScope?,
         callScopes: List<Configs.CallScope>
@@ -1195,6 +1211,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                     formView.visibility = View.GONE
 
+                    dynamicFormView.visibility = View.GONE
+
                     infoView.visibility = View.GONE
 
 //                    contactsView.visibility = View.GONE
@@ -1603,6 +1621,17 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     bottomNavigationView.setNavButtonsDisabled()
 
                     formView.visibility = View.VISIBLE
+                }
+            }
+            ViewState.DynamicForm -> {
+                runOnUiThread {
+                    recyclerView.visibility = View.GONE
+
+                    footerView.visibility = View.GONE
+
+                    bottomNavigationView.setNavButtonsDisabled()
+
+                    dynamicFormView.visibility = View.VISIBLE
                 }
             }
 //            ViewState.Contacts -> {

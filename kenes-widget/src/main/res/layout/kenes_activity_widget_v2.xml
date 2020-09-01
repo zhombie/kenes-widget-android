@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/kenes_white"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    tools:context=".ui.presentation.KenesWidgetV2Activity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,12 +58,12 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-<!--        <q19.kenes_widget.ui.components.ContactsView-->
-<!--            android:id="@+id/contactsView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:visibility="gone" />-->
+        <!--        <q19.kenes_widget.ui.components.ContactsView-->
+        <!--            android:id="@+id/contactsView"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:layout_weight="1"-->
+        <!--            android:visibility="gone" />-->
 
         <q19.kenes_widget.ui.components.ServicesView
             android:id="@+id/servicesView"
@@ -78,12 +79,12 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-<!--        <q19.kenes_widget.ui.components.DynamicFormView-->
-<!--            android:id="@+id/dynamicFormView"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="0dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:visibility="gone" />-->
+        <q19.kenes_widget.ui.components.DynamicFormView
+            android:id="@+id/dynamicFormView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
 
         <q19.kenes_widget.ui.components.FooterView
             android:id="@+id/footerView"

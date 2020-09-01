@@ -14,6 +14,7 @@ data class Message(
     var attachments: List<Attachment>? = null,
     var date: Calendar = now(),
     var category: Category? = null,
+    var dynamicForm: DynamicForm? = null,
 
     // Local variables
     val file: File = File()
