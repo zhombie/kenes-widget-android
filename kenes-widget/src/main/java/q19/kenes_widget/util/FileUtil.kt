@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.webkit.MimeTypeMap
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import java.io.File
@@ -42,14 +43,14 @@ internal object FileUtil {
         }
     }
 
-    fun File.openFile(context: Context) {
-        val uri = FileProvider.getUriForFile(context, context.packageName + ".provider", this)
-        context.grantUriPermission(context.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        val mimeType = Uri.fromFile(this).getMimeType(context)
+    fun openFile(appCompatActivity: AppCompatActivity, file: File) {
+        val uri = FileProvider.getUriForFile(appCompatActivity, "${appCompatActivity.packageName}.provider", file)
+        appCompatActivity.grantUriPermission(appCompatActivity.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        val mimeType = Uri.fromFile(file).getMimeType(appCompatActivity)
         val intent = Intent(Intent.ACTION_VIEW)
             .setDataAndType(uri, mimeType)
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        context.startActivity(intent)
+        appCompatActivity.startActivity(intent)
     }
 
     fun File.getFileType(): String? {

@@ -40,7 +40,6 @@ import q19.kenes_widget.ui.presentation.adapter.ChatFooterAdapter
 import q19.kenes_widget.ui.presentation.model.BottomNavigation
 import q19.kenes_widget.ui.presentation.model.ViewState
 import q19.kenes_widget.util.*
-import q19.kenes_widget.util.FileUtil.openFile
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.webrtc.PeerConnectionClient
 import java.io.File
@@ -310,6 +309,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
             override fun onSendButtonClicked(dynamicForm: DynamicForm) {
                 presenter.onFormSendButtonClicked(dynamicForm)
+            }
+
+            override fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
+                presenter.onSelectAttachmentButtonClicked(field)
+            }
+
+            override fun onAttachmentClicked(attachment: Attachment) {
+                val file = attachment.getFile(this@KenesWidgetV2Activity)
+                presenter.onAttachmentClicked(file)
             }
         }
 
@@ -777,6 +785,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
+    override fun showAttachmentThumbnail(attachment: Attachment) {
+        runOnUiThread {
+            dynamicFormView.attachment = attachment
+        }
+    }
+
     override fun clearDynamicForm() {
         runOnUiThread {
             dynamicFormView.resetData()
@@ -889,7 +903,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     override fun openFile(file: File) {
         try {
-            file.openFile(applicationContext)
+            FileUtil.openFile(this, file)
         } catch (e: Exception) {
             e.printStackTrace()
             toast(e.toString())
@@ -1151,10 +1165,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
-    override fun showAttachmentPicker() {
+    override fun showAttachmentPicker(forced: Boolean) {
         permissionManager.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
             if (it) {
-                if (footerView.isAttachmentButtonEnabled) {
+                var isPermitted = footerView.isAttachmentButtonEnabled
+                if (forced) {
+                    isPermitted = true
+                }
+                if (isPermitted) {
                     MaterialFilePicker()
                         .withActivity(this@KenesWidgetV2Activity)
                         .withHiddenFiles(true)

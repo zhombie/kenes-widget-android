@@ -740,6 +740,10 @@ class KenesWidgetV2Presenter(
         }
     }
 
+    fun onAttachmentClicked(file: File) {
+        view?.openFile(file)
+    }
+
     fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation) {
         fun clear() {
             chatBot.clear()
@@ -1204,27 +1208,38 @@ class KenesWidgetV2Presenter(
         httpClient.uploadFile(UrlUtil.buildUrl("/upload") ?: return, params) { path, hash ->
             debug(TAG, "uploadFile: $path, $hash")
 
-            socketClient?.sendUserMediaMessage(type, path)
-
             val fullUrl = UrlUtil.buildUrl(path)
 
-            val media = if (type == "image") {
-                Media(
-                    imageUrl = fullUrl,
-                    hash = hash,
-                    ext = hash.split(".").last(),
-                    local = file
+            if (activeDynamicForm != null) {
+                view?.showAttachmentThumbnail(
+                    Attachment(
+                        title = hash,
+                        ext = hash.split(".").last(),
+                        type = type,
+                        url = fullUrl
+                    )
                 )
             } else {
-                Media(
-                    fileUrl = fullUrl,
-                    hash = hash,
-                    ext = hash.split(".").last(),
-                    local = file
-                )
-            }
+                socketClient?.sendUserMediaMessage(type, path)
 
-            view?.addNewMessage(Message(type = Message.Type.OUTGOING, media = media))
+                val media = if (type == "image") {
+                    Media(
+                        imageUrl = fullUrl,
+                        hash = hash,
+                        ext = hash.split(".").last(),
+                        local = file
+                    )
+                } else {
+                    Media(
+                        fileUrl = fullUrl,
+                        hash = hash,
+                        ext = hash.split(".").last(),
+                        local = file
+                    )
+                }
+
+                view?.addNewMessage(Message(type = Message.Type.OUTGOING, media = media))
+            }
         }
     }
 
@@ -1371,7 +1386,7 @@ class KenesWidgetV2Presenter(
     }
 
     fun onAddAttachmentButtonClicked() {
-        view?.showAttachmentPicker()
+        view?.showAttachmentPicker(forced = false)
     }
 
     fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
@@ -1382,6 +1397,10 @@ class KenesWidgetV2Presenter(
 
             socketClient?.sendExternal(button.callbackData)
         }
+    }
+
+    fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
+        view?.showAttachmentPicker(forced = true)
     }
 
 }

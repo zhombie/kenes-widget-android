@@ -13,10 +13,12 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
+import q19.kenes_widget.data.model.Attachment
 import q19.kenes_widget.data.model.DynamicForm
 import q19.kenes_widget.data.model.DynamicFormField
 import q19.kenes_widget.ui.components.base.TitleView
@@ -51,6 +53,12 @@ internal class DynamicFormView @JvmOverloads constructor(
             value?.let { bindData(it) }
         }
 
+    var attachment: Attachment? = null
+        set(value) {
+            field = value
+            value?.let { bindAttachment(it) }
+        }
+
     var callback: Callback? = null
 
     init {
@@ -67,7 +75,7 @@ internal class DynamicFormView @JvmOverloads constructor(
         adapter = DynamicFormFieldsAdapter()
         adapter?.callback = object : DynamicFormFieldsAdapter.Callback {
             override fun onSendButtonClicked() {
-                val fields = adapter?.getFormFields()
+                val fields = adapter?.formFields
                 Logger.debug(TAG, "fields: $fields")
 
                 if (!fields.isNullOrEmpty()) {
@@ -94,7 +102,11 @@ internal class DynamicFormView @JvmOverloads constructor(
             }
 
             override fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
+                callback?.onSelectAttachmentButtonClicked(field)
+            }
 
+            override fun onAttachmentClicked(attachment: Attachment) {
+                callback?.onAttachmentClicked(attachment)
             }
         }
 
@@ -148,6 +160,10 @@ internal class DynamicFormView @JvmOverloads constructor(
         adapter?.dynamicForm = this.dynamicForm
     }
 
+    private fun bindAttachment(attachment: Attachment) {
+        adapter?.attachment = attachment
+    }
+
     private fun EditText?.setEmptyTextError(@StringRes resId: Int) {
         this?.error = context.getString(resId)
     }
@@ -167,6 +183,8 @@ internal class DynamicFormView @JvmOverloads constructor(
     fun resetData() {
         dynamicForm = null
         adapter?.dynamicForm = null
+        adapter?.formFields = emptyList()
+        adapter?.attachment = null
     }
 
     fun clear() {
@@ -185,6 +203,8 @@ internal class DynamicFormView @JvmOverloads constructor(
     interface Callback {
         fun onCancelButtonClicked()
         fun onSendButtonClicked(dynamicForm: DynamicForm)
+        fun onSelectAttachmentButtonClicked(field: DynamicFormField)
+        fun onAttachmentClicked(attachment: Attachment)
     }
 
 }
@@ -209,17 +229,19 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
             this.formFields = field?.fields ?: emptyList()
         }
 
-    private var formFields: List<DynamicFormField> = emptyList()
+    var attachment: Attachment? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var formFields: List<DynamicFormField> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
     var callback: Callback? = null
-
-    fun getFormFields(): List<DynamicFormField> {
-        return formFields
-    }
 
     private fun getItem(position: Int): DynamicFormField? {
         val relativePosition = position - 1
@@ -308,9 +330,30 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
     private inner class AttachmentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val labelView = view.findViewById<TextView>(R.id.labelView)
         private val selectAttachmentButton = view.findViewById<AppCompatButton>(R.id.selectAttachmentButton)
+        private val attachmentView = view.findViewById<AppCompatTextView>(R.id.attachmentView)
 
         fun bind(field: DynamicFormField) {
             labelView.text = field.title
+
+            if (attachment != null) {
+                field.value = attachment?.url
+
+                attachmentView.text = attachment?.title
+
+                attachmentView.setOnClickListener {
+                    callback?.onAttachmentClicked(attachment!!)
+                }
+
+                selectAttachmentButton.visibility = View.GONE
+                attachmentView.visibility = View.VISIBLE
+            } else {
+                field.value = null
+
+                attachmentView.setOnClickListener(null)
+
+                attachmentView.visibility = View.GONE
+                selectAttachmentButton.visibility = View.VISIBLE
+            }
 
             selectAttachmentButton.setOnClickListener {
                 callback?.onSelectAttachmentButtonClicked(field)
@@ -337,6 +380,7 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         fun onSelectAttachmentButtonClicked(field: DynamicFormField)
         fun onCancelButtonClicked()
         fun onSendButtonClicked()
+        fun onAttachmentClicked(attachment: Attachment)
     }
 
 }

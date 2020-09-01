@@ -20,6 +20,7 @@ interface KenesWidgetV2View {
     fun showFeedback(text: String, ratingButtons: List<RatingButton>)
 
     fun showDynamicForm(dynamicForm: DynamicForm)
+    fun showAttachmentThumbnail(attachment: Attachment)
     fun clearDynamicForm()
 
     fun showCallScopes(parentCallScope: Configs.CallScope? = null, callScopes: List<Configs.CallScope>)
@@ -97,5 +98,5 @@ interface KenesWidgetV2View {
     fun scrollToTop()
     fun scrollToBottom()
 
-    fun showAttachmentPicker()
+    fun showAttachmentPicker(forced: Boolean)
 }

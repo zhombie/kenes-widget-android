@@ -33,4 +33,24 @@
         android:textSize="14sp"
         android:textStyle="normal" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/attachmentView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kenes_bg_attachment"
+        android:clickable="true"
+        android:drawableLeft="@drawable/kenes_ic_attachment_inclined"
+        android:drawablePadding="15dp"
+        android:focusable="true"
+        android:paddingStart="20dp"
+        android:paddingTop="12.5dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="12.5dp"
+        android:text="27cf3cd7c884422585e9440a647966a4.png"
+        android:textAllCaps="false"
+        android:textColor="#474747"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        android:visibility="visible" />
+
 </LinearLayout>
