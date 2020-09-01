@@ -220,9 +220,9 @@ internal class SocketClient(
         }
 
         var dynamicForm: DynamicForm? = null
-        if (formJson != null) {
+        if (formJson != null && formJson.has("id")) {
             dynamicForm = DynamicForm(
-                id = formJson.getLong("id"),
+                id = formJson.optLong("id"),
                 title = formJson.getNullableString("title"),
                 prompt = formJson.getNullableString("prompt")
             )
