@@ -9,7 +9,7 @@
                 android:width="@dimen/kenes_send_message_icon_size"
                 android:height="@dimen/kenes_send_message_icon_size" />
 
-            <stroke android:color="@color/kenes_blue" android:width="2dp" />
+            <stroke android:color="@color/kenes_light_blue" android:width="2dp" />
         </shape>
     </item>
 

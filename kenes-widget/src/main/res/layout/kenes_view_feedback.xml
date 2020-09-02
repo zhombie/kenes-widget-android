@@ -17,7 +17,7 @@
         android:layout_marginBottom="15dp"
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="3sp"
-        android:textColor="@color/black"
+        android:textColor="@color/kenes_black"
         android:textSize="16sp"
         tools:text="Удовлетворены ли вы ответом оператора?" />
 

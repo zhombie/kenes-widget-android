@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/textView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/kenes_bg_ripple"
     android:clickable="true"
-    android:drawableStart="@drawable/kenes_selector_radio"
     android:drawablePadding="10dp"
     android:focusable="true"
     android:fontFamily="sans-serif"
@@ -16,4 +16,5 @@
     android:paddingVertical="15dp"
     android:textColor="@color/kenes_selector_dark_gray_to_blue"
     android:textSize="14sp"
-    tools:text="Хорошо" />
+    tools:text="Хорошо"
+    app:drawableStartCompat="@drawable/kenes_selector_radio" />

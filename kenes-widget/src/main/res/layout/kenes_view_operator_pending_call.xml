@@ -49,8 +49,8 @@
             android:layout_height="50dp"
             android:layout_gravity="center|center_horizontal|center_vertical"
             android:indeterminate="true"
-            android:indeterminateTint="#FFFFFF"
-            android:progressTint="#FFFFFF"
+            android:indeterminateTint="@color/kenes_white"
+            android:progressTint="@color/kenes_white"
             android:visibility="gone" />
 
     </FrameLayout>

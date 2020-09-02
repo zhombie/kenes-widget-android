@@ -14,7 +14,7 @@
         android:layout_marginEnd="28dp"
         android:layout_marginBottom="5dp"
         android:fontFamily="sans-serif-medium"
-        android:textColor="@color/kenes_black"
+        android:textColor="@color/kenes_very_dark_gray"
         android:textSize="15sp"
         tools:text="Круглосуточный городской номер:" />
 
@@ -26,7 +26,7 @@
         android:layout_marginEnd="@dimen/kenes_info_block_horizontal_spacing"
         android:layout_marginBottom="5dp"
         android:fontFamily="sans-serif-light"
-        android:textColor="@color/kenes_black"
+        android:textColor="@color/kenes_very_dark_gray"
         android:textSize="13sp"
         tools:text="с оплатой согласно вашему тарифному плану" />
 

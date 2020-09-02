@@ -31,7 +31,7 @@
         android:layout_gravity="start"
         android:layout_marginStart="@dimen/kenes_horizontal_spacing"
         android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-        android:background="@drawable/kenes_bg_opponent_message"
+        android:background="@drawable/kenes_bg_incoming_message"
         android:clickable="true"
         android:focusable="true"
         android:lineSpacingExtra="2.5sp"
@@ -39,7 +39,7 @@
         android:paddingTop="12dp"
         android:paddingEnd="20dp"
         android:paddingBottom="12dp"
-        android:textColor="#303133"
+        android:textColor="@color/kenes_very_dark_gray"
         android:textSize="14sp"
         tools:text="Message" />
 
@@ -70,8 +70,17 @@
         android:layout_marginStart="@dimen/kenes_horizontal_spacing"
         android:layout_marginTop="3dp"
         android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-        android:textColor="#909399"
+        android:textColor="@color/kenes_dark_grayish_blue"
         android:textSize="11sp"
         tools:text="04:20" />
+
+    <include
+        android:id="@+id/backButtonView"
+        layout="@layout/kenes_cell_horizontal_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/kenes_horizontal_spacing"
+        android:layout_marginTop="@dimen/kenes_footer_vertical_offset"
+        android:layout_marginEnd="@dimen/kenes_horizontal_spacing" />
 
 </LinearLayout>

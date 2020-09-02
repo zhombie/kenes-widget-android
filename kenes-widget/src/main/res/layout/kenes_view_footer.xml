@@ -63,7 +63,7 @@
         android:paddingEnd="17.5dp"
         android:paddingBottom="10dp"
         android:singleLine="false"
-        android:textColor="@color/kenes_black"
+        android:textColor="@color/kenes_very_dark_gray"
         android:textCursorDrawable="@drawable/kenes_shape_cursor"
         android:textSize="16sp"
         tools:text="Тестовое сообщение для проверки линий" />

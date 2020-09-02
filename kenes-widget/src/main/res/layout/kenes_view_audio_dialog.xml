@@ -25,7 +25,7 @@
         android:layout_centerInParent="true"
         android:layout_marginStart="@dimen/kenes_horizontal_spacing"
         android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-        android:textColor="@color/kenes_black"
+        android:textColor="@color/kenes_very_dark_gray"
         android:textSize="17sp"
         tools:text="Mishka Stepa" />
 

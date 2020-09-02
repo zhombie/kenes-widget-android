@@ -1,10 +1,15 @@
 package q19.kenes_widget.ui.presentation.adapter
 
-import android.graphics.*
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
@@ -15,6 +20,7 @@ import q19.kenes_widget.util.removeCompoundDrawables
 
 internal class CategoryAdapter(
     private var isExpandable: Boolean,
+    var isSeparateFooterEnabled: Boolean,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -84,7 +90,15 @@ internal class CategoryAdapter(
                 }
             }
         } else {
-            VIEW_TYPE_HORIZONTAL_BUTTON
+            if (isSeparateFooterEnabled) {
+                if (position == itemCount - 1) {
+                    VIEW_TYPE_FOOTER
+                } else {
+                    VIEW_TYPE_HORIZONTAL_BUTTON
+                }
+            } else {
+                VIEW_TYPE_HORIZONTAL_BUTTON
+            }
         }
     }
 
@@ -108,7 +122,11 @@ internal class CategoryAdapter(
 
             return itemCount
         } else {
-            return getActualSize()
+            return if (isSeparateFooterEnabled) {
+                getActualSize() + 1
+            } else {
+                getActualSize()
+            }
         }
     }
 
@@ -161,30 +179,55 @@ internal class CategoryAdapter(
 
     private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
+        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind() {
+            imageView?.visibility = View.GONE
+
             textView?.removeCompoundDrawables()
 
-            if (isCollapsed()) {
-                textView?.setText(R.string.kenes_show_all)
-            } else {
-                textView?.setText(R.string.kenes_hide)
-            }
+            if (isExpandable) {
+                textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_grayish_blue))
 
-            textView?.setTextColor(Color.parseColor("#B2B4B9"))
+                if (isCollapsed()) {
+                    textView?.setText(R.string.kenes_show_all)
+                    itemView.visibility = View.VISIBLE
+                } else {
+                    textView?.setText(R.string.kenes_hide)
+                    itemView.visibility = View.VISIBLE
+                }
+            } else {
+                if (isSeparateFooterEnabled) {
+                    textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
+                    textView?.setText(R.string.kenes_back)
+                    itemView.visibility = View.VISIBLE
+                } else {
+                    textView?.text = null
+                    itemView.visibility = View.GONE
+                }
+            }
 
             itemView.isClickable = true
             itemView.isFocusable = true
 
             itemView.background = buildRippleDrawable(itemView.context)
 
-            itemView.setOnClickListener { toggle() }
+            if (isSeparateFooterEnabled) {
+                itemView.setOnClickListener {
+                    category?.let {
+                        callback.onGoBackButtonClicked(it)
+                    }
+                }
+            } else {
+                itemView.setOnClickListener { toggle() }
+            }
         }
 
     }
 
     interface Callback {
         fun onCategoryChildClicked(category: Category)
+        fun onGoBackButtonClicked(category: Category)
     }
 
 }
@@ -192,6 +235,7 @@ internal class CategoryAdapter(
 
 
 internal class CategoryAdapterItemDecoration(
+    context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
@@ -199,8 +243,7 @@ internal class CategoryAdapterItemDecoration(
     private val paint: Paint = Paint()
 
     init {
-        paint.color = Color.parseColor("#EBEEF5")
-//        paint.color = Color.parseColor("#555555")
+        paint.color = ContextCompat.getColor(context, R.color.kenes_very_light_grayish_blue)
         paint.strokeWidth = strokeWidth
         paint.style = Paint.Style.STROKE
     }
@@ -310,6 +353,14 @@ internal class CategoryAdapterItemDecoration(
         val position = parent.layoutManager?.getPosition(view) ?: -1
 
         val viewType = adapter.getItemViewType(position)
+
+        if (adapter.isSeparateFooterEnabled) {
+            if (viewType == CategoryAdapter.VIEW_TYPE_FOOTER) {
+                outRect.top = parent.context.resources.getDimensionPixelOffset(R.dimen.kenes_footer_vertical_offset)
+            } else {
+                outRect.setEmpty()
+            }
+        }
 
         // Draw rounded background
         if (cornerRadius.compareTo(0f) != 0) {

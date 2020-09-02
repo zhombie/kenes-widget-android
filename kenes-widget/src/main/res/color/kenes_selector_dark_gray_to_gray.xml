@@ -3,12 +3,12 @@
 
     <item
         android:state_enabled="false"
-        android:color="@color/kenes_gray" />
+        android:color="@color/kenes_dark_gray" />
 
     <item
         android:state_pressed="true"
-        android:color="@color/kenes_blue" />
+        android:color="@color/kenes_light_blue" />
 
-    <item android:color="#606266" />
+    <item android:color="@color/kenes_very_dark_grayish_blue" />
 
 </selector>

@@ -105,8 +105,8 @@ internal class SocketClient(
 
         val taskJson = data.optJSONObject("task")
         val trackId = taskJson?.getNullableString("track_id")
-        val message = data.getNullableString("message")
-        val success = data.optBoolean("success", false)
+//        val message = data.getNullableString("message")
+//        val success = data.optBoolean("success", false)
 
         listener?.onFormFinal(text = trackId ?: "")
     }

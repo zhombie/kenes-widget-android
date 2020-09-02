@@ -28,7 +28,7 @@ internal enum class RoundMode {
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class RoundOutlineProvider(
-    var outlineRadius: Float = 0F,
+    private var outlineRadius: Float = 0F,
     var roundMode: RoundMode = RoundMode.NONE
 ) : ViewOutlineProvider() {
 

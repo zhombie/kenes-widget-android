@@ -3,7 +3,7 @@
 
     <item android:gravity="center">
         <shape android:shape="oval">
-            <solid android:color="#FEF0F0" />
+            <solid android:color="@color/kenes_light_grayish_red" />
             <size android:width="28dp" android:height="28dp" />
         </shape>
     </item>
@@ -17,7 +17,7 @@
     <item android:gravity="center">
         <shape android:shape="oval">
             <size android:width="28.5dp" android:height="28.5dp" />
-            <stroke android:color="@color/kenes_red" android:width="0.5dp" />
+            <stroke android:color="@color/kenes_soft_red" android:width="0.5dp" />
         </shape>
     </item>
 

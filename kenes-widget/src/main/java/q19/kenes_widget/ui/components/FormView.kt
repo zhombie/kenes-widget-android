@@ -1,7 +1,6 @@
 package q19.kenes_widget.ui.components
 
 import android.content.Context
-import android.graphics.Color
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableString
@@ -14,6 +13,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
 import q19.kenes_widget.util.KenesTextWatcher
 
@@ -25,7 +25,8 @@ internal class FormView @JvmOverloads constructor(
 ) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     companion object {
-        private val REGEX_EMAIL = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])".toRegex()
+        private val REGEX_EMAIL =
+            "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])".toRegex()
         private val REGEX_PHONE = "^[78]7[0-9]{9}\$".toRegex()
     }
 
@@ -98,7 +99,12 @@ internal class FormView @JvmOverloads constructor(
 
     private fun buildSpannableString(@StringRes resId: Int): SpannableString {
         val spannable = SpannableString("* " + context.getString(resId))
-        spannable.setSpan(ForegroundColorSpan(Color.parseColor("#F56C6C")), 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE)
+        spannable.setSpan(
+            ForegroundColorSpan(ContextCompat.getColor(context, R.color.kenes_soft_red)),
+            0,
+            1,
+            Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+        )
         return spannable
     }
 

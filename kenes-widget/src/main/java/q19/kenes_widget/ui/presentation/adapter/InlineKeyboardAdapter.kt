@@ -1,12 +1,13 @@
 package q19.kenes_widget.ui.presentation.adapter
 
+import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
@@ -68,6 +69,7 @@ internal class InlineKeyboardAdapter(
 
 
 internal class InlineKeyboardAdapterItemDecoration(
+    context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
@@ -79,8 +81,7 @@ internal class InlineKeyboardAdapterItemDecoration(
     private val paint: Paint = Paint()
 
     init {
-        paint.color = Color.parseColor("#EBEEF5")
-//        paint.color = Color.parseColor("#555555")
+        paint.color = ContextCompat.getColor(context, R.color.kenes_very_light_grayish_blue)
         paint.strokeWidth = strokeWidth
         paint.style = Paint.Style.STROKE
     }

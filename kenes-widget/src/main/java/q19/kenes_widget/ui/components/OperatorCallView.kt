@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -342,6 +343,7 @@ internal class OperatorCallView @JvmOverloads constructor(
             recyclerView?.adapter = adapter
 
             recyclerView?.addItemDecoration(CallScopesAdapterItemDecoration(
+                context,
                 resources.getDimension(R.dimen.kenes_rounded_border_width),
                 resources.getDimension(R.dimen.kenes_rounded_border_radius)
             ))
@@ -463,7 +465,7 @@ private class CallScopesAdapter(
                             val drawable = setDrawableTint(
                                 itemView.context,
                                 R.drawable.kenes_ic_headphones_blue,
-                                Color.parseColor("#487AFC")
+                                ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue)
                             )
                             textView?.showCompoundDrawableOnfLeft(
                                 drawable,
@@ -474,7 +476,7 @@ private class CallScopesAdapter(
                             val drawable = setDrawableTint(
                                 itemView.context,
                                 R.drawable.kenes_ic_camera_blue,
-                                Color.parseColor("#487AFC")
+                                ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue)
                             )
                             textView?.showCompoundDrawableOnfLeft(
                                 drawable,
@@ -501,7 +503,7 @@ private class CallScopesAdapter(
                     itemView.isClickable = false
                     itemView.isFocusable = false
 
-                    itemView.background = buildSimpleDrawable()
+                    itemView.background = buildSimpleDrawable(itemView.context)
 
                     itemView.setOnClickListener(null)
                 }
@@ -535,6 +537,7 @@ private class CallScopesAdapter(
 
 
 private class CallScopesAdapterItemDecoration(
+    context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
@@ -542,8 +545,7 @@ private class CallScopesAdapterItemDecoration(
     private val paint: Paint = Paint()
 
     init {
-        paint.color = Color.parseColor("#EBEEF5")
-//        paint.color = Color.parseColor("#555555")
+        paint.color = ContextCompat.getColor(context, R.color.kenes_very_light_grayish_blue)
         paint.strokeWidth = strokeWidth
         paint.style = Paint.Style.STROKE
     }
@@ -657,15 +659,12 @@ private class CallScopesAdapterItemDecoration(
 
         // Offset between elements
         when (viewType) {
-            CallScopesAdapter.VIEW_TYPE_FOOTER -> {
+            CallScopesAdapter.VIEW_TYPE_CALL_SCOPE ->
+                outRect.setEmpty()
+            CallScopesAdapter.VIEW_TYPE_FOOTER ->
                 outRect.top = parent.context.resources.getDimensionPixelOffset(R.dimen.kenes_footer_vertical_offset)
-            }
-            CallScopesAdapter.VIEW_TYPE_CALL_SCOPE -> {
+            else ->
                 outRect.setEmpty()
-            }
-            else -> {
-                outRect.setEmpty()
-            }
         }
 
         // Draw rounded background

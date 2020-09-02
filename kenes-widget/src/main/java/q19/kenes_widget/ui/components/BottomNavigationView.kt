@@ -116,11 +116,11 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     private fun setActiveNavButtonTintColor(appCompatButton: AppCompatButton?) {
-        setAppCompatButtonColor(appCompatButton, R.color.kenes_blue)
+        setAppCompatButtonColor(appCompatButton, R.color.kenes_light_blue)
     }
 
     private fun setInactiveNavButtonTintColor(appCompatButton: AppCompatButton?) {
-        setAppCompatButtonColor(appCompatButton, R.color.kenes_gray)
+        setAppCompatButtonColor(appCompatButton, R.color.kenes_dark_gray)
     }
 
     private fun setAppCompatButtonColor(

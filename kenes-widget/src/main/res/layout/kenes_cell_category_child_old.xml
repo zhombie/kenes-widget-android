@@ -15,5 +15,5 @@
     android:minHeight="90dp"
     android:padding="10dp"
     android:singleLine="false"
-    android:textColor="@color/kenes_blue"
+    android:textColor="@color/kenes_light_blue"
     tools:text="Регистрация бизнеса" />

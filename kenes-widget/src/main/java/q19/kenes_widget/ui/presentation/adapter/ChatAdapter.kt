@@ -12,7 +12,10 @@ import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -26,6 +29,7 @@ import q19.kenes_widget.ui.components.base.HtmlTextView
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.loadRoundedImage
+import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showPendingFileDownloadAlert
 import java.util.concurrent.TimeUnit
 
@@ -386,7 +390,7 @@ internal class ChatAdapter(
                 ForegroundColorSpan(
                     ContextCompat.getColor(
                         this,
-                        R.color.kenes_blue
+                        R.color.kenes_light_blue
                     )
                 ), 0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
             )
@@ -688,7 +692,7 @@ internal class ChatAdapter(
                     ForegroundColorSpan(
                         ContextCompat.getColor(
                             this,
-                            R.color.kenes_blue
+                            R.color.kenes_light_blue
                         )
                     ), 0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 )
@@ -700,7 +704,7 @@ internal class ChatAdapter(
                     ForegroundColorSpan(
                         ContextCompat.getColor(
                             this,
-                            R.color.kenes_blue
+                            R.color.kenes_light_blue
                         )
                     ), 0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 )
@@ -722,6 +726,7 @@ internal class ChatAdapter(
 
         private val itemDecoration by lazy {
             InlineKeyboardAdapterItemDecoration(
+                itemView.context,
                 itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
                 itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
             )
@@ -811,11 +816,12 @@ internal class ChatAdapter(
 
         init {
             recyclerView?.layoutManager = layoutManager
-            adapter = CategoryAdapter(true, this)
+            adapter = CategoryAdapter(isExpandable = true, isSeparateFooterEnabled = false, callback = this)
             recyclerView?.adapter = adapter
 
             recyclerView?.addItemDecoration(
                 CategoryAdapterItemDecoration(
+                    itemView.context,
                     itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
                     itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                 )
@@ -835,6 +841,10 @@ internal class ChatAdapter(
 
         override fun onCategoryChildClicked(category: Category) {
             callback?.onCategoryChildClicked(category)
+        }
+
+        override fun onGoBackButtonClicked(category: Category) {
+            // ignored
         }
     }
 
@@ -903,10 +913,11 @@ internal class ChatAdapter(
 
         init {
             recyclerView?.layoutManager = layoutManager
-            adapter = CategoryAdapter(false, this)
+            adapter = CategoryAdapter(isExpandable = false, isSeparateFooterEnabled = true, callback = this)
             recyclerView?.adapter = adapter
             recyclerView?.addItemDecoration(
                 CategoryAdapterItemDecoration(
+                    itemView.context,
                     itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
                     itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                 )
@@ -929,6 +940,10 @@ internal class ChatAdapter(
         override fun onCategoryChildClicked(category: Category) {
             callback?.onCategoryChildClicked(category)
         }
+
+        override fun onGoBackButtonClicked(category: Category) {
+            callback?.onGoBackClicked(category)
+        }
     }
 
     private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -936,6 +951,9 @@ internal class ChatAdapter(
         private val textView = view.findViewById<HtmlTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
         private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
+        private val backButtonView = view.findViewById<RelativeLayout>(R.id.backButtonView)
+        private val backButton = backButtonView.findViewById<AppCompatTextView>(R.id.textView)
+        private val backButtonImageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind(message: Message) {
             val category = message.category
@@ -983,6 +1001,19 @@ internal class ChatAdapter(
                 } else {
                     attachmentView?.visibility = View.GONE
                 }
+
+                backButtonImageView?.visibility = View.GONE
+                backButton?.removeCompoundDrawables()
+                backButton?.setText(R.string.kenes_back)
+                backButton?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
+                backButtonView?.isClickable = true
+                backButtonView?.isFocusable = true
+                backButtonView?.background = ResourcesCompat.getDrawable(
+                    itemView.resources,
+                    R.drawable.kenes_bg_rounded_horizonal_button,
+                    itemView.context.theme
+                )
+                backButtonView?.setOnClickListener { callback?.onGoBackClicked(category) }
             }
         }
     }

@@ -16,7 +16,7 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:padding="15dp"
-        android:textColor="#B2B4B9"
+        android:textColor="@color/kenes_grayish_blue"
         android:textSize="14sp"
         android:textStyle="normal"
         app:fontFamily="sans-serif"
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginTop="3dp"
-        android:textColor="#909399"
+        android:textColor="@color/kenes_dark_grayish_blue"
         android:textSize="11sp"
         tools:text="04:20" />
 

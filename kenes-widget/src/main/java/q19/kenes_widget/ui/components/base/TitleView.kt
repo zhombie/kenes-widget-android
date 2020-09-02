@@ -44,7 +44,7 @@ internal class TitleView @JvmOverloads constructor(
             ColorStateListBuilder()
                 .addState(
                     IntArray(1) { android.R.attr.state_pressed },
-                    ContextCompat.getColor(context, R.color.kenes_grayish)
+                    ContextCompat.getColor(context, R.color.kenes_gray)
                 )
                 .build(),
             null,

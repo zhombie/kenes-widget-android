@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginEnd="@dimen/kenes_message_horizonal_spacing"
-        android:background="@drawable/kenes_bg_opponent_message"
+        android:background="@drawable/kenes_bg_incoming_message"
         android:gravity="start"
         android:orientation="vertical">
 
@@ -34,7 +34,7 @@
             android:id="@+id/mediaView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/kenes_bg_opponent_media"
+            android:background="@drawable/kenes_bg_incoming_media"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
@@ -85,7 +85,7 @@
                 android:layout_toEndOf="@id/indicatorView"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="4sp"
-                android:textColor="#60626A"
+                android:textColor="@color/kenes_very_dark_grayish_blue"
                 android:textSize="14sp"
                 tools:text="988b8432....63646098a1.jpg\n(PDF Документ) - Скачать файл" />
 
@@ -102,9 +102,9 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:progress="0"
-                android:progressBackgroundTint="@color/kenes_gray"
-                android:progressTint="@color/kenes_blue"
-                android:thumbTint="@color/kenes_blue"
+                android:progressBackgroundTint="@color/kenes_dark_gray"
+                android:progressTint="@color/kenes_light_blue"
+                android:thumbTint="@color/kenes_light_blue"
                 tools:progress="25" />
 
             <TextView
@@ -117,7 +117,7 @@
                 android:layout_marginEnd="10dp"
                 android:layout_toEndOf="@id/indicatorView"
                 android:includeFontPadding="true"
-                android:textColor="@color/kenes_gray"
+                android:textColor="@color/kenes_dark_gray"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:text="00:02"
@@ -135,7 +135,7 @@
             android:paddingTop="@dimen/kenes_message_text_vertical_spacing"
             android:paddingEnd="@dimen/kenes_message_text_horizontal_spacing"
             android:paddingBottom="@dimen/kenes_message_text_vertical_spacing"
-            android:textColor="#303133"
+            android:textColor="@color/kenes_very_dark_gray"
             android:textSize="14sp"
             android:visibility="gone"
             tools:text="Message"
@@ -166,7 +166,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:layout_marginTop="3dp"
-        android:textColor="#909399"
+        android:textColor="@color/kenes_dark_grayish_blue"
         android:textSize="11sp"
         tools:text="04:20" />
 

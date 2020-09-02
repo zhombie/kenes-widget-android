@@ -49,6 +49,7 @@ internal class KeyboardView @JvmOverloads constructor(
         recyclerView?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
 
         recyclerView?.addItemDecoration(InlineKeyboardAdapterItemDecoration(
+            context,
             context.resources.getDimension(R.dimen.kenes_rounded_border_width),
             context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
         ))

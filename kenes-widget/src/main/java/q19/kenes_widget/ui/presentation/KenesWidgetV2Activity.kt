@@ -533,7 +533,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
         })
 
-        recyclerView.setOverscrollColor(R.color.kenes_light_blue)
+        recyclerView.setOverscrollColor(R.color.kenes_very_light_blue)
 
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager

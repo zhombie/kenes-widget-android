@@ -24,13 +24,13 @@ internal class HtmlTextView @JvmOverloads constructor(
         ColorStateListBuilder()
             .addState(
                 IntArray(1) { android.R.attr.state_pressed },
-                ContextCompat.getColor(context, R.color.kenes_blue)
+                ContextCompat.getColor(context, R.color.kenes_light_blue)
             )
             .addState(
                 IntArray(1) { android.R.attr.state_selected },
-                ContextCompat.getColor(context, R.color.kenes_blue)
+                ContextCompat.getColor(context, R.color.kenes_light_blue)
             )
-            .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_blue))
+            .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_light_blue))
             .build()
     }
 

@@ -433,7 +433,7 @@ class KenesWidgetV2Presenter(
                         )
                     )
                     view?.scrollToTop()
-                    view?.showGoToHomeButton()
+//                    view?.showGoToHomeButton()
 
                     viewState = ViewState.ChatBot.Categories(false)
 
@@ -487,9 +487,9 @@ class KenesWidgetV2Presenter(
                 }
 
                 if (viewState is ViewState.ChatBot) {
-                    debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
+//                    debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
 
-                    view?.showGoToHomeButton()
+//                    view?.showGoToHomeButton()
 
                     viewState = ViewState.ChatBot.UserPrompt(false)
                 }
@@ -551,7 +551,7 @@ class KenesWidgetV2Presenter(
                         )
                     )
                     view?.scrollToTop()
-                    view?.showGoToHomeButton()
+//                    view?.showGoToHomeButton()
                 }
 
                 if (viewState is ViewState.ChatBot.Categories && (viewState as ViewState.ChatBot.Categories).isLoading) {
@@ -1060,7 +1060,7 @@ class KenesWidgetV2Presenter(
             )
         )
 
-        view?.showGoToHomeButton()
+//        view?.showGoToHomeButton()
     }
 
     fun onCategoryChildClicked(category: Category) {

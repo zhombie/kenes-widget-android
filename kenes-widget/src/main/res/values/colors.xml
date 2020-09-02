@@ -1,18 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="kenes_black">#474747</color>
-    <color name="kenes_dark_black">#000000</color>
-    <color name="kenes_blue">#409EFF</color>
-    <color name="kenes_light_blue">#8CC5FF</color>
+    <color name="kenes_very_pale_mostly_white_blue">#ECF5FF</color>
+    <color name="kenes_very_pale_blue">#D9ECFF</color>
+    <color name="kenes_pale_blue">#B3D8FF</color>
+    <color name="kenes_very_light_blue">#8CC5FF</color>
+    <color name="kenes_light_blue">#409EFF</color>
+    <color name="kenes_bright_blue">#487AFC</color>
+
     <color name="kenes_transparent">#00000000</color>
-
-    <color name="kenes_light_gray">#F3F3F3</color>
-    <color name="kenes_grayish">#BDBDBD</color>
-    <color name="kenes_gray">#8D8D8D</color>
-    <color name="kenes_red">#FB5252</color>
     <color name="kenes_white">#FFFFFF</color>
+    <color name="kenes_very_light_mostly_white_gray">#FAFAFA</color>
+    <color name="kenes_very_light_gray">#F3F3F3</color>
+    <color name="kenes_very_light_grayish_blue">#EBEEF5</color>
+    <color name="kenes_light_grayish_blue">#DCDFE6</color>
+    <color name="kenes_gray">#BDBDBD</color>
+    <color name="kenes_grayish_blue">#B2B4B9</color>
+    <color name="kenes_dark_grayish_blue">#909399</color>
+    <color name="kenes_dark_gray">#8D8D8D</color>
+    <color name="kenes_dark_grayish_pink">#7B797A</color>
+    <color name="kenes_very_dark_grayish_blue">#606266</color>
+    <color name="kenes_very_dark_gray">#474747</color>
+    <color name="kenes_black">#000000</color>
 
-    <color name="kenes_palette_blue">@color/kenes_blue</color>
+    <color name="kenes_bright_orange">#E6A23C</color>
+
+    <color name="kenes_light_grayish_red">#FEF0F0</color>
+    <color name="kenes_soft_red">#FB5252</color>
+
+    <color name="kenes_palette_blue">@color/kenes_light_blue</color>
     <color name="kenes_palette_green">#67C23A</color>
     <color name="kenes_palette_orange">#E6A23C</color>
     <color name="kenes_palette_darker_blue">#2F89FC</color>
@@ -20,7 +35,7 @@
     <color name="kenes_palette_brown">#BB7171</color>
     <color name="kenes_palette_aqua">#28C3D4</color>
     <color name="kenes_palette_purple">#866EC7</color>
-    <color name="kenes_palette_gray">#606266</color>
+    <color name="kenes_palette_gray">@color/kenes_very_dark_grayish_blue</color>
 
     <array name="kenes_palette">
         <item>@color/kenes_palette_blue</item>

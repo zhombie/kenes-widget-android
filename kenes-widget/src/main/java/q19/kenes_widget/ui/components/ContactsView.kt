@@ -42,7 +42,7 @@ internal class ContactsView @JvmOverloads constructor(
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        recyclerView.setOverscrollColor(R.color.kenes_light_blue)
+        recyclerView.setOverscrollColor(R.color.kenes_very_light_blue)
         recyclerView.addItemDecoration(InfoBlocksAdapterItemDecoration(context))
     }
 

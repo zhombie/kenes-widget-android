@@ -1,7 +1,10 @@
 package q19.kenes_widget.ui.components
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +13,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
@@ -154,6 +158,7 @@ internal class ServicesView @JvmOverloads constructor(
             recyclerView?.adapter = adapter
 
             recyclerView?.addItemDecoration(ServicesAdapterItemDecoration(
+                context,
                 resources.getDimension(R.dimen.kenes_rounded_border_width),
                 resources.getDimension(R.dimen.kenes_rounded_border_radius)
             ))
@@ -277,7 +282,7 @@ private class ServicesAdapter(
                     itemView.isClickable = false
                     itemView.isFocusable = false
 
-                    itemView.background = buildSimpleDrawable()
+                    itemView.background = buildSimpleDrawable(itemView.context)
 
                     itemView.setOnClickListener(null)
                 }
@@ -311,6 +316,7 @@ private class ServicesAdapter(
 
 
 private class ServicesAdapterItemDecoration(
+    context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
@@ -318,8 +324,7 @@ private class ServicesAdapterItemDecoration(
     private val paint: Paint = Paint()
 
     init {
-        paint.color = Color.parseColor("#EBEEF5")
-//        paint.color = Color.parseColor("#555555")
+        paint.color = ContextCompat.getColor(context, R.color.kenes_very_light_grayish_blue)
         paint.strokeWidth = strokeWidth
         paint.style = Paint.Style.STROKE
     }

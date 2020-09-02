@@ -10,6 +10,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
+import q19.kenes_widget.util.Logger
 
 internal class OperatorCallPendingView @JvmOverloads constructor(
     context: Context,
@@ -17,6 +18,10 @@ internal class OperatorCallPendingView @JvmOverloads constructor(
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
+
+    companion object {
+        private const val TAG = "OperatorCallPendingView"
+    }
 
     private val callTypeView: TextView
     private val progressBar: ProgressBar
@@ -64,6 +69,7 @@ internal class OperatorCallPendingView @JvmOverloads constructor(
     }
 
     fun setPendingQueueCountViewText(text: String?) {
+        Logger.debug(TAG, "setPendingQueueCountViewText() -> text: $text")
 //        queueCountView.text = text
     }
 

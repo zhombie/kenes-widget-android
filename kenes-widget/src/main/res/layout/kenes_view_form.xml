@@ -16,7 +16,7 @@
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:text="@string/kenes_leave_contact_details"
-        android:textColor="#000000"
+        android:textColor="@color/kenes_black"
         android:textSize="16sp" />
 
     <TextView
@@ -29,7 +29,7 @@
         android:layout_marginBottom="5dp"
         android:fontFamily="sans-serif-black"
         android:text="@string/kenes_name"
-        android:textColor="#000000"
+        android:textColor="@color/kenes_black"
         android:textSize="15sp" />
 
     <EditText
@@ -50,7 +50,7 @@
         android:nextFocusForward="@id/emailEditText"
         android:padding="10dp"
         android:singleLine="true"
-        android:textColor="#606266"
+        android:textColor="@color/kenes_very_dark_grayish_blue"
         android:textSize="14sp" />
 
     <TextView
@@ -63,7 +63,7 @@
         android:layout_marginBottom="5dp"
         android:fontFamily="sans-serif-black"
         android:text="@string/kenes_email"
-        android:textColor="#000000"
+        android:textColor="@color/kenes_black"
         android:textSize="15sp" />
 
     <EditText
@@ -84,7 +84,7 @@
         android:nextFocusForward="@id/phoneEditText"
         android:padding="10dp"
         android:singleLine="true"
-        android:textColor="#606266"
+        android:textColor="@color/kenes_very_dark_grayish_blue"
         android:textSize="14sp" />
 
     <TextView
@@ -97,7 +97,7 @@
         android:layout_marginBottom="5dp"
         android:fontFamily="sans-serif-black"
         android:text="@string/kenes_phone"
-        android:textColor="#000000"
+        android:textColor="@color/kenes_black"
         android:textSize="15sp" />
 
     <EditText
@@ -116,7 +116,7 @@
         android:maxLines="1"
         android:padding="10dp"
         android:singleLine="true"
-        android:textColor="#606266"
+        android:textColor="@color/kenes_very_dark_grayish_blue"
         android:textSize="14sp" />
 
     <LinearLayout

@@ -3,9 +3,9 @@
 
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
-            <stroke android:color="#D9ECFF" android:width="1dp" />
+            <stroke android:color="@color/kenes_very_pale_blue" android:width="1dp" />
 
-            <solid android:color="#ECF5FF" />
+            <solid android:color="@color/kenes_very_pale_mostly_white_blue" />
 
             <corners android:radius="3dp" />
         </shape>
@@ -13,9 +13,9 @@
 
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <stroke android:color="#B3D8FF" android:width="1dp" />
+            <stroke android:color="@color/kenes_pale_blue" android:width="1dp" />
 
-            <solid android:color="@color/kenes_blue" />
+            <solid android:color="@color/kenes_light_blue" />
 
             <corners android:radius="3dp" />
         </shape>
@@ -23,9 +23,9 @@
 
     <item>
         <shape android:shape="rectangle">
-            <stroke android:color="#B3D8FF" android:width="1dp" />
+            <stroke android:color="@color/kenes_pale_blue" android:width="1dp" />
 
-            <solid android:color="#ECF5FF" />
+            <solid android:color="@color/kenes_very_pale_mostly_white_blue" />
 
             <corners android:radius="3dp" />
         </shape>

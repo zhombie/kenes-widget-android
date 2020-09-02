@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:fontFamily="sans-serif-medium"
-        android:textColor="@color/kenes_dark_black"
+        android:textColor="@color/kenes_black"
         android:textSize="15sp"
         android:textStyle="normal"
         tools:text="@string/kenes_name" />
@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:fontFamily="sans-serif"
-        android:textColor="@color/kenes_gray"
+        android:textColor="@color/kenes_dark_gray"
         android:textSize="14sp"
         android:textStyle="normal"
         tools:text="Укажите адрес, где произошло ДТП: область, горда, улица, трасса (шоссе). Если не знаете адрес, то отправьте текст НЕ ЗНАЮ" />
@@ -41,7 +41,7 @@
         android:nextFocusForward="@id/emailEditText"
         android:padding="10dp"
         android:singleLine="false"
-        android:textColor="@color/kenes_black"
+        android:textColor="@color/kenes_very_dark_gray"
         android:textCursorDrawable="@drawable/kenes_shape_cursor"
         android:textSize="14sp"
         tools:hint="@string/kenes_name" />

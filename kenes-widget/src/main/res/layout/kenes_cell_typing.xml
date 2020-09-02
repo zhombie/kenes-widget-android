@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="@dimen/kenes_horizontal_spacing"
     android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-    android:background="@drawable/kenes_bg_opponent_message"
+    android:background="@drawable/kenes_bg_incoming_message"
     android:lineSpacingExtra="2.5sp"
     android:paddingStart="20dp"
     android:paddingTop="12dp"

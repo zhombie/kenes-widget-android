@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginStart="@dimen/kenes_message_horizonal_spacing"
-        android:background="@drawable/kenes_bg_user_message"
+        android:background="@drawable/kenes_bg_outgoing_message"
         android:orientation="vertical">
 
         <ImageView
@@ -33,7 +33,7 @@
             android:id="@+id/mediaView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/kenes_bg_user_media"
+            android:background="@drawable/kenes_bg_outgoing_media"
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
@@ -69,7 +69,7 @@
                 android:layout_weight="1"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="4sp"
-                android:textColor="#60626A"
+                android:textColor="@color/kenes_very_dark_grayish_blue"
                 android:textSize="14sp"
                 tools:text="988b8432....63646098a1.jpg\n(PDF Документ) - Скачать файл" />
 
@@ -86,7 +86,7 @@
             android:paddingTop="@dimen/kenes_message_text_vertical_spacing"
             android:paddingEnd="@dimen/kenes_message_text_horizontal_spacing"
             android:paddingBottom="@dimen/kenes_message_text_vertical_spacing"
-            android:textColor="#303133"
+            android:textColor="@color/kenes_very_dark_gray"
             android:textSize="14sp"
             android:visibility="gone"
             tools:text="Message"
@@ -100,7 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end"
         android:layout_marginTop="3dp"
-        android:textColor="#909399"
+        android:textColor="@color/kenes_dark_grayish_blue"
         android:textSize="11sp"
         tools:text="04:20" />
 

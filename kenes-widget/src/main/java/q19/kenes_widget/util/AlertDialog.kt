@@ -54,18 +54,18 @@ internal fun Context.showOpenLinkConfirmAlert(
 
     val textView = TextView(this)
 
-    textView.setTextColor(ContextCompat.getColor(this, R.color.kenes_black))
+    textView.setTextColor(ContextCompat.getColor(this, R.color.kenes_very_dark_gray))
 
     val colorStateList = ColorStateListBuilder()
         .addState(
             IntArray(1) { android.R.attr.state_pressed },
-            ContextCompat.getColor(this, R.color.kenes_light_blue)
+            ContextCompat.getColor(this, R.color.kenes_very_light_blue)
         )
         .addState(
             IntArray(1) { android.R.attr.state_selected },
-            ContextCompat.getColor(this, R.color.kenes_light_blue)
+            ContextCompat.getColor(this, R.color.kenes_very_light_blue)
         )
-        .addState(intArrayOf(), ContextCompat.getColor(this, R.color.kenes_blue))
+        .addState(intArrayOf(), ContextCompat.getColor(this, R.color.kenes_light_blue))
         .build()
 
     textView.highlightColor = Color.TRANSPARENT

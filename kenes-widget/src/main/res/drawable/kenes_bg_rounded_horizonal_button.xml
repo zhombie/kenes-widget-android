@@ -5,15 +5,17 @@
     <item android:id="@android:id/mask">
         <shape android:shape="rectangle">
             <solid android:color="@color/kenes_black" />
-            <corners android:radius="10dp" />
+            <corners android:radius="@dimen/kenes_rounded_border_radius" />
         </shape>
     </item>
 
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#104bb34b" />
-            <corners android:radius="10dp" />
-            <stroke android:color="#154bb34b" android:width="1dp" />
+            <solid android:color="@color/kenes_very_light_mostly_white_gray" />
+            <corners android:radius="@dimen/kenes_rounded_border_radius" />
+            <stroke
+                android:width="0.75dp"
+                android:color="@color/kenes_very_light_grayish_blue" />
         </shape>
     </item>
 
