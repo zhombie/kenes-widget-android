@@ -295,20 +295,48 @@ internal class CategoryAdapterItemDecoration(
                             c.drawPath(path, paint)
                         }
                     } else {
-                        if (index == 0) {
-                            val path = getPathOfQuadTopRectF(
-                                child,
-                                radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                            )
-                            c.drawPath(path, paint)
+                        if (adapter.isSeparateFooterEnabled) {
+                            when (index) {
+                                0 -> {
+                                    val path = getPathOfQuadTopRectF(
+                                        child,
+                                        radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                    )
+                                    c.drawPath(path, paint)
+                                }
+                                itemCount - 2 -> {
+                                    val path = getPathOfQuadBottomRectF(
+                                        child,
+                                        radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                    )
+                                    c.drawPath(path, paint)
+                                }
+                                else -> {
+                                    val path = Path()
+                                    path.moveTo(child.left.toFloat(), child.top.toFloat())
+                                    path.lineTo(child.left.toFloat(), child.bottom.toFloat())
+                                    path.moveTo(child.right.toFloat(), child.top.toFloat())
+                                    path.lineTo(child.right.toFloat(), child.bottom.toFloat())
+                                    path.close()
+                                    c.drawPath(path, paint)
+                                }
+                            }
                         } else {
-                            val path = Path()
-                            path.moveTo(child.left.toFloat(), child.top.toFloat())
-                            path.lineTo(child.left.toFloat(), child.bottom.toFloat())
-                            path.moveTo(child.right.toFloat(), child.top.toFloat())
-                            path.lineTo(child.right.toFloat(), child.bottom.toFloat())
-                            path.close()
-                            c.drawPath(path, paint)
+                            if (index == 0) {
+                                val path = getPathOfQuadTopRectF(
+                                    child,
+                                    radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                )
+                                c.drawPath(path, paint)
+                            } else {
+                                val path = Path()
+                                path.moveTo(child.left.toFloat(), child.top.toFloat())
+                                path.lineTo(child.left.toFloat(), child.bottom.toFloat())
+                                path.moveTo(child.right.toFloat(), child.top.toFloat())
+                                path.lineTo(child.right.toFloat(), child.bottom.toFloat())
+                                path.close()
+                                c.drawPath(path, paint)
+                            }
                         }
                     }
 
@@ -327,11 +355,19 @@ internal class CategoryAdapterItemDecoration(
                     }
 
                 } else if (viewType == CategoryAdapter.VIEW_TYPE_FOOTER) {
-                    val path = getPathOfQuadBottomRectF(
-                        child,
-                        radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                    )
-                    c.drawPath(path, paint)
+                    if (adapter.isSeparateFooterEnabled) {
+                        val path = getPathOfRoundedRectF(
+                            child,
+                            radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                        )
+                        c.drawPath(path, paint)
+                    } else {
+                        val path = getPathOfQuadBottomRectF(
+                            child,
+                            radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                        )
+                        c.drawPath(path, paint)
+                    }
                 }
             }
         }
@@ -376,14 +412,29 @@ internal class CategoryAdapterItemDecoration(
                             }
                         }
                         else -> {
-                            when (position) {
-                                0 -> RoundMode.TOP
-                                else -> RoundMode.NONE
+                            if (adapter.isSeparateFooterEnabled) {
+                                when (position) {
+                                    0 -> RoundMode.TOP
+                                    itemCount - 2 -> RoundMode.BOTTOM
+                                    else -> RoundMode.NONE
+                                }
+                            } else {
+                                if (position == 0) {
+                                    RoundMode.TOP
+                                } else {
+                                    RoundMode.NONE
+                                }
                             }
                         }
                     }
                 }
-                CategoryAdapter.VIEW_TYPE_FOOTER -> RoundMode.BOTTOM
+                CategoryAdapter.VIEW_TYPE_FOOTER -> {
+                    if (adapter.isSeparateFooterEnabled) {
+                        RoundMode.ALL
+                    } else {
+                        RoundMode.BOTTOM
+                    }
+                }
                 else -> RoundMode.NONE
             }
 
