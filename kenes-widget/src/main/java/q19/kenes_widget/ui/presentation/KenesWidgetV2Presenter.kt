@@ -884,7 +884,7 @@ class KenesWidgetV2Presenter(
 
         dialog.isInitiator = true
 
-        view?.clearChatMessages()
+//        view?.clearChatMessages()
 
         viewState = when (operatorCall) {
             OperatorCall.TEXT -> ViewState.TextDialog.Pending
