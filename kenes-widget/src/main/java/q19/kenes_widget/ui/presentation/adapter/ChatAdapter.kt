@@ -12,7 +12,6 @@ import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -204,6 +203,7 @@ internal class ChatAdapter(
             LAYOUT_MESSAGE_KEYBOARD -> MessageKeyboardViewHolder(view)
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
+//            LAYOUT_CATEGORY -> OldCategoryViewHolder(view)
             LAYOUT_CATEGORY -> CategoryViewHolder(view)
             LAYOUT_CROSS_CHILDREN -> CrossChildrenViewHolder(view)
             LAYOUT_RESPONSE -> ResponseViewHolder(view)
@@ -229,6 +229,7 @@ internal class ChatAdapter(
             Message.Type.TYPING ->
                 if (holder is TypingViewHolder) holder.bind()
             Message.Type.CATEGORY ->
+//                if (holder is OldCategoryViewHolder) holder.bind(message)
                 if (holder is CategoryViewHolder) holder.bind(message)
             Message.Type.CROSS_CHILDREN ->
                 if (holder is CrossChildrenViewHolder) holder.bind(message)
@@ -771,17 +772,54 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), CategoryAdapter.Callback {
+    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view),
+        CategoryAdapter.Callback {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-        private val showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
 
         private val categoryAdapter: CategoryAdapter
-        private val layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+        private val layoutManager =
+            LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
 
         init {
             recyclerView?.layoutManager = layoutManager
             categoryAdapter = CategoryAdapter(this)
+            recyclerView?.adapter = categoryAdapter
+
+            recyclerView?.addItemDecoration(CategoryAdapterItemDecoration(
+                itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
+                itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+            ))
+
+//            recyclerView?.disableChangeAnimations()
+        }
+
+        fun bind(message: Message) {
+            val category = message.category
+            if (category != null) {
+                titleView?.text = category.title
+
+                categoryAdapter.category = category
+            }
+        }
+
+        override fun onCategoryChildClicked(category: Category) {
+            callback?.onCategoryChildClicked(category)
+        }
+    }
+
+    @Deprecated("Old way with horizontal scroll")
+    private inner class OldCategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), OldCategoryAdapter.Callback {
+        private val titleView = view.findViewById<TextView>(R.id.titleView)
+        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
+//        private val showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
+
+        private val categoryAdapter: OldCategoryAdapter
+        private val layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+
+        init {
+            recyclerView?.layoutManager = layoutManager
+            categoryAdapter = OldCategoryAdapter(this)
             recyclerView?.adapter = categoryAdapter
             recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
         }
@@ -794,9 +832,9 @@ internal class ChatAdapter(
                 categoryAdapter.category = category
                 categoryAdapter.notifyDataSetChanged()
 
-                showAllButton?.setOnClickListener {
-                    callback?.onShowAllCategoryChildClicked(category)
-                }
+//                showAllButton?.setOnClickListener {
+//                    callback?.onShowAllCategoryChildClicked(category)
+//                }
             }
         }
 

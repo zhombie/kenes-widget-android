@@ -1,4 +1,4 @@
-package q19.kenes_widget.ui.components
+package q19.kenes_widget.ui.components.base
 
 import android.content.Context
 import android.util.AttributeSet

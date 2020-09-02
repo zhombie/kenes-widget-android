@@ -22,10 +22,7 @@ import q19.kenes_widget.data.model.Attachment
 import q19.kenes_widget.data.model.DynamicForm
 import q19.kenes_widget.data.model.DynamicFormField
 import q19.kenes_widget.ui.components.base.TitleView
-import q19.kenes_widget.util.AlertDialogBuilder
-import q19.kenes_widget.util.KenesTextWatcher
-import q19.kenes_widget.util.Logger
-import q19.kenes_widget.util.inflate
+import q19.kenes_widget.util.*
 
 internal class DynamicFormView @JvmOverloads constructor(
     context: Context,
@@ -113,6 +110,8 @@ internal class DynamicFormView @JvmOverloads constructor(
         recyclerView?.adapter = adapter
 
         recyclerView?.setHasFixedSize(true)
+
+        recyclerView?.disableChangeAnimations()
 
         recyclerView?.addItemDecoration(DynamicFormFieldsAdapterItemDecoration(context))
 

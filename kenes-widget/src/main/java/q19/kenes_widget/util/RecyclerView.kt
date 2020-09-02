@@ -8,12 +8,13 @@ import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 
-fun ViewGroup.inflate(@LayoutRes layoutRes: Int): View {
+internal fun ViewGroup.inflate(@LayoutRes layoutRes: Int): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, false)
 }
 
-fun RecyclerView.setOverscrollColor(@ColorRes colorResId: Int) {
+internal fun RecyclerView.setOverscrollColor(@ColorRes colorResId: Int) {
     edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
         override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
             return EdgeEffect(view.context).apply {
@@ -21,4 +22,8 @@ fun RecyclerView.setOverscrollColor(@ColorRes colorResId: Int) {
             }
         }
     }
+}
+
+internal fun RecyclerView.disableChangeAnimations() {
+    (itemAnimator as? SimpleItemAnimator?)?.supportsChangeAnimations = false
 }

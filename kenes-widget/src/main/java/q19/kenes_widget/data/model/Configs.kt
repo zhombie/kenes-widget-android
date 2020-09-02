@@ -144,7 +144,8 @@ data class Configs(
         val title: I18NString,
         val parentId: Long = -1L,
         val chatType: ChatType? = null,
-        val action: Action? = null
+        val action: Action? = null,
+        val details: Details? = null
     ) {
 
         companion object {
@@ -216,6 +217,10 @@ data class Configs(
             VIDEO("video"),
             EXTERNAL("external")
         }
+
+        data class Details(
+            val order: Int
+        )
 
         fun isFolderType(): Boolean {
             return type == Type.FOLDER

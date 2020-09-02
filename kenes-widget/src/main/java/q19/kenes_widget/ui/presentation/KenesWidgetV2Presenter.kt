@@ -122,7 +122,7 @@ class KenesWidgetV2Presenter(
 //                debug(TAG, "onBasicCategoriesLoaded() -> categories: $categories")
 
                 val messages = categories
-                    .sortedBy { it.id }
+//                    .sortedBy { it.config?.order }
                     .mapIndexed { index, category ->
                         if (palette.isNotEmpty()) {
                             category.color = palette[index % palette.size]
@@ -414,7 +414,7 @@ class KenesWidgetV2Presenter(
             }
 
             override fun onTextMessage(
-                text: String,
+                text: String?,
                 replyMarkup: Message.ReplyMarkup?,
                 attachments: List<Attachment>?,
                 dynamicForm: DynamicForm?,
@@ -526,8 +526,8 @@ class KenesWidgetV2Presenter(
 
                 if (viewState is ViewState.ChatBot.UserPrompt) return
 
-                val sortedCategories = categories.sortedBy { it.id }
-                chatBot.allCategories.addAll(sortedCategories)
+//                val sortedCategories = categories.sortedBy { it.config?.order }
+                chatBot.allCategories.addAll(categories)
 
                 if (!chatBot.isBasicCategoriesFilled) {
                     chatBot.allCategories.forEach { category ->
@@ -542,8 +542,8 @@ class KenesWidgetV2Presenter(
                 }
 
                 if (chatBot.activeCategory != null) {
-                    if (chatBot.activeCategory?.children?.containsAll(sortedCategories) == false) {
-                        chatBot.activeCategory?.children?.addAll(sortedCategories)
+                    if (chatBot.activeCategory?.children?.containsAll(categories) == false) {
+                        chatBot.activeCategory?.children?.addAll(categories)
                     }
                     view?.setNewMessages(
                         Message(

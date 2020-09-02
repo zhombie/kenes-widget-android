@@ -91,4 +91,7 @@
     <string name="kenes_attachment">Вложение</string>
 
     <string name="kenes_fill_fields">Пожалуйста, заполните следующие поля: %s</string>
+
+    <string name="kenes_show_all">Показать все</string>
+    <string name="kenes_hide">Скрыть</string>
 </resources>

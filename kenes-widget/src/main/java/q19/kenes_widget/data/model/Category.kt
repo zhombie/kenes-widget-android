@@ -17,13 +17,14 @@ data class Category(
     var photo: String? = null,
     var children: MutableList<Category> = mutableListOf(),
     var responses: MutableList<Int> = mutableListOf(),
+    var config: Config? = null,
 
 //    Local system variables
 //    var home: Boolean = false,
     @ColorInt var color: Int = 0
 ) {
 
-    class Background(
+    data class Background(
         var cornerRadius: Float,
         var stroke: Stroke,
         @ColorInt var color: Int
@@ -35,6 +36,10 @@ data class Category(
         )
 
     }
+
+    data class Config(
+        val order: Int
+    )
 
     private fun getColorWithAlpha(percentage: Float): Int {
         return try {
@@ -75,10 +80,6 @@ data class Category(
         return super.hashCode()
     }
 
-    override fun toString(): String {
-        return "Category(id=$id, title=\"$title\", parentId=$parentId, children=$children, responses=$responses)"
-    }
-
 }
 
 
@@ -89,6 +90,7 @@ internal fun parse(jsonObject: JSONObject): Category {
         lang = jsonObject.optInt("lang"),
         parentId = jsonObject.getNullableLong("parent_id"),
         photo = jsonObject.optString("photo"),
-        responses = jsonObject.optJSONArrayAsList("responses")
+        responses = jsonObject.optJSONArrayAsList("responses"),
+        config = Category.Config(jsonObject.optJSONObject("config")?.optInt("order") ?: 0)
     )
 }

@@ -433,20 +433,20 @@ private class CallScopesAdapter(
     }
 
     private inner class CallScopeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private var imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
+        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind(callScope: Configs.CallScope) {
-            textView.text = callScope.title.get(language)
+            textView?.text = callScope.title.get(language)
 
             debug(TAG, "callScope: $callScope")
 
             when {
                 callScope.isFolderType() -> {
-                    imageView.setImageResource(R.drawable.kenes_ic_caret_right_blue)
-                    imageView.visibility = View.VISIBLE
+                    imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
+                    imageView?.visibility = View.VISIBLE
 
-                    textView.removeCompoundDrawables()
+                    textView?.removeCompoundDrawables()
 
                     itemView.isClickable = true
                     itemView.isFocusable = true
@@ -456,7 +456,7 @@ private class CallScopesAdapter(
                     itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
                 }
                 callScope.isLinkType() -> {
-                    imageView.visibility = View.GONE
+                    imageView?.visibility = View.GONE
 
                     when {
                         callScope.isAudioCallAction() -> {
@@ -465,7 +465,7 @@ private class CallScopesAdapter(
                                 R.drawable.kenes_ic_headphones_blue,
                                 Color.parseColor("#487AFC")
                             )
-                            textView.showCompoundDrawableOnfLeft(
+                            textView?.showCompoundDrawableOnfLeft(
                                 drawable,
                                 itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
                             )
@@ -476,7 +476,7 @@ private class CallScopesAdapter(
                                 R.drawable.kenes_ic_camera_blue,
                                 Color.parseColor("#487AFC")
                             )
-                            textView.showCompoundDrawableOnfLeft(
+                            textView?.showCompoundDrawableOnfLeft(
                                 drawable,
                                 itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
                             )
@@ -494,9 +494,9 @@ private class CallScopesAdapter(
                     itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
                 }
                 else -> {
-                    imageView.visibility = View.GONE
+                    imageView?.visibility = View.GONE
 
-                    textView.removeCompoundDrawables()
+                    textView?.removeCompoundDrawables()
 
                     itemView.isClickable = false
                     itemView.isFocusable = false
@@ -510,12 +510,12 @@ private class CallScopesAdapter(
     }
 
     private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
+        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
 
         fun bind() {
-            textView.removeCompoundDrawables()
+            textView?.removeCompoundDrawables()
 
-            textView.setText(R.string.kenes_back)
+            textView?.setText(R.string.kenes_back)
 
             itemView.isClickable = true
             itemView.isFocusable = true

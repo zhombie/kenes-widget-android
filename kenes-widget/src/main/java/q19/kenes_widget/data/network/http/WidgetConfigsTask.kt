@@ -33,6 +33,8 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
             val callScopesJson = json?.optJSONArray("call_scopes")
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
+            debug(TAG, "callScopesJson: $callScopesJson")
+
             val opponent = Configs.Opponent(
                 name = configsJson?.optString("title"),
                 secondName = configsJson?.optString("default_operator"),
@@ -148,7 +150,8 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                             title = callScope.getJSONObject("title").parse(),
                             parentId = callScope.getLong("parent_id"),
                             chatType = findEnumBy { it.value == callScope.getNullableString("chat_type") },
-                            action = findEnumBy { it.value == callScope.getNullableString("action") }
+                            action = findEnumBy { it.value == callScope.getNullableString("action") },
+                            details = Configs.CallScope.Details(callScope.optInt("order"))
                         )
                     )
                 }
@@ -161,7 +164,7 @@ internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
                 phones = phones,
                 workingHours = workingHours,
                 infoBlocks = infoBlocks,
-                callScopes = callScopes
+                callScopes = callScopes.sortedBy { it.details?.order }
             )
         } catch (e: Exception) {
 //            e.printStackTrace()

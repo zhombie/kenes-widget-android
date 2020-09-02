@@ -293,49 +293,45 @@ internal class SocketClient(
             return@Listener
         }
 
-        if (!text.isNullOrBlank()) {
-            if (!data.isNull("queued")) {
-                val queued = data.optInt("queued")
-                listener?.onPendingUsersQueueCount(text, queued)
+        if (!data.isNull("queued")) {
+            val queued = data.optInt("queued")
+            listener?.onPendingUsersQueueCount(text, queued)
+            listener?.onTextMessage(
+                text = text,
+                replyMarkup = replyMarkup,
+                dynamicForm = dynamicForm,
+                timestamp = time
+            )
+        } else {
+            if (attachmentsJson != null) {
+                val attachments = mutableListOf<Attachment>()
+                for (i in 0 until attachmentsJson.length()) {
+                    val attachment = attachmentsJson[i] as? JSONObject?
+                    attachments.add(
+                        Attachment(
+                            title = attachment?.getNullableString("title"),
+                            ext = attachment?.getNullableString("ext"),
+                            type = attachment?.getNullableString("type"),
+                            url = attachment?.getNullableString("url")
+                        )
+                    )
+                }
+
+                listener?.onTextMessage(
+                    text = text,
+                    replyMarkup = replyMarkup,
+                    attachments = attachments,
+                    dynamicForm = dynamicForm,
+                    timestamp = time
+                )
+            } else {
                 listener?.onTextMessage(
                     text = text,
                     replyMarkup = replyMarkup,
                     dynamicForm = dynamicForm,
                     timestamp = time
                 )
-            } else {
-                if (attachmentsJson != null) {
-                    val attachments = mutableListOf<Attachment>()
-                    for (i in 0 until attachmentsJson.length()) {
-                        val attachment = attachmentsJson[i] as? JSONObject?
-                        attachments.add(
-                            Attachment(
-                                title = attachment?.getNullableString("title"),
-                                ext = attachment?.getNullableString("ext"),
-                                type = attachment?.getNullableString("type"),
-                                url = attachment?.getNullableString("url")
-                            )
-                        )
-                    }
-
-                    listener?.onTextMessage(
-                        text = text,
-                        replyMarkup = replyMarkup,
-                        attachments = attachments,
-                        dynamicForm = dynamicForm,
-                        timestamp = time
-                    )
-                } else {
-                    listener?.onTextMessage(
-                        text = text,
-                        replyMarkup = replyMarkup,
-                        dynamicForm = dynamicForm,
-                        timestamp = time
-                    )
-                }
             }
-
-            return@Listener
         }
 
         if (media != null) {
@@ -369,8 +365,6 @@ internal class SocketClient(
                 )
             }
         }
-
-        listener?.onEmptyMessage()
     }
 
     private val onCategoryList = Emitter.Listener { args ->
@@ -387,12 +381,13 @@ internal class SocketClient(
         val currentCategories = mutableListOf<Category>()
         for (i in 0 until categoryListJson.length()) {
             (categoryListJson[i] as? JSONObject?)?.let { categoryJson ->
+//                debug(TAG, "categoryJson: $categoryJson")
                 val parsed = parse(categoryJson)
                 currentCategories.add(parsed)
             }
         }
 
-        listener?.onCategories(currentCategories)
+        listener?.onCategories(currentCategories.sortedBy { it.config?.order })
     }
 
     private val onDisconnect = Emitter.Listener {
@@ -639,7 +634,7 @@ internal class SocketClient(
         fun onRTCHangup()
 
         fun onTextMessage(
-            text: String,
+            text: String?,
             replyMarkup: Message.ReplyMarkup? = null,
             attachments: List<Attachment>? = null,
             dynamicForm: DynamicForm? = null,

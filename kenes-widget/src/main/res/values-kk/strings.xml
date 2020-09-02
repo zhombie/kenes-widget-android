@@ -91,4 +91,7 @@
     <string name="kenes_attachment">Қосымша</string>
 
     <string name="kenes_fill_fields">Өтініш, көрсетілген өрістерді толтырып шығыңыз: %s</string>
+
+    <string name="kenes_show_all">Тағы</string>
+    <string name="kenes_hide">Жабу</string>
 </resources>
