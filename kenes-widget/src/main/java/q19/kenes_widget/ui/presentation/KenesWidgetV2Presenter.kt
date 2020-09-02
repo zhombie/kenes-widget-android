@@ -425,7 +425,11 @@ class KenesWidgetV2Presenter(
                     view?.setNewMessages(
                         Message(
                             type = Message.Type.RESPONSE,
-                            text = text,
+                            text = if (text.isNullOrBlank()) {
+                                Configs.I18NString.NOT_FOUND.get(language)
+                            } else {
+                                text
+                            },
                             replyMarkup = replyMarkup,
                             attachments = attachments,
                             timestamp = timestamp,
@@ -620,7 +624,7 @@ class KenesWidgetV2Presenter(
                         if (!configs.callScopes.isNullOrEmpty()) {
                             val parentScopes = Configs.CallScope.getMediaCallScopes(configs.callScopes)
                             if (parentScopes.isNullOrEmpty()) {
-                                view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
+                                view?.showCallScopes(callScopes = listOf(Configs.CallScope.EMPTY))
                             } else {
                                 view?.showCallScopes(callScopes = parentScopes)
                             }
@@ -649,7 +653,7 @@ class KenesWidgetV2Presenter(
                     val parentServices = Configs.CallScope.getExternalServices(configs.callScopes)
                     debug(TAG, "parentServices: $parentServices")
                     if (parentServices.isNullOrEmpty()) {
-                        view?.showExternalServices(services = listOf(Configs.CallScope.empty()))
+                        view?.showExternalServices(services = listOf(Configs.CallScope.EMPTY))
                     } else {
                         view?.showExternalServices(services = parentServices)
                     }
@@ -780,7 +784,7 @@ class KenesWidgetV2Presenter(
 
                 val parentScopes = Configs.CallScope.getMediaCallScopes(configs?.callScopes)
                 if (parentScopes.isNullOrEmpty()) {
-                    view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
+                    view?.showCallScopes(callScopes = listOf(Configs.CallScope.EMPTY))
                 } else {
                     view?.showCallScopes(callScopes = parentScopes)
                 }
@@ -906,7 +910,7 @@ class KenesWidgetV2Presenter(
 
                 view?.showCallScopes(
                     parentCallScope = callScope,
-                    callScopes = listOf(Configs.CallScope.empty())
+                    callScopes = listOf(Configs.CallScope.EMPTY)
                 )
             } else {
                 activeCallScope = callScope
@@ -936,7 +940,7 @@ class KenesWidgetV2Presenter(
             if (callScopes.isNullOrEmpty()) {
                 val parentScopes = Configs.CallScope.getMediaCallScopes(configs?.callScopes)
                 if (parentScopes.isNullOrEmpty()) {
-                    view?.showCallScopes(callScopes = listOf(Configs.CallScope.empty()))
+                    view?.showCallScopes(callScopes = listOf(Configs.CallScope.EMPTY))
                 } else {
                     view?.showCallScopes(callScopes = parentScopes)
                 }
@@ -961,7 +965,7 @@ class KenesWidgetV2Presenter(
 
                 view?.showExternalServices(
                     parentService = service,
-                    services = listOf(Configs.CallScope.empty())
+                    services = listOf(Configs.CallScope.EMPTY)
                 )
             } else {
                 activeService = service
@@ -995,7 +999,7 @@ class KenesWidgetV2Presenter(
             if (callScopes.isNullOrEmpty()) {
                 val parentServices = Configs.CallScope.getExternalServices(configs?.callScopes)
                 if (parentServices.isNullOrEmpty()) {
-                    view?.showExternalServices(services = listOf(Configs.CallScope.empty()))
+                    view?.showExternalServices(services = listOf(Configs.CallScope.EMPTY))
                 } else {
                     view?.showExternalServices(services = parentServices)
                 }
@@ -1050,18 +1054,18 @@ class KenesWidgetV2Presenter(
         socketClient?.sendUserLanguage(language)
     }
 
-    fun onShowAllCategoryChildClicked(category: Category) {
-        chatBot.activeCategory = category
-
-        view?.setNewMessages(
-            Message(
-                type = Message.Type.CROSS_CHILDREN,
-                category = chatBot.activeCategory
-            )
-        )
-
+//    fun onShowAllCategoryChildClicked(category: Category) {
+//        chatBot.activeCategory = category
+//
+//        view?.setNewMessages(
+//            Message(
+//                type = Message.Type.CROSS_CHILDREN,
+//                category = chatBot.activeCategory
+//            )
+//        )
+//
 //        view?.showGoToHomeButton()
-    }
+//    }
 
     fun onCategoryChildClicked(category: Category) {
         chatBot.activeCategory = category

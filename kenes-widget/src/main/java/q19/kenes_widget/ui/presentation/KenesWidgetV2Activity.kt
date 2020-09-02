@@ -470,7 +470,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
     private fun setupRecyclerView() {
         chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
             override fun onShowAllCategoryChildClicked(category: Category) {
-                presenter.onShowAllCategoryChildClicked(category)
+//                presenter.onShowAllCategoryChildClicked(category)
             }
 
             override fun onCategoryChildClicked(category: Category) {

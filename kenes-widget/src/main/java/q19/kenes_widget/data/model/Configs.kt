@@ -87,8 +87,8 @@ data class Configs(
 
         fun getMessage(language: Language): String? {
             return when (language) {
-                Language.Kazakh -> messageKk
-                Language.Russian -> messageRu
+                Language.KAZAKH -> messageKk
+                Language.RUSSIAN -> messageRu
                 else -> {
                     /**
                      * [messageRu] is a default value.
@@ -113,10 +113,19 @@ data class Configs(
             fun JSONObject.parse(): I18NString {
                 return I18NString(this)
             }
+
+            val NOT_FOUND: I18NString
+                get() {
+                    return I18NString(jsonObject {
+                        put(Language.ENGLISH.key, "Nothing found :(")
+                        put(Language.RUSSIAN.key, "Ничего не найдено :(")
+                        put(Language.KAZAKH.key, "Ештеңе табылмады :(")
+                    })
+                }
         }
 
         fun get(language: Language): String {
-            return value.optString(language.key)
+            return value.optString(language.key, NOT_FOUND.get(language))
         }
     }
 
@@ -185,21 +194,19 @@ data class Configs(
                 }
             }
 
-            fun empty(): CallScope {
-                return CallScope(
-                    id = -1L,
-                    type = null,
-                    scope = null,
-                    title = I18NString(jsonObject {
-                        put("en", "Nothing found :(")
-                        put("ru", "Ничего не найдено :(")
-                        put("kk", "Ештеңе табылмады :(")
-                    }),
-                    parentId = -1L,
-                    chatType = null,
-                    action = null
-                )
-            }
+            val EMPTY: CallScope
+                get() {
+                    return CallScope(
+                        id = -1L,
+                        type = null,
+                        scope = null,
+                        title = I18NString.NOT_FOUND,
+                        parentId = -1L,
+                        chatType = null,
+                        action = null
+                    )
+                }
+
         }
 
         enum class Type(val value: String) {

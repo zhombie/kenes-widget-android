@@ -21,10 +21,10 @@ internal object LanguageSetting {
             when (info.size) {
                 1 -> Locale(info[0])
                 2 -> Locale(info[0], info[1])
-                else -> Language.Russian.locale
+                else -> Language.RUSSIAN.locale
             }
         } ?: run {
-            Language.Russian.locale
+            Language.RUSSIAN.locale
         }
 
     fun setLanguage(context: Context, locale: Locale) {
