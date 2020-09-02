@@ -55,7 +55,7 @@ internal class InlineKeyboardAdapter(
         private val textView = view.findViewById<TextView>(R.id.textView)
 
         fun bind(button: Message.ReplyMarkup.Button) {
-            textView.text = button.text
+            textView?.text = button.text
 
             itemView.background = buildRippleDrawable(itemView.context)
 

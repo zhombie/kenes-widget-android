@@ -8,12 +8,13 @@ import q19.kenes_widget.R
 import q19.kenes_widget.data.model.Category
 import q19.kenes_widget.util.inflate
 
+@Deprecated("Old way with horizontal scroll")
 internal class CrossChildrenAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val LAYOUT_CROSS_CHILD = R.layout.kenes_cell_cross_child
+        private val LAYOUT_CROSS_CHILD = R.layout.kenes_cell_cross_child_old
     }
 
     var category: Category? = null

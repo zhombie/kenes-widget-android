@@ -13,7 +13,6 @@ import q19.kenes_widget.data.network.file.uploadFile
 import q19.kenes_widget.data.network.http.IceServersTask
 import q19.kenes_widget.data.network.http.WidgetConfigsTask
 import q19.kenes_widget.data.network.socket.SocketClient
-import q19.kenes_widget.di.AppProvider
 import q19.kenes_widget.ui.presentation.model.BottomNavigation
 import q19.kenes_widget.ui.presentation.model.ChatBot
 import q19.kenes_widget.ui.presentation.model.Dialog
@@ -24,7 +23,7 @@ import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
 class KenesWidgetV2Presenter(
-    private val appProvider: AppProvider,
+//    private val appProvider: AppProvider,
     private val language: Language,
     private val palette: IntArray
 ) {
@@ -1400,6 +1399,7 @@ class KenesWidgetV2Presenter(
     }
 
     fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
+        debug(TAG, "field: $field")
         view?.showAttachmentPicker(forced = true)
     }
 

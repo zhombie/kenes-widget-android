@@ -97,17 +97,17 @@ private class InfoBlocksAdapter(
         private var adapter: InfoBlockRowsAdapter? = null
 
         init {
-            titleView.visibility = View.GONE
-            descriptionView.visibility = View.GONE
-            recyclerView.visibility = View.GONE
+            titleView?.visibility = View.GONE
+            descriptionView?.visibility = View.GONE
+            recyclerView?.visibility = View.GONE
 
-            recyclerView.layoutManager =
+            recyclerView?.layoutManager =
                 LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
             adapter = InfoBlockRowsAdapter(language) {
                 callback(it)
             }
-            recyclerView.adapter = adapter
-            recyclerView.addItemDecoration(InfoBlockRowsAdapterItemDecoration(itemView.context))
+            recyclerView?.adapter = adapter
+            recyclerView?.addItemDecoration(InfoBlockRowsAdapterItemDecoration(itemView.context))
         }
 
         fun bind(infoBlock: Configs.InfoBlock) {
@@ -116,24 +116,24 @@ private class InfoBlocksAdapter(
             val items = infoBlock.items
 
             if (title.isNotBlank()) {
-                titleView.text = title
-                titleView.visibility = View.VISIBLE
+                titleView?.text = title
+                titleView?.visibility = View.VISIBLE
             } else {
-                titleView.visibility = View.GONE
+                titleView?.visibility = View.GONE
             }
 
             if (description.isNotBlank()) {
-                descriptionView.text = description
-                descriptionView.visibility = View.VISIBLE
+                descriptionView?.text = description
+                descriptionView?.visibility = View.VISIBLE
             } else {
-                descriptionView.visibility = View.GONE
+                descriptionView?.visibility = View.GONE
             }
 
             if (!items.isNullOrEmpty()) {
                 adapter?.items = items
-                recyclerView.visibility = View.VISIBLE
+                recyclerView?.visibility = View.VISIBLE
             } else {
-                recyclerView.visibility = View.GONE
+                recyclerView?.visibility = View.GONE
             }
         }
     }
@@ -192,8 +192,8 @@ private class InfoBlockRowsAdapter(
         private val descriptionView = view.findViewById<TextView>(R.id.descriptionView)
 
         init {
-            iconView.visibility = View.GONE
-            descriptionView.visibility = View.GONE
+            iconView?.visibility = View.GONE
+            descriptionView?.visibility = View.GONE
         }
 
         fun bind(item: Configs.Item) {
@@ -201,19 +201,19 @@ private class InfoBlockRowsAdapter(
             val description = item.description.get(language)
 
             if (!icon.isNullOrBlank()) {
-                iconView.loadCircleImage(item.icon)
-                iconView.visibility = View.VISIBLE
+                iconView?.loadCircleImage(item.icon)
+                iconView?.visibility = View.VISIBLE
             } else {
-                iconView.visibility = View.GONE
+                iconView?.visibility = View.GONE
             }
 
-            textView.text = item.text
+            textView?.text = item.text
 
             if (description.isNotBlank()) {
-                descriptionView.text = description
-                descriptionView.visibility = View.VISIBLE
+                descriptionView?.text = description
+                descriptionView?.visibility = View.VISIBLE
             } else {
-                descriptionView.visibility = View.GONE
+                descriptionView?.visibility = View.GONE
             }
 
             itemView.setOnClickListener { callback(item) }

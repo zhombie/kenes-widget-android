@@ -139,7 +139,7 @@ internal class ChatAdapter(
     }
 
     fun setAudioProgress(progress: Int, currentPosition: Int, duration: Int, itemPosition: Int) {
-        debug(TAG, "setAudioProgress -> progress: $progress, currentPosition: $currentPosition, duration: $duration, itemPosition: $itemPosition")
+//        debug(TAG, "setAudioProgress -> progress: $progress, currentPosition: $currentPosition, duration: $duration, itemPosition: $itemPosition")
 
         notifyItemChanged(itemPosition, Bundle().apply {
             putInt(KEY_PROGRESS, progress)
@@ -150,7 +150,7 @@ internal class ChatAdapter(
     }
 
     fun setProgress(progress: Int, fileType: String, itemPosition: Int) {
-        debug(TAG, "setProgress -> progress: $progress, fileType: $fileType, itemPosition: $itemPosition")
+//        debug(TAG, "setProgress -> progress: $progress, fileType: $fileType, itemPosition: $itemPosition")
 
         getItem(itemPosition).apply {
             file.progress = progress
@@ -382,7 +382,14 @@ internal class ChatAdapter(
             iconView?.setImageResource(R.drawable.kenes_ic_document_white)
 
             val spannableString = SpannableString(getString(R.string.kenes_open_file))
-            spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.kenes_blue)),0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            spannableString.setSpan(
+                ForegroundColorSpan(
+                    ContextCompat.getColor(
+                        this,
+                        R.color.kenes_blue
+                    )
+                ), 0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
+            )
             spannableStringBuilder.append(spannableString)
 
             mediaNameView?.text = spannableStringBuilder
@@ -404,7 +411,7 @@ internal class ChatAdapter(
         private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
         init {
-            timeView.visibility = View.GONE
+            timeView?.visibility = View.GONE
 
             mediaPlaySeekBar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -571,7 +578,11 @@ internal class ChatAdapter(
             }
         }
 
-        fun setMediaDownloadProgress(media: Media?, downloadStatus: Message.File.DownloadStatus, progress: Int) {
+        fun setMediaDownloadProgress(
+            media: Media?,
+            downloadStatus: Message.File.DownloadStatus,
+            progress: Int
+        ) {
             progressBar?.progress = if (progress == 0 || progress == 100) 0 else progress
 
             if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
@@ -646,7 +657,10 @@ internal class ChatAdapter(
             return true
         }
 
-        private fun Context.bindFile(media: Media, downloadStatus: Message.File.DownloadStatus): Boolean {
+        private fun Context.bindFile(
+            media: Media,
+            downloadStatus: Message.File.DownloadStatus
+        ): Boolean {
             var title = media.hash ?: ""
 
             if (title.length > 25) {
@@ -666,22 +680,36 @@ internal class ChatAdapter(
             }
 
             if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
-                progressBar.progress = 0
+                progressBar?.progress = 0
 
                 iconView?.setImageResource(R.drawable.kenes_ic_document_white)
                 val spannableString = SpannableString(getString(R.string.kenes_open_file))
-                spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.kenes_blue)),0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                spannableString.setSpan(
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.kenes_blue
+                        )
+                    ), 0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                )
                 spannableStringBuilder.append(spannableString)
             } else {
                 iconView?.setImageResource(R.drawable.kenes_ic_download_white)
                 val spannableString = SpannableString(getString(R.string.kenes_file_download))
-                spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.kenes_blue)),0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                spannableString.setSpan(
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            this,
+                            R.color.kenes_blue
+                        )
+                    ), 0, spannableString.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                )
                 spannableStringBuilder.append(spannableString)
             }
 
             mediaNameView?.text = spannableStringBuilder
 
-            return mediaNameView.text.isBlank()
+            return mediaNameView?.text.isNullOrBlank()
         }
     }
 
@@ -700,16 +728,16 @@ internal class ChatAdapter(
         }
 
         init {
-            recyclerView.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            recyclerView?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
         fun bind(message: Message) {
-            textView.setHtmlText(message.htmlText) { _, url ->
+            textView?.setHtmlText(message.htmlText) { _, url ->
                 callback?.onUrlInTextClicked(url)
             }
 
-            textView.enableAutoLinkMask()
-            textView.enableLinkMovementMethod()
+            textView?.enableAutoLinkMask()
+            textView?.enableLinkMovementMethod()
 
             timeView?.text = message.time
 
@@ -721,11 +749,11 @@ internal class ChatAdapter(
                     }
                 }
 
-                if (recyclerView.adapter == null) {
-                    recyclerView.adapter = inlineKeyboardAdapter
+                if (recyclerView?.adapter == null) {
+                    recyclerView?.adapter = inlineKeyboardAdapter
                 }
 
-                recyclerView.addItemDecoration(itemDecoration)
+                recyclerView?.addItemDecoration(itemDecoration)
 
                 val columnsCount = replyMarkup.getColumnsCount()
 
@@ -749,7 +777,7 @@ internal class ChatAdapter(
                     }
                 }
 
-                recyclerView.layoutManager = layoutManager
+                recyclerView?.layoutManager = layoutManager
             }
 
             inlineKeyboardAdapter?.replyMarkup = replyMarkup
@@ -777,19 +805,21 @@ internal class ChatAdapter(
         private val titleView = view.findViewById<TextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        private val categoryAdapter: CategoryAdapter
+        private val adapter: CategoryAdapter
         private val layoutManager =
             LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
 
         init {
             recyclerView?.layoutManager = layoutManager
-            categoryAdapter = CategoryAdapter(this)
-            recyclerView?.adapter = categoryAdapter
+            adapter = CategoryAdapter(true, this)
+            recyclerView?.adapter = adapter
 
-            recyclerView?.addItemDecoration(CategoryAdapterItemDecoration(
-                itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
-                itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-            ))
+            recyclerView?.addItemDecoration(
+                CategoryAdapterItemDecoration(
+                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
+                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                )
+            )
 
 //            recyclerView?.disableChangeAnimations()
         }
@@ -799,7 +829,7 @@ internal class ChatAdapter(
             if (category != null) {
                 titleView?.text = category.title
 
-                categoryAdapter.category = category
+                adapter.category = category
             }
         }
 
@@ -809,13 +839,15 @@ internal class ChatAdapter(
     }
 
     @Deprecated("Old way with horizontal scroll")
-    private inner class OldCategoryViewHolder(view: View) : RecyclerView.ViewHolder(view), OldCategoryAdapter.Callback {
+    private inner class OldCategoryViewHolder(view: View) : RecyclerView.ViewHolder(view),
+        OldCategoryAdapter.Callback {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 //        private val showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
 
         private val categoryAdapter: OldCategoryAdapter
-        private val layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
+        private val layoutManager =
+            LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
 
         init {
             recyclerView?.layoutManager = layoutManager
@@ -844,7 +876,8 @@ internal class ChatAdapter(
 
         private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
 
-            private var horizontalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_category_horizontal_spacing)
+            private var horizontalSpacing: Int =
+                context.resources.getDimensionPixelOffset(R.dimen.kenes_category_horizontal_spacing)
 
             override fun getItemOffsets(
                 outRect: Rect,
@@ -859,18 +892,25 @@ internal class ChatAdapter(
         }
     }
 
-    private inner class CrossChildrenViewHolder(view: View) : RecyclerView.ViewHolder(view), CrossChildrenAdapter.Callback {
+    private inner class CrossChildrenViewHolder(view: View) : RecyclerView.ViewHolder(view),
+        CategoryAdapter.Callback {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        private val crossChildrenAdapter: CrossChildrenAdapter
-        private val layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
+        private val adapter: CategoryAdapter
+        private val layoutManager =
+            LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
 
         init {
             recyclerView?.layoutManager = layoutManager
-            crossChildrenAdapter = CrossChildrenAdapter(this)
-            recyclerView?.adapter = crossChildrenAdapter
-            recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
+            adapter = CategoryAdapter(false, this)
+            recyclerView?.adapter = adapter
+            recyclerView?.addItemDecoration(
+                CategoryAdapterItemDecoration(
+                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
+                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                )
+            )
         }
 
         fun bind(message: Message) {
@@ -878,8 +918,7 @@ internal class ChatAdapter(
             if (category != null) {
                 titleView?.text = category.title
 
-                crossChildrenAdapter.category = category
-                crossChildrenAdapter.notifyDataSetChanged()
+                adapter.category = category
 
                 titleView?.setOnClickListener {
                     callback?.onGoBackClicked(category)
@@ -887,24 +926,8 @@ internal class ChatAdapter(
             }
         }
 
-        override fun onCrossChildClicked(category: Category) {
+        override fun onCategoryChildClicked(category: Category) {
             callback?.onCategoryChildClicked(category)
-        }
-
-        private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-
-            private var verticalSpacing: Int = context.resources.getDimensionPixelOffset(R.dimen.kenes_message_vertical_spacing)
-
-            override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
-            ) {
-                super.getItemOffsets(outRect, view, parent, state)
-
-                outRect.bottom = verticalSpacing
-            }
         }
     }
 
@@ -918,47 +941,47 @@ internal class ChatAdapter(
             val category = message.category
 
             if (category != null) {
-                if (category.title.isNotBlank())  {
-                    titleView.text = category.title
-                    titleView.visibility = View.VISIBLE
+                if (category.title.isNotBlank()) {
+                    titleView?.text = category.title
+                    titleView?.visibility = View.VISIBLE
 
-                    titleView.setOnClickListener {
+                    titleView?.setOnClickListener {
                         callback?.onGoBackClicked(category)
                     }
                 } else {
-                    titleView.visibility = View.GONE
+                    titleView?.visibility = View.GONE
                 }
 
                 if (message.text.isNotBlank()) {
-                    textView.setHtmlText(message.htmlText) { _, url ->
+                    textView?.setHtmlText(message.htmlText) { _, url ->
                         debug(TAG, "OnClick: $url")
                         callback?.onUrlInTextClicked(url)
                     }
 
-                    timeView.text = message.time
+                    timeView?.text = message.time
 
-                    textView.enableAutoLinkMask()
-                    textView.enableLinkMovementMethod()
+                    textView?.enableAutoLinkMask()
+                    textView?.enableLinkMovementMethod()
 
-                    textView.visibility = View.VISIBLE
-                    timeView.visibility = View.VISIBLE
+                    textView?.visibility = View.VISIBLE
+                    timeView?.visibility = View.VISIBLE
                 } else {
-                    textView.visibility = View.GONE
-                    timeView.visibility = View.GONE
+                    textView?.visibility = View.GONE
+                    timeView?.visibility = View.GONE
                 }
 
                 val attachments = message.attachments
                 if (!attachments.isNullOrEmpty()) {
                     val attachment = attachments[0]
 
-                    attachmentView.text = attachment.title
-                    attachmentView.visibility = View.VISIBLE
+                    attachmentView?.text = attachment.title
+                    attachmentView?.visibility = View.VISIBLE
 
-                    attachmentView.setOnClickListener {
+                    attachmentView?.setOnClickListener {
                         callback?.onAttachmentClicked(attachment, absoluteAdapterPosition)
                     }
                 } else {
-                    attachmentView.visibility = View.GONE
+                    attachmentView?.visibility = View.GONE
                 }
             }
         }

@@ -32,7 +32,6 @@ import q19.kenes_widget.R
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
 import q19.kenes_widget.data.model.*
-import q19.kenes_widget.di.AppProvider
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapterItemDecoration
@@ -214,7 +213,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         // ------------------------------------------------------------------------
 
         presenter = KenesWidgetV2Presenter(
-            appProvider = AppProvider(),
+//            appProvider = AppProvider(),
             language = getCurrentLanguage(),
             palette = palette
         )

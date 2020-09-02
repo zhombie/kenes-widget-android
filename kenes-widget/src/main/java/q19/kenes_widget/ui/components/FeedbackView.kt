@@ -119,7 +119,7 @@ private class RatingAdapter(
     }
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView = view.findViewById<TextView>(R.id.textView)
+        private val textView = view.findViewById<TextView>(R.id.textView)
 
         fun bind(
             ratingButton: RatingButton,

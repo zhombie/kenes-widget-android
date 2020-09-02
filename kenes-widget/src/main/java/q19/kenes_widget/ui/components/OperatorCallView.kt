@@ -376,7 +376,7 @@ private class CallScopesAdapter(
     companion object {
         private const val TAG = "CallScopesAdapter"
 
-        private val LAYOUT_CALL_SCOPE = R.layout.kenes_cell_horizontal_button
+        private val LAYOUT_HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
 
         const val VIEW_TYPE_CALL_SCOPE = 100
         const val VIEW_TYPE_FOOTER = 101
@@ -417,8 +417,8 @@ private class CallScopesAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_CALL_SCOPE -> CallScopeViewHolder(parent.inflate(LAYOUT_CALL_SCOPE))
-            VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_CALL_SCOPE))
+            VIEW_TYPE_CALL_SCOPE -> CallScopeViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
+            VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
             else -> throw ViewHolderViewTypeException(viewType)
         }
     }

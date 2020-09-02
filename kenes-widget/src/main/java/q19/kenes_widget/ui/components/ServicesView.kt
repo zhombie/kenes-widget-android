@@ -235,8 +235,8 @@ private class ServicesAdapter(
     }
 
     private inner class ServiceViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private var textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private var imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
+        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind(service: Service) {
             textView.text = service.title.get(language)

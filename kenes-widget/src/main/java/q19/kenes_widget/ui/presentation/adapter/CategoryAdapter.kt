@@ -14,11 +14,12 @@ import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables
 
 internal class CategoryAdapter(
+    private var isExpandable: Boolean,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TAG = "CategoryAdapter"
+//        private const val TAG = "CategoryAdapter"
 
         private val LAYOUT_HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
         private val LAYOUT_FOOTER = R.layout.kenes_cell_horizontal_button
@@ -37,8 +38,12 @@ internal class CategoryAdapter(
 
     var size: Int = DEFAULT_SIZE_THRESHOLD
         set(value) {
-            field = value
-            notifyDataSetChanged()
+            if (isExpandable) {
+                field = value
+                notifyDataSetChanged()
+            } else {
+                return
+            }
         }
 
     private fun getActualSize(): Int {
@@ -46,49 +51,65 @@ internal class CategoryAdapter(
     }
 
     private fun isCollapsed(): Boolean {
-        return size == DEFAULT_SIZE_THRESHOLD
+        return if (isExpandable) {
+            size == DEFAULT_SIZE_THRESHOLD
+        } else {
+            false
+        }
     }
 
     fun toggle(): Int {
-        size = if (isCollapsed()) {
-            getActualSize()
+        return if (isExpandable) {
+            size = if (isCollapsed()) {
+                getActualSize()
+            } else {
+                DEFAULT_SIZE_THRESHOLD
+            }
+            size
         } else {
-            DEFAULT_SIZE_THRESHOLD
+            0
         }
-        return size
     }
 
     override fun getItemViewType(position: Int): Int {
 //        Logger.debug(TAG, "getItemViewType() -> position: $position")
-        return if (DEFAULT_SIZE_THRESHOLD >= (category?.children?.size ?: 0)) {
-            VIEW_TYPE_HORIZONTAL_BUTTON
-        } else {
-            if (position == itemCount - 1) {
-                VIEW_TYPE_FOOTER
-            } else {
+        return if (isExpandable) {
+            if (DEFAULT_SIZE_THRESHOLD >= (category?.children?.size ?: 0)) {
                 VIEW_TYPE_HORIZONTAL_BUTTON
+            } else {
+                if (position == itemCount - 1) {
+                    VIEW_TYPE_FOOTER
+                } else {
+                    VIEW_TYPE_HORIZONTAL_BUTTON
+                }
             }
+        } else {
+            VIEW_TYPE_HORIZONTAL_BUTTON
         }
     }
 
     override fun getItemCount(): Int {
-        var itemCount = size
+        if (isExpandable) {
+            var itemCount = size
 
-        if (size < 0) {
-            itemCount = DEFAULT_SIZE_THRESHOLD
-        }
-
-        category?.let {
-            if (!it.children.isNullOrEmpty() && size >= it.children.size) {
-                itemCount = it.children.size
+            if (size < 0) {
+                itemCount = DEFAULT_SIZE_THRESHOLD
             }
-        } ?: return 0
 
-        if ((category?.children?.size ?: 0) > DEFAULT_SIZE_THRESHOLD) {
-            itemCount += 1
+            category?.let {
+                if (!it.children.isNullOrEmpty() && size >= it.children.size) {
+                    itemCount = it.children.size
+                }
+            } ?: return 0
+
+            if ((category?.children?.size ?: 0) > DEFAULT_SIZE_THRESHOLD) {
+                itemCount += 1
+            }
+
+            return itemCount
+        } else {
+            return getActualSize()
         }
-
-        return itemCount
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -119,11 +140,11 @@ internal class CategoryAdapter(
 
             textView?.text = child.title
 
-            if (!category.responses.isNullOrEmpty()) {
-                imageView?.setImageResource(R.drawable.kenes_ic_file_blue)
+            if (category.responses.isNullOrEmpty()) {
+                imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                 imageView?.visibility = View.VISIBLE
             } else {
-                imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
+                imageView?.setImageResource(R.drawable.kenes_ic_document_blue)
                 imageView?.visibility = View.VISIBLE
             }
 

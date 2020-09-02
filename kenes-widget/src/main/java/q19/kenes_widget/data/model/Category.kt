@@ -10,14 +10,14 @@ import q19.kenes_widget.util.JsonUtil.getNullableLong
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 
 data class Category(
-    var id: Long,
-    var title: String,
-    var lang: Int,
-    var parentId: Long? = null,
-    var photo: String? = null,
-    var children: MutableList<Category> = mutableListOf(),
-    var responses: MutableList<Int> = mutableListOf(),
-    var config: Config? = null,
+    val id: Long,
+    val title: String,
+    val lang: Int,
+    val parentId: Long? = null,
+    val photo: String? = null,
+    val children: MutableList<Category> = mutableListOf(),
+    val responses: MutableList<Int> = mutableListOf(),
+    val config: Config? = null,
 
 //    Local system variables
 //    var home: Boolean = false,
@@ -25,13 +25,13 @@ data class Category(
 ) {
 
     data class Background(
-        var cornerRadius: Float,
-        var stroke: Stroke,
-        @ColorInt var color: Int
+        val cornerRadius: Float,
+        val stroke: Stroke,
+        @ColorInt val color: Int
     ) {
 
         class Stroke(
-            var width: Int,
+            val width: Int,
             @ColorInt var color: Int
         )
 

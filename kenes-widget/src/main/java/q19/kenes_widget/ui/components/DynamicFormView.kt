@@ -296,7 +296,7 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         private val titleView = view.findViewById<TitleView>(R.id.titleView)
 
         fun bind(title: String) {
-            titleView.text = title
+            titleView?.text = title
         }
     }
 
@@ -309,15 +309,15 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
             labelView.text = field.title?.trim()
 
             if (field.prompt.isNullOrBlank()) {
-                infoView.visibility = View.GONE
+                infoView?.visibility = View.GONE
             } else {
-                infoView.text = field.prompt.trim()
-                infoView.visibility = View.VISIBLE
+                infoView?.text = field.prompt.trim()
+                infoView?.visibility = View.VISIBLE
             }
 
-            editText.hint = field.title?.trim()
+            editText?.hint = field.title?.trim()
 
-            editText.addTextChangedListener(object : KenesTextWatcher() {
+            editText?.addTextChangedListener(object : KenesTextWatcher() {
                 override fun afterTextChanged(s: Editable?) {
                     val text = s?.toString()?.trim()
                     field.value = text
@@ -332,29 +332,29 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         private val attachmentView = view.findViewById<AppCompatTextView>(R.id.attachmentView)
 
         fun bind(field: DynamicFormField) {
-            labelView.text = field.title
+            labelView?.text = field.title
 
             if (attachment != null) {
                 field.value = attachment?.url
 
-                attachmentView.text = attachment?.title
+                attachmentView?.text = attachment?.title
 
-                attachmentView.setOnClickListener {
+                attachmentView?.setOnClickListener {
                     callback?.onAttachmentClicked(attachment!!)
                 }
 
-                selectAttachmentButton.visibility = View.GONE
-                attachmentView.visibility = View.VISIBLE
+                selectAttachmentButton?.visibility = View.GONE
+                attachmentView?.visibility = View.VISIBLE
             } else {
                 field.value = null
 
-                attachmentView.setOnClickListener(null)
+                attachmentView?.setOnClickListener(null)
 
-                attachmentView.visibility = View.GONE
-                selectAttachmentButton.visibility = View.VISIBLE
+                attachmentView?.visibility = View.GONE
+                selectAttachmentButton?.visibility = View.VISIBLE
             }
 
-            selectAttachmentButton.setOnClickListener {
+            selectAttachmentButton?.setOnClickListener {
                 callback?.onSelectAttachmentButtonClicked(field)
             }
         }
@@ -365,11 +365,11 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         private val sendButton = view.findViewById<AppCompatButton>(R.id.sendButton)
 
         fun bind() {
-            cancelButton.setOnClickListener {
+            cancelButton?.setOnClickListener {
                 callback?.onCancelButtonClicked()
             }
 
-            sendButton.setOnClickListener {
+            sendButton?.setOnClickListener {
                 callback?.onSendButtonClicked()
             }
         }
