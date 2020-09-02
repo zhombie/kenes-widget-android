@@ -125,7 +125,7 @@ data class Configs(
         }
 
         fun get(language: Language): String {
-            return value.optString(language.key, NOT_FOUND.get(language))
+            return value.optString(language.key)
         }
     }
 
