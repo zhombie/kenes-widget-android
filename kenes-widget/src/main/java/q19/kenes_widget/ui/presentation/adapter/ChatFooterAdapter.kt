@@ -41,7 +41,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
             data.add(0, ChatFooter(type))
             notifyItemInserted(0)
         } else {
-            if (data[0].type == type) {
+            if (data.first().type == type) {
                 return
             } else {
                 data.clear()
@@ -62,9 +62,10 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     override fun getItemViewType(position: Int): Int {
         return if (data.isNotEmpty()) {
             when (data[position].type) {
-                ChatFooter.Type.GO_TO_HOME -> LAYOUT_FOOTER
-                ChatFooter.Type.SWITCH_TO_CALL_AGENT -> LAYOUT_FOOTER
-                ChatFooter.Type.FUZZY_QUESTION -> LAYOUT_FOOTER_FUZZY
+                ChatFooter.Type.GO_TO_HOME ->
+                    LAYOUT_FOOTER
+                ChatFooter.Type.SWITCH_TO_CALL_AGENT, ChatFooter.Type.FUZZY_QUESTION ->
+                    LAYOUT_FOOTER_FUZZY
             }
         } else {
             super.getItemViewType(position)
@@ -101,10 +102,6 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
                 button?.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_arrow_left, 15)
                 button?.setText(R.string.kenes_go_to_home)
                 button?.setOnClickListener { callback?.onGoToHomeButtonClicked() }
-            } else if (chatFooter.type == ChatFooter.Type.SWITCH_TO_CALL_AGENT) {
-                button?.removeCompoundDrawables()
-                button?.setText(R.string.kenes_switch_to_operator)
-                button?.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
             }
         }
     }
@@ -125,6 +122,16 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
                 button2?.removeCompoundDrawables()
                 button2?.setText(R.string.kenes_register_appeal)
                 button2?.setOnClickListener { callback?.onRegisterAppealButtonClicked() }
+            } else if (chatFooter.type == ChatFooter.Type.SWITCH_TO_CALL_AGENT) {
+                button1?.removeCompoundDrawables()
+                button1?.setText(R.string.kenes_switch_to_operator)
+                button1?.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
+
+                orView?.text = itemView.context.getString(R.string.kenes_or).toLowerCase(Locale.getDefault())
+
+                button2?.removeCompoundDrawables()
+                button2?.setText(R.string.kenes_go_to_home)
+                button2?.setOnClickListener { callback?.onGoToHomeButtonClicked() }
             }
         }
     }
