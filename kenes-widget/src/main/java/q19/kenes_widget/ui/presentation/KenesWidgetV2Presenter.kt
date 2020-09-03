@@ -155,11 +155,14 @@ class KenesWidgetV2Presenter(
         } else {
             debug(TAG, "initSocket() -> socketUrl: $socketUrl")
             socketClient = SocketClient()
-            socketClient?.start(socketUrl, language.locale.language)
+            socketClient?.start(socketUrl, language.key)
         }
 
         socketClient?.listener = object : SocketClient.Listener {
             override fun onConnect() {
+                socketClient?.setLanguage(language.key)
+                socketClient?.sendUserLanguage(language.key)
+
                 viewState = if (configs?.booleans?.isChabotEnabled == true) {
                     socketClient?.getBasicCategories()
                     ViewState.ChatBot.Categories(true)

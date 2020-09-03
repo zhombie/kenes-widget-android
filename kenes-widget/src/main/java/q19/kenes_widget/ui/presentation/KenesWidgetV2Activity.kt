@@ -709,7 +709,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             operatorCallPendingView.setInfoViewText(null)
             operatorCallPendingView.hideInfoViewText()
             operatorCallPendingView.setCancelCallButtonDisabled()
-            operatorCallPendingView.visibility = View.GONE
+            operatorCallPendingView.isVisible = false
 
             operatorCallView.setCallButtonEnabled(OperatorCall.AUDIO)
             operatorCallView.setCallButtonEnabled(OperatorCall.VIDEO)
@@ -877,9 +877,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             if (!footerView.isAttachmentButtonEnabled) {
                 footerView.enableAttachmentButton()
             }
-            if (footerView.visibility != View.VISIBLE) {
-                footerView.visibility = View.VISIBLE
-            }
+            footerView.isVisible = true
         }
     }
 
@@ -1198,22 +1196,22 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             headerView.hideHangupButton()
 
             setDefaultOperatorCallView()
-            operatorCallView.visibility = View.GONE
-            operatorCallPendingView.visibility = View.GONE
+            operatorCallView.isVisible = false
+            operatorCallPendingView.isVisible = false
 
             audioDialogView.setDefaultState()
-            audioDialogView.visibility = View.GONE
+            audioDialogView.isVisible = false
 
             videoDialogView.setDefaultState()
-            videoDialogView.visibility = View.GONE
+            videoDialogView.isVisible = false
 
             feedbackView.setDefaultState()
-            feedbackView.visibility = View.GONE
+            feedbackView.isVisible = false
 
-            recyclerView.visibility = View.GONE
+            recyclerView.isVisible = false
 
             setDefaultFooterView()
-            footerView.visibility = View.GONE
+            footerView.isVisible = false
         }
 
         when (viewState) {
@@ -1221,42 +1219,42 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 runOnUiThread {
                     headerView.hideHangupButton()
 
-                    operatorCallView.visibility = View.GONE
-                    operatorCallPendingView.visibility = View.GONE
+                    operatorCallView.isVisible = false
+                    operatorCallPendingView.isVisible = false
 
                     audioDialogView.setDefaultState()
-                    audioDialogView.visibility = View.GONE
+                    audioDialogView.isVisible = false
 
                     videoDialogView.setDefaultState()
-                    videoDialogView.visibility = View.GONE
+                    videoDialogView.isVisible = false
 
                     feedbackView.setDefaultState()
-                    feedbackView.visibility = View.GONE
+                    feedbackView.isVisible = false
 
-                    formView.visibility = View.GONE
+                    formView.isVisible = false
 
-                    dynamicFormView.visibility = View.GONE
+                    dynamicFormView.isVisible = false
 
-                    infoView.visibility = View.GONE
+                    infoView.isVisible = false
 
-//                    contactsView.visibility = View.GONE
-                    servicesView.visibility = View.GONE
+//                    contactsView.isVisible = false
+                    servicesView.isVisible = false
 
                     bottomNavigationView.setNavButtonsEnabled()
                     bottomNavigationView.setNavButtonActive(BottomNavigation.HOME)
 
-                    recyclerView.visibility = View.VISIBLE
+                    recyclerView.isVisible = true
 
                     setDefaultFooterView()
-                    footerView.visibility = View.VISIBLE
+                    footerView.isVisible = true
                 }
 
                 when (viewState) {
                     is ViewState.ChatBot.Categories -> {
                         runOnUiThread {
                             if (viewState.isLoading) {
-                                if (recyclerView.visibility != View.GONE) {
-                                    recyclerView.visibility = View.GONE
+                                if (recyclerView.isVisible) {
+                                    recyclerView.isVisible = false
                                 }
 
                                 if (progressView.isProgressHidden()) {
@@ -1267,8 +1265,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                                     progressView.hide()
                                 }
 
-                                if (recyclerView.visibility != View.VISIBLE) {
-                                    recyclerView.visibility = View.VISIBLE
+                                if (!recyclerView.isVisible) {
+                                    recyclerView.isVisible = true
                                 }
                             }
                         }
@@ -1278,8 +1276,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             chatAdapter?.clearCategoryMessages()
 
                             if (viewState.isLoading) {
-                                if (recyclerView.visibility != View.GONE) {
-                                    recyclerView.visibility = View.GONE
+                                if (recyclerView.isVisible) {
+                                    recyclerView.isVisible = false
                                 }
 
                                 if (progressView.isProgressHidden()) {
@@ -1290,8 +1288,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                                     progressView.hide()
                                 }
 
-                                if (recyclerView.visibility != View.VISIBLE) {
-                                    recyclerView.visibility = View.VISIBLE
+                                if (!recyclerView.isVisible) {
+                                    recyclerView.isVisible = true
                                 }
                             }
                         }
@@ -1305,7 +1303,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             headerView.hideHangupButton()
 
                             feedbackView.setDefaultState()
-                            feedbackView.visibility = View.GONE
+                            feedbackView.isVisible = false
 
                             footerView.disableAttachmentButton()
 
@@ -1343,23 +1341,23 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
 
-                                feedbackView.visibility = View.GONE
+                                feedbackView.isVisible = false
 
-                                footerView.visibility = View.VISIBLE
+                                footerView.isVisible = true
 
-                                recyclerView.visibility = View.VISIBLE
+                                recyclerView.isVisible = true
 
                                 bottomNavigationView.setNavButtonsEnabled()
                             } else {
                                 hideKeyboard(footerView.inputView)
 
-                                recyclerView.visibility = View.GONE
+                                recyclerView.isVisible = false
 
-                                footerView.visibility = View.GONE
+                                footerView.isVisible = false
 
                                 bottomNavigationView.setNavButtonsDisabled()
 
-                                feedbackView.visibility = View.VISIBLE
+                                feedbackView.isVisible = true
                             }
                         }
                     }
@@ -1369,10 +1367,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 runOnUiThread {
                     progressView.hide()
 
-                    infoView.visibility = View.GONE
+                    infoView.isVisible = false
 
-//                    contactsView.visibility = View.GONE
-                    servicesView.visibility = View.GONE
+//                    contactsView.isVisible = false
+                    servicesView.isVisible = false
 
                     chatFooterAdapter?.clear()
 
@@ -1381,33 +1379,33 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     headerView.hideHangupButton()
 
                     audioDialogView.setDefaultState()
-                    audioDialogView.visibility = View.GONE
+                    audioDialogView.isVisible = false
 
                     videoDialogView.setDefaultState()
-                    videoDialogView.visibility = View.GONE
+                    videoDialogView.isVisible = false
 
                     feedbackView.setDefaultState()
-                    feedbackView.visibility = View.GONE
+                    feedbackView.isVisible = false
 
-                    recyclerView.visibility = View.GONE
+                    recyclerView.isVisible = false
 
                     footerView.setGoToActiveDialogButtonState(null)
                     footerView.disableAttachmentButton()
-                    footerView.visibility = View.GONE
+                    footerView.isVisible = false
 
                     bottomNavigationView.setNavButtonsEnabled()
                     bottomNavigationView.setNavButtonActive(BottomNavigation.OPERATOR_CALL)
 
                     setDefaultOperatorCallView()
-                    operatorCallView.visibility = View.VISIBLE
+                    operatorCallView.isVisible = true
                 }
             }
             is ViewState.AudioDialog -> {
                 runOnUiThread {
-                    infoView.visibility = View.GONE
+                    infoView.isVisible = false
 
-//                    contactsView.visibility = View.GONE
-                    servicesView.visibility = View.GONE
+//                    contactsView.isVisible = false
+                    servicesView.isVisible = false
                 }
 
                 when (viewState) {
@@ -1419,7 +1417,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_audio_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
-                            operatorCallPendingView.visibility = View.VISIBLE
+                            operatorCallPendingView.isVisible = true
                         }
                     }
                     ViewState.AudioDialog.Start -> {
@@ -1433,13 +1431,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             headerView.showHangupButton()
 
                             operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
-                            operatorCallView.visibility = View.GONE
-                            operatorCallPendingView.visibility = View.GONE
+                            operatorCallView.isVisible = false
+                            operatorCallPendingView.isVisible = false
 
-                            recyclerView.visibility = View.VISIBLE
+                            recyclerView.isVisible = true
 
                             footerView.enableAttachmentButton()
-                            footerView.visibility = View.VISIBLE
+                            footerView.isVisible = true
 
                             bottomNavigationView.setNavButtonsDisabled()
                         }
@@ -1468,11 +1466,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                                 footerView.setGoToActiveDialogButtonState(null)
 
-                                audioDialogView.visibility = View.VISIBLE
+                                audioDialogView.isVisible = true
                             } else {
                                 footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
 
-                                audioDialogView.visibility = View.GONE
+                                audioDialogView.isVisible = false
                             }
                         }
                     }
@@ -1484,9 +1482,9 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                             setDefaultFooterView()
                             footerView.disableAttachmentButton()
-                            footerView.visibility = View.GONE
+                            footerView.isVisible = false
 
-                            audioDialogView.visibility = View.GONE
+                            audioDialogView.isVisible = false
 
                             bottomNavigationView.setNavButtonsEnabled()
                         }
@@ -1496,22 +1494,22 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
 
-                                feedbackView.visibility = View.GONE
+                                feedbackView.isVisible = false
 
                                 bottomNavigationView.setNavButtonsEnabled()
 
-                                recyclerView.visibility = View.VISIBLE
+                                recyclerView.isVisible = true
                             } else {
                                 hideKeyboard(footerView.inputView)
 
-                                operatorCallView.visibility = View.GONE
-                                operatorCallPendingView.visibility = View.GONE
+                                operatorCallView.isVisible = false
+                                operatorCallPendingView.isVisible = false
 
-                                recyclerView.visibility = View.GONE
+                                recyclerView.isVisible = false
 
                                 bottomNavigationView.setNavButtonsDisabled()
 
-                                feedbackView.visibility = View.VISIBLE
+                                feedbackView.isVisible = true
                             }
                         }
                     }
@@ -1519,12 +1517,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
             is ViewState.VideoDialog -> {
                 runOnUiThread {
-                    infoView.visibility = View.GONE
+                    infoView.isVisible = false
 
-//                    contactsView.visibility = View.GONE
-                    servicesView.visibility = View.GONE
+//                    contactsView.isVisible = false
+                    servicesView.isVisible = false
 
-                    operatorCallPendingView.visibility = View.GONE
+                    operatorCallPendingView.isVisible = false
                 }
 
                 when (viewState) {
@@ -1536,7 +1534,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_video_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
-                            operatorCallPendingView.visibility = View.VISIBLE
+                            operatorCallPendingView.isVisible = true
                         }
                     }
                     ViewState.VideoDialog.Start -> {
@@ -1550,13 +1548,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             headerView.showHangupButton()
 
                             setDefaultOperatorCallView()
-                            operatorCallView.visibility = View.GONE
-                            operatorCallPendingView.visibility = View.GONE
+                            operatorCallView.isVisible = false
+                            operatorCallPendingView.isVisible = false
 
-                            recyclerView.visibility = View.VISIBLE
+                            recyclerView.isVisible = true
 
                             footerView.enableAttachmentButton()
-                            footerView.visibility = View.VISIBLE
+                            footerView.isVisible = true
 
                             bottomNavigationView.setNavButtonsDisabled()
                         }
@@ -1586,11 +1584,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                                 footerView.setGoToActiveDialogButtonState(null)
 
                                 videoDialogView.showControlButtons()
-                                videoDialogView.visibility = View.VISIBLE
+                                videoDialogView.isVisible = true
                             } else {
                                 footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
 
-                                videoDialogView.visibility = View.GONE
+                                videoDialogView.isVisible = false
                             }
                         }
                     }
@@ -1601,11 +1599,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             headerView.hideHangupButton()
 
                             setDefaultFooterView()
-                            footerView.visibility = View.GONE
+                            footerView.isVisible = false
 
                             footerView.disableAttachmentButton()
 
-                            videoDialogView.visibility = View.GONE
+                            videoDialogView.isVisible = false
 
                             bottomNavigationView.setNavButtonsEnabled()
                         }
@@ -1615,22 +1613,22 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
 
-                                feedbackView.visibility = View.GONE
+                                feedbackView.isVisible = false
 
-                                recyclerView.visibility = View.VISIBLE
+                                recyclerView.isVisible = true
 
                                 bottomNavigationView.setNavButtonsEnabled()
                             } else {
                                 hideKeyboard(footerView.inputView)
 
-                                operatorCallView.visibility = View.GONE
-                                operatorCallPendingView.visibility = View.GONE
+                                operatorCallView.isVisible = false
+                                operatorCallPendingView.isVisible = false
 
-                                recyclerView.visibility = View.GONE
+                                recyclerView.isVisible = false
 
                                 bottomNavigationView.setNavButtonsDisabled()
 
-                                feedbackView.visibility = View.VISIBLE
+                                feedbackView.isVisible = true
                             }
                         }
                     }
@@ -1638,25 +1636,25 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
             ViewState.Form -> {
                 runOnUiThread {
-                    recyclerView.visibility = View.GONE
+                    recyclerView.isVisible = false
 
-                    footerView.visibility = View.GONE
+                    footerView.isVisible = false
 
                     bottomNavigationView.setNavButtonsDisabled()
 
-                    formView.visibility = View.VISIBLE
+                    formView.isVisible = true
                 }
             }
             ViewState.DynamicForm -> {
                 Handler(Looper.getMainLooper()).postDelayed(
                     {
-                        recyclerView.visibility = View.GONE
+                        recyclerView.isVisible = false
 
-                        footerView.visibility = View.GONE
+                        footerView.isVisible = false
 
                         bottomNavigationView.setNavButtonsDisabled()
 
-                        dynamicFormView.visibility = View.VISIBLE
+                        dynamicFormView.isVisible = true
                     },
                     650
                 )
@@ -1665,11 +1663,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 //                runOnUiThread {
 //                    hideOtherViews()
 //
-//                    infoView.visibility = View.GONE
+//                    infoView.isVisible = false
 //
 //                    bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
 //
-//                    contactsView.visibility = View.VISIBLE
+//                    contactsView.isVisible = true
 //                }
 //            }
             is ViewState.Services -> {
@@ -1678,36 +1676,36 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                         runOnUiThread {
                             hideOtherViews()
 
-                            infoView.visibility = View.GONE
+                            infoView.isVisible = false
 
                             bottomNavigationView.setNavButtonsEnabled()
                             bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
 
-                            servicesView.visibility = View.VISIBLE
+                            servicesView.isVisible = true
                         }
                     }
                     ViewState.Services.Process -> {
                         runOnUiThread {
-                            dynamicFormView.visibility = View.GONE
+                            dynamicFormView.isVisible = false
 
-                            servicesView.visibility = View.GONE
+                            servicesView.isVisible = false
 
-                            recyclerView.visibility = View.VISIBLE
+                            recyclerView.isVisible = true
 
                             footerView.enableAttachmentButton()
-                            footerView.visibility = View.VISIBLE
+                            footerView.isVisible = true
                         }
                     }
                     ViewState.Services.Cancelled, ViewState.Services.Pending, ViewState.Services.Completed -> {
                         runOnUiThread {
-                            dynamicFormView.visibility = View.GONE
+                            dynamicFormView.isVisible = false
 
-                            servicesView.visibility = View.GONE
+                            servicesView.isVisible = false
 
-                            recyclerView.visibility = View.VISIBLE
+                            recyclerView.isVisible = true
 
                             footerView.enableAttachmentButton()
-                            footerView.visibility = View.VISIBLE
+                            footerView.isVisible = true
 
                             bottomNavigationView.setNavButtonsEnabled()
                         }
@@ -1718,12 +1716,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 runOnUiThread {
                     hideOtherViews()
 
-//                    contactsView.visibility = View.GONE
-                    servicesView.visibility = View.GONE
+//                    contactsView.isVisible = false
+                    servicesView.isVisible = false
 
                     bottomNavigationView.setNavButtonActive(BottomNavigation.INFO)
 
-                    infoView.visibility = View.VISIBLE
+                    infoView.isVisible = true
                 }
             }
         }
