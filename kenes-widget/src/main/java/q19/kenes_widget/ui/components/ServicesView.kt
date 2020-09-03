@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
+import q19.kenes_widget.data.model.Configs
 import q19.kenes_widget.data.model.Language
 import q19.kenes_widget.data.model.Service
 import q19.kenes_widget.ui.components.base.TitleView
@@ -248,8 +249,8 @@ private class ServicesAdapter(
 
             debug(TAG, "service: $service")
 
-            when {
-                service.isFolderType() -> {
+            when (service.type) {
+                Configs.CallScope.Type.FOLDER -> {
                     imageView.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                     imageView.visibility = View.VISIBLE
 
@@ -262,7 +263,7 @@ private class ServicesAdapter(
 
                     itemView.setOnClickListener { callback.onServiceClicked(service) }
                 }
-                service.isLinkType() -> {
+                Configs.CallScope.Type.LINK -> {
                     imageView.visibility = View.GONE
 
                     textView.removeCompoundDrawables()

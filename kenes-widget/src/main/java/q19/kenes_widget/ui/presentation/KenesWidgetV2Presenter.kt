@@ -904,7 +904,7 @@ class KenesWidgetV2Presenter(
     fun onCallScopeClicked(callScope: Configs.CallScope) {
         debug(TAG, "onCallScopeClicked() -> callScope: $callScope")
 
-        if (callScope.isFolderType()) {
+        if (callScope.type == Configs.CallScope.Type.FOLDER) {
             val callScopes = Configs.CallScope.getCallScopes(
                 configs?.callScopes,
                 callScope.id
@@ -923,10 +923,10 @@ class KenesWidgetV2Presenter(
 
                 view?.showCallScopes(parentCallScope = callScope, callScopes = callScopes)
             }
-        } else if (callScope.isLinkType()) {
-            if (callScope.isAudioCallAction()) {
+        } else if (callScope.type == Configs.CallScope.Type.LINK) {
+            if (callScope.action == Configs.CallScope.Action.AUDIO_CALL) {
                 tryToCall(OperatorCall.AUDIO, scope = callScope.scope)
-            } else if (callScope.isVideoCallAction()) {
+            } else if (callScope.action == Configs.CallScope.Action.VIDEO_CALL) {
                 tryToCall(OperatorCall.VIDEO, scope = callScope.scope)
             }
         }
@@ -959,7 +959,7 @@ class KenesWidgetV2Presenter(
     fun onServiceClicked(service: Service) {
         debug(TAG, "onServiceClicked() -> service: $service")
 
-        if (service.isFolderType()) {
+        if (service.type == Configs.CallScope.Type.FOLDER) {
             val services = Configs.CallScope.getCallScopes(
                 configs?.callScopes,
                 service.id
@@ -978,7 +978,7 @@ class KenesWidgetV2Presenter(
 
                 view?.showExternalServices(parentService = service, services = services)
             }
-        } else if (service.isLinkType()) {
+        } else if (service.type == Configs.CallScope.Type.LINK) {
             activeServiceSession = service
 
             val text = service.title.get(language)

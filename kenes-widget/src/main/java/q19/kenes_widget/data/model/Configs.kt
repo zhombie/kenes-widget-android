@@ -172,14 +172,18 @@ data class Configs(
 
             fun getMediaCallScopes(callScopes: List<CallScope>?, id: Long = PARENT_ID): List<CallScope>? {
                 return getCallScopes(
-                    callScopes = callScopes?.filter { it.isAudioChatType() || it.isVideoChatType() },
+                    callScopes = callScopes?.filter {
+                        it.chatType == ChatType.AUDIO || it.chatType == ChatType.VIDEO
+                    },
                     id = id
                 )
             }
 
             fun getExternalServices(callScopes: List<CallScope>?, id: Long = PARENT_ID): List<Service>? {
                 return getCallScopes(
-                    callScopes = callScopes?.filter { it.isExternalChatType() },
+                    callScopes = callScopes?.filter {
+                        it.chatType == ChatType.EXTERNAL || it.chatType == ChatType.FORM
+                    },
                     id = id
                 )?.map {
                     Service(
@@ -189,7 +193,8 @@ data class Configs(
                         title = it.title,
                         parentId = it.parentId,
                         chatType = it.chatType,
-                        action = it.action
+                        action = it.action,
+                        details = it.details
                     )
                 }
             }
@@ -222,40 +227,13 @@ data class Configs(
         enum class ChatType(val value: String) {
             AUDIO("audio"),
             VIDEO("video"),
-            EXTERNAL("external")
+            EXTERNAL("external"),
+            FORM("form")
         }
 
         data class Details(
             val order: Int
         )
-
-        fun isFolderType(): Boolean {
-            return type == Type.FOLDER
-        }
-
-        fun isLinkType(): Boolean {
-            return type == Type.LINK
-        }
-
-        fun isAudioChatType(): Boolean {
-            return chatType == ChatType.AUDIO
-        }
-
-        fun isVideoChatType(): Boolean {
-            return chatType == ChatType.VIDEO
-        }
-
-        fun isExternalChatType(): Boolean {
-            return chatType == ChatType.EXTERNAL
-        }
-
-        fun isAudioCallAction(): Boolean {
-            return action == Action.AUDIO_CALL
-        }
-
-        fun isVideoCallAction(): Boolean {
-            return action == Action.VIDEO_CALL
-        }
 
     }
 

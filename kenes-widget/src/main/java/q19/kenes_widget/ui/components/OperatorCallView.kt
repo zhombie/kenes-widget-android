@@ -443,8 +443,8 @@ private class CallScopesAdapter(
 
             debug(TAG, "callScope: $callScope")
 
-            when {
-                callScope.isFolderType() -> {
+            when (callScope.type) {
+                Configs.CallScope.Type.FOLDER -> {
                     imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                     imageView?.visibility = View.VISIBLE
 
@@ -457,11 +457,11 @@ private class CallScopesAdapter(
 
                     itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
                 }
-                callScope.isLinkType() -> {
+                Configs.CallScope.Type.LINK -> {
                     imageView?.visibility = View.GONE
 
-                    when {
-                        callScope.isAudioCallAction() -> {
+                    when (callScope.action) {
+                        Configs.CallScope.Action.AUDIO_CALL -> {
                             val drawable = setDrawableTint(
                                 itemView.context,
                                 R.drawable.kenes_ic_headphones_blue,
@@ -472,7 +472,7 @@ private class CallScopesAdapter(
                                 itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
                             )
                         }
-                        callScope.isVideoCallAction() -> {
+                        Configs.CallScope.Action.VIDEO_CALL -> {
                             val drawable = setDrawableTint(
                                 itemView.context,
                                 R.drawable.kenes_ic_camera_blue,
