@@ -12,6 +12,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
 import android.view.MotionEvent
 import android.view.View
@@ -1647,15 +1648,18 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 }
             }
             ViewState.DynamicForm -> {
-                runOnUiThread {
-                    recyclerView.visibility = View.GONE
+                Handler(Looper.getMainLooper()).postDelayed(
+                    {
+                        recyclerView.visibility = View.GONE
 
-                    footerView.visibility = View.GONE
+                        footerView.visibility = View.GONE
 
-                    bottomNavigationView.setNavButtonsDisabled()
+                        bottomNavigationView.setNavButtonsDisabled()
 
-                    dynamicFormView.visibility = View.VISIBLE
-                }
+                        dynamicFormView.visibility = View.VISIBLE
+                    },
+                    650
+                )
             }
 //            ViewState.Contacts -> {
 //                runOnUiThread {

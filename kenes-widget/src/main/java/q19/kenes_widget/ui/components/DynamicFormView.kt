@@ -47,13 +47,13 @@ internal class DynamicFormView @JvmOverloads constructor(
     var dynamicForm: DynamicForm? = null
         set(value) {
             field = value
-            value?.let { bindData(it) }
+            bindData(dynamicForm)
         }
 
     var attachment: Attachment? = null
         set(value) {
             field = value
-            value?.let { bindAttachment(it) }
+            bindAttachment(attachment)
         }
 
     var callback: Callback? = null
@@ -120,7 +120,13 @@ internal class DynamicFormView @JvmOverloads constructor(
 //        sendButton?.setOnClickListener {}
     }
 
-    private fun bindData(dynamicForm: DynamicForm) {
+    private fun bindData(dynamicForm: DynamicForm?) {
+        Logger.debug(TAG, "dynamicForm: $dynamicForm")
+        if (dynamicForm == null) {
+            adapter?.dynamicForm = null
+            adapter?.attachment = null
+            adapter?.notifyDataSetChanged()
+        } else {
 //        if (dynamicForm.title.isNullOrBlank()) {
 //            titleView?.visibility = View.GONE
 //        } else {
@@ -128,38 +134,39 @@ internal class DynamicFormView @JvmOverloads constructor(
 //            titleView?.visibility = View.VISIBLE
 //        }
 
-        val fields = mutableListOf(*dynamicForm.fields.toTypedArray())
-        if (dynamicForm.isFlexibleForm()) {
-            fields.add(
-                DynamicFormField(
-                    id = 0,
-                    isFlex = true,
-                    title = context.getString(R.string.kenes_text),
-                    type = DynamicFormField.Type.TEXT,
-                    formId = dynamicForm.id,
-                    level = -1,
-                    value = null
+            val fields = mutableListOf(*dynamicForm.fields.toTypedArray())
+            if (dynamicForm.isFlexibleForm()) {
+                fields.add(
+                    DynamicFormField(
+                        id = 0,
+                        isFlex = true,
+                        title = context.getString(R.string.kenes_text),
+                        type = DynamicFormField.Type.TEXT,
+                        formId = dynamicForm.id,
+                        level = -1,
+                        value = null
+                    )
                 )
-            )
 
-            fields.add(
-                DynamicFormField(
-                    id = 1,
-                    isFlex = true,
-                    title = context.getString(R.string.kenes_attachment),
-                    type = DynamicFormField.Type.FILE,
-                    formId = dynamicForm.id,
-                    level = -1,
-                    value = null
+                fields.add(
+                    DynamicFormField(
+                        id = 1,
+                        isFlex = true,
+                        title = context.getString(R.string.kenes_attachment),
+                        type = DynamicFormField.Type.FILE,
+                        formId = dynamicForm.id,
+                        level = -1,
+                        value = null
+                    )
                 )
-            )
+            }
+
+            this.dynamicForm?.fields = fields
+            adapter?.dynamicForm = this.dynamicForm
         }
-
-        this.dynamicForm?.fields = fields
-        adapter?.dynamicForm = this.dynamicForm
     }
 
-    private fun bindAttachment(attachment: Attachment) {
+    private fun bindAttachment(attachment: Attachment?) {
         adapter?.attachment = attachment
     }
 
@@ -181,9 +188,7 @@ internal class DynamicFormView @JvmOverloads constructor(
 
     fun resetData() {
         dynamicForm = null
-        adapter?.dynamicForm = null
-        adapter?.formFields = emptyList()
-        adapter?.attachment = null
+        attachment = null
     }
 
     fun clear() {
@@ -225,7 +230,7 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
     var dynamicForm: DynamicForm? = null
         set(value) {
             field = value
-            this.formFields = field?.fields ?: emptyList()
+            this.formFields = value?.fields ?: emptyList()
         }
 
     var attachment: Attachment? = null
@@ -250,7 +255,7 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         return formFields[relativePosition]
     }
 
-    override fun getItemCount(): Int = formFields.size + 1 + 1
+    override fun getItemCount(): Int = if (formFields.isEmpty()) 0 else formFields.size + 1 + 1
 
     override fun getItemViewType(position: Int): Int {
         return when (position) {
@@ -286,8 +291,8 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         val item = getItem(position)
         when (holder) {
             is TitleViewHolder -> holder.bind((dynamicForm?.title ?: "").trim())
-            is InputViewHolder -> item?.let { holder.bind(it) }
-            is AttachmentViewHolder -> item?.let { holder.bind(it) }
+            is InputViewHolder -> holder.bind(item)
+            is AttachmentViewHolder -> holder.bind(item)
             is FooterViewHolder -> holder.bind()
         }
     }
@@ -305,24 +310,32 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         private val infoView = view.findViewById<TextView>(R.id.infoView)
         private val editText = view.findViewById<EditText>(R.id.editText)
 
-        fun bind(field: DynamicFormField) {
-            labelView.text = field.title?.trim()
-
-            if (field.prompt.isNullOrBlank()) {
-                infoView?.visibility = View.GONE
+        fun bind(field: DynamicFormField?) {
+            if (field == null) {
+                labelView?.text = null
+                infoView?.text = null
+                editText?.text = null
             } else {
-                infoView?.text = field.prompt.trim()
-                infoView?.visibility = View.VISIBLE
-            }
+                labelView?.text = field.title?.trim()
 
-            editText?.hint = field.title?.trim()
-
-            editText?.addTextChangedListener(object : KenesTextWatcher() {
-                override fun afterTextChanged(s: Editable?) {
-                    val text = s?.toString()?.trim()
-                    field.value = text
+                if (field.prompt.isNullOrBlank()) {
+                    infoView?.visibility = View.GONE
+                } else {
+                    infoView?.text = field.prompt.trim()
+                    infoView?.visibility = View.VISIBLE
                 }
-            })
+
+                editText?.setText(field.value)
+
+                editText?.hint = field.title?.trim()
+
+                editText?.addTextChangedListener(object : KenesTextWatcher() {
+                    override fun afterTextChanged(s: Editable?) {
+                        val text = s?.toString()?.trim()
+                        field.value = text
+                    }
+                })
+            }
         }
     }
 
@@ -331,31 +344,42 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         private val selectAttachmentButton = view.findViewById<AppCompatButton>(R.id.selectAttachmentButton)
         private val attachmentView = view.findViewById<AppCompatTextView>(R.id.attachmentView)
 
-        fun bind(field: DynamicFormField) {
-            labelView?.text = field.title
+        fun bind(field: DynamicFormField?) {
+            if (field == null) {
+                labelView?.text = null
 
-            if (attachment != null) {
-                field.value = attachment?.url
-
-                attachmentView?.text = attachment?.title
-
-                attachmentView?.setOnClickListener {
-                    callback?.onAttachmentClicked(attachment!!)
-                }
-
-                selectAttachmentButton?.visibility = View.GONE
-                attachmentView?.visibility = View.VISIBLE
-            } else {
-                field.value = null
-
+                attachmentView?.text = null
                 attachmentView?.setOnClickListener(null)
 
                 attachmentView?.visibility = View.GONE
                 selectAttachmentButton?.visibility = View.VISIBLE
-            }
+            } else {
+                labelView?.text = field.title
 
-            selectAttachmentButton?.setOnClickListener {
-                callback?.onSelectAttachmentButtonClicked(field)
+                val attachment = attachment
+                if (attachment != null) {
+                    field.value = attachment.url
+
+                    attachmentView?.text = attachment.title
+
+                    attachmentView?.setOnClickListener {
+                        callback?.onAttachmentClicked(attachment)
+                    }
+
+                    selectAttachmentButton?.visibility = View.GONE
+                    attachmentView?.visibility = View.VISIBLE
+                } else {
+                    field.value = null
+
+                    attachmentView?.setOnClickListener(null)
+
+                    attachmentView?.visibility = View.GONE
+                    selectAttachmentButton?.visibility = View.VISIBLE
+                }
+
+                selectAttachmentButton?.setOnClickListener {
+                    callback?.onSelectAttachmentButtonClicked(field)
+                }
             }
         }
     }
