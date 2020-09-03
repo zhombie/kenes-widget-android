@@ -211,7 +211,13 @@ class KenesWidgetV2Presenter(
 
                 view?.showGoToHomeButton()
 
-                viewState = ViewState.ChatBot.Categories(isLoading = false)
+                debug(TAG, "onFormFinal() -> viewState: $viewState")
+
+                viewState = if (viewState is ViewState.Services) {
+                    ViewState.Services.Completed
+                } else {
+                    ViewState.ChatBot.Categories(isLoading = false)
+                }
             }
 
             override fun onFeedback(text: String, ratingButtons: List<RatingButton>) {
@@ -798,7 +804,7 @@ class KenesWidgetV2Presenter(
                 }
 
                 viewState = if (activeServiceSession != null) {
-                    ViewState.Services.Process(isCancelled = false)
+                    ViewState.Services.Process
                 } else {
                     clear()
 
@@ -981,7 +987,7 @@ class KenesWidgetV2Presenter(
 
             view?.addNewMessage(Message(type = Message.Type.OUTGOING, text = text))
 
-            viewState = ViewState.Services.Process(isCancelled = false)
+            viewState = ViewState.Services.Process
         }
     }
 
@@ -1146,25 +1152,44 @@ class KenesWidgetV2Presenter(
 
                 view?.clearChatFooterMessages()
 
-                viewState = ViewState.ChatBot.Categories(false)
+                if (activeServiceSession != null) {
+                    activeServiceSession = null
+
+                    view?.clearChatMessages()
+
+                    viewState = ViewState.Services.IDLE
+                } else {
+                    viewState = ViewState.ChatBot.Categories(false)
+                }
             }
             else -> {
-                val messages = chatBot.basicCategories.map { category ->
-                    Message(type = Message.Type.CATEGORY, category = category)
-                }
+                if (activeServiceSession != null) {
+                    activeServiceSession = null
 
-                view?.clearChatFooterMessages()
+                    view?.clearDynamicForm()
 
-                viewState = if (messages.isEmpty()) {
-                    socketClient?.getBasicCategories()
+                    view?.clearChatMessages()
+                    view?.clearChatFooterMessages()
 
-                    ViewState.ChatBot.Categories(true)
+                    viewState = ViewState.Services.IDLE
                 } else {
-                    view?.setNewMessages(messages)
+                    val messages = chatBot.basicCategories.map { category ->
+                        Message(type = Message.Type.CATEGORY, category = category)
+                    }
 
-                    chatListViewState?.let { view?.restoreChatListViewState(it) }
+                    view?.clearChatFooterMessages()
 
-                    ViewState.ChatBot.Categories(false)
+                    viewState = if (messages.isEmpty()) {
+                        socketClient?.getBasicCategories()
+
+                        ViewState.ChatBot.Categories(true)
+                    } else {
+                        view?.setNewMessages(messages)
+
+                        chatListViewState?.let { view?.restoreChatListViewState(it) }
+
+                        ViewState.ChatBot.Categories(false)
+                    }
                 }
             }
         }
@@ -1181,22 +1206,6 @@ class KenesWidgetV2Presenter(
                 OperatorCall.AUDIO, OperatorCall.VIDEO -> ViewState.OperatorCall
             }
         }
-    }
-
-    fun onFormCancelClicked() {
-        debug(TAG, "onCancelClicked -> viewState: $viewState")
-
-        activeDynamicForm = null
-
-        view?.clearDynamicForm()
-
-        viewState = ViewState.ChatBot.UserPrompt(false)
-    }
-
-    fun onRegisterAppealButtonClicked() {
-        view?.showGoToHomeButton()
-
-        viewState = ViewState.Form
     }
 
     fun onUploadFile(filePath: String) {
@@ -1371,7 +1380,42 @@ class KenesWidgetV2Presenter(
 
         view?.clearDynamicForm()
 
-        viewState = ViewState.ChatBot.UserPrompt(false)
+        debug(TAG, "onSendClicked() -> viewState: $viewState")
+
+        viewState = if (activeServiceSession == null) {
+            if (viewState is ViewState.Services) {
+                ViewState.Services.Pending
+            } else {
+                ViewState.ChatBot.UserPrompt(false)
+            }
+        } else {
+            ViewState.Services.Pending
+        }
+    }
+
+    fun onFormCancelClicked() {
+        debug(TAG, "onFormCancelClicked()-> viewState: $viewState")
+
+        activeDynamicForm = null
+
+        view?.clearDynamicForm()
+
+        viewState = if (activeServiceSession == null) {
+            if (viewState is ViewState.Services) {
+                ViewState.Services.Cancelled
+            } else {
+                ViewState.ChatBot.UserPrompt(false)
+            }
+        } else {
+            view?.showGoToHomeButton()
+            ViewState.Services.Cancelled
+        }
+    }
+
+    fun onRegisterAppealButtonClicked() {
+        view?.showGoToHomeButton()
+
+        viewState = ViewState.Form
     }
 
     fun onAppealRegistered() {

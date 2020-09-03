@@ -51,7 +51,10 @@ sealed class ViewState {
 
     sealed class Services : ViewState() {
         object IDLE : Services()
-        class Process(val isCancelled: Boolean) : Services()
+        object Process : Services()
+        object Cancelled : Services()
+        object Pending : Services()
+        object Completed : Services()
     }
 
     object Info : ViewState()

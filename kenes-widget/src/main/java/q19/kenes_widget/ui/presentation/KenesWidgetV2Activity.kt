@@ -1676,28 +1676,36 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                             infoView.visibility = View.GONE
 
-                            keyboardView.setReplyMarkup(null)
-                            keyboardView.visibility = View.GONE
-
+                            bottomNavigationView.setNavButtonsEnabled()
                             bottomNavigationView.setNavButtonActive(BottomNavigation.SERVICES)
 
                             servicesView.visibility = View.VISIBLE
                         }
                     }
-                    is ViewState.Services.Process -> {
+                    ViewState.Services.Process -> {
                         runOnUiThread {
+                            dynamicFormView.visibility = View.GONE
+
                             servicesView.visibility = View.GONE
 
                             recyclerView.visibility = View.VISIBLE
 
-                            if (viewState.isCancelled) {
-                                clearChatFooterMessages()
-                            } else {
-                                showGoToHomeButton()
-                            }
+                            footerView.enableAttachmentButton()
+                            footerView.visibility = View.VISIBLE
+                        }
+                    }
+                    ViewState.Services.Cancelled, ViewState.Services.Pending, ViewState.Services.Completed -> {
+                        runOnUiThread {
+                            dynamicFormView.visibility = View.GONE
+
+                            servicesView.visibility = View.GONE
+
+                            recyclerView.visibility = View.VISIBLE
 
                             footerView.enableAttachmentButton()
                             footerView.visibility = View.VISIBLE
+
+                            bottomNavigationView.setNavButtonsEnabled()
                         }
                     }
                 }
