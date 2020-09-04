@@ -929,6 +929,10 @@ internal class ChatAdapter(
             if (category != null) {
                 titleView?.text = category.title
 
+                // Add empty value, in order to make clear, that there is no children
+                if (category.children.isNullOrEmpty()) {
+                    category.children.add(Category.EMPTY)
+                }
                 adapter.category = category
 
                 titleView?.setOnClickListener {

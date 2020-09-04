@@ -24,6 +24,22 @@ data class Category(
     @ColorInt var color: Int = 0
 ) {
 
+    companion object {
+        val EMPTY: Category
+            get() {
+                return Category(
+                    id = -1,
+                    title = Configs.I18NString.NOT_FOUND.get(Language.DEFAULT),
+                    lang = Language.DEFAULT.identificator,
+                    parentId = null,
+                    photo = null,
+                    children = mutableListOf(),
+                    responses = mutableListOf(),
+                    config = null
+                )
+            }
+    }
+
     data class Background(
         val cornerRadius: Float,
         val stroke: Stroke,

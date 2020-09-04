@@ -2,7 +2,11 @@ package q19.kenes_widget.data.model
 
 import java.util.*
 
-class Language(val key: String, val value: String) {
+class Language(
+    val key: String,
+    val value: String,
+    val identificator: Int
+) {
 
     companion object {
         private const val KEY_KAZAKH = "kk"
@@ -13,13 +17,13 @@ class Language(val key: String, val value: String) {
             get() = by(Locale.getDefault().language)
 
         val KAZAKH: Language
-            get() = Language(KEY_KAZAKH, "Қаз")
+            get() = Language(KEY_KAZAKH, "Қаз", 2)
 
         val RUSSIAN: Language
-            get() = Language(KEY_RUSSIAN, "Рус")
+            get() = Language(KEY_RUSSIAN, "Рус", 1)
 
         val ENGLISH: Language
-            get() = Language(KEY_ENGLISH, "Eng")
+            get() = Language(KEY_ENGLISH, "Eng", 3)
 
         fun getSupportedLanguages(): Array<Language> {
             return arrayOf(KAZAKH, RUSSIAN)

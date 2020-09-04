@@ -16,6 +16,7 @@ import q19.kenes_widget.core.errors.ViewHolderViewTypeException
 import q19.kenes_widget.data.model.Category
 import q19.kenes_widget.ui.util.*
 import q19.kenes_widget.util.inflate
+import q19.kenes_widget.util.isVisible
 import q19.kenes_widget.util.removeCompoundDrawables
 
 internal class CategoryAdapter(
@@ -143,7 +144,7 @@ internal class CategoryAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            category?.let { holder.bind(it, position) }
+            holder.bind(category, position)
         } else if (holder is FooterViewHolder) {
             holder.bind()
         }
@@ -153,26 +154,40 @@ internal class CategoryAdapter(
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
-        fun bind(category: Category, position: Int) {
-            val child = category.children[position]
+        fun bind(category: Category?, position: Int) {
+            val child = category?.children?.get(position)
 
-            textView?.text = child.title
+//            Logger.debug(TAG, "child: $child")
 
-            if (category.responses.isNullOrEmpty()) {
-                imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
-                imageView?.visibility = View.VISIBLE
+            textView?.text = child?.title
+
+            if (child == Category.EMPTY) {
+                imageView?.setImageDrawable(null)
+                imageView?.isVisible = false
+
+                itemView.isClickable = false
+                itemView.isFocusable = false
+
+                itemView.background = buildSimpleDrawable(itemView.context)
             } else {
-                imageView?.setImageResource(R.drawable.kenes_ic_document_blue)
-                imageView?.visibility = View.VISIBLE
-            }
+                if (child?.responses.isNullOrEmpty()) {
+                    imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
+                    imageView?.isVisible = true
+                } else {
+                    imageView?.setImageResource(R.drawable.kenes_ic_document_blue)
+                    imageView?.isVisible = true
+                }
 
-            itemView.isClickable = true
-            itemView.isFocusable = true
+                itemView.isClickable = true
+                itemView.isFocusable = true
 
-            itemView.background = buildRippleDrawable(itemView.context)
+                itemView.background = buildRippleDrawable(itemView.context)
 
-            itemView.setOnClickListener {
-                callback.onCategoryChildClicked(child)
+                itemView.setOnClickListener {
+                    if (child != null) {
+                        callback.onCategoryChildClicked(child)
+                    }
+                }
             }
         }
     }
