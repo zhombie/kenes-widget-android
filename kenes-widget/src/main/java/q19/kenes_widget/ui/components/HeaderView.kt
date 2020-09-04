@@ -70,7 +70,7 @@ internal class HeaderView @JvmOverloads constructor(
         if (!photoUrl.isNullOrBlank()) {
             opponentAvatarView.loadCircleImage(photoUrl)
         } else {
-            opponentAvatarView.setImageDrawable(null)
+            opponentAvatarView.setImageResource(R.drawable.kenes_placeholder_circle_gray)
         }
     }
 

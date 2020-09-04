@@ -1,12 +1,27 @@
 <resources>
 
-    <!-- Base application theme. -->
+    <!--
+    [RU] Рекомендуемая тема. У виджета уже есть ActionBar/Toolbar,
+    поэтому нет необходимости показывать еще один. *
+
+    [EN] Recommended theme. Widget already has ActionBar/Toolbar,
+    so there is no need to show another one. *
+    -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+        <!--
+         [RU] Для примера.
+
+         [EN] Example.
+         -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <!--
+        [RU] По желанию.
+
+        [EN] Optional.
+        -->
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
     </style>

@@ -149,7 +149,7 @@ class KenesWidgetV2Presenter(
     }
 
     private fun initSocket() {
-        val socketUrl = UrlUtil.getSocketUrl()
+        val socketUrl = UrlUtil.getSocketUrl(UrlUtil.getHostname())
         if (socketUrl.isNullOrBlank()) {
             throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
         } else {

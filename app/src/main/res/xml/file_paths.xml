@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <!--
+     [RU] Обязательное значение, так как виджет работает с файлами.
+     Если в проекте уже есть такое поле с точно таким же названием и путем,
+     то можно пропустить данный шаг. *
+
+     [EN] Mandatory value, as the widget works with files.
+     If the project already has such a field with exactly the same name & path,
+     then you can skip this step. *
+     -->
     <external-path name="external_files" path="." />
 </paths>

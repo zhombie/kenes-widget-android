@@ -7,14 +7,25 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
         android:label="@string/kenes_app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <!--
+        [RU] В обязательном порядке нужно добавить <provider> как указано внизу.
+        Если в проекте уже есть такое значение с точно такими же параметрами,
+        то можно пропустить данный шаг. *
+        P.S. Класс KenesWidgetFileProvider наследуется от класса FileProvider и
+        обходиться без каких-либо модификаций.
+
+        [EN] It is required to add <provider> as shown below.
+        If the project already has such field with exactly the same parameters,
+        then you can skip this step. *
+        P.S. The KenesWidgetFileProvider class is inherited from the FileProvider class and
+        it has no modifications.
+        -->
         <provider
             android:name="q19.kenes_widget.core.file.KenesWidgetFileProvider"
             android:authorities="${applicationId}.provider"
@@ -33,10 +44,11 @@
             </intent-filter>
         </activity>
 
-<!--        <activity-->
-<!--            android:name="q19.kenes_widget.legacy.KenesWidgetActivity"-->
-<!--            android:windowSoftInputMode="stateVisible|adjustResize" />-->
+        <!--
+        [RU] Обязательное значение для обозначения Activity виджета в качестве точки входного.
 
+        [EN] Required value for wigdet Activity as entry point.
+        -->
         <activity
             android:name="q19.kenes_widget.ui.presentation.KenesWidgetV2Activity"
             android:windowSoftInputMode="stateHidden|adjustResize"

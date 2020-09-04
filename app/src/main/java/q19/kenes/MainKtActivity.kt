@@ -21,6 +21,13 @@ class MainKtActivity : AppCompatActivity() {
     }
 
     private fun openWidget() {
+        /**
+         * RU -> Для запуска виджета требуется отправить hostname.
+         * Пример: https://kenes.vlx.kz
+         *
+         * EN -> To launch the widget, you need to send the hostname.
+         * Example: https://kenes.vlx.kz
+         */
         startActivity(KenesWidget.open(this, KenesWidget.EntryParams(Configs.HOSTNAME)))
     }
 
