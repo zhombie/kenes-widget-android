@@ -15,12 +15,13 @@ import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
 import q19.kenes_widget.data.model.Category
 import q19.kenes_widget.ui.util.*
+import q19.kenes_widget.util.Logger
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.isVisible
 import q19.kenes_widget.util.removeCompoundDrawables
 
 internal class CategoryAdapter(
-    private var isExpandable: Boolean,
+    var isExpandable: Boolean,
     var isSeparateFooterEnabled: Boolean,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -53,6 +54,13 @@ internal class CategoryAdapter(
             }
         }
 
+    var isFooterEnabled: Boolean = false
+        private set
+
+    private fun getItem(position: Int): Category? {
+        return category?.children?.get(position)
+    }
+
     private fun getActualSize(): Int {
         return category?.children?.size ?: 0
     }
@@ -81,7 +89,7 @@ internal class CategoryAdapter(
     override fun getItemViewType(position: Int): Int {
 //        Logger.debug(TAG, "getItemViewType() -> position: $position")
         return if (isExpandable) {
-            if (DEFAULT_SIZE_THRESHOLD >= (category?.children?.size ?: 0)) {
+            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
                 VIEW_TYPE_HORIZONTAL_BUTTON
             } else {
                 if (position == itemCount - 1) {
@@ -104,6 +112,10 @@ internal class CategoryAdapter(
     }
 
     override fun getItemCount(): Int {
+        isFooterEnabled = false
+
+        val actualSize = getActualSize()
+
         if (isExpandable) {
             var itemCount = size
 
@@ -111,22 +123,22 @@ internal class CategoryAdapter(
                 itemCount = DEFAULT_SIZE_THRESHOLD
             }
 
-            category?.let {
-                if (!it.children.isNullOrEmpty() && size >= it.children.size) {
-                    itemCount = it.children.size
-                }
-            } ?: return 0
+            if (!category?.children.isNullOrEmpty() && size >= actualSize) {
+                itemCount = actualSize
+            }
 
-            if ((category?.children?.size ?: 0) > DEFAULT_SIZE_THRESHOLD) {
+            if (actualSize > DEFAULT_SIZE_THRESHOLD) {
+                isFooterEnabled = true
                 itemCount += 1
             }
 
             return itemCount
         } else {
             return if (isSeparateFooterEnabled) {
-                getActualSize() + 1
+                isFooterEnabled = true
+                actualSize + 1
             } else {
-                getActualSize()
+                actualSize
             }
         }
     }
@@ -144,7 +156,7 @@ internal class CategoryAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            holder.bind(category, position)
+            holder.bind(getItem(position))
         } else if (holder is FooterViewHolder) {
             holder.bind()
         }
@@ -154,14 +166,12 @@ internal class CategoryAdapter(
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
-        fun bind(category: Category?, position: Int) {
-            val child = category?.children?.get(position)
+        fun bind(category: Category?) {
+//            Logger.debug(TAG, "category: category")
 
-//            Logger.debug(TAG, "child: $child")
+            textView?.text = category?.title
 
-            textView?.text = child?.title
-
-            if (child == Category.EMPTY) {
+            if (category == Category.EMPTY) {
                 imageView?.setImageDrawable(null)
                 imageView?.isVisible = false
 
@@ -170,7 +180,7 @@ internal class CategoryAdapter(
 
                 itemView.background = buildSimpleDrawable(itemView.context)
             } else {
-                if (child?.responses.isNullOrEmpty()) {
+                if (category?.responses.isNullOrEmpty()) {
                     imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                     imageView?.isVisible = true
                 } else {
@@ -184,8 +194,8 @@ internal class CategoryAdapter(
                 itemView.background = buildRippleDrawable(itemView.context)
 
                 itemView.setOnClickListener {
-                    if (child != null) {
-                        callback.onCategoryChildClicked(child)
+                    if (category != null) {
+                        callback.onCategoryChildClicked(category)
                     }
                 }
             }
@@ -255,6 +265,10 @@ internal class CategoryAdapterItemDecoration(
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
 
+    companion object {
+        private const val TAG = "CategoryAdapterItemDecoration"
+    }
+
     private val paint: Paint = Paint()
 
     init {
@@ -266,10 +280,10 @@ internal class CategoryAdapterItemDecoration(
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
         val adapter = (parent.adapter as? CategoryAdapter?) ?: return
 
-        val itemCount = parent.childCount
-//        val itemCount = adapter.itemCount
+//        val itemCount = parent.childCount
+        val itemCount = adapter.itemCount
 
-        if (parent.childCount == 1) {
+        if (itemCount == 1) {
             val child = parent.getChildAt(0)
             c.drawRoundRect(
                 child.left.toFloat(),
@@ -281,69 +295,65 @@ internal class CategoryAdapterItemDecoration(
                 paint
             )
         } else {
-            for (index in 0 until itemCount) {
-                val child = parent.getChildAt(index)
+            for (position in 0 until itemCount) {
+                val child = parent.getChildAt(position)
 
                 val layoutParams = child.layoutParams as RecyclerView.LayoutParams
 
-                val viewType = adapter.getItemViewType(index)
+                val viewType = adapter.getItemViewType(position)
 
                 if (viewType == CategoryAdapter.VIEW_TYPE_HORIZONTAL_BUTTON) {
-                    if (itemCount == 1) {
+                    val relativeItemCount = if (adapter.isFooterEnabled) {
+                        itemCount - 1
+                    } else {
+                        itemCount
+                    }
+
+                    if (relativeItemCount == 1) {
                         val path = getPathOfRoundedRectF(
                             child,
                             radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                         )
                         c.drawPath(path, paint)
-                    } else if (itemCount == 2) {
-                        if (index == 0) {
-                            val path = getPathOfQuadTopRectF(
-                                child,
-                                radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                            )
-                            c.drawPath(path, paint)
-                        } else if (index == 1) {
-                            val path = getPathOfQuadBottomRectF(
-                                child,
-                                radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                            )
-                            c.drawPath(path, paint)
-                        }
                     } else {
-                        if (adapter.isSeparateFooterEnabled) {
-                            when (index) {
-                                0 -> {
-                                    val path = getPathOfQuadTopRectF(
-                                        child,
-                                        radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                                    )
-                                    c.drawPath(path, paint)
-                                }
-                                itemCount - 2 -> {
-                                    val path = getPathOfQuadBottomRectF(
-                                        child,
-                                        radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                                    )
-                                    c.drawPath(path, paint)
-                                }
-                                else -> {
-                                    val path = Path()
-                                    path.moveTo(child.left.toFloat(), child.top.toFloat())
-                                    path.lineTo(child.left.toFloat(), child.bottom.toFloat())
-                                    path.moveTo(child.right.toFloat(), child.top.toFloat())
-                                    path.lineTo(child.right.toFloat(), child.bottom.toFloat())
-                                    path.close()
-                                    c.drawPath(path, paint)
-                                }
-                            }
-                        } else {
-                            if (index == 0) {
+                        when (position) {
+                            0 -> {
                                 val path = getPathOfQuadTopRectF(
                                     child,
                                     radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                                 )
                                 c.drawPath(path, paint)
-                            } else {
+                            }
+                            relativeItemCount - 1 -> {
+                                if (adapter.isFooterEnabled) {
+                                    if (adapter.isExpandable) {
+                                        val path = Path()
+                                        path.moveTo(child.left.toFloat(), child.top.toFloat())
+                                        path.lineTo(child.left.toFloat(), child.bottom.toFloat())
+                                        path.moveTo(child.right.toFloat(), child.top.toFloat())
+                                        path.lineTo(child.right.toFloat(), child.bottom.toFloat())
+                                        path.close()
+                                        c.drawPath(path, paint)
+                                    } else {
+                                        if (adapter.isSeparateFooterEnabled) {
+                                            val path = getPathOfQuadBottomRectF(
+                                                child,
+                                                radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                            )
+                                            c.drawPath(path, paint)
+                                        }
+                                    }
+                                } else {
+                                    if (adapter.isExpandable) {
+                                        val path = getPathOfQuadBottomRectF(
+                                            child,
+                                            radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+                                        )
+                                        c.drawPath(path, paint)
+                                    }
+                                }
+                            }
+                            else -> {
                                 val path = Path()
                                 path.moveTo(child.left.toFloat(), child.top.toFloat())
                                 path.lineTo(child.left.toFloat(), child.bottom.toFloat())
@@ -356,7 +366,7 @@ internal class CategoryAdapterItemDecoration(
                     }
 
                     // Divider
-                    if (itemCount > 3 && index < itemCount - 1) {
+                    if (relativeItemCount > 3 && position < relativeItemCount - 1) {
                         val startX = parent.paddingStart
                         val stopX = parent.width
                         val y = child.bottom + layoutParams.bottomMargin
@@ -417,28 +427,39 @@ internal class CategoryAdapterItemDecoration(
         if (cornerRadius.compareTo(0f) != 0) {
             val roundMode = when (viewType) {
                 CategoryAdapter.VIEW_TYPE_HORIZONTAL_BUTTON -> {
-                    when (itemCount) {
+                    val relativeItemCount = if (adapter.isFooterEnabled) {
+                        itemCount - 1
+                    } else {
+                        itemCount
+                    }
+
+                    Logger.debug(TAG, "relativeItemCount: $relativeItemCount")
+
+                    when (relativeItemCount) {
                         1 -> RoundMode.ALL
-                        2 -> {
+                        else -> {
                             when (position) {
                                 0 -> RoundMode.TOP
-                                1 -> RoundMode.BOTTOM
+                                relativeItemCount - 1 -> {
+                                    if (adapter.isFooterEnabled) {
+                                        if (adapter.isExpandable) {
+                                            RoundMode.NONE
+                                        } else {
+                                            if (adapter.isSeparateFooterEnabled) {
+                                                RoundMode.BOTTOM
+                                            } else {
+                                                RoundMode.NONE
+                                            }
+                                        }
+                                    } else {
+                                        if (adapter.isExpandable) {
+                                            RoundMode.BOTTOM
+                                        } else {
+                                            RoundMode.NONE
+                                        }
+                                    }
+                                }
                                 else -> RoundMode.NONE
-                            }
-                        }
-                        else -> {
-                            if (adapter.isSeparateFooterEnabled) {
-                                when (position) {
-                                    0 -> RoundMode.TOP
-                                    itemCount - 2 -> RoundMode.BOTTOM
-                                    else -> RoundMode.NONE
-                                }
-                            } else {
-                                if (position == 0) {
-                                    RoundMode.TOP
-                                } else {
-                                    RoundMode.NONE
-                                }
                             }
                         }
                     }
