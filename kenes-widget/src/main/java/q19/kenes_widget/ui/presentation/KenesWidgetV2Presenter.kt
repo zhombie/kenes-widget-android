@@ -1346,7 +1346,11 @@ class KenesWidgetV2Presenter(
 
         view?.releasePeerConnection()
 
-        socketClient?.sendMessage(action = UserMessage.Action.FINISH)
+        if (viewState is ViewState.TextDialog.Pending) {
+            socketClient?.sendCancel()
+        } else {
+            socketClient?.sendMessage(action = UserMessage.Action.FINISH)
+        }
 
         viewState = when (viewState) {
             is ViewState.TextDialog -> ViewState.TextDialog.UserDisconnected

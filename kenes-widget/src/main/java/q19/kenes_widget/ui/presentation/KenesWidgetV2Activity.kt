@@ -203,6 +203,12 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.kenes_activity_widget_v2)
 
+        // Status bar color
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        }
+
+        // Hostname
         val hostname = intent.getStringExtra(KEY_HOSTNAME)
 
         if (hostname.isNullOrBlank()) {
@@ -1323,6 +1329,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     }
                     ViewState.TextDialog.Pending -> {
                         runOnUiThread {
+                            headerView.showHangupButton()
+
                             chatFooterAdapter?.clear()
                         }
                     }
