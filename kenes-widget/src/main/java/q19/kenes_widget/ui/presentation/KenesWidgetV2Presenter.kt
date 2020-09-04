@@ -502,9 +502,11 @@ class KenesWidgetV2Presenter(
                 if (viewState is ViewState.ChatBot) {
 //                    debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
 
-//                    view?.showGoToHomeButton()
+                    view?.showGoToHomeButton()
 
                     viewState = ViewState.ChatBot.UserPrompt(false)
+                } else if (viewState is ViewState.Services) {
+                    view?.showGoToHomeButton()
                 }
             }
 
@@ -1141,7 +1143,10 @@ class KenesWidgetV2Presenter(
                     socketClient?.sendCancel()
                 }
 
-                activeServiceSession = null
+                if (activeServiceSession != null) {
+                    socketClient?.sendCancel()
+                    activeServiceSession = null
+                }
 
                 view?.clearChatMessages()
                 view?.clearChatFooterMessages()

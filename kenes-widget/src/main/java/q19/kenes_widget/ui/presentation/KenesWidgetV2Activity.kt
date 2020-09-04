@@ -331,14 +331,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 //        }
 
         rootView.viewTreeObserver?.addOnGlobalLayoutListener {
-            val rec = Rect()
-            rootView.getWindowVisibleDisplayFrame(rec)
+            val rect = Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
 
             // finding screen height
             val screenHeight = rootView.rootView?.height ?: 0
 
             // finding keyboard height
-            val keypadHeight = screenHeight - rec.bottom
+            val keypadHeight = screenHeight - rect.bottom
 
             if (keypadHeight > screenHeight * 0.15) {
                 bottomNavigationView.hideBottomNavigationView()
@@ -521,7 +521,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
 
             override fun onStopTrackingTouch(progress: Int, itemPosition: Int) {
-                debug(TAG, "onStopTrackingTouch -> progress: $progress, itemPosition: $itemPosition")
+                debug(
+                    TAG,
+                    "onStopTrackingTouch -> progress: $progress, itemPosition: $itemPosition"
+                )
 
                 if (currentAudioPlayingItemPosition == itemPosition) {
                     isAudioPaused = false
@@ -561,7 +564,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         concatAdapter = ConcatAdapter(chatAdapter, chatFooterAdapter)
 
         recyclerView.adapter = concatAdapter
-        recyclerView.itemAnimator = null
+        recyclerView.disableChangeAnimations()
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
 
@@ -918,7 +921,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
     }
 
     override fun playAudio(path: String, itemPosition: Int) {
-        debug(TAG, "playAudio -> currentAudioPlayingItemPosition: $currentAudioPlayingItemPosition, itemPosition: $itemPosition")
+        debug(
+            TAG,
+            "playAudio -> currentAudioPlayingItemPosition: $currentAudioPlayingItemPosition, itemPosition: $itemPosition"
+        )
 
         if (currentAudioPlayingItemPosition == itemPosition) {
             if (mediaPlayer?.isPlaying == true) {
@@ -1207,6 +1213,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
             feedbackView.setDefaultState()
             feedbackView.isVisible = false
+
+            formView.isVisible = false
+
+            dynamicFormView.isVisible = false
 
             recyclerView.isVisible = false
 
@@ -1646,8 +1656,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 }
             }
             ViewState.DynamicForm -> {
-                Handler(Looper.getMainLooper()).postDelayed(
+                Handler(Looper.getMainLooper())
+                    .postDelayed(
                     {
+                        servicesView.isVisible = false
+
                         recyclerView.isVisible = false
 
                         footerView.isVisible = false
@@ -1656,7 +1669,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                         dynamicFormView.isVisible = true
                     },
-                    650
+                    350
                 )
             }
 //            ViewState.Contacts -> {

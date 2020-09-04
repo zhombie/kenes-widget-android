@@ -8,7 +8,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SimpleItemAnimator
 
 internal fun ViewGroup.inflate(@LayoutRes layoutRes: Int): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, false)
@@ -25,5 +24,6 @@ internal fun RecyclerView.setOverscrollColor(@ColorRes colorResId: Int) {
 }
 
 internal fun RecyclerView.disableChangeAnimations() {
-    (itemAnimator as? SimpleItemAnimator?)?.supportsChangeAnimations = false
+//    (itemAnimator as? SimpleItemAnimator?)?.supportsChangeAnimations = false
+    itemAnimator = null
 }
