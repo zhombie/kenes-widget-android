@@ -110,7 +110,7 @@ class KenesWidgetV2Presenter(
         view?.showNavButton(BottomNavigation.INFO)
 //        viewState = ViewState.Info
 
-        view?.showOpponentInfo(Configs.Opponent.getDefault())
+        view?.showOpponentInfo(Configs.Opponent.DEFAULT)
 
         view?.showCurrentLanguage(language)
 
@@ -591,7 +591,7 @@ class KenesWidgetV2Presenter(
         debug(TAG, "fetchWidgetConfigs() -> data: $data")
 
         if (data == null) {
-            view?.showOpponentInfo(Configs.Opponent.getDefault())
+            view?.showOpponentInfo(Configs.Opponent.DEFAULT)
 
             viewState = when {
                 configs?.booleans?.isChabotEnabled == true ->

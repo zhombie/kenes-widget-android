@@ -26,12 +26,13 @@ data class Configs(
         companion object {
             private const val UNDEFINED_DRAWABLE_RES = -1
 
-            fun getDefault(): Opponent {
-                return Opponent(
-                    secondName = "Smart Bot",
-                    drawableRes = R.drawable.kenes_ic_robot
-                )
-            }
+            val DEFAULT: Opponent
+                get() {
+                    return Opponent(
+                        secondName = "Smart Bot",
+                        drawableRes = R.drawable.kenes_ic_robot
+                    )
+                }
         }
 
         val isDrawableResAvailable: Boolean
