@@ -9,7 +9,7 @@ import q19.kenes_widget.util.CodecUtil
 import q19.kenes_widget.util.Logger.debug
 import java.util.concurrent.Executors
 
-internal class PeerConnectionClient {
+class PeerConnectionClient {
 
     companion object {
         private const val TAG = "PeerConnectionClient"

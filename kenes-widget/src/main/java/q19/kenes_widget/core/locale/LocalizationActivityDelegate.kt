@@ -8,7 +8,7 @@ import android.os.Handler
 import android.os.LocaleList
 import java.util.*
 
-internal open class LocalizationActivityDelegate(private val activity: Activity) {
+open class LocalizationActivityDelegate(private val activity: Activity) {
 
     companion object {
         private const val KEY_ACTIVITY_LOCALE_CHANGED = "activity_locale_changed"

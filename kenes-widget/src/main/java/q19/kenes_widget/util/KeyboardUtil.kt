@@ -5,14 +5,14 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 
-internal fun AppCompatActivity.showSoftKeyboard(view: View) {
+fun AppCompatActivity.showSoftKeyboard(view: View) {
     if (view.requestFocus()) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 }
 
-internal fun AppCompatActivity.hideKeyboard(view: View? = null) {
+fun AppCompatActivity.hideKeyboard(view: View? = null) {
     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
     imm?.hideSoftInputFromWindow(currentFocus?.windowToken ?: view?.windowToken, 0)
 }

@@ -3,7 +3,7 @@ package q19.kenes_widget.data.model
 import org.json.JSONObject
 import org.webrtc.SessionDescription
 
-internal class UserMessage(
+class UserMessage(
     var rtc: RTC? = null,
     var action: Action? = null
 ) {
@@ -60,7 +60,7 @@ internal class UserMessage(
 
 }
 
-internal class RTC(
+class RTC(
     var type: Type,
     var sdp: String? = null,
     var id: String? = null,
@@ -106,7 +106,7 @@ internal class RTC(
 
 }
 
-internal class RTCBuilder {
+class RTCBuilder {
     var type: RTC.Type? = null
     var sdp: String? = null
     var id: String? = null
@@ -119,6 +119,6 @@ internal class RTCBuilder {
 }
 
 
-internal inline fun rtc(lambda: RTCBuilder.() -> Unit): RTC {
+inline fun rtc(lambda: RTCBuilder.() -> Unit): RTC {
     return RTCBuilder().apply(lambda).build()
 }

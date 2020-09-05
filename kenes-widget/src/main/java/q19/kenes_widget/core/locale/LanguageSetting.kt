@@ -5,7 +5,7 @@ import androidx.annotation.VisibleForTesting
 import q19.kenes_widget.data.model.Language
 import java.util.*
 
-internal object LanguageSetting {
+object LanguageSetting {
 
     private const val PREFERENCE_LANGUAGE = "pref_language"
     private const val KEY_CURRENT_LANGUAGE = "key_language"

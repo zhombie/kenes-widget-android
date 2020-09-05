@@ -2,7 +2,7 @@ package q19.kenes_widget.util
 
 import android.content.res.ColorStateList
 
-internal class ColorStateListBuilder {
+class ColorStateListBuilder {
 
     var colors: MutableList<Int> = ArrayList()
     var states: MutableList<IntArray> = ArrayList()

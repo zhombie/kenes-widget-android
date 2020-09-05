@@ -3,7 +3,7 @@ package q19.kenes_widget.util
 import android.os.Build
 import android.util.Log
 
-internal object Logger {
+object Logger {
 
     private const val LIMIT = 4000
 

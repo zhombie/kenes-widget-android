@@ -3,7 +3,7 @@ package q19.kenes_widget.util
 import org.json.JSONArray
 import org.json.JSONObject
 
-internal object JsonUtil {
+object JsonUtil {
 
     inline fun <reified T> JSONObject.optJSONArrayAsList(name: String): MutableList<T> {
         return optJSONArray(name)?.parse() ?: mutableListOf()

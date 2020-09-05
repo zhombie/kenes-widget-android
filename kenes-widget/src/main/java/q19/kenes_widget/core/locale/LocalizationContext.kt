@@ -9,7 +9,7 @@ import android.os.LocaleList
 /**
  * Created by Akexorcist on 10/19/2017 AD.
  */
-internal class LocalizationContext(base: Context) : ContextWrapper(base) {
+class LocalizationContext(base: Context) : ContextWrapper(base) {
     override fun getResources(): Resources {
         val locale = LanguageSetting.getLanguageWithDefault(this, LanguageSetting.getDefaultLanguage(this))
         val configuration = super.getResources().configuration

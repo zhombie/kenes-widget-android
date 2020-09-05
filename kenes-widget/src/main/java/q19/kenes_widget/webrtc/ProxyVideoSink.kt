@@ -4,7 +4,7 @@ import org.webrtc.VideoFrame
 import org.webrtc.VideoSink
 import q19.kenes_widget.util.Logger
 
-internal class ProxyVideoSink(private val tag: String = "ProxyVideoSink") : VideoSink {
+class ProxyVideoSink(private val tag: String = "ProxyVideoSink") : VideoSink {
     private var target: VideoSink? = null
 
     @Synchronized

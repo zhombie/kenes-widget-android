@@ -11,7 +11,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.findEnumBy
 
-internal class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
+class WidgetConfigsTask(private val url: String) : BaseTask<Configs> {
 
     override val TAG = "WidgetConfigsTask"
 

@@ -1,6 +1,6 @@
 package q19.kenes_widget.util
 
-internal object UrlUtil {
+object UrlUtil {
 
     private const val PROTOCOL = "https://"
     private const val SOCKET_URL_PATH = "/user"

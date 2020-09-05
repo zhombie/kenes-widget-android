@@ -12,7 +12,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.util.createAppSettingsIntent
 import q19.kenes_widget.util.showPermanentlyDeniedDialog
 
-internal class PermissionManager(private val fragmentActivity: FragmentActivity) {
+class PermissionManager(private val fragmentActivity: FragmentActivity) {
 
     private val externalStoragePermissionRequest by lazy {
         fragmentActivity.permissionsBuilder(

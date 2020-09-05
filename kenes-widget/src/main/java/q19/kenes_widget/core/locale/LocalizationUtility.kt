@@ -9,7 +9,7 @@ import java.util.*
 /**
  * Created by Akexorcist on 10/19/2017 AD.
  */
-internal object LocalizationUtility {
+object LocalizationUtility {
 
     fun applyLocalizationContext(baseContext: Context): Context {
         val baseLocale = getLocaleFromConfiguration(baseContext.resources.configuration)

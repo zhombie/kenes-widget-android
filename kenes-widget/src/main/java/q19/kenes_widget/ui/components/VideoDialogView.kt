@@ -12,7 +12,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import org.webrtc.SurfaceViewRenderer
 import q19.kenes_widget.R
 
-internal class VideoDialogView @JvmOverloads constructor(
+class VideoDialogView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

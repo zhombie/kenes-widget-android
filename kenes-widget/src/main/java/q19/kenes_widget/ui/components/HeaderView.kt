@@ -14,7 +14,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.data.model.Configs
 import q19.kenes_widget.util.loadCircleImage
 
-internal class HeaderView @JvmOverloads constructor(
+class HeaderView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

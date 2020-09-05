@@ -1,6 +1,6 @@
 package q19.kenes_widget.data.model
 
-internal data class WidgetIceServer(
+data class WidgetIceServer(
     val url: String?,
     val username: String? = null,
     val urls: String?,

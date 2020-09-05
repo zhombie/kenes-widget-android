@@ -6,7 +6,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 
-internal class HttpRequestHandler(
+class HttpRequestHandler(
     private val method: HttpMethod = HttpMethod.GET,
     private val url: String
 ) : AsyncTask<String, String, String>() {

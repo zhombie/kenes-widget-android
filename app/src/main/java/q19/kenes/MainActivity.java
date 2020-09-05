@@ -32,4 +32,5 @@ class MainActivity extends AppCompatActivity {
          */
         startActivity(KenesWidget.open(this, new KenesWidget.EntryParams(Configs.HOSTNAME)));
     }
+
 }

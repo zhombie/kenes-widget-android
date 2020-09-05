@@ -16,7 +16,7 @@ import q19.kenes_widget.util.DebouncedOnClickListener
 import q19.kenes_widget.util.Logger
 import q19.kenes_widget.util.getCompoundDrawableOnTop
 
-internal class BottomNavigationView @JvmOverloads constructor(
+class BottomNavigationView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
