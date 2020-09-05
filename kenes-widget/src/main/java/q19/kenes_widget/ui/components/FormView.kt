@@ -17,7 +17,7 @@ import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
 import q19.kenes_widget.util.KenesTextWatcher
 
-class FormView @JvmOverloads constructor(
+internal class FormView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
