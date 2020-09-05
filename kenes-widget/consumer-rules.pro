@@ -20,13 +20,15 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-dontobfuscate
+
 # WebRTC
--keep class org.webrtc.** { *; }
+#-keep class org.webrtc.** { *; }
 
--keepattributes InnerClasses
+#-keepattributes InnerClasses
 
--keepclasseswithmembernames class * {
-    native <methods>;
-}
+#-keepclasseswithmembernames class * {
+#    native <methods>;
+#}
 
--keep class q19.kenes_widget.** { *; }
+#-keep class q19.kenes_widget.** { *; }
