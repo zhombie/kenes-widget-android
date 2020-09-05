@@ -14,13 +14,13 @@ import androidx.core.graphics.drawable.DrawableCompat
 import q19.kenes_widget.R
 import q19.kenes_widget.util.ColorStateListBuilder
 
-internal fun buildSimpleDrawable(context: Context): GradientDrawable {
+fun buildSimpleDrawable(context: Context): GradientDrawable {
     val drawable = GradientDrawable()
     drawable.setColor(ContextCompat.getColor(context, R.color.kenes_very_light_mostly_white_gray))
     return drawable
 }
 
-internal fun buildRippleDrawable(context: Context): RippleDrawable {
+fun buildRippleDrawable(context: Context): RippleDrawable {
     val defaultColor = ContextCompat.getColor(context, R.color.kenes_very_light_mostly_white_gray)
     val content = GradientDrawable()
     content.setColor(defaultColor)
@@ -40,7 +40,7 @@ internal fun buildRippleDrawable(context: Context): RippleDrawable {
     )
 }
 
-internal fun setDrawableTint(
+fun setDrawableTint(
     context: Context,
     @DrawableRes drawableRes: Int,
     @ColorInt color: Int

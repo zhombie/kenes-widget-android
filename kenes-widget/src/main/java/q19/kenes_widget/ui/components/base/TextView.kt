@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatTextView
 
-internal open class TextView @JvmOverloads constructor(
+open class TextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

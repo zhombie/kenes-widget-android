@@ -1,6 +1,6 @@
 package q19.kenes_widget.ui.presentation.model
 
-internal class ChatFooter(
+class ChatFooter(
     val type: Type
 ) {
 

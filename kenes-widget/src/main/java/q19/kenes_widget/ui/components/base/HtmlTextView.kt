@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
 import q19.kenes_widget.util.ColorStateListBuilder
 
-internal class HtmlTextView @JvmOverloads constructor(
+class HtmlTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

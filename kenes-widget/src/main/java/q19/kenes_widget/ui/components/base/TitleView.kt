@@ -11,7 +11,7 @@ import q19.kenes_widget.util.ColorStateListBuilder
 import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 
-internal class TitleView @JvmOverloads constructor(
+class TitleView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

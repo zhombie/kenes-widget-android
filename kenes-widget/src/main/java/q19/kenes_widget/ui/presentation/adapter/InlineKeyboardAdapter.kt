@@ -16,7 +16,7 @@ import q19.kenes_widget.ui.util.*
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 
-internal class InlineKeyboardAdapter(
+class InlineKeyboardAdapter(
     private val callback: (button: Message.ReplyMarkup.Button) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -68,7 +68,7 @@ internal class InlineKeyboardAdapter(
 }
 
 
-internal class InlineKeyboardAdapterItemDecoration(
+class InlineKeyboardAdapterItemDecoration(
     context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float

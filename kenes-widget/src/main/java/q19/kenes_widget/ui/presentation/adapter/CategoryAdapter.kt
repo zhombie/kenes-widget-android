@@ -20,7 +20,7 @@ import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.isVisible
 import q19.kenes_widget.util.removeCompoundDrawables
 
-internal class CategoryAdapter(
+class CategoryAdapter(
     var isExpandable: Boolean,
     var isSeparateFooterEnabled: Boolean,
     private val callback: Callback
@@ -259,7 +259,7 @@ internal class CategoryAdapter(
 
 
 
-internal class CategoryAdapterItemDecoration(
+class CategoryAdapterItemDecoration(
     context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float

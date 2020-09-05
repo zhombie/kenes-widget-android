@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatButton
 import q19.kenes_widget.R
 
 @Deprecated("Use [OperatorCallView]")
-internal class VideoCallView @JvmOverloads constructor(
+class VideoCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

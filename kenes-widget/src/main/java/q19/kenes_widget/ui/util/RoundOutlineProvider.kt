@@ -11,7 +11,7 @@ import androidx.annotation.RequiresApi
 /**
  * Enum describes mode round corners
  */
-internal enum class RoundMode {
+enum class RoundMode {
     TOP,
     BOTTOM,
     BOTTOM_LEFT,
@@ -27,7 +27,7 @@ internal enum class RoundMode {
  * @param roundMode mode for corners
  */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-internal class RoundOutlineProvider(
+class RoundOutlineProvider(
     private var outlineRadius: Float = 0F,
     var roundMode: RoundMode = RoundMode.NONE
 ) : ViewOutlineProvider() {
@@ -75,7 +75,7 @@ internal class RoundOutlineProvider(
 }
 
 
-internal fun getPathOfRoundedRectF(
+fun getPathOfRoundedRectF(
     view: View,
     topLeftRadius: Float = 0f,
     topRightRadius: Float = 0f,
@@ -157,7 +157,7 @@ internal fun getPathOfRoundedRectF(
 }
 
 
-internal fun getPathOfRoundedRectF(view: View, radius: Float): Path {
+fun getPathOfRoundedRectF(view: View, radius: Float): Path {
     return getPathOfRoundedRectF(
         view,
         topLeftRadius = radius,
@@ -168,7 +168,7 @@ internal fun getPathOfRoundedRectF(view: View, radius: Float): Path {
 }
 
 
-internal fun getPathOfQuadTopRectF(view: View, radius: Float): Path {
+fun getPathOfQuadTopRectF(view: View, radius: Float): Path {
     return getPathOfRoundedRectF(
         view,
         topLeftRadius = radius,
@@ -177,7 +177,7 @@ internal fun getPathOfQuadTopRectF(view: View, radius: Float): Path {
 }
 
 
-internal fun getPathOfQuadBottomRectF(view: View, radius: Float): Path {
+fun getPathOfQuadBottomRectF(view: View, radius: Float): Path {
     return getPathOfRoundedRectF(
         view,
         bottomLeftRadius = radius,

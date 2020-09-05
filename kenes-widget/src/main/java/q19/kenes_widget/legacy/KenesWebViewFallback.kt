@@ -5,7 +5,7 @@
 //import android.net.Uri
 //import org.nurmash.lib.nurmashwidgets.customtabs.Browser
 //
-//internal class KenesWebViewFallback : Browser.CustomTabFallback {
+//class KenesWebViewFallback : Browser.CustomTabFallback {
 //
 //    /**
 //     * @param context The [Context] that wants to open the Uri

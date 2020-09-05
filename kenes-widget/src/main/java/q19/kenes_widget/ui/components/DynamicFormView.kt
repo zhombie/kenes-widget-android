@@ -24,7 +24,7 @@ import q19.kenes_widget.data.model.DynamicFormField
 import q19.kenes_widget.ui.components.base.TitleView
 import q19.kenes_widget.util.*
 
-internal class DynamicFormView @JvmOverloads constructor(
+class DynamicFormView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

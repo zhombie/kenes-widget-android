@@ -15,7 +15,7 @@ import q19.kenes_widget.util.inflate
         imports = ["q19.kenes_widget.ui.adapter.ChatAdapter"]
     )
 )
-internal class OldCategoryAdapter(
+class OldCategoryAdapter(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

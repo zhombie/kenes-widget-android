@@ -16,7 +16,7 @@ import q19.kenes_widget.ui.presentation.adapter.InlineKeyboardAdapterItemDecorat
 import q19.kenes_widget.ui.util.buildRippleDrawable
 import q19.kenes_widget.util.inflate
 
-internal class KeyboardView @JvmOverloads constructor(
+class KeyboardView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

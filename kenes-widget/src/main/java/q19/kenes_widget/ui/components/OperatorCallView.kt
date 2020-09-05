@@ -31,7 +31,7 @@ import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 
-internal class OperatorCallView @JvmOverloads constructor(
+class OperatorCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

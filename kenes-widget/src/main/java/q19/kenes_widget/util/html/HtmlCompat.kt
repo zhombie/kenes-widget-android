@@ -4,7 +4,7 @@ import android.os.Build
 import android.text.Html
 import android.text.Spanned
 
-internal object HtmlCompat {
+object HtmlCompat {
 
     fun fromHtml(text: String): Spanned? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

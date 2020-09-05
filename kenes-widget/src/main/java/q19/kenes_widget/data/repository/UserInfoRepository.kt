@@ -8,7 +8,7 @@ interface UserInfoRepository {
 }
 
 
-internal class UserInfoRepositoryImpl : UserInfoRepository {
+class UserInfoRepositoryImpl : UserInfoRepository {
 
     private var user: User? = null
 
