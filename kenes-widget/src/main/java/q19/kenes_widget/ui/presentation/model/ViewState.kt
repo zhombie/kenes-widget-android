@@ -1,6 +1,6 @@
 package q19.kenes_widget.ui.presentation.model
 
-internal sealed class ViewState {
+sealed class ViewState {
     sealed class ChatBot : ViewState() {
         class Categories(val isLoading: Boolean) : ChatBot()
         class UserPrompt(val isLoading: Boolean) : ChatBot()
