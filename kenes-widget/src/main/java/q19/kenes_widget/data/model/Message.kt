@@ -99,7 +99,7 @@ data class Message(
 
     }
 
-    class File(
+    data class File(
         var type: String? = null
     ) {
 

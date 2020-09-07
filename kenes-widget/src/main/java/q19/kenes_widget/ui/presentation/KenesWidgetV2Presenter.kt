@@ -325,6 +325,20 @@ class KenesWidgetV2Presenter(
                 return true
             }
 
+            override fun onUserRedirected(text: String, timestamp: Long): Boolean {
+                onCloseLiveCall()
+
+                view?.addNewMessage(
+                    Message(
+                        type = Message.Type.NOTIFICATION,
+                        text = text,
+                        timestamp = timestamp
+                    )
+                )
+
+                return true
+            }
+
             private fun disconnect(text: String, timestamp: Long) {
                 onCloseLiveCall()
 

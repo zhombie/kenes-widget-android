@@ -253,13 +253,17 @@ class SocketClient(
             if (isHandled == true) return@Listener
         }
 
+        if (action == "redirect" && !text.isNullOrBlank()) {
+            val isHandled = listener?.onUserRedirected(text, time)
+            if (isHandled == true) return@Listener
+        }
+
         if (rtc != null) {
             when (rtc.getNullableString("type")) {
                 RTC.Type.START?.value -> {
                     when (action) {
                         "call_accept" -> listener?.onCallAccept()
-                        "call_redirect" -> {
-                        }
+                        "call_redirect" -> listener?.onCallAccept()
                         "call_redial" -> {
                         }
                     }
@@ -624,6 +628,7 @@ class SocketClient(
         fun onNoResultsFound(text: String, timestamp: Long): Boolean
         fun onChatTimeout(text: String, timestamp: Long): Boolean
         fun onOperatorDisconnected(text: String, timestamp: Long): Boolean
+        fun onUserRedirected(text: String, timestamp: Long): Boolean
 
         fun onCallAccept()
         fun onRTCPrepare()
