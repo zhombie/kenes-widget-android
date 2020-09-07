@@ -326,7 +326,35 @@ class KenesWidgetV2Presenter(
             }
 
             override fun onUserRedirected(text: String, timestamp: Long): Boolean {
-                onCloseLiveCall()
+                debug(TAG, "onUserRedirected() -> viewState: $viewState")
+
+                dialog.clear()
+
+                view?.releaseMediaPlayer()
+
+                view?.releaseVideoDialog()
+
+                view?.releasePeerConnection()
+
+                when (viewState) {
+                    is ViewState.TextDialog -> {
+                        if (viewState !is ViewState.TextDialog.UserFeedback) {
+                            viewState = ViewState.TextDialog.CallAgentDisconnected
+                        }
+                    }
+                    is ViewState.AudioDialog -> {
+                        if (viewState !is ViewState.AudioDialog.UserFeedback) {
+                            viewState = ViewState.AudioDialog.CallAgentDisconnected
+                        }
+                    }
+                    is ViewState.VideoDialog -> {
+                        if (viewState !is ViewState.VideoDialog.UserFeedback) {
+                            viewState = ViewState.VideoDialog.CallAgentDisconnected
+                        }
+                    }
+                    else ->
+                        viewState = ViewState.ChatBot.UserPrompt(false)
+                }
 
                 view?.addNewMessage(
                     Message(

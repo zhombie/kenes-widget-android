@@ -12,6 +12,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
 import q19.kenes_widget.data.model.Configs
+import q19.kenes_widget.util.isVisible
 import q19.kenes_widget.util.loadCircleImage
 
 class HeaderView @JvmOverloads constructor(
@@ -95,7 +96,7 @@ class HeaderView @JvmOverloads constructor(
     }
 
     private fun setHangupButtonVisibility(isVisible: Boolean) {
-        hangupButton.visibility = if (isVisible) View.VISIBLE else View.INVISIBLE
+        hangupButton.isVisible = isVisible
     }
 
     interface Callback {

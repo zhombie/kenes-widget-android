@@ -1345,7 +1345,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             bottomNavigationView.setNavButtonsDisabled()
                         }
                     }
-                    ViewState.TextDialog.UserDisconnected, ViewState.TextDialog.CallAgentDisconnected -> {
+                    ViewState.TextDialog.CallAgentDisconnected -> {
+                        runOnUiThread {
+                            footerView.disableAttachmentButton()
+
+                            bottomNavigationView.setNavButtonsEnabled()
+                        }
+                    }
+                    ViewState.TextDialog.UserDisconnected -> {
                         runOnUiThread {
                             headerView.hideHangupButton()
 
@@ -1356,6 +1363,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     }
                     is ViewState.TextDialog.UserFeedback -> {
                         runOnUiThread {
+                            headerView.hideHangupButton()
+
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
 
@@ -1492,7 +1501,20 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             }
                         }
                     }
-                    ViewState.AudioDialog.UserDisconnected, ViewState.AudioDialog.CallAgentDisconnected -> {
+                    ViewState.AudioDialog.CallAgentDisconnected -> {
+                        runOnUiThread {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+                            setDefaultFooterView()
+                            footerView.disableAttachmentButton()
+                            footerView.isVisible = false
+
+                            audioDialogView.isVisible = false
+
+                            bottomNavigationView.setNavButtonsEnabled()
+                        }
+                    }
+                    ViewState.AudioDialog.UserDisconnected -> {
                         runOnUiThread {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -1509,6 +1531,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     }
                     is ViewState.AudioDialog.UserFeedback -> {
                         runOnUiThread {
+                            headerView.hideHangupButton()
+
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
 
@@ -1610,7 +1634,21 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                             }
                         }
                     }
-                    ViewState.VideoDialog.UserDisconnected, ViewState.VideoDialog.CallAgentDisconnected -> {
+                    is ViewState.VideoDialog.CallAgentDisconnected -> {
+                        runOnUiThread {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+                            setDefaultFooterView()
+                            footerView.isVisible = false
+
+                            footerView.disableAttachmentButton()
+
+                            videoDialogView.isVisible = false
+
+                            bottomNavigationView.setNavButtonsEnabled()
+                        }
+                    }
+                    is ViewState.VideoDialog.UserDisconnected -> {
                         runOnUiThread {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -1628,6 +1666,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                     }
                     is ViewState.VideoDialog.UserFeedback -> {
                         runOnUiThread {
+                            headerView.hideHangupButton()
+
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
 
