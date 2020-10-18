@@ -22,8 +22,10 @@
 
 package q19.kenes_widget.core.locale
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.data.model.Language
@@ -46,8 +48,18 @@ abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListen
         localizationDelegate.onResume(this)
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(localizationDelegate.attachBaseContext(newBase))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            applyOverrideConfiguration(localizationDelegate.updateConfigurationLocale(newBase))
+            super.attachBaseContext(newBase)
+        } else {
+            super.attachBaseContext(localizationDelegate.attachBaseContext(newBase))
+        }
+    }
+
+    override fun getBaseContext(): Context {
+        return localizationDelegate.getApplicationContext(super.getBaseContext())
     }
 
     override fun getApplicationContext(): Context {

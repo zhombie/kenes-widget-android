@@ -2,6 +2,7 @@ package q19.kenes_widget.core.locale
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Handler
@@ -61,12 +62,26 @@ open class LocalizationActivityDelegate(private val activity: Activity) {
         }
     }
 
-    fun getApplicationContext(applicationContext: Context): Context {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            applicationContext
-        } else {
-            LocalizationUtility.applyLocalizationContext(applicationContext)
+    fun updateConfigurationLocale(context: Context): Configuration {
+        val locale = LanguageSetting.getLanguageWithDefault(
+            context,
+            LanguageSetting.getDefaultLanguage(context)
+        )
+        val config = context.resources.configuration
+        return config.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                config.setLocale(locale)
+                val localeList = LocaleList(locale)
+                LocaleList.setDefault(localeList)
+                config.setLocales(localeList)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                config.setLocale(locale)
+            }
         }
+    }
+
+    fun getApplicationContext(applicationContext: Context): Context {
+        return LocalizationUtility.applyLocalizationContext(applicationContext)
     }
 
     fun getResources(resources: Resources): Resources {

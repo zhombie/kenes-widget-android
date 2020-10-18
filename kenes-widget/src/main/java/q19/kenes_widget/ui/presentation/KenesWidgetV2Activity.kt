@@ -50,6 +50,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         private const val TAG = "KenesWidgetV2Activity"
 
         private const val KEY_HOSTNAME = "hostname"
+        private const val KEY_LANGUAGE = "language"
         private const val KEY_FIRST_NAME = "firstName"
         private const val KEY_LAST_NAME = "lastName"
         private const val KEY_PHONE_NUMBER = "phoneNumber"
@@ -60,12 +61,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         fun newIntent(
             context: Context,
             hostname: String,
+            language: Language? = null,
             firstName: String? = null,
             lastName: String? = null,
             phoneNumber: String? = null
         ): Intent =
             Intent(context, KenesWidgetV2Activity::class.java)
                 .putExtra(KEY_HOSTNAME, hostname)
+                .putExtra(KEY_LANGUAGE, language?.key)
                 .putExtra(KEY_FIRST_NAME, firstName)
                 .putExtra(KEY_LAST_NAME, lastName)
                 .putExtra(KEY_PHONE_NUMBER, phoneNumber)
@@ -221,7 +224,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         presenter = KenesWidgetV2Presenter(
 //            appProvider = AppProvider(),
-            language = getCurrentLanguage(),
+            language = Language.from(getCurrentLocale()),
             palette = palette
         )
         presenter.attachView(this)
@@ -811,13 +814,13 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         callScopes: List<Configs.CallScope>
     ) {
         runOnUiThread {
-            operatorCallView.showCallScopes(parentCallScope, callScopes, getCurrentLanguage())
+            operatorCallView.showCallScopes(parentCallScope, callScopes, Language.from(getCurrentLocale()))
         }
     }
 
     override fun showExternalServices(parentService: Service?, services: List<Service>) {
         runOnUiThread {
-            servicesView.showServices(parentService, services, getCurrentLanguage())
+            servicesView.showServices(parentService, services, Language.from(getCurrentLocale()))
         }
     }
 
