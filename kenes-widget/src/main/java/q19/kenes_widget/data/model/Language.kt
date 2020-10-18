@@ -11,17 +11,24 @@ class Language(
     companion object {
         private const val KEY_KAZAKH = "kk"
         private const val KEY_RUSSIAN = "ru"
+
+        @Deprecated(message = "Application does not support yet.")
         private const val KEY_ENGLISH = "en"
 
+        @JvmStatic
         val DEFAULT: Language
             get() = by(Locale.getDefault().language)
 
+        @JvmStatic
         val KAZAKH: Language
             get() = Language(KEY_KAZAKH, "Қаз", 2)
 
+        @JvmStatic
         val RUSSIAN: Language
             get() = Language(KEY_RUSSIAN, "Рус", 1)
 
+        @Deprecated(message = "Application does not support yet.")
+        @JvmStatic
         val ENGLISH: Language
             get() = Language(KEY_ENGLISH, "Eng", 3)
 
