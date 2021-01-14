@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "198361631544",
+    "firebase_url": "https://kenes-widget-android.firebaseio.com",
+    "project_id": "kenes-widget-android",
+    "storage_bucket": "kenes-widget-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198361631544:android:11e197763e5a33e23ecfcd",
+        "android_client_info": {
+          "package_name": "q19.kenes.widget"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "198361631544-5mej9vojl3gn2msro0ismpcp3joo5lhb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjWrcmMy-OEWiJQVjAadoalKwEn_QkQXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "198361631544-5mej9vojl3gn2msro0ismpcp3joo5lhb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198361631544:android:2dd0ed601454cd993ecfcd",
+        "android_client_info": {
+          "package_name": "q19.kenes.widget.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "198361631544-5mej9vojl3gn2msro0ismpcp3joo5lhb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjWrcmMy-OEWiJQVjAadoalKwEn_QkQXU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "198361631544-5mej9vojl3gn2msro0ismpcp3joo5lhb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

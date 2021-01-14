@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/kenes_horizontal_spacing"
+    android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
+    android:orientation="vertical">
+
+    <q19.kenes.widget.ui.components.base.HtmlTextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kenes_bg_message_keyboard"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:padding="15dp"
+        android:textColor="@color/kenes_grayish_blue"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        app:fontFamily="sans-serif"
+        tools:text="Пожалуйста, выберите один из вариантов:" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="2"
+        tools:itemCount="2"
+        tools:listitem="@layout/kenes_cell_message_keyboard_button" />
+
+    <TextView
+        android:id="@+id/timeView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:layout_marginTop="3dp"
+        android:textColor="@color/kenes_dark_grayish_blue"
+        android:textSize="11sp"
+        tools:text="04:20" />
+
+</LinearLayout>

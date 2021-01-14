@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="q19.kenes.widget">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <!--
+        [RU] В обязательном порядке нужно добавить <provider> как указано внизу.
+        Если в проекте уже есть такое значение с точно такими же параметрами,
+        то можно пропустить данный шаг. *
+        P.S. Класс KenesWidgetFileProvider наследуется от класса FileProvider и
+        обходиться без каких-либо модификаций.
+
+        [EN] It is required to add <provider> as shown below.
+        If the project already has such field with exactly the same parameters,
+        then you can skip this step. *
+        P.S. The KenesWidgetFileProvider class is inherited from the FileProvider class and
+        it has no modifications.
+        -->
+        <provider
+            android:name=".core.file.KenesWidgetFileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity android:name=".MainKtActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+        [RU] Обязательное значение для обозначения Activity виджета в качестве точки входного.
+
+        [EN] Required value for wigdet Activity as entry point.
+        -->
+        <activity
+            android:name=".ui.presentation.KenesWidgetActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
+
+    </application>
+
+</manifest>

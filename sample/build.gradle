@@ -1,0 +1,157 @@
+plugins {
+    id 'com.android.application'
+
+    id 'kotlin-android'
+
+    id 'com.google.firebase.appdistribution'
+    id 'com.google.firebase.crashlytics'
+
+    id 'com.google.gms.google-services'
+}
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        applicationId "q19.kenes.widget"
+        minSdkVersion 21
+        targetSdkVersion 29
+
+        def versionProps = readVersionFromFile()
+        versionName versionProps["versionName"]
+        versionCode versionProps["versionCode"] as int
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            shrinkResources false
+
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled false
+            shrinkResources false
+
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    flavorDimensions "mode"
+
+    productFlavors {
+        dev {
+            dimension "mode"
+
+            applicationIdSuffix ".dev"
+
+            buildConfigField 'boolean', 'DEBUG', 'true'
+            buildConfigField 'String', 'HOSTNAME', '"https://kenes.vlx.kz"'
+
+            resValue "string", "app_name", "Kenes Widget DEV"
+
+            firebaseAppDistribution {
+                appId = "1:198361631544:android:2dd0ed601454cd993ecfcd"
+                groups = "q19"
+                serviceCredentialsFile = project.file("creds/kenes-widget-android-9762324c2d30.json")
+                releaseNotesFile = "$rootDir/sample/src/dev/release-notes.txt"
+            }
+        }
+
+        prod {
+            dimension "mode"
+
+            buildConfigField 'boolean', 'DEBUG', 'false'
+            buildConfigField 'String', 'HOSTNAME', '"https://kenes.1414.kz"'
+
+            resValue "string", "app_name", "Kenes Widget"
+
+            firebaseAppDistribution {
+                appId = "1:198361631544:android:11e197763e5a33e23ecfcd"
+                groups = "q19"
+                serviceCredentialsFile = project.file("creds/kenes-widget-android-9762324c2d30.json")
+                releaseNotesFile = "$rootDir/sample/src/prod/release-notes.txt"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:26.1.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+
+    implementation project(':widget')
+}
+
+
+// Auto-increments versionCode & versionName on each release build
+// Adapted from http://stackoverflow.com/a/21405744
+def readVersionFromFile() {
+    def versionFile = file("version.properties")
+    if (versionFile.canRead()) {
+        Properties props = new Properties()
+        props.load(new FileInputStream(versionFile))
+
+        def versionMajor = props["versionMajor"] as int
+        def versionMinor = props["versionMinor"] as int
+        def versionPatch = props["versionPatch"] as int
+
+        def versionCode = props["versionCode"] as int
+
+        def isReleaseTask = false
+        for (String taskName : gradle.startParameter.getTaskNames()) {
+            if (taskName.startsWith("appDistributionUploadDev")) {
+                isReleaseTask = true
+                break
+            }
+        }
+
+        if (isReleaseTask) {
+            if (versionPatch >= 10) {
+                versionPatch = 0
+
+                if (versionMinor >= 10) {
+                    versionMajor += 1
+                    versionMinor = 0
+                } else {
+                    versionMinor += 1
+                }
+            } else {
+                versionPatch += 1
+            }
+
+            props["versionMajor"] = versionMajor.toString()
+            props["versionMinor"] = versionMinor.toString()
+            props["versionPatch"] = versionPatch.toString()
+            props["versionName"] = props["versionMajor"] + "." + props["versionMinor"] + "." + props["versionPatch"]
+
+            versionCode += 1
+            props["versionCode"] = versionCode.toString()
+
+            props.store(versionFile.newWriter(), null)
+        }
+
+        return props
+    } else {
+        throw new GradleException("Could not read version.properties")
+    }
+}

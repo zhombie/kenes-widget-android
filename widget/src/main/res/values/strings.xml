@@ -1,0 +1,97 @@
+<resources>
+    <string name="kenes_notification_channel_name">Kenes Widget Notification</string>
+
+    <string name="kenes_home">Home</string>
+    <string name="kenes_calls">Calls</string>
+    <string name="kenes_services">Services</string>
+    <string name="kenes_contacts">Contacts</string>
+
+    <string name="kenes_exit_widget_title">Exit widget</string>
+    <string name="kenes_exit_widget_text">Are you sure want to exit the widget?</string>
+    <string name="kenes_yes">Yes</string>
+    <string name="kenes_no">No</string>
+    <string name="kenes_cancel">Cancel</string>
+    <string name="kenes_ok" translatable="false">OK</string>
+    <string name="kenes_back">Back</string>
+
+    <string name="kenes_message">Message</string>
+    <string name="kenes_video_call">Video Call</string>
+    <string name="kenes_audio_call">Audio Call</string>
+    <string name="kenes_operator">Call agent</string>
+    <string name="kenes_send">Send</string>
+    <string name="kenes_satisfied_with_call">Are you satisfied with the response of the operator?</string>
+    <string name="kenes_typing">Typing…</string>
+    <string name="kenes_all">All</string>
+    <string name="kenes_go_to_home">Home</string>
+    <string name="kenes_return_to_audio_call">Return to audio call</string>
+    <string name="kenes_return_to_video_call">Return to video call</string>
+    <string name="kenes_info">Info</string>
+    <string name="kenes_chat_bot">%s сhat-bot</string>
+    <string name="kenes_change_language">Change language</string>
+    <string name="kenes_select_language_from_list">Please, select a language from the list</string>
+    <string name="kenes_attention">Attention</string>
+    <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
+    <string name="kenes_user_disconnected">User disconnected</string>
+
+    <string name="kenes_open_link">Open link</string>
+    <string name="kenes_open_link_confirm">Do you want to open %s ?</string>
+
+    <string name="kenes_permissions_necessity_info">
+        Please, grant the application the following permissions:\n\n%s\n\because they are required for the widget to work correctly
+    </string>
+    <string name="kenes_camera">Camera</string>
+    <string name="kenes_microphone">Microphone</string>
+    <string name="kenes_storage">Storage</string>
+    <string name="kenes_to_settings">To Settings</string>
+
+    <string name="kenes_text_file">Text file</string>
+    <string name="kenes_pdf_file">PDF document</string>
+    <string name="kenes_microsoft_word_document">Microsoft Word document</string>
+    <string name="kenes_microsoft_excel_document">Microsoft Excel document</string>
+    <string name="kenes_html_text">HTML text</string>
+    <string name="kenes_file">File</string>
+    <string name="kenes_text">Text</string>
+
+    <string name="kenes_switch_to_operator">Switch to call agent</string>
+    <string name="kenes_already_calling_to_operator">Sorry, but your previous call is already on waiting list</string>
+    <string name="kenes_cancel_call">Cancel call</string>
+    <string name="kenes_register_appeal">Register appeal</string>
+    <string name="kenes_or">Or</string>
+
+    <string name="kenes_error_invalid_hostname">Invalid hostname</string>
+
+    <string name="kenes_leave_contact_details">Leave your contact details</string>
+    <string name="kenes_name">Name</string>
+    <string name="kenes_email">Email</string>
+    <string name="kenes_phone">Phone</string>
+    <string name="kenes_form_sent_success">Your appeal is registered</string>
+    <string name="kenes_enter_name">Enter name</string>
+    <string name="kenes_enter_email">Enter email</string>
+    <string name="kenes_enter_phone">Enter phone</string>
+    <string name="kenes_enter_valid_email">Please, enter valid email</string>
+    <string name="kenes_enter_valid_phone">Please, enter valid phone</string>
+
+    <string name="kenes_file_download">File download</string>
+    <string name="kenes_open_file">Open file</string>
+    <string name="kenes_file_download_completed">File download completed</string>
+    <string name="kenes_file_pending_download">File is downloading</string>
+    <string name="kenes_file_download_error">File not downloaded</string>
+
+    <string name="kenes_add_attachment_button_disabled">
+        File attachment is available only during active conversation/dialogue with the operator
+    </string>
+
+    <string name="kenes_queue_count">Queue (%d)</string>
+
+    <string name="kenes_call_with_operator">Call with the operator</string>
+    <string name="kenes_audio_call_to_operator">Contact the operator using an audio call</string>
+    <string name="kenes_video_call_to_operator">Contact the operator using an video call</string>
+
+    <string name="kenes_select_file">Select file</string>
+    <string name="kenes_attachment">Attachment</string>
+
+    <string name="kenes_fill_fields">Please, fill following fields: %s</string>
+
+    <string name="kenes_show_all">Show all</string>
+    <string name="kenes_hide">Hide</string>
+</resources>
