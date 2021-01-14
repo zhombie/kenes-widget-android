@@ -8,7 +8,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.util.picasso.CircleTransformation
 import q19.kenes_widget.util.picasso.RoundedTransformation
 
-fun ImageView.loadCircleImage(photoUrl: String) {
+internal fun ImageView.loadCircleImage(photoUrl: String) {
     loadImage(
         url = photoUrl,
         placeholderResId = R.drawable.kenes_placeholder_circle_gray,
@@ -19,7 +19,7 @@ fun ImageView.loadCircleImage(photoUrl: String) {
     )
 }
 
-fun ImageView.loadRoundedImage(
+internal fun ImageView.loadRoundedImage(
     photoUrl: String?,
     radius: Int
 ) {
@@ -32,7 +32,7 @@ fun ImageView.loadRoundedImage(
     )
 }
 
-fun ImageView.loadImage(
+internal fun ImageView.loadImage(
     url: String?,
     @DrawableRes placeholderResId: Int = -1,
     isFit: Boolean = false,

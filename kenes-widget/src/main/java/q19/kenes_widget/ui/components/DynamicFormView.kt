@@ -24,7 +24,7 @@ import q19.kenes_widget.data.model.DynamicFormField
 import q19.kenes_widget.ui.components.base.TitleView
 import q19.kenes_widget.util.*
 
-class DynamicFormView @JvmOverloads constructor(
+internal class DynamicFormView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
@@ -329,7 +329,7 @@ private class DynamicFormFieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewH
 
                 editText?.hint = field.title?.trim()
 
-                editText?.addTextChangedListener(object : KenesTextWatcher() {
+                editText?.addTextChangedListener(object : AbstractTextWatcher() {
                     override fun afterTextChanged(s: Editable?) {
                         val text = s?.toString()?.trim()
                         field.value = text

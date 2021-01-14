@@ -9,7 +9,7 @@ import q19.kenes_widget.ui.presentation.model.BottomNavigation
 import q19.kenes_widget.ui.presentation.model.ViewState
 import java.io.File
 
-interface KenesWidgetV2View {
+internal interface KenesWidgetView {
     fun showCurrentLanguage(language: Language)
     fun showContacts(contacts: List<Configs.Contact>)
     fun showPhones(phones: List<String>)

@@ -31,7 +31,7 @@ import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.data.model.Language
 import java.util.*
 
-abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListener {
+internal abstract class LocalizationActivity : AppCompatActivity(), OnLocaleChangedListener {
 
     private val localizationDelegate: LocalizationActivityDelegate by lazy {
         LocalizationActivityDelegate(this)

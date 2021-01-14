@@ -33,7 +33,7 @@ import q19.kenes_widget.util.removeCompoundDrawables
 import q19.kenes_widget.util.showPendingFileDownloadAlert
 import java.util.concurrent.TimeUnit
 
-class ChatAdapter(
+internal class ChatAdapter constructor(
     var callback: Callback? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

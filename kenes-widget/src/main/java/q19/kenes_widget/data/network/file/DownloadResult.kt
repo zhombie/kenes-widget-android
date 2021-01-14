@@ -1,7 +1,12 @@
 package q19.kenes_widget.data.network.file
 
-sealed class DownloadResult {
+internal sealed class DownloadResult {
     object Success : DownloadResult()
-    data class Error(val message: String? = null, val cause: Exception? = null) : DownloadResult()
-    data class Progress(val progress: Int) : DownloadResult()
+
+    data class Error constructor(
+        val message: String? = null,
+        val cause: Exception? = null
+    ) : DownloadResult()
+
+    data class Progress constructor(val progress: Int) : DownloadResult()
 }

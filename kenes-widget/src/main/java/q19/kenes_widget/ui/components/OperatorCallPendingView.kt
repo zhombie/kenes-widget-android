@@ -12,7 +12,7 @@ import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
 import q19.kenes_widget.util.Logger
 
-class OperatorCallPendingView @JvmOverloads constructor(
+internal class OperatorCallPendingView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

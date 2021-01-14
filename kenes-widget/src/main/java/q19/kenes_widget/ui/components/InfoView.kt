@@ -20,7 +20,7 @@ import q19.kenes_widget.data.model.Configs
 import q19.kenes_widget.data.model.Language
 import q19.kenes_widget.util.showCompoundDrawableOnfLeft
 
-class InfoView @JvmOverloads constructor(
+internal class InfoView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

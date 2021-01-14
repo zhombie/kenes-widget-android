@@ -50,7 +50,7 @@
         [EN] Required value for wigdet Activity as entry point.
         -->
         <activity
-            android:name="q19.kenes_widget.ui.presentation.KenesWidgetV2Activity"
+            android:name="q19.kenes_widget.ui.presentation.KenesWidgetActivity"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />

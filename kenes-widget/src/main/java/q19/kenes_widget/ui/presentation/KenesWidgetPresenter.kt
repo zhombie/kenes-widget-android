@@ -22,19 +22,18 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
-class KenesWidgetV2Presenter(
-//    private val appProvider: AppProvider,
+internal class KenesWidgetPresenter constructor(
     private val language: Language,
     private val palette: IntArray
 ) {
 
     companion object {
-        private const val TAG = "KenesWidgetV2Presenter"
+        private val TAG = KenesWidgetPresenter::class.java.simpleName
     }
 
-    private var view: KenesWidgetV2View? = null
+    private var view: KenesWidgetView? = null
 
-    fun attachView(view: KenesWidgetV2View) {
+    fun attachView(view: KenesWidgetView) {
         this.view = view
 
         onFirstViewAttach()

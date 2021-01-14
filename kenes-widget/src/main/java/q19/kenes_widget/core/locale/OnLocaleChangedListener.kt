@@ -25,7 +25,7 @@ package q19.kenes_widget.core.locale
 /**
  * Created by Akexorcist on 7/21/15 AD.
  */
-interface OnLocaleChangedListener {
+internal interface OnLocaleChangedListener {
     fun onBeforeLocaleChanged()
 
     fun onAfterLocaleChanged()

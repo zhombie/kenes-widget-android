@@ -1,5 +1,6 @@
 package q19.kenes;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -15,11 +16,9 @@ class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button openWidget = findViewById(R.id.openWidget);
+        Button openWidgetButton = findViewById(R.id.openWidgetButton);
 
-        openWidget();
-
-        openWidget.setOnClickListener(v -> openWidget());
+        openWidgetButton.setOnClickListener(v -> openWidget());
     }
 
     private void openWidget() {
@@ -30,9 +29,10 @@ class MainActivity extends AppCompatActivity {
           EN -> To launch the widget, you need to send the hostname.
           Example: https://kenes.vlx.kz
          */
-        startActivity(KenesWidget.open(this, new KenesWidget.EntryParams(
-                DemonstrationConstants.HOSTNAME,
-                DemonstrationConstants.INSTANCE.getLANGUAGE())));
+        Intent intent = new KenesWidget.Builder("https://kenes.vlx.kz")
+                .setLanguage(KenesWidget.Builder.Language.RU)
+                .build(this);
+        startActivity(intent);
     }
 
 }

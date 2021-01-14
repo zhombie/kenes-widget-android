@@ -23,7 +23,7 @@ import q19.kenes_widget.util.loadCircleImage
 import q19.kenes_widget.util.setOverscrollColor
 
 @Deprecated("Not used anymore")
-class ContactsView @JvmOverloads constructor(
+internal class ContactsView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

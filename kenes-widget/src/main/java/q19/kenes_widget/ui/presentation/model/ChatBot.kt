@@ -3,7 +3,7 @@ package q19.kenes_widget.ui.presentation.model
 import q19.kenes_widget.data.model.Category
 import q19.kenes_widget.util.Logger.debug
 
-class ChatBot {
+internal class ChatBot {
 
     /**
      * State variables
@@ -56,7 +56,7 @@ class ChatBot {
 }
 
 
-class ObservableList : ArrayList<Category>() {
+internal class ObservableList : ArrayList<Category>() {
 
     companion object {
         private const val TAG = "ObservableList"

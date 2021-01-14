@@ -7,7 +7,7 @@ import com.loopj.android.http.RequestParams
 import cz.msebera.android.httpclient.Header
 import org.json.JSONObject
 
-fun AsyncHttpClient.uploadFile(
+internal fun AsyncHttpClient.uploadFile(
     url: String,
     params: RequestParams,
     listener: (path: String, hash: String) -> Unit

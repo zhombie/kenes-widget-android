@@ -4,30 +4,30 @@ import android.graphics.drawable.Drawable
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 
-enum class Alignment {
+internal enum class Alignment {
     LEFT,
     TOP,
     RIGHT,
     BOTTOM
 }
 
-fun TextView.showCompoundDrawableOnfLeft(@DrawableRes drawableRes: Int, padding: Int? = null) {
+internal fun TextView.showCompoundDrawableOnfLeft(@DrawableRes drawableRes: Int, padding: Int? = null) {
     showCompoundDrawable(drawableRes, Alignment.LEFT, padding)
 }
 
-fun TextView.showCompoundDrawableOnTop(@DrawableRes drawableRes: Int, padding: Int? = null) {
+internal fun TextView.showCompoundDrawableOnTop(@DrawableRes drawableRes: Int, padding: Int? = null) {
     showCompoundDrawable(drawableRes, Alignment.TOP, padding)
 }
 
-fun TextView.showCompoundDrawableOnRight(@DrawableRes drawableRes: Int, padding: Int? = null) {
+internal fun TextView.showCompoundDrawableOnRight(@DrawableRes drawableRes: Int, padding: Int? = null) {
     showCompoundDrawable(drawableRes, Alignment.RIGHT, padding)
 }
 
-fun TextView.showCompoundDrawableOnBottom(@DrawableRes drawableRes: Int, padding: Int? = null) {
+internal fun TextView.showCompoundDrawableOnBottom(@DrawableRes drawableRes: Int, padding: Int? = null) {
     showCompoundDrawable(drawableRes, Alignment.BOTTOM, padding)
 }
 
-fun TextView.showCompoundDrawable(@DrawableRes drawableRes: Int, alignment: Alignment, padding: Int? = null) {
+internal fun TextView.showCompoundDrawable(@DrawableRes drawableRes: Int, alignment: Alignment, padding: Int? = null) {
     when (alignment) {
         Alignment.LEFT -> setCompoundDrawablesWithIntrinsicBounds(drawableRes, 0, 0, 0)
         Alignment.TOP -> setCompoundDrawablesWithIntrinsicBounds(0, drawableRes, 0, 0)
@@ -39,16 +39,16 @@ fun TextView.showCompoundDrawable(@DrawableRes drawableRes: Int, alignment: Alig
     }
 }
 
-fun TextView.removeCompoundDrawables() {
+internal fun TextView.removeCompoundDrawables() {
     setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
     compoundDrawablePadding = 0
 }
 
-fun TextView.showCompoundDrawableOnfLeft(drawable: Drawable?, padding: Int? = null) {
+internal fun TextView.showCompoundDrawableOnfLeft(drawable: Drawable?, padding: Int? = null) {
     showCompoundDrawable(drawable, Alignment.LEFT, padding)
 }
 
-fun TextView.showCompoundDrawable(drawable: Drawable?, alignment: Alignment, padding: Int? = null) {
+internal fun TextView.showCompoundDrawable(drawable: Drawable?, alignment: Alignment, padding: Int? = null) {
     if (drawable == null) {
         return
     }
@@ -63,6 +63,6 @@ fun TextView.showCompoundDrawable(drawable: Drawable?, alignment: Alignment, pad
     }
 }
 
-fun TextView.getCompoundDrawableOnTop(): Drawable? {
+internal fun TextView.getCompoundDrawableOnTop(): Drawable? {
     return compoundDrawables[1]
 }

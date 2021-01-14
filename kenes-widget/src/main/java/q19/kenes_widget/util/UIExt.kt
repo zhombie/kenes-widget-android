@@ -3,7 +3,7 @@ package q19.kenes_widget.util
 import android.content.res.Resources
 import android.view.View
 
-val Int.px: Int
+internal val Int.px: Int
     get() = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 
@@ -22,7 +22,7 @@ val Int.px: Int
  * view.isVisible = true
  * ```
  */
-inline var View.isVisible: Boolean
+internal inline var View.isVisible: Boolean
     get() = visibility == View.VISIBLE
     set(value) {
 //        if (value) {

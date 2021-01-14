@@ -9,7 +9,7 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import q19.kenes_widget.R
 
-class ProgressView @JvmOverloads constructor(
+internal class ProgressView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

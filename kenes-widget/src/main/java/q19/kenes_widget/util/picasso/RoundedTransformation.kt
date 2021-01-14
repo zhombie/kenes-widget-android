@@ -3,7 +3,7 @@ package q19.kenes_widget.util.picasso
 import android.graphics.*
 import com.squareup.picasso.Transformation
 
-class RoundedTransformation(
+internal class RoundedTransformation(
     private val radius: Int
 ) : Transformation {
 

@@ -14,7 +14,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.findEnumBy
 
-class SocketClient(
+internal class SocketClient constructor(
     private var socket: Socket? = null,
     private var language: String? = null,
     var listener: Listener? = null

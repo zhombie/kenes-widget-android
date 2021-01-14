@@ -9,7 +9,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.util.JsonUtil.getNullableLong
 import q19.kenes_widget.util.JsonUtil.optJSONArrayAsList
 
-data class Category(
+internal data class Category constructor(
     val id: Long,
     val title: String,
     val lang: Int,
@@ -99,7 +99,7 @@ data class Category(
 }
 
 
-fun parse(jsonObject: JSONObject): Category {
+internal fun parse(jsonObject: JSONObject): Category {
     return Category(
         id = jsonObject.optLong("id"),
         title = jsonObject.optString("title").trim(),

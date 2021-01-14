@@ -6,7 +6,7 @@ import com.loopj.android.http.RequestHandle
 import cz.msebera.android.httpclient.Header
 import java.io.File
 
-fun AsyncHttpClient.downloadFile(
+internal fun AsyncHttpClient.downloadFile(
     file: File,
     url: String,
     listener: (DownloadResult) -> Unit

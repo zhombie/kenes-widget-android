@@ -15,7 +15,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
-import q19.kenes_widget.util.KenesTextWatcher
+import q19.kenes_widget.util.AbstractTextWatcher
 
 class FormView @JvmOverloads constructor(
     context: Context,
@@ -45,19 +45,19 @@ class FormView @JvmOverloads constructor(
 
     var callback: Callback? = null
 
-    private val nameTextWatcher = object : KenesTextWatcher() {
+    private val nameTextWatcher = object : AbstractTextWatcher() {
         override fun afterTextChanged(s: Editable?) {
             isNameValid()
         }
     }
 
-    private val emailTextWatcher = object : KenesTextWatcher() {
+    private val emailTextWatcher = object : AbstractTextWatcher() {
         override fun afterTextChanged(s: Editable?) {
             isEmailValid()
         }
     }
 
-    private val phoneTextWatcher = object : KenesTextWatcher() {
+    private val phoneTextWatcher = object : AbstractTextWatcher() {
         override fun afterTextChanged(s: Editable?) {
             isPhoneValid()
         }

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/kenes_white"
     android:fitsSystemWindows="true"
-    tools:context=".ui.presentation.KenesWidgetV2Activity">
+    tools:context=".ui.presentation.KenesWidgetActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

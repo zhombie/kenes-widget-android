@@ -4,13 +4,13 @@ import android.graphics.Bitmap
 import android.widget.ImageView
 import q19.imageviewer.ImageViewer
 
-fun ImageView.showFullscreenImage(bitmap: Bitmap) {
+internal fun ImageView.showFullscreenImage(bitmap: Bitmap) {
     showFullScreenImage(bitmap) { imageView, innerBitmap ->
         imageView.setImageBitmap(innerBitmap)
     }
 }
 
-fun ImageView.showFullscreenImage(imageUrl: String) {
+internal fun ImageView.showFullscreenImage(imageUrl: String) {
     showFullScreenImage(imageUrl) { imageView, url ->
         imageView.loadImage(url)
     }

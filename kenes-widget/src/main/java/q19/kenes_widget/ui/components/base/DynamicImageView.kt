@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 
-class DynamicHeightImageView @JvmOverloads constructor(
+internal class DynamicHeightImageView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet,
     defStyleAttr: Int = 0

@@ -16,7 +16,7 @@ val Context.AlertDialogBuilder
     get() = AlertDialog.Builder(this, R.style.AlertDialogTheme)
 
 
-fun Context.showHangupConfirmAlert(callback: () -> Unit): AlertDialog? {
+internal fun Context.showHangupConfirmAlert(callback: () -> Unit): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_end_dialog)
@@ -30,7 +30,7 @@ fun Context.showHangupConfirmAlert(callback: () -> Unit): AlertDialog? {
         .show()
 }
 
-fun Context.showLanguageSelectionAlert(
+internal fun Context.showLanguageSelectionAlert(
     items: Array<String>,
     callback: (which: Int) -> Unit
 ): AlertDialog? {
@@ -46,7 +46,7 @@ fun Context.showLanguageSelectionAlert(
         .show()
 }
 
-fun Context.showOpenLinkConfirmAlert(
+internal fun Context.showOpenLinkConfirmAlert(
     message: String,
     callback: () -> Unit
 ): AlertDialog? {
@@ -104,7 +104,7 @@ fun Context.showOpenLinkConfirmAlert(
         .show()
 }
 
-fun Context.showPermanentlyDeniedDialog(
+internal fun Context.showPermanentlyDeniedDialog(
     message: String,
     positiveButtonText: String,
     callback: (isPositive: Boolean) -> Unit
@@ -124,7 +124,7 @@ fun Context.showPermanentlyDeniedDialog(
         .show()
 }
 
-fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit): AlertDialog? {
+internal fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_exit_widget_title)
         .setMessage(R.string.kenes_exit_widget_text)
@@ -138,7 +138,7 @@ fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit): AlertDialog? {
         .show()
 }
 
-fun Context.showNoOnlineCallAgents(
+internal fun Context.showNoOnlineCallAgents(
     message: String?,
     callback: () -> Unit
 ): AlertDialog? {
@@ -158,7 +158,7 @@ fun Context.showNoOnlineCallAgents(
         .show()
 }
 
-fun Context.showAlreadyCallingAlert(
+internal fun Context.showAlreadyCallingAlert(
     callback: (isPositive: Boolean) -> Unit
 ): AlertDialog? {
     return AlertDialogBuilder
@@ -175,7 +175,7 @@ fun Context.showAlreadyCallingAlert(
         .show()
 }
 
-fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
+internal fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_form_sent_success)
@@ -186,7 +186,7 @@ fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
         .show()
 }
 
-fun Context.showPendingFileDownloadAlert(callback: () -> Unit): AlertDialog? {
+internal fun Context.showPendingFileDownloadAlert(callback: () -> Unit): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_file_pending_download)
@@ -197,7 +197,7 @@ fun Context.showPendingFileDownloadAlert(callback: () -> Unit): AlertDialog? {
         .show()
 }
 
-fun Context.showAddAttachmentButtonDisabledAlert(callback: () -> Unit): AlertDialog? {
+internal fun Context.showAddAttachmentButtonDisabledAlert(callback: () -> Unit): AlertDialog? {
     return AlertDialogBuilder
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_add_attachment_button_disabled)

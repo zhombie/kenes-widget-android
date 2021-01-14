@@ -2,7 +2,7 @@ package q19.kenes_widget.data.model
 
 import java.util.*
 
-class Language(
+internal class Language private constructor(
     val key: String,
     val value: String,
     val identificator: Int
@@ -44,7 +44,6 @@ class Language(
             return when (language) {
                 KEY_KAZAKH -> KAZAKH
                 KEY_RUSSIAN -> RUSSIAN
-//                KEY_ENGLISH -> ENGLISH
                 else -> RUSSIAN
             }
         }

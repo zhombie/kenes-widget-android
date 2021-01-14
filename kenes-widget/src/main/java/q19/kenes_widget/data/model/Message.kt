@@ -5,7 +5,7 @@ import android.text.format.DateFormat
 import q19.kenes_widget.util.html.HtmlCompat
 import java.util.*
 
-data class Message(
+internal data class Message constructor(
     var id: String? = null,
     var type: Type = Type.INCOMING,
     var text: String,

@@ -1,6 +1,5 @@
 package q19.kenes_widget.ui.presentation
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -14,7 +13,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
-import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
@@ -44,20 +42,11 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.webrtc.PeerConnectionClient
 import java.io.File
 
-class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
+internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
     companion object {
-        private const val TAG = "KenesWidgetV2Activity"
+        private val TAG = KenesWidgetActivity::class.java.simpleName
 
-        private const val KEY_HOSTNAME = "hostname"
-        private const val KEY_LANGUAGE = "language"
-        private const val KEY_FIRST_NAME = "firstName"
-        private const val KEY_LAST_NAME = "lastName"
-        private const val KEY_PHONE_NUMBER = "phoneNumber"
-
-        private const val FILE_PICKER_REQUEST_CODE = 101
-
-        @JvmStatic
         fun newIntent(
             context: Context,
             hostname: String,
@@ -66,12 +55,24 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             lastName: String? = null,
             phoneNumber: String? = null
         ): Intent =
-            Intent(context, KenesWidgetV2Activity::class.java)
-                .putExtra(KEY_HOSTNAME, hostname)
-                .putExtra(KEY_LANGUAGE, language?.key)
-                .putExtra(KEY_FIRST_NAME, firstName)
-                .putExtra(KEY_LAST_NAME, lastName)
-                .putExtra(KEY_PHONE_NUMBER, phoneNumber)
+            Intent(context, KenesWidgetActivity::class.java)
+                .putExtra(IntentKey.HOSTNAME, hostname)
+                .putExtra(IntentKey.LANGUAGE, language?.key)
+                .putExtra(IntentKey.FIRST_NAME, firstName)
+                .putExtra(IntentKey.LAST_NAME, lastName)
+                .putExtra(IntentKey.PHONE_NUMBER, phoneNumber)
+    }
+
+    private object IntentKey {
+        const val HOSTNAME = "hostname"
+        const val LANGUAGE = "language"
+        const val FIRST_NAME = "first_name"
+        const val LAST_NAME = "last_name"
+        const val PHONE_NUMBER = "phone_number"
+    }
+    
+    private object PermissionRequestCode {
+        const val PICK_FILE = 101
     }
 
     // -------------------------- Binding views -----------------------------------
@@ -200,7 +201,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
     @Volatile
     private var isAudioPaused: Boolean = false
 
-    private lateinit var presenter: KenesWidgetV2Presenter
+    private lateinit var presenter: KenesWidgetPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -212,9 +213,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
 
         // Hostname
-        val hostname = intent.getStringExtra(KEY_HOSTNAME)
-
-        if (hostname.isNullOrBlank()) {
+        val hostname = intent.getStringExtra(IntentKey.HOSTNAME)
+        if (hostname.isNullOrBlank() || !hostname.startsWith("https://")) {
             throwError()
         } else {
             UrlUtil.setHostname(hostname)
@@ -222,8 +222,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         // ------------------------------------------------------------------------
 
-        presenter = KenesWidgetV2Presenter(
-//            appProvider = AppProvider(),
+        presenter = KenesWidgetPresenter(
             language = Language.from(getCurrentLocale()),
             palette = palette
         )
@@ -325,7 +324,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
 
             override fun onAttachmentClicked(attachment: Attachment) {
-                val file = attachment.getFile(this@KenesWidgetV2Activity)
+                val file = attachment.getFile(this@KenesWidgetActivity)
                 presenter.onAttachmentClicked(file)
             }
         }
@@ -473,8 +472,6 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         peerConnectionClient = PeerConnectionClient()
 
         setupRecyclerView()
-
-        setupKeyboardBehavior()
     }
 
     private fun setupRecyclerView() {
@@ -514,14 +511,14 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             override fun onMediaClicked(media: Media, itemPosition: Int) {
                 debug(TAG, "onMediaClicked: $media, itemPosition: $itemPosition")
 
-                val file = media.getFile(this@KenesWidgetV2Activity)
+                val file = media.getFile(this@KenesWidgetActivity)
                 presenter.onMediaClicked(media, file, itemPosition)
             }
 
             override fun onAttachmentClicked(attachment: Attachment, itemPosition: Int) {
                 debug(TAG, "onAttachmentClicked: $attachment, itemPosition: $itemPosition")
 
-                val file = attachment.getFile(this@KenesWidgetV2Activity)
+                val file = attachment.getFile(this@KenesWidgetActivity)
                 presenter.onAttachmentClicked(attachment, file, itemPosition)
             }
 
@@ -577,20 +574,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         recyclerView.addItemDecoration(ChatAdapterItemDecoration(this))
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setupKeyboardBehavior() {
-        recyclerView.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_DOWN || event.action == MotionEvent.ACTION_MOVE) {
-                hideKeyboard()
-            }
-            false
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == FILE_PICKER_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+        if (requestCode == PermissionRequestCode.PICK_FILE && resultCode == Activity.RESULT_OK) {
             val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH) ?: return
 
             presenter.onUploadFile(filePath)
@@ -1098,7 +1085,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         iceServers: List<PeerConnection.IceServer>
     ) {
         peerConnectionClient?.createPeerConnection(
-            activity = this@KenesWidgetV2Activity,
+            activity = this@KenesWidgetActivity,
             isMicrophoneEnabled = isMicrophoneEnabled,
             isCameraEnabled = isCameraEnabled,
             iceServers = iceServers,
@@ -1187,11 +1174,11 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                 }
                 if (isPermitted) {
                     MaterialFilePicker()
-                        .withActivity(this@KenesWidgetV2Activity)
+                        .withActivity(this@KenesWidgetActivity)
                         .withHiddenFiles(true)
                         .withFilterDirectories(false)
                         .withCloseMenu(true)
-                        .withRequestCode(FILE_PICKER_REQUEST_CODE)
+                        .withRequestCode(PermissionRequestCode.PICK_FILE)
                         .start()
                 } else {
                     showAddAttachmentButtonDisabledAlert {}

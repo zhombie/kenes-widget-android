@@ -7,17 +7,13 @@ import q19.kenes_widget.KenesWidget
 
 class MainKtActivity : AppCompatActivity() {
 
-    private val openWidget by lazy(LazyThreadSafetyMode.NONE) {
-        findViewById<Button>(R.id.openWidget)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        openWidget()
+        val openWidgetButton = findViewById<Button>(R.id.openWidgetButton)
 
-        openWidget?.setOnClickListener { openWidget() }
+        openWidgetButton?.setOnClickListener { openWidget() }
     }
 
     private fun openWidget() {
@@ -28,15 +24,10 @@ class MainKtActivity : AppCompatActivity() {
          * EN -> To launch the widget, you need to send the hostname.
          * Example: https://kenes.vlx.kz
          */
-        startActivity(
-            KenesWidget.open(
-                this,
-                KenesWidget.EntryParams(
-                    DemonstrationConstants.HOSTNAME,
-                    language = DemonstrationConstants.LANGUAGE
-                )
-            )
-        )
+        val intent = KenesWidget.Builder("https://kenes.vlx.kz")
+            .setLanguage(KenesWidget.Builder.Language.RU)
+            .build(this)
+        startActivity(intent)
     }
 
 }
