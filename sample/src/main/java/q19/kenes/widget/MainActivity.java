@@ -27,7 +27,7 @@ class MainActivity extends AppCompatActivity {
           EN -> To launch the widget, you need to send the hostname.
           Example: https://kenes.vlx.kz
          */
-        Intent intent = new KenesWidget.Builder("https://kenes.vlx.kz")
+        Intent intent = new KenesWidget.Builder(BuildConfig.HOSTNAME)
                 .setLanguage(KenesWidget.Builder.Language.RU)
                 .build(this);
         startActivity(intent);
