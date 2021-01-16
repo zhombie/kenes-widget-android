@@ -1,7 +1,9 @@
 package q19.kenes.widget.data.model
 
+import androidx.annotation.Keep
 import java.util.*
 
+@Keep
 internal class Language private constructor(
     val key: String,
     val value: String,

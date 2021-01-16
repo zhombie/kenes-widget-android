@@ -1,13 +1,16 @@
 package q19.kenes.widget.data.model
 
+import androidx.annotation.Keep
 import org.json.JSONObject
 import org.webrtc.SessionDescription
 
+@Keep
 internal class UserMessage constructor(
     var rtc: RTC? = null,
     var action: Action? = null
 ) {
 
+    @Keep
     enum class Action constructor(val value: String) {
         FINISH("finish");
 
@@ -60,6 +63,7 @@ internal class UserMessage constructor(
 
 }
 
+@Keep
 internal class RTC constructor(
     var type: Type,
     var sdp: String? = null,
@@ -68,6 +72,7 @@ internal class RTC constructor(
     var candidate: String? = null
 ) {
 
+    @Keep
     enum class Type constructor(val value: String) {
         START("start"),
         PREPARE("prepare"),
@@ -106,6 +111,7 @@ internal class RTC constructor(
 
 }
 
+@Keep
 internal class RTCBuilder constructor() {
     var type: RTC.Type? = null
     var sdp: String? = null

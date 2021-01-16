@@ -2,9 +2,11 @@ package q19.kenes.widget.data.model
 
 import android.text.Spanned
 import android.text.format.DateFormat
+import androidx.annotation.Keep
 import q19.kenes.widget.util.html.HtmlCompat
 import java.util.*
 
+@Keep
 internal data class Message constructor(
     var id: String? = null,
     var type: Type = Type.INCOMING,
@@ -69,11 +71,13 @@ internal data class Message constructor(
             } else null
         }
 
-    data class ReplyMarkup(
+    @Keep
+    data class ReplyMarkup constructor(
         val rows: List<List<Button>> = emptyList()
     ) {
 
-        data class Button(
+        @Keep
+        data class Button constructor(
             val text: String,
             val callbackData: String? = null,
             val url: String? = null
@@ -99,10 +103,12 @@ internal data class Message constructor(
 
     }
 
-    data class File(
+    @Keep
+    data class File constructor(
         var type: String? = null
     ) {
 
+        @Keep
         enum class DownloadStatus {
             NONE,
             PENDING,
@@ -134,6 +140,7 @@ internal data class Message constructor(
 
     }
 
+    @Keep
     enum class Type {
         OUTGOING,
         INCOMING,

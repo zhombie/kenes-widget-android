@@ -1,5 +1,8 @@
 package q19.kenes.widget.data.model
 
+import androidx.annotation.Keep
+
+@Keep
 internal data class DynamicForm constructor(
     val id: Long,
     val title: String? = null,
@@ -14,6 +17,7 @@ internal data class DynamicForm constructor(
 
 }
 
+@Keep
 internal data class DynamicFormField constructor(
     val id: Long,
     val isFlex: Boolean = false,
@@ -27,11 +31,13 @@ internal data class DynamicFormField constructor(
     var value: String? = null
 ) {
 
+    @Keep
     enum class Type constructor(val value: String) {
         TEXT("text"),
         FILE("file")
     }
 
+    @Keep
     class Configs constructor()
 
 }

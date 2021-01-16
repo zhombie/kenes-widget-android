@@ -8,13 +8,10 @@ import org.json.JSONObject
 import org.webrtc.IceCandidate
 import org.webrtc.SessionDescription
 import q19.kenes.widget.data.model.*
-import q19.kenes.widget.data.model.Attachment
-import q19.kenes.widget.data.model.Media
-import q19.kenes.widget.data.model.OperatorCall
-import q19.kenes.widget.data.model.RTC
-import q19.kenes.widget.data.model.UserMessage
+import q19.kenes.widget.util.JsonUtil.getNullableLong
 import q19.kenes.widget.util.JsonUtil.getNullableString
 import q19.kenes.widget.util.JsonUtil.jsonObject
+import q19.kenes.widget.util.JsonUtil.optJSONArrayAsList
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.findEnumBy
@@ -391,8 +388,16 @@ internal class SocketClient constructor(
         for (i in 0 until categoryListJson.length()) {
             (categoryListJson[i] as? JSONObject?)?.let { categoryJson ->
 //                debug(TAG, "categoryJson: $categoryJson")
-                val parsed = parse(categoryJson)
-                currentCategories.add(parsed)
+                val category = Category(
+                    id = categoryJson.optLong("id"),
+                    title = categoryJson.optString("title").trim(),
+                    lang = categoryJson.optInt("lang"),
+                    parentId = categoryJson.getNullableLong("parent_id"),
+                    photo = categoryJson.optString("photo"),
+                    responses = categoryJson.optJSONArrayAsList("responses"),
+                    config = Category.Config(categoryJson.optJSONObject("config")?.optInt("order") ?: 0)
+                )
+                currentCategories.add(category)
             }
         }
 

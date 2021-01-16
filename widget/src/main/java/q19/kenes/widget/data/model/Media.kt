@@ -1,11 +1,13 @@
 package q19.kenes.widget.data.model
 
 import android.content.Context
+import androidx.annotation.Keep
 import androidx.annotation.StringRes
 import q19.kenes.widget.util.FileUtil.getRootDirPath
 import q19.kenes_widget.R
 import java.io.File
 
+@Keep
 internal data class Media constructor(
     var imageUrl: String? = null,
     var audioUrl: String? = null,

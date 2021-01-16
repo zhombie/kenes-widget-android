@@ -1,5 +1,8 @@
 package q19.kenes.widget.data.model
 
+import androidx.annotation.Keep
+
+@Keep
 internal data class RatingButton constructor(
     var title: String?,
     var payload: String? = null

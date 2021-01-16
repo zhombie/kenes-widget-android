@@ -3,12 +3,11 @@ package q19.kenes.widget.data.model
 import android.content.res.Resources
 import android.graphics.drawable.GradientDrawable
 import androidx.annotation.ColorInt
+import androidx.annotation.Keep
 import androidx.core.graphics.ColorUtils
-import org.json.JSONObject
 import q19.kenes_widget.R
-import q19.kenes.widget.util.JsonUtil.getNullableLong
-import q19.kenes.widget.util.JsonUtil.optJSONArrayAsList
 
+@Keep
 internal data class Category constructor(
     val id: Long,
     val title: String,
@@ -40,20 +39,23 @@ internal data class Category constructor(
             }
     }
 
-    data class Background(
+    @Keep
+    data class Background constructor(
         val cornerRadius: Float,
         val stroke: Stroke,
         @ColorInt val color: Int
     ) {
 
-        class Stroke(
+        @Keep
+        data class Stroke constructor(
             val width: Int,
             @ColorInt var color: Int
         )
 
     }
 
-    data class Config(
+    @Keep
+    data class Config constructor(
         val order: Int
     )
 
@@ -98,17 +100,4 @@ internal data class Category constructor(
         return super.hashCode()
     }
 
-}
-
-
-internal fun parse(jsonObject: JSONObject): Category {
-    return Category(
-        id = jsonObject.optLong("id"),
-        title = jsonObject.optString("title").trim(),
-        lang = jsonObject.optInt("lang"),
-        parentId = jsonObject.getNullableLong("parent_id"),
-        photo = jsonObject.optString("photo"),
-        responses = jsonObject.optJSONArrayAsList("responses"),
-        config = Category.Config(jsonObject.optJSONObject("config")?.optInt("order") ?: 0)
-    )
 }

@@ -1,10 +1,12 @@
 package q19.kenes.widget.data.model
 
 import androidx.annotation.DrawableRes
+import androidx.annotation.Keep
 import org.json.JSONObject
-import q19.kenes_widget.R
 import q19.kenes.widget.util.JsonUtil.jsonObject
+import q19.kenes_widget.R
 
+@Keep
 internal data class Configs constructor(
     val booleans: Booleans = Booleans(),
     val opponent: Opponent? = null,
@@ -15,6 +17,7 @@ internal data class Configs constructor(
     val callScopes: List<CallScope>? = null
 ) {
 
+    @Keep
     data class Opponent constructor(
         var name: String? = null,
         var secondName: String? = null,
@@ -23,6 +26,7 @@ internal data class Configs constructor(
         @DrawableRes
         val drawableRes: Int = UNDEFINED_DRAWABLE_RES
     ) {
+
         companion object {
             private const val UNDEFINED_DRAWABLE_RES = -1
 
@@ -45,11 +49,13 @@ internal data class Configs constructor(
         }
     }
 
+    @Keep
     data class Contact constructor(
         var key: String,
         var value: String
     ) {
 
+        @Keep
         enum class Social constructor(
             val key: String,
             val title: String,
@@ -81,6 +87,7 @@ internal data class Configs constructor(
 
     }
 
+    @Keep
     data class WorkingHours constructor(
         val messageKk: String? = null,
         val messageRu: String? = null
@@ -101,15 +108,18 @@ internal data class Configs constructor(
 
     }
 
+    @Keep
     data class InfoBlock constructor(
         val title: I18NString,
         val description: I18NString,
         val items: List<Item>
     )
 
+    @Keep
     data class I18NString constructor(
         val value: JSONObject
     ) {
+
         companion object {
             fun JSONObject.parse(): I18NString {
                 return I18NString(this)
@@ -130,6 +140,7 @@ internal data class Configs constructor(
         }
     }
 
+    @Keep
     data class Item constructor(
         val icon: String?,
         val text: String,
@@ -137,6 +148,7 @@ internal data class Configs constructor(
         val action: String
     )
 
+    @Keep
     data class Booleans constructor(
         val isChabotEnabled: Boolean = false,
         val isAudioCallEnabled: Boolean = false,
@@ -147,6 +159,7 @@ internal data class Configs constructor(
         val isServicesEnabled: Boolean = false
     )
 
+    @Keep
     data class CallScope constructor(
         val id: Long,
         val type: Type? = null,
@@ -215,16 +228,19 @@ internal data class Configs constructor(
 
         }
 
+        @Keep
         enum class Type constructor(val value: String) {
             FOLDER("folder"),
             LINK("link")
         }
 
+        @Keep
         enum class Action constructor(val value: String) {
             AUDIO_CALL("audio_call"),
             VIDEO_CALL("video_call")
         }
 
+        @Keep
         enum class ChatType constructor(val value: String) {
             AUDIO("audio"),
             VIDEO("video"),
@@ -232,6 +248,7 @@ internal data class Configs constructor(
             FORM("form")
         }
 
+        @Keep
         data class Details constructor(
             val order: Int
         )
