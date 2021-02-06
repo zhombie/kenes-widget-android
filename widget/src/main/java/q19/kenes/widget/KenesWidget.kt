@@ -2,7 +2,9 @@ package q19.kenes.widget
 
 import android.content.Context
 import android.content.Intent
-import q19.kenes.widget.core.locale.LanguageSetting
+import kz.q19.common.locale.core.LanguageSetting
+import kz.q19.domain.model.language.Language.Companion.KAZAKH
+import kz.q19.domain.model.language.Language.Companion.RUSSIAN
 import q19.kenes.widget.ui.presentation.KenesWidgetActivity
 
 object KenesWidget {
@@ -52,8 +54,8 @@ object KenesWidget {
 
         fun build(context: Context): Intent {
             val language = when (language) {
-                Language.KK -> q19.kenes.widget.data.model.Language.KAZAKH
-                Language.RU -> q19.kenes.widget.data.model.Language.RUSSIAN
+                Language.KK -> KAZAKH
+                Language.RU -> RUSSIAN
                 else -> null
             }
             if (language?.locale != null) {

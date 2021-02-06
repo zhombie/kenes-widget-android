@@ -10,11 +10,11 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import q19.kenes_widget.R
 import q19.kenes.widget.ui.presentation.model.BottomNavigation
 import q19.kenes.widget.util.DebouncedOnClickListener
 import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.getCompoundDrawableOnTop
+import q19.kenes_widget.R
 
 internal class BottomNavigationView @JvmOverloads constructor(
     context: Context,
@@ -24,12 +24,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     companion object {
-        private const val TAG = "BottomNavigationView"
+        private val TAG = BottomNavigationView::class.java.simpleName
     }
 
     private var bottomNavigationView: LinearLayout? = null
     private var homeButton: AppCompatButton? = null
-    private var operatorCallButton: AppCompatButton? = null
+    private var callButton: AppCompatButton? = null
     private var servicesButton: AppCompatButton? = null
     private var infoButton: AppCompatButton? = null
 
@@ -54,7 +54,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
         bottomNavigationView = view.findViewById(R.id.bottomNavigationView)
         homeButton = view.findViewById(R.id.homeButton)
-        operatorCallButton = view.findViewById(R.id.operatorCallButton)
+        callButton = view.findViewById(R.id.callButton)
         servicesButton = view.findViewById(R.id.servicesButton)
         infoButton = view.findViewById(R.id.infoButton)
     }
@@ -62,7 +62,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     fun getFirstNavButton(): BottomNavigation? {
         return when {
             isNavButtonFirst(homeButton) -> BottomNavigation.HOME
-            isNavButtonFirst(operatorCallButton) -> BottomNavigation.OPERATOR_CALL
+            isNavButtonFirst(callButton) -> BottomNavigation.CALL
             isNavButtonFirst(servicesButton) -> BottomNavigation.SERVICES
             isNavButtonFirst(infoButton) -> BottomNavigation.INFO
             else -> null
@@ -76,7 +76,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     fun setNavButtonActive(bottomNavigation: BottomNavigation) {
         when (bottomNavigation) {
             BottomNavigation.HOME -> setActiveNavButton(homeButton)
-            BottomNavigation.OPERATOR_CALL -> setActiveNavButton(operatorCallButton)
+            BottomNavigation.CALL -> setActiveNavButton(callButton)
             BottomNavigation.SERVICES -> setActiveNavButton(servicesButton)
             BottomNavigation.INFO -> setActiveNavButton(infoButton)
         }
@@ -164,9 +164,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
         when (bottomNavigation) {
             BottomNavigation.HOME ->
                 showNavButton(homeButton, 0, listener)
-            BottomNavigation.OPERATOR_CALL -> {
+            BottomNavigation.CALL -> {
                 val index = navButtons.size / 2
-                showNavButton(operatorCallButton, index, listener)
+                showNavButton(callButton, index, listener)
             }
             BottomNavigation.SERVICES -> {
                 val index = navButtons.size / 2
@@ -186,7 +186,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         Logger.debug(TAG, "hideNavButton() -> bottomNavigation: $bottomNavigation")
         when (bottomNavigation) {
             BottomNavigation.HOME -> hideNavButton(homeButton)
-            BottomNavigation.OPERATOR_CALL -> hideNavButton(operatorCallButton)
+            BottomNavigation.CALL -> hideNavButton(callButton)
             BottomNavigation.SERVICES -> hideNavButton(servicesButton)
             BottomNavigation.INFO -> hideNavButton(infoButton)
         }
@@ -216,7 +216,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    interface Callback {
+    fun interface Callback {
         fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation)
     }
 

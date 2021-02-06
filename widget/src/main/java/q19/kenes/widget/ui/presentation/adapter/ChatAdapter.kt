@@ -2,7 +2,6 @@ package q19.kenes.widget.ui.presentation.adapter
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.text.Spannable
@@ -19,18 +18,18 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes_widget.R
-import q19.kenes.widget.core.errors.ViewHolderViewTypeException
-import q19.kenes.widget.data.model.Attachment
-import q19.kenes.widget.data.model.Category
-import q19.kenes.widget.data.model.Media
-import q19.kenes.widget.data.model.Message
+import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.domain.model.file.File
+import kz.q19.domain.model.keyboard.button.Button
+import kz.q19.domain.model.media.Media
+import kz.q19.domain.model.message.Category
+import kz.q19.domain.model.message.Message
+import kz.q19.utils.textview.removeCompoundDrawables
 import q19.kenes.widget.ui.components.base.HtmlTextView
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.inflate
 import q19.kenes.widget.util.loadRoundedImage
-import q19.kenes.widget.util.removeCompoundDrawables
-import q19.kenes.widget.util.showPendingFileDownloadAlert
+import q19.kenes_widget.R
 import java.util.concurrent.TimeUnit
 
 internal class ChatAdapter constructor(
@@ -38,7 +37,7 @@ internal class ChatAdapter constructor(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TAG = "ChatAdapter"
+        private val TAG = ChatAdapter::class.java.simpleName
 
         private val LAYOUT_OURGOING_MESSAGE = R.layout.kenes_cell_outgoing_message
         private val LAYOUT_INCOMING_MESSAGE = R.layout.kenes_cell_incoming_message
@@ -109,8 +108,8 @@ internal class ChatAdapter constructor(
         return isRemoved
     }
 
-    fun setDownloading(downloadStatus: Message.File.DownloadStatus, itemPosition: Int) {
-        getItem(itemPosition).file.downloadStatus = downloadStatus
+    fun setDownloading(downloadStatus: File.DownloadStatus, itemPosition: Int) {
+        getItem(itemPosition).media?.file?.downloadStatus = downloadStatus
         notifyItemChanged(itemPosition)
     }
 
@@ -157,8 +156,8 @@ internal class ChatAdapter constructor(
 //        debug(TAG, "setProgress -> progress: $progress, fileType: $fileType, itemPosition: $itemPosition")
 
         getItem(itemPosition).apply {
-            file.progress = progress
-            file.type = fileType
+            media?.file?.progress = progress
+//            media?.file?.file?.type = fileType
         }
         notifyItemChanged(itemPosition, Bundle().apply {
             putInt(KEY_PROGRESS, progress)
@@ -177,7 +176,7 @@ internal class ChatAdapter constructor(
                 Message.Type.OUTGOING ->
                     LAYOUT_OURGOING_MESSAGE
                 Message.Type.INCOMING -> {
-                    if (item.replyMarkup != null) {
+                    if (item.keyboard != null) {
                         LAYOUT_MESSAGE_KEYBOARD
                     } else {
                         LAYOUT_INCOMING_MESSAGE
@@ -222,7 +221,7 @@ internal class ChatAdapter constructor(
             Message.Type.OUTGOING ->
                 if (holder is OutgoingMessageViewHolder) holder.bind(message)
             Message.Type.INCOMING -> {
-                if (message.replyMarkup != null) {
+                if (message.keyboard != null) {
                     if (holder is MessageKeyboardViewHolder) holder.bind(message)
                 } else {
                     if (holder is IncomingMessageViewHolder) holder.bind(message)
@@ -257,11 +256,11 @@ internal class ChatAdapter constructor(
                 debug(TAG, "onBindViewHolder -> fileType: $fileType, progress: $progress")
 
                 if (fileType == "media") {
-                    holder.setMediaDownloadProgress(
-                        message.media,
-                        message.file.downloadStatus,
-                        payload.getInt(KEY_PROGRESS)
-                    )
+//                    holder.setMediaDownloadProgress(
+//                        message.media,
+//                        message.file.downloadStatus,
+//                        payload.getInt(KEY_PROGRESS)
+//                    )
                 } else if (fileType == "audio") {
                     when (payload.getString(KEY_ACTION)) {
                         "setStartTime" ->
@@ -305,18 +304,18 @@ internal class ChatAdapter constructor(
                 imageView?.visibility = View.GONE
                 mediaView?.visibility = View.GONE
             } else {
-                if (media.isImage) {
+                if (media.type == Media.Type.IMAGE) {
                     imageView?.visibility = View.VISIBLE
 
                     imageView?.loadRoundedImage(
-                        media.imageUrl,
+                        media.urlPath,
                         itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     )
 
                     imageView?.setOnClickListener {
                         callback?.onImageClicked(
                             imageView,
-                            media.imageUrl ?: return@setOnClickListener
+                            media.urlPath ?: return@setOnClickListener
                         )
                     }
 
@@ -326,14 +325,14 @@ internal class ChatAdapter constructor(
                     imageView?.visibility = View.GONE
                 }
 
-                if (media.isFile) {
+                if (media.type == Media.Type.FILE) {
                     val isEmptyMediaName = context.bindMedia(media)
 
                     mediaView?.setOnClickListener {
-                        if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
-                            context.showPendingFileDownloadAlert {}
-                            return@setOnClickListener
-                        }
+//                        if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
+//                            context.showPendingFileDownloadAlert {}
+//                            return@setOnClickListener
+//                        }
                         callback?.onMediaClicked(media, absoluteAdapterPosition)
                     }
 
@@ -350,7 +349,9 @@ internal class ChatAdapter constructor(
                 }
             }
 
-            if (message.text.isNotBlank()) {
+            if (message.text.isNullOrBlank()) {
+                textView?.visibility = View.GONE
+            } else {
                 textView?.text = message.text
                 timeView?.text = message.time
 
@@ -359,13 +360,11 @@ internal class ChatAdapter constructor(
 
                 textView?.visibility = View.VISIBLE
                 timeView?.visibility = View.VISIBLE
-            } else {
-                textView?.visibility = View.GONE
             }
         }
 
         private fun Context.bindMedia(media: Media): Boolean {
-            var title = media.hash ?: ""
+            var title = media.title ?: ""
 
             if (title.length > 25) {
                 val lastIndex = title.length
@@ -375,13 +374,13 @@ internal class ChatAdapter constructor(
             val spannableStringBuilder = SpannableStringBuilder()
                 .append(title)
 
-            if (media.fileTypeStringRes > 0) {
-                spannableStringBuilder.append("\n")
-                spannableStringBuilder.append("(" + getString(media.fileTypeStringRes) + ")")
-                spannableStringBuilder.append(" - ")
-            } else {
-                spannableStringBuilder.append("\n")
-            }
+//            if (media.fileTypeStringRes > 0) {
+//                spannableStringBuilder.append("\n")
+//                spannableStringBuilder.append("(" + getString(media.fileTypeStringRes) + ")")
+//                spannableStringBuilder.append(" - ")
+//            } else {
+//                spannableStringBuilder.append("\n")
+//            }
 
             iconView?.setImageResource(R.drawable.kenes_ic_document_white)
 
@@ -443,17 +442,17 @@ internal class ChatAdapter constructor(
                 imageView?.visibility = View.GONE
                 mediaView?.visibility = View.GONE
             } else {
-                if (media.isImage) {
+                if (media.type == Media.Type.IMAGE) {
                     imageView?.visibility = View.VISIBLE
 
                     imageView?.loadRoundedImage(
-                        media.imageUrl,
+                        media.urlPath,
                         itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     )
 
                     imageView?.setOnClickListener {
                         callback?.onImageClicked(
-                            imageView, media.imageUrl ?: return@setOnClickListener
+                            imageView, media.urlPath ?: return@setOnClickListener
                         )
                     }
 
@@ -464,8 +463,10 @@ internal class ChatAdapter constructor(
                 }
 
                 when {
-                    media.isAudio -> {
-                        val isBound = bindAudio(message.file.downloadStatus)
+                    media.type == Media.Type.AUDIO -> {
+//                        val isBound = bindAudio(message.file.downloadStatus)
+
+                        val isBound = false
 
                         if (isBound) {
                             mediaNameView?.visibility = View.GONE
@@ -483,24 +484,25 @@ internal class ChatAdapter constructor(
                         }
 
                         mediaView?.setOnClickListener {
-                            if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
-                                context.showPendingFileDownloadAlert {}
-                                return@setOnClickListener
-                            }
+//                            if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
+//                                context.showPendingFileDownloadAlert {}
+//                                return@setOnClickListener
+//                            }
                             callback?.onMediaClicked(media, absoluteAdapterPosition)
                         }
                     }
-                    media.isFile -> {
-                        val isEmptyMediaName = context.bindFile(media, message.file.downloadStatus)
+                    media.type == Media.Type.FILE -> {
+//                        val isEmptyMediaName = context.bindFile(media, message.file.downloadStatus)
 
                         mediaView?.setOnClickListener {
-                            if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
-                                context.showPendingFileDownloadAlert {}
-                                return@setOnClickListener
-                            }
+//                            if (message.file.type == "media" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
+//                                context.showPendingFileDownloadAlert {}
+//                                return@setOnClickListener
+//                            }
                             callback?.onMediaClicked(media, absoluteAdapterPosition)
                         }
 
+                        val isEmptyMediaName = false
                         if (!isEmptyMediaName) {
                             mediaNameView?.visibility = View.VISIBLE
 
@@ -527,7 +529,9 @@ internal class ChatAdapter constructor(
                 }
             }
 
-            if (message.text.isNotBlank()) {
+            if (message.text.isNullOrBlank()) {
+                textView?.visibility = View.GONE
+            } else {
                 textView?.setHtmlText(message.htmlText) { _, url ->
                     debug(TAG, "OnClick: $url")
                     callback?.onUrlInTextClicked(url)
@@ -540,24 +544,22 @@ internal class ChatAdapter constructor(
 
                 textView?.visibility = View.VISIBLE
                 timeView?.visibility = View.VISIBLE
-            } else {
-                textView?.visibility = View.GONE
             }
 
             val attachments = message.attachments
             if (!attachments.isNullOrEmpty()) {
                 val attachment = attachments.first()
 
-                if (attachment.type == "image") {
+                if (attachment.type == Media.Type.IMAGE) {
                     imageView?.loadRoundedImage(
-                        attachment.url,
+                        attachment.urlPath,
                         itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
                     )
                     imageView?.visibility = View.VISIBLE
 
                     imageView?.setOnClickListener {
                         callback?.onImageClicked(
-                            imageView, attachment.url ?: return@setOnClickListener
+                            imageView, attachment.urlPath ?: return@setOnClickListener
                         )
                     }
 
@@ -565,10 +567,10 @@ internal class ChatAdapter constructor(
                     attachmentView?.visibility = View.GONE
                 } else {
                     attachmentView?.setOnClickListener {
-                        if (message.file.type == "attachment" && message.file.downloadStatus == Message.File.DownloadStatus.PENDING) {
-                            context.showPendingFileDownloadAlert {}
-                            return@setOnClickListener
-                        }
+//                        if (message.media?.file.type == "attachment" && message.media?.file?.downloadStatus == File.DownloadStatus.PENDING) {
+//                            context.showPendingFileDownloadAlert {}
+//                            return@setOnClickListener
+//                        }
                         callback?.onAttachmentClicked(attachment, absoluteAdapterPosition)
                     }
 
@@ -584,12 +586,12 @@ internal class ChatAdapter constructor(
 
         fun setMediaDownloadProgress(
             media: Media?,
-            downloadStatus: Message.File.DownloadStatus,
+            downloadStatus: File.DownloadStatus,
             progress: Int
         ) {
             progressBar?.progress = if (progress == 0 || progress == 100) 0 else progress
 
-            if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
+            if (downloadStatus == File.DownloadStatus.COMPLETED) {
                 media?.let { itemView.context.bindFile(it, downloadStatus) }
             }
         }
@@ -646,8 +648,8 @@ internal class ChatAdapter constructor(
             return formatToDigitalClock(current.toLong()) + " / " + formatToDigitalClock(end.toLong())
         }
 
-        private fun bindAudio(downloadStatus: Message.File.DownloadStatus): Boolean {
-            if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
+        private fun bindAudio(downloadStatus: File.DownloadStatus): Boolean {
+            if (downloadStatus == File.DownloadStatus.COMPLETED) {
                 progressBar?.progress = 0
 
                 iconView?.setImageResource(R.drawable.kenes_ic_play)
@@ -663,9 +665,9 @@ internal class ChatAdapter constructor(
 
         private fun Context.bindFile(
             media: Media,
-            downloadStatus: Message.File.DownloadStatus
+            downloadStatus: File.DownloadStatus
         ): Boolean {
-            var title = media.hash ?: ""
+            var title = media.title ?: ""
 
             if (title.length > 25) {
                 val lastIndex = title.length
@@ -675,15 +677,15 @@ internal class ChatAdapter constructor(
             val spannableStringBuilder = SpannableStringBuilder()
                 .append(title)
 
-            if (media.fileTypeStringRes > 0) {
-                spannableStringBuilder.append("\n")
-                spannableStringBuilder.append("(" + getString(media.fileTypeStringRes) + ")")
-                spannableStringBuilder.append(" - ")
-            } else {
-                spannableStringBuilder.append("\n")
-            }
+//            if (media.fileTypeStringRes > 0) {
+//                spannableStringBuilder.append("\n")
+//                spannableStringBuilder.append("(" + getString(media.fileTypeStringRes) + ")")
+//                spannableStringBuilder.append(" - ")
+//            } else {
+//                spannableStringBuilder.append("\n")
+//            }
 
-            if (downloadStatus == Message.File.DownloadStatus.COMPLETED) {
+            if (downloadStatus == File.DownloadStatus.COMPLETED) {
                 progressBar?.progress = 0
 
                 iconView?.setImageResource(R.drawable.kenes_ic_document_white)
@@ -746,8 +748,8 @@ internal class ChatAdapter constructor(
 
             timeView?.text = message.time
 
-            val replyMarkup = message.replyMarkup
-            if (replyMarkup != null) {
+            val keyboard = message.keyboard
+            if (keyboard != null) {
                 if (inlineKeyboardAdapter == null) {
                     inlineKeyboardAdapter = InlineKeyboardAdapter {
                         callback?.onReplyMarkupButtonClicked(it)
@@ -760,7 +762,7 @@ internal class ChatAdapter constructor(
 
                 recyclerView?.addItemDecoration(itemDecoration)
 
-                val columnsCount = replyMarkup.getColumnsCount()
+                val columnsCount = keyboard.getColumnsCount()
 
                 debug(TAG, "columnsCount: $columnsCount")
 
@@ -785,7 +787,7 @@ internal class ChatAdapter constructor(
                 recyclerView?.layoutManager = layoutManager
             }
 
-            inlineKeyboardAdapter?.replyMarkup = replyMarkup
+            inlineKeyboardAdapter?.replyMarkup = keyboard
         }
 
     }
@@ -848,60 +850,6 @@ internal class ChatAdapter constructor(
         }
     }
 
-    @Deprecated("Old way with horizontal scroll")
-    private inner class OldCategoryViewHolder(view: View) : RecyclerView.ViewHolder(view),
-        OldCategoryAdapter.Callback {
-        private val titleView = view.findViewById<TextView>(R.id.titleView)
-        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-//        private val showAllButton = view.findViewById<AppCompatTextView>(R.id.showAllButton)
-
-        private val categoryAdapter: OldCategoryAdapter
-        private val layoutManager =
-            LinearLayoutManager(itemView.context, LinearLayoutManager.HORIZONTAL, false)
-
-        init {
-            recyclerView?.layoutManager = layoutManager
-            categoryAdapter = OldCategoryAdapter(this)
-            recyclerView?.adapter = categoryAdapter
-            recyclerView?.addItemDecoration(ItemDecoration(itemView.context))
-        }
-
-        fun bind(message: Message) {
-            val category = message.category
-            if (category != null) {
-                titleView?.text = category.title
-
-                categoryAdapter.category = category
-                categoryAdapter.notifyDataSetChanged()
-
-//                showAllButton?.setOnClickListener {
-//                    callback?.onShowAllCategoryChildClicked(category)
-//                }
-            }
-        }
-
-        override fun onChildClicked(category: Category) {
-            callback?.onCategoryChildClicked(category)
-        }
-
-        private inner class ItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-
-            private var horizontalSpacing: Int =
-                context.resources.getDimensionPixelOffset(R.dimen.kenes_category_horizontal_spacing)
-
-            override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State
-            ) {
-                super.getItemOffsets(outRect, view, parent, state)
-
-                outRect.right = horizontalSpacing
-            }
-        }
-    }
-
     private inner class CrossChildrenViewHolder(view: View) : RecyclerView.ViewHolder(view),
         CategoryAdapter.Callback {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
@@ -931,7 +879,7 @@ internal class ChatAdapter constructor(
 
                 // Add empty value, in order to make clear, that there is no children
                 if (category.children.isNullOrEmpty()) {
-                    category.children.add(Category.EMPTY)
+//                    category.children.add(Category.EMPTY)
                 }
                 adapter.category = category
 
@@ -963,18 +911,21 @@ internal class ChatAdapter constructor(
             val category = message.category
 
             if (category != null) {
-                if (category.title.isNotBlank()) {
+                if (category.title.isNullOrBlank()) {
+                    titleView?.visibility = View.GONE
+                } else {
                     titleView?.text = category.title
                     titleView?.visibility = View.VISIBLE
 
                     titleView?.setOnClickListener {
                         callback?.onGoBackClicked(category)
                     }
-                } else {
-                    titleView?.visibility = View.GONE
                 }
 
-                if (message.text.isNotBlank()) {
+                if (message.text.isNullOrBlank()) {
+                    textView?.visibility = View.GONE
+                    timeView?.visibility = View.GONE
+                } else {
                     textView?.setHtmlText(message.htmlText) { _, url ->
                         debug(TAG, "OnClick: $url")
                         callback?.onUrlInTextClicked(url)
@@ -987,9 +938,6 @@ internal class ChatAdapter constructor(
 
                     textView?.visibility = View.VISIBLE
                     timeView?.visibility = View.VISIBLE
-                } else {
-                    textView?.visibility = View.GONE
-                    timeView?.visibility = View.GONE
                 }
 
                 val attachments = message.attachments
@@ -1034,9 +982,9 @@ internal class ChatAdapter constructor(
         fun onImageLoadCompleted()
 
         fun onMediaClicked(media: Media, itemPosition: Int)
-        fun onAttachmentClicked(attachment: Attachment, itemPosition: Int)
+        fun onAttachmentClicked(attachment: Media, itemPosition: Int)
 
-        fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button)
+        fun onReplyMarkupButtonClicked(button: Button)
 
         fun onStopTrackingTouch(progress: Int, itemPosition: Int)
     }

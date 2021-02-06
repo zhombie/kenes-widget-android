@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import org.webrtc.SurfaceViewRenderer
+import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes_widget.R
 
 internal class VideoDialogView @JvmOverloads constructor(

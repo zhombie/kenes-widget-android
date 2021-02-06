@@ -10,11 +10,12 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes_widget.R
-import q19.kenes.widget.data.model.Message
+import kz.q19.domain.model.keyboard.Keyboard
+import kz.q19.domain.model.keyboard.button.Button
 import q19.kenes.widget.ui.presentation.adapter.InlineKeyboardAdapterItemDecoration
 import q19.kenes.widget.ui.util.buildRippleDrawable
 import q19.kenes.widget.util.inflate
+import q19.kenes_widget.R
 
 internal class KeyboardView @JvmOverloads constructor(
     context: Context,
@@ -57,38 +58,38 @@ internal class KeyboardView @JvmOverloads constructor(
         )
     }
 
-    fun setReplyMarkup(replyMarkup: Message.ReplyMarkup?) {
+    fun setReplyMarkup(replyMarkup: Keyboard?) {
         keyboardAdapter?.replyMarkup = replyMarkup
     }
 
     interface Callback {
-        fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button)
+        fun onReplyMarkupButtonClicked(button: Button)
     }
 
 }
 
 
 private class KeyboardAdapter(
-    private val callback: (button: Message.ReplyMarkup.Button) -> Unit
+    private val callback: (button: Button) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val LAYOUT_KEYBOARD_BUTTON = R.layout.kenes_cell_message_keyboard_button
     }
 
-    var replyMarkup: Message.ReplyMarkup? = null
+    var replyMarkup: Keyboard? = null
         set(value) {
             field = value
             buttons = field?.getAllButtons() ?: emptyList()
         }
 
-    private var buttons: List<Message.ReplyMarkup.Button> = emptyList()
+    private var buttons: List<Button> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    private fun getItem(position: Int): Message.ReplyMarkup.Button {
+    private fun getItem(position: Int): Button {
         return buttons[position]
     }
 
@@ -107,7 +108,7 @@ private class KeyboardAdapter(
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val textView = view.findViewById<TextView>(R.id.textView)
 
-        fun bind(button: Message.ReplyMarkup.Button) {
+        fun bind(button: Button) {
             textView.text = button.text
 
             itemView.background = buildRippleDrawable(itemView.context)

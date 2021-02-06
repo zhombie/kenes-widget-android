@@ -6,10 +6,10 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
-import q19.kenes_widget.R
+import kz.q19.utils.textview.removeCompoundDrawables
+import kz.q19.utils.textview.showCompoundDrawableOnfLeft
 import q19.kenes.widget.util.ColorStateListBuilder
-import q19.kenes.widget.util.removeCompoundDrawables
-import q19.kenes.widget.util.showCompoundDrawableOnfLeft
+import q19.kenes_widget.R
 
 internal class TitleView @JvmOverloads constructor(
     context: Context,

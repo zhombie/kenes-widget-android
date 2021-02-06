@@ -40,7 +40,7 @@
             android:text="@string/kenes_services" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/operatorCallButton"
+            android:id="@+id/callButton"
             style="@style/BottomNavigationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

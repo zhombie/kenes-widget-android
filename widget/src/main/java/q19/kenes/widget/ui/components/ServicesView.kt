@@ -16,16 +16,15 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes.widget.ui.util.*
-import q19.kenes_widget.R
-import q19.kenes.widget.core.errors.ViewHolderViewTypeException
-import q19.kenes.widget.data.model.Configs
-import q19.kenes.widget.data.model.Language
-import q19.kenes.widget.data.model.Service
+import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.language.Language
+import kz.q19.utils.textview.removeCompoundDrawables
 import q19.kenes.widget.ui.components.base.TitleView
+import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.inflate
-import q19.kenes.widget.util.removeCompoundDrawables
+import q19.kenes_widget.R
 
 internal class ServicesView @JvmOverloads constructor(
     context: Context,
@@ -54,8 +53,8 @@ internal class ServicesView @JvmOverloads constructor(
     }
 
     fun showServices(
-        parentService: Service?,
-        services: List<Service>,
+        parentService: Configs.Service?,
+        services: List<Configs.Service>,
         language: Language
     ) {
         if (titleView == null) {
@@ -145,7 +144,7 @@ internal class ServicesView @JvmOverloads constructor(
 
         if (adapter == null) {
             adapter = ServicesAdapter(language, object : ServicesAdapter.Callback {
-                override fun onServiceClicked(service: Service) {
+                override fun onServiceClicked(service: Configs.Service) {
                     callback?.onServiceClicked(service)
                 }
 
@@ -171,7 +170,7 @@ internal class ServicesView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onServiceClicked(service: Service)
+        fun onServiceClicked(service: Configs.Service)
         fun onServiceBackClicked()
     }
 
@@ -192,7 +191,7 @@ private class ServicesAdapter(
         const val VIEW_TYPE_FOOTER = 101
     }
 
-    var services: List<Service> = emptyList()
+    var services: List<Configs.Service> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -218,7 +217,7 @@ private class ServicesAdapter(
 
     override fun getItemCount(): Int = services.size + if (isFooterEnabled) 1 else 0
 
-    fun getItem(position: Int): Service? {
+    fun getItem(position: Int): Configs.Service? {
         if (position < 0) {
             return null
         }
@@ -246,13 +245,13 @@ private class ServicesAdapter(
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
-        fun bind(service: Service) {
+        fun bind(service: Configs.Service) {
             textView.text = service.title.get(language)
 
             debug(TAG, "service: $service")
 
             when (service.type) {
-                Configs.CallScope.Type.FOLDER -> {
+                Configs.Nestable.Type.FOLDER -> {
                     imageView.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                     imageView.visibility = View.VISIBLE
 
@@ -265,7 +264,7 @@ private class ServicesAdapter(
 
                     itemView.setOnClickListener { callback.onServiceClicked(service) }
                 }
-                Configs.CallScope.Type.LINK -> {
+                Configs.Nestable.Type.LINK -> {
                     imageView.visibility = View.GONE
 
                     textView.removeCompoundDrawables()
@@ -311,7 +310,7 @@ private class ServicesAdapter(
     }
 
     interface Callback {
-        fun onServiceClicked(service: Service)
+        fun onServiceClicked(service: Configs.Service)
         fun onServiceBackClicked()
     }
 

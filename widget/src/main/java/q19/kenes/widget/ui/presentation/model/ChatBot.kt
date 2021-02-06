@@ -1,6 +1,6 @@
 package q19.kenes.widget.ui.presentation.model
 
-import q19.kenes.widget.data.model.Category
+import kz.q19.domain.model.message.Category
 import q19.kenes.widget.util.Logger.debug
 
 internal class ChatBot {
@@ -59,7 +59,7 @@ internal class ChatBot {
 internal class ObservableList : ArrayList<Category>() {
 
     companion object {
-        private const val TAG = "ObservableList"
+        private val TAG = ObservableList::class.java.simpleName
     }
 
     var callback: Callback? = null
@@ -72,11 +72,12 @@ internal class ObservableList : ArrayList<Category>() {
         val added = super.add(element)
 
         if (callback != null) {
-            val basic = filter { it.parentId == null }
+            val basic = filter { it.parentId == Category.NO_PARENT_ID }
 
+            val children = mutableListOf<Category>()
             basic.forEach {
                 if (it.id == element.parentId && !it.children.contains(element)) {
-                    it.children.add(element)
+//                    it.children.add(element)
                 }
             }
 
@@ -109,7 +110,7 @@ internal class ObservableList : ArrayList<Category>() {
             for (element in elements) {
                 basic.forEach {
                     if (it.id == element.parentId && !it.children.contains(element)) {
-                        it.children.add(element)
+//                        it.children.add(element)
                     }
                 }
             }

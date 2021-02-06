@@ -15,10 +15,10 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.language.Language
+import kz.q19.utils.textview.showCompoundDrawableOnfLeft
 import q19.kenes_widget.R
-import q19.kenes.widget.data.model.Configs
-import q19.kenes.widget.data.model.Language
-import q19.kenes.widget.util.showCompoundDrawableOnfLeft
 
 internal class InfoView @JvmOverloads constructor(
     context: Context,
@@ -39,12 +39,12 @@ internal class InfoView @JvmOverloads constructor(
         recyclerView = view.findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = MenuAdapter(object : MenuAdapter.Callback {
-            override fun onPhoneNumberClicked(phoneNumber: String) {
-                callback?.onPhoneNumberClicked(phoneNumber)
+            override fun onPhoneNumberClicked(phoneNumber: Configs.Contacts.PhoneNumber) {
+                callback?.onPhoneNumberClicked(phoneNumber.value)
             }
 
-            override fun onSocialClicked(contact: Configs.Contact) {
-                callback?.onSocialClicked(contact)
+            override fun onSocialClicked(social: Configs.Contacts.Social) {
+                callback?.onSocialClicked(social)
             }
 
             override fun onLanguageChangeClicked(language: Language) {
@@ -55,13 +55,13 @@ internal class InfoView @JvmOverloads constructor(
         recyclerView.adapter = adapter
     }
 
-    fun setContacts(contacts: List<Configs.Contact>) {
-        adapter.contacts = contacts
+    fun setContacts(socials: List<Configs.Contacts.Social>) {
+        adapter.socials = socials
         adapter.notifyDataSetChanged()
     }
 
-    fun setPhones(phones: List<String>) {
-        adapter.phones = phones
+    fun setPhones(phoneNumbers: List<Configs.Contacts.PhoneNumber>) {
+        adapter.phoneNumbers = phoneNumbers
         adapter.notifyDataSetChanged()
     }
 
@@ -72,14 +72,14 @@ internal class InfoView @JvmOverloads constructor(
 
     interface Callback {
         fun onPhoneNumberClicked(phoneNumber: String)
-        fun onSocialClicked(contact: Configs.Contact)
+        fun onSocialClicked(contact: Configs.Contacts.Social)
         fun onLanguageChangeClicked(language: Language)
     }
 
 }
 
 
-private class MenuAdapter(
+private class MenuAdapter constructor(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -87,11 +87,29 @@ private class MenuAdapter(
         private val LAYOUT_MENU = R.layout.kenes_cell_menu
     }
 
-    var phones: List<String> = emptyList()
-    var contacts: List<Configs.Contact> = emptyList()
+    var socials = emptyList<Configs.Contacts.Social>()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    var phoneNumbers = emptyList<Configs.Contacts.PhoneNumber>()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
     var language: Language = Language.DEFAULT
 
-    override fun getItemCount(): Int = contacts.size + phones.size + 1
+    private fun getSocial(position: Int): Configs.Contacts.Social {
+        return socials[position]
+    }
+
+    private fun getPhoneNumber(position: Int): Configs.Contacts.PhoneNumber {
+        return phoneNumbers[position]
+    }
+
+    override fun getItemCount(): Int = socials.size + phoneNumbers.size + 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -101,15 +119,13 @@ private class MenuAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            if (position < phones.size) {
-                holder.bind(phones[position])
-            } else if (position >= phones.size && position < phones.size + contacts.size) {
-                val index = position - phones.size
-                val contact = contacts[index]
-                if (contact.social != null) {
-                    holder.bind(contact)
-                }
-            } else if (position == phones.size + contacts.size) {
+            if (position < socials.size) {
+                holder.bind(getSocial(position))
+            } else if (position >= phoneNumbers.size && position < socials.size + phoneNumbers.size) {
+                val index = position - socials.size
+                val phoneNumber = phoneNumbers[index]
+                holder.bind(phoneNumber)
+            } else if (position == socials.size + phoneNumbers.size) {
                 holder.bind(language)
             }
         }
@@ -127,7 +143,7 @@ private class MenuAdapter(
         fun bind(language: Language) {
             textView?.setText(R.string.kenes_change_language)
 
-            subView?.text = language.value
+            subView?.text = language.representation
             subView?.visibility = View.VISIBLE
 
             textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_globe, 35)
@@ -135,13 +151,13 @@ private class MenuAdapter(
             itemView.setOnClickListener { callback.onLanguageChangeClicked(language) }
         }
 
-        fun bind(phoneNumber: String) {
+        fun bind(phoneNumber: Configs.Contacts.PhoneNumber) {
             subView?.visibility = View.GONE
 
-            if (phoneNumber.isBlank()) {
+            if (phoneNumber.value.isBlank()) {
                 textView?.visibility = View.GONE
             } else {
-                textView?.text = phoneNumber
+                textView?.text = phoneNumber.value
                 textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_phone_blue, 35)
 
                 textView?.visibility = View.VISIBLE
@@ -150,26 +166,42 @@ private class MenuAdapter(
             }
         }
 
-        fun bind(contact: Configs.Contact) {
+        fun bind(social: Configs.Contacts.Social) {
             subView?.visibility = View.GONE
 
-            if (contact.social?.title.isNullOrBlank()) {
-                textView?.visibility = View.GONE
-            } else {
-                textView?.text =
-                    itemView.context.getString(R.string.kenes_chat_bot, contact.social?.title)
-                textView?.showCompoundDrawableOnfLeft(contact.social?.icon ?: 0, 35)
-
-                textView?.visibility = View.VISIBLE
-
-                itemView.setOnClickListener { callback.onSocialClicked(contact) }
+            var title: String? = null
+            var iconRes: Int? = null
+            when (social.id) {
+                Configs.Contacts.Social.Id.FACEBOOK -> {
+                    iconRes = R.drawable.kenes_ic_messenger
+                    title = "Facebook"
+                }
+                Configs.Contacts.Social.Id.TELEGRAM -> {
+                    iconRes = R.drawable.kenes_ic_telegram
+                    title = "Telegram"
+                }
+                Configs.Contacts.Social.Id.TWITTER -> {
+                    iconRes = R.drawable.kenes_ic_twitter
+                    title = "Twitter"
+                }
+                Configs.Contacts.Social.Id.VK -> {
+                    iconRes = R.drawable.kenes_ic_vk
+                    title = "ВКонтакте"
+                }
             }
+
+            textView?.text = itemView.context.getString(R.string.kenes_chat_bot, title)
+            textView?.showCompoundDrawableOnfLeft(iconRes, 35)
+
+            textView?.visibility = View.VISIBLE
+
+            itemView.setOnClickListener { callback.onSocialClicked(social) }
         }
     }
 
     interface Callback {
-        fun onPhoneNumberClicked(phoneNumber: String)
-        fun onSocialClicked(contact: Configs.Contact)
+        fun onPhoneNumberClicked(phoneNumber: Configs.Contacts.PhoneNumber)
+        fun onSocialClicked(social: Configs.Contacts.Social)
         fun onLanguageChangeClicked(language: Language)
     }
 

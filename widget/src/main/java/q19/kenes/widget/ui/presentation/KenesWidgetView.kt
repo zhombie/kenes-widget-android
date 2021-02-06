@@ -1,43 +1,40 @@
 package q19.kenes.widget.ui.presentation
 
 import android.os.Parcelable
-import org.webrtc.IceCandidate
-import org.webrtc.PeerConnection
-import org.webrtc.SessionDescription
-import q19.kenes.widget.data.model.*
-import q19.kenes.widget.data.model.Attachment
-import q19.kenes.widget.data.model.Configs
-import q19.kenes.widget.data.model.Message
-import q19.kenes.widget.data.model.OperatorCall
-import q19.kenes.widget.data.model.RatingButton
-import q19.kenes.widget.data.model.Service
+import kz.q19.domain.model.call.CallType
+import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.file.File
+import kz.q19.domain.model.form.Form
+import kz.q19.domain.model.keyboard.button.RateButton
+import kz.q19.domain.model.language.Language
+import kz.q19.domain.model.media.Media
+import kz.q19.domain.model.message.Message
 import q19.kenes.widget.ui.presentation.model.BottomNavigation
 import q19.kenes.widget.ui.presentation.model.ViewState
-import java.io.File
 
 internal interface KenesWidgetView {
     fun showCurrentLanguage(language: Language)
-    fun showContacts(contacts: List<Configs.Contact>)
-    fun showPhones(phones: List<String>)
-    fun showOpponentInfo(opponent: Configs.Opponent)
-    fun showOpponentInfo(name: String, photoUrl: String?)
-    fun showInfoBlocks(infoBlocks: List<Configs.InfoBlock>)
+    fun showSocials(contacts: List<Configs.Contacts.Social>)
+    fun showPhoneNumbers(phones: List<Configs.Contacts.PhoneNumber>)
+    fun showDefaultPeerInfo()
+    fun showPeerInfo(opponent: Configs.CallAgent)
+    fun showPeerInfo(name: String, photoUrl: String?)
     fun showAudioCallerInformation(fullName: String, photoUrl: String?)
-    fun showFeedback(text: String, ratingButtons: List<RatingButton>)
+    fun showFeedback(text: String, ratingButtons: List<RateButton>?)
 
-    fun showDynamicForm(dynamicForm: DynamicForm)
-    fun showAttachmentThumbnail(attachment: Attachment)
+    fun showForm(form: Form)
+    fun showAttachmentThumbnail(attachment: Media)
     fun clearDynamicForm()
 
-    fun showCallScopes(parentCallScope: Configs.CallScope? = null, callScopes: List<Configs.CallScope>)
-    fun showExternalServices(parentService: Service? = null, services: List<Service>)
+    fun showCalls(parentCall: Configs.Call? = null, calls: List<Configs.Call>)
+    fun showServices(parentService: Configs.Service? = null, services: List<Configs.Service>)
 
     fun showNavButton(bottomNavigation: BottomNavigation)
     fun hideNavButton(bottomNavigation: BottomNavigation)
 
     fun hideHangupButton()
 
-    fun showFileDownloadStatus(status: Message.File.DownloadStatus, itemPosition: Int)
+    fun showFileDownloadStatus(status: File.DownloadStatus, itemPosition: Int)
     fun showFileDownloadProgress(progress: Int, fileType: String, itemPosition: Int)
 
     fun setViewState(viewState: ViewState)
@@ -45,13 +42,13 @@ internal interface KenesWidgetView {
     fun setDefaultFooterView()
     fun setDefaultOperatorCallView()
 
-    fun showOperatorCallButton(operatorCall: OperatorCall)
-    fun hideOperatorCallButton(operatorCall: OperatorCall)
+    fun showOperatorCallButton(callType: CallType)
+    fun hideOperatorCallButton(callType: CallType)
 
     fun setOperatorCallInfoText(text: String)
     fun setOperatorCallPendingQueueCount(count: Int)
 
-    fun setUnreadMessagesCountOnCall(operatorCall: OperatorCall, count: String)
+    fun setUnreadMessagesCountOnCall(callType: CallType, count: String)
 
     fun addNewMessage(message: Message)
     fun setNewMessages(message: Message)
@@ -73,33 +70,19 @@ internal interface KenesWidgetView {
     fun clearChatFooterMessages()
     fun clearMessageInputViewText()
 
-    fun resolvePermissions(operatorCall: OperatorCall, scope: String? = null)
+    fun resolvePermissions(callType: CallType, scope: String? = null)
 
     fun restoreChatListViewState(chatListViewState: Parcelable)
 
     fun releaseMediaPlayer()
     fun releaseVideoDialog()
-    fun releasePeerConnection()
 
     fun showAlreadyCallingAlert(bottomNavigation: BottomNavigation)
-    fun showAlreadyCallingAlert(operatorCall: OperatorCall)
+    fun showAlreadyCallingAlert(callType: CallType)
     fun showNoOnlineCallAgentsAlert(text: String)
     fun showOpenLinkConfirmAlert(url: String)
     fun showFormSentSuccessAlert()
     fun showHangupConfirmationAlert()
-
-    fun createPeerConnection(
-        isMicrophoneEnabled: Boolean,
-        isCameraEnabled: Boolean,
-        iceServers: List<PeerConnection.IceServer>
-    )
-
-    fun initLocalVideoStream()
-    fun startLocalMediaStream()
-    fun sendOfferToOpponent()
-    fun sendAnswerToOpponent()
-    fun setRemoteDescription(sessionDescription: SessionDescription)
-    fun addRemoteIceCandidate(iceCandidate: IceCandidate)
 
     fun scrollToTop()
     fun scrollToBottom()

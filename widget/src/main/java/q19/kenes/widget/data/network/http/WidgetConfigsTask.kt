@@ -1,19 +1,21 @@
 package q19.kenes.widget.data.network.http
 
 import android.util.Log
+import kz.q19.data.api.model.response.configs.ConfigsResponse
+import kz.q19.domain.model.call.CallType
+import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.i18n.I18NString
+import kz.q19.utils.json.getLongOrNull
+import kz.q19.utils.json.getObjectOrNull
+import kz.q19.utils.json.getStringOrNull
 import org.json.JSONArray
 import org.json.JSONObject
-import q19.kenes.widget.data.model.Configs
-import q19.kenes.widget.data.model.Configs.I18NString.Companion.parse
-import q19.kenes.widget.util.JsonUtil.getNullableString
-import q19.kenes.widget.util.JsonUtil.parse
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.UrlUtil
-import q19.kenes.widget.util.findEnumBy
 
 internal class WidgetConfigsTask constructor(private val url: String) : BaseTask<Configs> {
 
-    override val TAG = "WidgetConfigsTask"
+    override val TAG: String = WidgetConfigsTask::class.java.simpleName
 
     override fun execute(): Configs? {
         try {
@@ -28,77 +30,60 @@ internal class WidgetConfigsTask constructor(private val url: String) : BaseTask
 
             val configsJson = json?.optJSONObject("configs")
             val contactsJson = json?.optJSONObject("contacts")
-            val infoBlocksJson = json?.optJSONArray("info_blocks")
+//            val infoBlocksJson = json?.optJSONArray("info_blocks")
             val booleansJson = json?.optJSONObject("booleans")
-            val callScopesJson = json?.optJSONArray("call_scopes")
+            val callScopesJsonArray = json?.optJSONArray("call_scopes")
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-            debug(TAG, "callScopesJson: $callScopesJson")
+            debug(TAG, "callScopesJson: $callScopesJsonArray")
 
-            val opponent = Configs.Opponent(
-                name = configsJson?.optString("title"),
-                secondName = configsJson?.optString("default_operator"),
-                avatarUrl = UrlUtil.getStaticUrl(configsJson?.optString("image"))
+            val bot = Configs.Bot(
+                image = UrlUtil.getStaticUrl(configsJson?.optString("image")),
+                title = configsJson?.optString("title")
             )
 
-            var contacts: MutableList<Configs.Contact>? = null
-            var phones: List<String>? = null
+            val callAgent = Configs.CallAgent(
+                defaultName = configsJson?.optString("default_operator")
+            )
+
+            var socials: List<Configs.Contacts.Social>? = null
+            var phoneNumbers: List<Configs.Contacts.PhoneNumber>? = null
             if (contactsJson != null) {
-                contacts = mutableListOf()
-                phones = listOf()
+                socials = mutableListOf()
+                phoneNumbers = mutableListOf()
                 for (key in contactsJson.keys()) {
                     val value = contactsJson[key]
 
                     if (value is String) {
-                        contacts.add(Configs.Contact(key, value))
+                        val socialId = when (key) {
+                            Configs.Contacts.Social.Id.FACEBOOK.id ->
+                                Configs.Contacts.Social.Id.FACEBOOK
+                            Configs.Contacts.Social.Id.TELEGRAM.id ->
+                                Configs.Contacts.Social.Id.TELEGRAM
+                            Configs.Contacts.Social.Id.TWITTER.id ->
+                                Configs.Contacts.Social.Id.TWITTER
+                            Configs.Contacts.Social.Id.VK.id ->
+                                Configs.Contacts.Social.Id.VK
+                            else -> continue
+                        }
+                        socials.add(Configs.Contacts.Social(socialId, value))
                     } else if (value is JSONArray) {
-                        phones = value.parse()
-                    }
-                }
-            }
-
-            val workingHours = Configs.WorkingHours(
-                configsJson?.optString("message_kk"),
-                configsJson?.optString("message_ru")
-            )
-
-            var infoBlocks: MutableList<Configs.InfoBlock>? = null
-            if (infoBlocksJson != null) {
-                infoBlocks = mutableListOf()
-                for (i in 0 until infoBlocksJson.length()) {
-                    val infoBlock = infoBlocksJson[i] as JSONObject
-
-                    val items = mutableListOf<Configs.Item>()
-                    val itemsJson = infoBlock.getJSONArray("items")
-                    if (itemsJson.length() > 0) {
-                        for (j in 0 until itemsJson.length()) {
-                            val item = itemsJson.get(j) as JSONObject
-                            items.add(
-                                Configs.Item(
-                                icon = UrlUtil.getStaticUrl(item.getNullableString("icon")),
-                                text = item.getString("text"),
-                                description = item.getJSONObject("description").parse(),
-                                action = item.getString("action")
-                            ))
+                        for (i in 0 until value.length()) {
+                            val phoneNumber = value[i]
+                            if (phoneNumber is String) {
+                                phoneNumbers.add(Configs.Contacts.PhoneNumber(phoneNumber))
+                            }
                         }
                     }
-
-                    infoBlocks.add(
-                        Configs.InfoBlock(
-                            title = infoBlock.getJSONObject("title").parse(),
-                            description = infoBlock.getJSONObject("description").parse(),
-                            items = items
-                        )
-                    )
                 }
             }
 
-            var isChabotEnabled = false
+            var isChatBotEnabled = false
             var isAudioCallEnabled = false
             var isVideoCallEnabled = false
             var isContactSectionsShown = false
             var isPhonesListShown = false
-            var isOperatorsScoped = false
+            var isCallAgentsScoped = false
             var isServicesEnabled = false
             if (booleansJson != null) {
                 val keys = booleansJson.keys()
@@ -111,7 +96,7 @@ internal class WidgetConfigsTask constructor(private val url: String) : BaseTask
                     if (value is Boolean) {
                         when (key) {
                             "chatbot_enabled" ->
-                                isChabotEnabled = value
+                                isChatBotEnabled = value
                             "audio_call_enabled" ->
                                 isAudioCallEnabled = value
                             "video_call_enabled" ->
@@ -121,51 +106,127 @@ internal class WidgetConfigsTask constructor(private val url: String) : BaseTask
                             "phones_list_shown" ->
                                 isPhonesListShown = value
                             "operators_scoped" ->
-                                isOperatorsScoped = value
+                                isCallAgentsScoped = value
                             "services_enabled" ->
                                 isServicesEnabled = value
                         }
                     }
                 }
             }
-            val booleans = Configs.Booleans(
-                isChabotEnabled = isChabotEnabled,
+            val preferences = Configs.Preferences(
+                isChatBotEnabled = isChatBotEnabled,
                 isAudioCallEnabled = isAudioCallEnabled,
                 isVideoCallEnabled = isVideoCallEnabled,
                 isContactSectionsShown = isContactSectionsShown,
                 isPhonesListShown = isPhonesListShown,
-                isOperatorsScoped = isOperatorsScoped,
+                isCallAgentsScoped = isCallAgentsScoped,
                 isServicesEnabled = isServicesEnabled
             )
 
-            val callScopes = mutableListOf<Configs.CallScope>()
-            if (callScopesJson != null) {
-                for (i in 0 until callScopesJson.length()) {
-                    val callScope = callScopesJson[i] as JSONObject
+            val calls = mutableListOf<Configs.Call>()
+            val services = mutableListOf<Configs.Service>()
+            val forms = mutableListOf<Configs.Form>()
+            if (callScopesJsonArray != null) {
+                for (i in 0 until callScopesJsonArray.length()) {
+                    val callScopeJsonObject = callScopesJsonArray[i]
 
-                    callScopes.add(
-                        Configs.CallScope(
-                            id = callScope.getLong("id"),
-                            type = findEnumBy { it.value == callScope.getNullableString("type") },
-                            scope = callScope.getString("scope"),
-                            title = callScope.getJSONObject("title").parse(),
-                            parentId = callScope.getLong("parent_id"),
-                            chatType = findEnumBy { it.value == callScope.getNullableString("chat_type") },
-                            action = findEnumBy { it.value == callScope.getNullableString("action") },
-                            details = Configs.CallScope.Details(callScope.optInt("order"))
+                    if (callScopeJsonObject is JSONObject) {
+                        val id = callScopeJsonObject.getLongOrNull("id") ?: continue
+
+                        val parentId = callScopeJsonObject.getLongOrNull("parent_id") ?: ConfigsResponse.CallScopeResponse.NO_PARENT_ID
+
+                        val type = when (callScopeJsonObject.getStringOrNull("type")) {
+                            ConfigsResponse.CallScopeResponse.TypeResponse.FOLDER.value -> Configs.Nestable.Type.FOLDER
+                            ConfigsResponse.CallScopeResponse.TypeResponse.LINK.value -> Configs.Nestable.Type.LINK
+                            else -> null
+                        }
+
+                        var title: I18NString? = null
+                        val titleJsonObject = callScopeJsonObject.getObjectOrNull("title")
+                        if (titleJsonObject != null) {
+                            val kk = if (!titleJsonObject.getStringOrNull("kk").isNullOrBlank()) {
+                                titleJsonObject.getStringOrNull("kk")
+                            } else {
+                                titleJsonObject.getStringOrNull("kz")
+                            }
+
+                            title = I18NString(
+                                kk = kk,
+                                ru = titleJsonObject.getStringOrNull("ru"),
+                                en = titleJsonObject.getStringOrNull("en")
+                            )
+                        }
+                        if (title == null) {
+                            continue
+                        }
+
+                        val detailsJsonObject = callScopeJsonObject.getObjectOrNull("details")
+
+                        val extra = Configs.Nestable.Extra(
+                            order = detailsJsonObject?.getInt("order"),
                         )
-                    )
+
+                        when (callScopeJsonObject.getStringOrNull("chat_type")) {
+                            ConfigsResponse.CallScopeResponse.ChatTypeResponse.AUDIO.value,
+                            ConfigsResponse.CallScopeResponse.ChatTypeResponse.VIDEO.value -> {
+                                val callType = when (callScopeJsonObject.getStringOrNull("action")) {
+                                    ConfigsResponse.CallScopeResponse.ActionResponse.AUDIO_CALL.value ->
+                                        CallType.AUDIO
+                                    ConfigsResponse.CallScopeResponse.ActionResponse.VIDEO_CALL.value ->
+                                        CallType.VIDEO
+                                    else -> null
+                                }
+                                calls.add(
+                                    Configs.Call(
+                                        id = id,
+                                        parentId = parentId,
+                                        type = type,
+                                        callType = callType,
+                                        scope = callScopeJsonObject.getStringOrNull("scope"),
+                                        title = title,
+                                        extra = extra
+                                    )
+                                )
+                            }
+                            ConfigsResponse.CallScopeResponse.ChatTypeResponse.EXTERNAL.value,
+                            ConfigsResponse.CallScopeResponse.ChatTypeResponse.FORM.value -> {
+                                if (detailsJsonObject?.getLongOrNull("form_id") != null) {
+                                    forms.add(
+                                        Configs.Form(
+                                            id = id,
+                                            parentId = parentId,
+                                            type = type,
+                                            formId = detailsJsonObject.getLong("form_id"),
+                                            title = title,
+                                            extra = extra
+                                        )
+                                    )
+                                } else if (detailsJsonObject?.getLongOrNull("external_id") != null) {
+                                    services.add(
+                                        Configs.Service(
+                                            id = id,
+                                            parentId = parentId,
+                                            type = type,
+                                            serviceId = detailsJsonObject.getLong("external_id"),
+                                            title = title,
+                                            extra = extra
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
             return Configs(
-                booleans = booleans,
-                opponent = opponent,
-                contacts = contacts,
-                phones = phones,
-                workingHours = workingHours,
-                infoBlocks = infoBlocks,
-                callScopes = callScopes.sortedBy { it.details?.order }
+                bot = bot,
+                callAgent = callAgent,
+                preferences = preferences,
+                contacts = Configs.Contacts(phoneNumbers, socials),
+                calls = calls,
+                forms = forms,
+                services = services
             )
         } catch (e: Exception) {
 //            e.printStackTrace()

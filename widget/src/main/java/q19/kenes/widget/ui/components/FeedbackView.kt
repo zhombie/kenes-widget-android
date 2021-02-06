@@ -11,9 +11,9 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes_widget.R
-import q19.kenes.widget.data.model.RatingButton
+import kz.q19.domain.model.keyboard.button.RateButton
 import q19.kenes.widget.util.inflate
+import q19.kenes_widget.R
 
 internal class FeedbackView @JvmOverloads constructor(
     context: Context,
@@ -26,7 +26,7 @@ internal class FeedbackView @JvmOverloads constructor(
     private val ratingView: RecyclerView
     private val rateButton: AppCompatButton
 
-    private var selectedRatingButton: RatingButton? = null
+    private var selectedRateButton: RateButton? = null
 
     init {
         val view = inflate(context, R.layout.kenes_view_feedback, this)
@@ -48,11 +48,11 @@ internal class FeedbackView @JvmOverloads constructor(
         titleView.text = title
     }
 
-    fun setRatingButtons(ratingButtons: List<RatingButton>) {
-        val ratingAdapter = RatingAdapter(ratingButtons) {
-            selectedRatingButton = it
+    fun setRatingButtons(rateButtons: List<RateButton>) {
+        val ratingAdapter = RatingAdapter(rateButtons) {
+            selectedRateButton = it
 
-            if (selectedRatingButton != null) {
+            if (selectedRateButton != null) {
                 rateButton.isEnabled = true
             }
         }
@@ -62,13 +62,13 @@ internal class FeedbackView @JvmOverloads constructor(
         ratingAdapter.notifyDataSetChanged()
     }
 
-    fun setOnRateButtonClickListener(callback: (ratingButton: RatingButton) -> Unit) {
+    fun setOnRateButtonClickListener(callback: (rateButton: RateButton) -> Unit) {
         rateButton.setOnClickListener {
-            callback(selectedRatingButton ?: return@setOnClickListener)
+            callback(selectedRateButton ?: return@setOnClickListener)
 
             setDefaultState()
 
-            selectedRatingButton = null
+            selectedRateButton = null
         }
     }
 
@@ -79,8 +79,8 @@ internal class FeedbackView @JvmOverloads constructor(
 }
 
 private class RatingAdapter(
-    private val ratingButtons: List<RatingButton>,
-    private val callback: (ratingButton: RatingButton) -> Unit
+    private val rateButtons: List<RateButton>,
+    private val callback: (rateButton: RateButton) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -93,20 +93,20 @@ private class RatingAdapter(
 
     private var selectedRatingButtonPosition: Int = -1
 
-    fun getSelectedRatingButton(): RatingButton? {
-        return if (selectedRatingButtonPosition > -1 && selectedRatingButtonPosition < ratingButtons.size) {
-            ratingButtons[selectedRatingButtonPosition]
+    fun getSelectedRatingButton(): RateButton? {
+        return if (selectedRatingButtonPosition > -1 && selectedRatingButtonPosition < rateButtons.size) {
+            rateButtons[selectedRatingButtonPosition]
         } else {
             null
         }
     }
 
     override fun getItemId(position: Int): Long {
-        val ratingButton = ratingButtons[position]
+        val ratingButton = rateButtons[position]
         return ratingButton.chatId + ratingButton.rating
     }
 
-    override fun getItemCount(): Int = ratingButtons.size
+    override fun getItemCount(): Int = rateButtons.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ViewHolder(parent.inflate(LAYOUT_RATING))
@@ -114,7 +114,7 @@ private class RatingAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder is ViewHolder) {
-            holder.bind(ratingButtons[position], callback)
+            holder.bind(rateButtons[position], callback)
         }
     }
 
@@ -122,12 +122,12 @@ private class RatingAdapter(
         private val textView = view.findViewById<TextView>(R.id.textView)
 
         fun bind(
-            ratingButton: RatingButton,
-            callback: (ratingButton: RatingButton) -> Unit
+            rateButton: RateButton,
+            callback: (ratingButton: RateButton) -> Unit
         ) {
             textView?.isActivated = selectedRatingButtonPosition == absoluteAdapterPosition
 
-            textView?.text = ratingButton.title
+            textView?.text = rateButton.text
 
             textView?.setOnClickListener {
                 val tempPosition = selectedRatingButtonPosition
@@ -135,7 +135,7 @@ private class RatingAdapter(
                 selectedRatingButtonPosition = absoluteAdapterPosition
                 notifyItemChanged(tempPosition)
                 notifyItemChanged(selectedRatingButtonPosition)
-                callback(ratingButton)
+                callback(rateButton)
             }
         }
     }

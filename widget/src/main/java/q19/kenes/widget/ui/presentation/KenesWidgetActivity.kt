@@ -23,37 +23,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
-import org.webrtc.IceCandidate
-import org.webrtc.MediaStream
-import org.webrtc.PeerConnection
-import org.webrtc.SessionDescription
-import q19.kenes_widget.R
-import q19.kenes.widget.core.locale.LocalizationActivity
+import kz.q19.common.locale.ui.LocalizationActivity
+import kz.q19.domain.model.call.CallType
+import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.form.Form
+import kz.q19.domain.model.keyboard.button.Button
+import kz.q19.domain.model.keyboard.button.RateButton
+import kz.q19.domain.model.language.Language
+import kz.q19.domain.model.media.Media
+import kz.q19.domain.model.message.Category
+import kz.q19.domain.model.message.Message
+import kz.q19.webrtc.Options
+import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.data.model.*
-import q19.kenes.widget.data.model.Attachment
-import q19.kenes.widget.data.model.Media
-import q19.kenes.widget.data.model.Message
-import q19.kenes.widget.data.model.OperatorCall
-import q19.kenes.widget.data.model.RatingButton
 import q19.kenes.widget.ui.components.*
-import q19.kenes.widget.ui.components.DynamicFormView
-import q19.kenes.widget.ui.components.HeaderView
-import q19.kenes.widget.ui.components.OperatorCallPendingView
-import q19.kenes.widget.ui.components.ProgressView
-import q19.kenes.widget.ui.components.ServicesView
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapterItemDecoration
 import q19.kenes.widget.ui.presentation.adapter.ChatFooterAdapter
 import q19.kenes.widget.ui.presentation.model.BottomNavigation
-import q19.kenes.widget.util.*
-import q19.kenes.widget.util.FileUtil
-import q19.kenes.widget.util.UrlUtil
-import q19.kenes.widget.util.showFullscreenImage
 import q19.kenes.widget.ui.presentation.model.ViewState
+import q19.kenes.widget.util.*
 import q19.kenes.widget.util.Logger.debug
-import q19.kenes.widget.webrtc.PeerConnectionClient
-import java.io.File
+import q19.kenes_widget.R
 
 internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
@@ -103,7 +95,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
     /**
      * Audio call [operatorCallView] screen view.
      */
-    private val operatorCallView by bind<OperatorCallView>(R.id.operatorCallView)
+    private val operatorCallView by bind<CallTypeView>(R.id.operatorCallView)
 
     private val operatorCallPendingView by bind<OperatorCallPendingView>(R.id.operatorCallPendingView)
 
@@ -156,24 +148,9 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
     // ------------------------------------------------------------------------
 
-    private val palette by lazy {
-        try {
-            resources.getIntArray(R.array.kenes_palette)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            intArrayOf()
-        }
-    }
-
-    // ------------------------------------------------------------------------
-
     private var concatAdapter: ConcatAdapter? = null
     private var chatAdapter: ChatAdapter? = null
     private var chatFooterAdapter: ChatFooterAdapter? = null
-
-    // ------------------------------------------------------------------------
-
-    private var peerConnectionClient: PeerConnectionClient? = null
 
     // ------------------------------------------------------------------------
 
@@ -237,7 +214,12 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
         presenter = KenesWidgetPresenter(
             language = Language.from(getCurrentLocale()),
-            palette = palette
+            peerConnectionClient = PeerConnectionClient(
+                context = this,
+                options = Options(),
+                localSurfaceViewRenderer = videoDialogView.localSurfaceView,
+                remoteSurfaceViewRenderer = videoDialogView.remoteSurfaceView
+            )
         )
         presenter.attachView(this)
 
@@ -253,10 +235,8 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         /**
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
-        bottomNavigationView.callback = object : BottomNavigationView.Callback {
-            override fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation) {
-                presenter.onBottomNavigationButtonClicked(bottomNavigation)
-            }
+        bottomNavigationView.callback = BottomNavigationView.Callback { bottomNavigation ->
+            presenter.onBottomNavigationButtonClicked(bottomNavigation)
         }
 
         /**
@@ -268,17 +248,17 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
             }
         }
 
-        operatorCallView.callback = object : OperatorCallView.Callback {
-            override fun onOperatorCallClicked(operatorCall: OperatorCall) {
-                presenter.onCallOperatorClicked(operatorCall)
+        operatorCallView.callback = object : CallTypeView.Callback {
+            override fun onCallTypeClicked(callType: CallType) {
+                presenter.onCallTypeClicked(callType)
             }
 
-            override fun onCallScopeClicked(callScope: Configs.CallScope) {
-                presenter.onCallScopeClicked(callScope)
+            override fun onCallClicked(call: Configs.Call) {
+                presenter.onCallClicked(call)
             }
 
-            override fun onCallScopeBackClicked() {
-                presenter.onCallScopeBackClicked()
+            override fun onCallBackClicked() {
+                presenter.onCallBackClicked()
             }
         }
 
@@ -298,7 +278,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 //        }
 
         servicesView.callback = object : ServicesView.Callback {
-            override fun onServiceClicked(service: Service) {
+            override fun onServiceClicked(service: Configs.Service) {
                 presenter.onServiceClicked(service)
             }
 
@@ -308,7 +288,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
 
         keyboardView.callback = object : KeyboardView.Callback {
-            override fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
+            override fun onReplyMarkupButtonClicked(button: Button) {
                 presenter.onReplyMarkupButtonClicked(button)
             }
         }
@@ -328,17 +308,17 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                 presenter.onFormCancelClicked()
             }
 
-            override fun onSendButtonClicked(dynamicForm: DynamicForm) {
-                presenter.onFormSendButtonClicked(dynamicForm)
+            override fun onSendButtonClicked(form: Form) {
+                presenter.onFormSendButtonClicked(form)
             }
 
-            override fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
+            override fun onSelectAttachmentButtonClicked(field: Form.Field) {
                 presenter.onSelectAttachmentButtonClicked(field)
             }
 
-            override fun onAttachmentClicked(attachment: Attachment) {
-                val file = attachment.getFile(this@KenesWidgetActivity)
-                presenter.onAttachmentClicked(file)
+            override fun onAttachmentClicked(attachment: Media) {
+//                val file = attachment.getFile(this@KenesWidgetActivity)
+//                presenter.onAttachmentClicked(file)
             }
         }
 
@@ -420,7 +400,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
         videoDialogView.callback = object : VideoDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                presenter.onGoToChatButtonClicked(OperatorCall.VIDEO)
+                presenter.onGoToChatButtonClicked(CallType.VIDEO)
             }
 
             override fun onHangupButtonClicked() {
@@ -428,11 +408,12 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
             }
 
             override fun onSwitchSourceButtonClicked() {
-                peerConnectionClient?.onSwitchCamera()
+//                peerConnectionClient?.onSwitchCamera(onDone = {}, onError = {})
             }
 
             override fun onSwitchScalingButtonClicked() {
-                peerConnectionClient?.switchScalingType()
+                // TODO: Toggle
+//                peerConnectionClient?.setLocalVideoScalingType(ScalingType.SCALE_ASPECT_FIT)
             }
 
             override fun onFullscreenScreenClicked() {
@@ -446,7 +427,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
         audioDialogView.callback = object : AudioDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                presenter.onGoToChatButtonClicked(OperatorCall.AUDIO)
+                presenter.onGoToChatButtonClicked(CallType.AUDIO)
             }
 
             override fun onHangupButtonClicked() {
@@ -460,7 +441,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                 startActivity(intent)
             }
 
-            override fun onSocialClicked(contact: Configs.Contact) {
+            override fun onSocialClicked(contact: Configs.Contacts.Social) {
                 try {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(contact.url))
                     startActivity(intent)
@@ -471,18 +452,16 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
             override fun onLanguageChangeClicked(language: Language) {
                 val supportedLanguages = Language.getSupportedLanguages()
-                val items = supportedLanguages.map { it.value }.toTypedArray()
+                val items = supportedLanguages.map { it.key }.toTypedArray()
                 showLanguageSelectionAlert(items) { which ->
                     val selected = supportedLanguages[which]
 
                     presenter.onLanguageSelected(selected.key)
 
-                    setLanguage(selected.locale)
+                    setLocale(selected.locale)
                 }
             }
         }
-
-        peerConnectionClient = PeerConnectionClient()
 
         setupRecyclerView()
     }
@@ -524,18 +503,18 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
             override fun onMediaClicked(media: Media, itemPosition: Int) {
                 debug(TAG, "onMediaClicked: $media, itemPosition: $itemPosition")
 
-                val file = media.getFile(this@KenesWidgetActivity)
-                presenter.onMediaClicked(media, file, itemPosition)
+//                val file = media.getFile(this@KenesWidgetActivity)
+//                presenter.onMediaClicked(media, file, itemPosition)
             }
 
-            override fun onAttachmentClicked(attachment: Attachment, itemPosition: Int) {
+            override fun onAttachmentClicked(attachment: Media, itemPosition: Int) {
                 debug(TAG, "onAttachmentClicked: $attachment, itemPosition: $itemPosition")
 
-                val file = attachment.getFile(this@KenesWidgetActivity)
-                presenter.onAttachmentClicked(attachment, file, itemPosition)
+//                val file = attachment.getFile(this@KenesWidgetActivity)
+//                presenter.onAttachmentClicked(attachment, file, itemPosition)
             }
 
-            override fun onReplyMarkupButtonClicked(button: Message.ReplyMarkup.Button) {
+            override fun onReplyMarkupButtonClicked(button: Button) {
                 presenter.onReplyMarkupButtonClicked(button)
             }
 
@@ -572,7 +551,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
             }
 
             override fun onSwitchToCallAgentButtonClicked() {
-                presenter.onCallOperator(OperatorCall.TEXT)
+                presenter.onCallOperator(CallType.TEXT)
             }
 
             override fun onRegisterAppealButtonClicked() {
@@ -628,39 +607,37 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         infoView.setLanguage(language)
     }
 
-    override fun showContacts(contacts: List<Configs.Contact>) {
+    override fun showSocials(contacts: List<Configs.Contacts.Social>) {
         runOnUiThread {
             infoView.setContacts(contacts)
         }
     }
 
-    override fun showPhones(phones: List<String>) {
+    override fun showPhoneNumbers(phones: List<Configs.Contacts.PhoneNumber>) {
         runOnUiThread {
             infoView.setPhones(phones)
         }
     }
 
-    override fun showInfoBlocks(infoBlocks: List<Configs.InfoBlock>) {
-        runOnUiThread {
-//            contactsView.show(infoBlocks, getCurrentLanguage())
-        }
+    override fun showDefaultPeerInfo() {
+
     }
 
-    override fun showOpponentInfo(opponent: Configs.Opponent) {
+    override fun showPeerInfo(opponent: Configs.CallAgent) {
         runOnUiThread {
             headerView.setOpponentInfo(opponent)
         }
     }
 
-    override fun showOpponentInfo(name: String, photoUrl: String?) {
+    override fun showPeerInfo(name: String, photoUrl: String?) {
         runOnUiThread {
-            headerView.setOpponentInfo(
-                Configs.Opponent(
-                    name = name,
-                    secondName = getString(R.string.kenes_operator),
-                    avatarUrl = photoUrl
-                )
-            )
+//            headerView.setOpponentInfo(
+//                Peer(
+//                    name = name,
+//                    subname = getString(R.string.kenes_operator),
+//                    photoUrl = photoUrl
+//                )
+//            )
         }
     }
 
@@ -699,18 +676,18 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
     }
 
-    override fun showOperatorCallButton(operatorCall: OperatorCall) {
+    override fun showOperatorCallButton(callType: CallType) {
         runOnUiThread {
-            operatorCallView.showCallButton(operatorCall)
-            operatorCallView.setCallButtonEnabled(operatorCall)
+            operatorCallView.showCallButton(callType)
+            operatorCallView.setCallButtonEnabled(callType)
         }
     }
 
-    override fun hideOperatorCallButton(operatorCall: OperatorCall) {
+    override fun hideOperatorCallButton(callType: CallType) {
         runOnUiThread {
-            operatorCallView.hideCallButton(operatorCall)
-            operatorCallView.setCallButtonDisabled(operatorCall)
-            operatorCallView.removeListener(operatorCall)
+            operatorCallView.hideCallButton(callType)
+            operatorCallView.setCallButtonDisabled(callType)
+            operatorCallView.removeListener(callType)
         }
     }
 
@@ -723,8 +700,8 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
             operatorCallPendingView.setCancelCallButtonDisabled()
             operatorCallPendingView.isVisible = false
 
-            operatorCallView.setCallButtonEnabled(OperatorCall.AUDIO)
-            operatorCallView.setCallButtonEnabled(OperatorCall.VIDEO)
+            operatorCallView.setCallButtonEnabled(CallType.AUDIO)
+            operatorCallView.setCallButtonEnabled(CallType.VIDEO)
         }
     }
 
@@ -749,10 +726,10 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
     override fun showUserDisconnectedMessage() {
         runOnUiThread {
             chatAdapter?.addNewMessage(
-                Message(
-                    type = Message.Type.NOTIFICATION,
-                    text = getString(R.string.kenes_user_disconnected)
-                )
+                Message.Builder()
+                    .setType(Message.Type.NOTIFICATION)
+                    .setText(getString(R.string.kenes_user_disconnected))
+                    .build()
             )
         }
     }
@@ -781,23 +758,23 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
     }
 
-    override fun showFeedback(text: String, ratingButtons: List<RatingButton>) {
+    override fun showFeedback(text: String, rateButtons: List<RateButton>?) {
         runOnUiThread {
             feedbackView.setTitle(text)
-            feedbackView.setRatingButtons(ratingButtons)
+            feedbackView.setRatingButtons(rateButtons ?: emptyList())
             feedbackView.setOnRateButtonClickListener { ratingButton ->
                 presenter.onRateButtonClicked(ratingButton)
             }
         }
     }
 
-    override fun showDynamicForm(dynamicForm: DynamicForm) {
+    override fun showForm(form: Form) {
         runOnUiThread {
-            dynamicFormView.dynamicForm = dynamicForm
+            dynamicFormView.form = form
         }
     }
 
-    override fun showAttachmentThumbnail(attachment: Attachment) {
+    override fun showAttachmentThumbnail(attachment: Media) {
         runOnUiThread {
             dynamicFormView.attachment = attachment
         }
@@ -809,16 +786,16 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
     }
 
-    override fun showCallScopes(
-        parentCallScope: Configs.CallScope?,
-        callScopes: List<Configs.CallScope>
+    override fun showCalls(
+        parentCall: Configs.Call?,
+        calls: List<Configs.Call>
     ) {
         runOnUiThread {
-            operatorCallView.showCallScopes(parentCallScope, callScopes, Language.from(getCurrentLocale()))
+            operatorCallView.showCalls(parentCall, calls, Language.from(getCurrentLocale()))
         }
     }
 
-    override fun showExternalServices(parentService: Service?, services: List<Service>) {
+    override fun showServices(parentService: Configs.Service?, services: List<Configs.Service>) {
         runOnUiThread {
             servicesView.showServices(parentService, services, Language.from(getCurrentLocale()))
         }
@@ -857,10 +834,10 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
     }
 
-    override fun showAlreadyCallingAlert(operatorCall: OperatorCall) {
+    override fun showAlreadyCallingAlert(callType: CallType) {
         runOnUiThread {
             showAlreadyCallingAlert {
-                presenter.onCallCancelClicked(operatorCall)
+                presenter.onCallCancelClicked(callType)
             }
         }
     }
@@ -893,15 +870,15 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
     }
 
-    override fun setUnreadMessagesCountOnCall(operatorCall: OperatorCall, count: String) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    override fun setUnreadMessagesCountOnCall(callType: CallType, count: String) {
+        if (callType == CallType.AUDIO) {
             runOnUiThread {
                 audioDialogView.setUnreadMessagesCount(count)
                 if (audioDialogView.isUnreadMessagesCounterHidden()) {
                     audioDialogView.showUnreadMessagesCounter()
                 }
             }
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             runOnUiThread {
                 videoDialogView.setUnreadMessagesCount(count)
                 if (videoDialogView.isUnreadMessagesCounterHidden()) {
@@ -911,9 +888,9 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }
     }
 
-    override fun openFile(file: File) {
+    override fun openFile(file: kz.q19.domain.model.file.File) {
         try {
-            FileUtil.openFile(this, file)
+            FileUtil.openFile(this, file.get())
         } catch (e: Exception) {
             e.printStackTrace()
             toast(e.toString())
@@ -1035,7 +1012,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         }, 250)
     }
 
-    override fun showFileDownloadStatus(status: Message.File.DownloadStatus, itemPosition: Int) {
+    override fun showFileDownloadStatus(status: kz.q19.domain.model.file.File.DownloadStatus, itemPosition: Int) {
         chatAdapter?.setDownloading(status, itemPosition)
     }
 
@@ -1043,16 +1020,16 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         chatAdapter?.setProgress(progress, fileType, itemPosition)
     }
 
-    override fun resolvePermissions(operatorCall: OperatorCall, scope: String?) {
+    override fun resolvePermissions(callType: CallType, scope: String?) {
         permissionManager.checkPermission(
-            when (operatorCall) {
-                OperatorCall.AUDIO -> PermissionManager.Permission.AUDIO_CALL
-                OperatorCall.VIDEO -> PermissionManager.Permission.VIDEO_CALL
+            when (callType) {
+                CallType.AUDIO -> PermissionManager.Permission.AUDIO_CALL
+                CallType.VIDEO -> PermissionManager.Permission.VIDEO_CALL
                 else -> return
             }
         ) {
             if (it) {
-                presenter.onCallOperator(operatorCall, scope)
+                presenter.onCallOperator(callType, scope)
             }
         }
     }
@@ -1080,87 +1057,11 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         videoDialogView.release()
     }
 
-    override fun releasePeerConnection() {
-        peerConnectionClient?.dispose()
-    }
-
     override fun showFormSentSuccessAlert() {
         showFormSentSuccess {
             formView.clearInputViews()
 
             presenter.onAppealRegistered()
-        }
-    }
-
-    override fun createPeerConnection(
-        isMicrophoneEnabled: Boolean,
-        isCameraEnabled: Boolean,
-        iceServers: List<PeerConnection.IceServer>
-    ) {
-        peerConnectionClient?.createPeerConnection(
-            activity = this@KenesWidgetActivity,
-            isMicrophoneEnabled = isMicrophoneEnabled,
-            isCameraEnabled = isCameraEnabled,
-            iceServers = iceServers,
-            listener = peerConnectionClientListener
-        )
-    }
-
-    override fun initLocalVideoStream() {
-        peerConnectionClient?.initLocalCameraStream(videoDialogView.localSurfaceView)
-    }
-
-    override fun startLocalMediaStream() {
-        peerConnectionClient?.addLocalStreamToPeer()
-    }
-
-    override fun sendOfferToOpponent() {
-        peerConnectionClient?.createOffer()
-    }
-
-    override fun setRemoteDescription(sessionDescription: SessionDescription) {
-        peerConnectionClient?.setRemoteDescription(sessionDescription)
-    }
-
-    override fun sendAnswerToOpponent() {
-        peerConnectionClient?.createAnswer()
-    }
-
-    override fun addRemoteIceCandidate(iceCandidate: IceCandidate) {
-        peerConnectionClient?.addRemoteIceCandidate(iceCandidate)
-    }
-
-    private val peerConnectionClientListener = object : PeerConnectionClient.Listener {
-        override fun onIceCandidate(iceCandidate: IceCandidate) {
-            presenter.onIceCandidate(iceCandidate)
-        }
-
-        override fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
-            presenter.onIceConnectionChange(iceConnectionState)
-        }
-
-        override fun onRenegotiationNeeded() {
-//            if (dialog.isInitiator) {
-//                peerConnectionClient?.createOffer()
-//            } else {
-//                peerConnectionClient?.createAnswer()
-//            }
-        }
-
-        override fun onLocalDescription(sessionDescription: SessionDescription) {
-            presenter.onLocalDescription(sessionDescription)
-        }
-
-        override fun onAddRemoteStream(mediaStream: MediaStream) {
-            peerConnectionClient?.initRemoteCameraStream(videoDialogView.remoteSurfaceView)
-            peerConnectionClient?.addRemoteStreamToPeer(mediaStream)
-        }
-
-        override fun onPeerConnectionError(errorMessage: String) {
-        }
-
-        override fun onRemoteScreenScaleChanged(isFilled: Boolean) {
-            videoDialogView.setSwitchScaleIcon(isFilled)
         }
     }
 
@@ -1269,7 +1170,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                 }
 
                 when (viewState) {
-                    is ViewState.ChatBot.Categories -> {
+                    is ViewState.ChatBot.Dashboard -> {
                         runOnUiThread {
                             if (viewState.isLoading) {
                                 if (recyclerView.isVisible) {
@@ -1393,7 +1294,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                     }
                 }
             }
-            is ViewState.OperatorCall -> {
+            is ViewState.CallAgentCall -> {
                 runOnUiThread {
                     progressView.hide()
 
@@ -1424,7 +1325,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                     footerView.isVisible = false
 
                     bottomNavigationView.setNavButtonsEnabled()
-                    bottomNavigationView.setNavButtonActive(BottomNavigation.OPERATOR_CALL)
+                    bottomNavigationView.setNavButtonActive(BottomNavigation.CALL)
 
                     setDefaultOperatorCallView()
                     operatorCallView.isVisible = true
@@ -1443,7 +1344,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
+                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_audio_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
@@ -1460,7 +1361,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
                             headerView.showHangupButton()
 
-                            operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
+                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
                             operatorCallView.isVisible = false
                             operatorCallPendingView.isVisible = false
 
@@ -1575,7 +1476,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            operatorCallView.setCallButtonDisabled(OperatorCall.VIDEO)
+                            operatorCallView.setCallButtonDisabled(CallType.VIDEO)
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_video_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
@@ -1801,9 +1702,6 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         presenter.onCloseLiveCall()
 
         permissionManager.removeAllListeners()
-
-        peerConnectionClient?.removeListeners()
-        peerConnectionClient = null
 
 //        headerView = null
 

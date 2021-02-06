@@ -18,20 +18,20 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes_widget.R
-import q19.kenes.widget.core.errors.ViewHolderViewTypeException
-import q19.kenes.widget.data.model.Configs
-import q19.kenes.widget.data.model.Language
-import q19.kenes.widget.data.model.OperatorCall
+import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.domain.model.call.CallType
+import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.language.Language
+import kz.q19.utils.textview.removeCompoundDrawables
+import kz.q19.utils.textview.showCompoundDrawableOnLeft
 import q19.kenes.widget.ui.components.base.TextView
-import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.ui.components.base.TitleView
+import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.inflate
-import q19.kenes.widget.util.removeCompoundDrawables
-import q19.kenes.widget.util.showCompoundDrawableOnfLeft
+import q19.kenes_widget.R
 
-internal class OperatorCallView @JvmOverloads constructor(
+internal class CallTypeView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
@@ -39,7 +39,7 @@ internal class OperatorCallView @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     companion object {
-        private const val TAG = "OperatorCallView"
+        private val TAG = CallTypeView::class.java.simpleName
     }
 
     private var contentView: LinearLayout? = null
@@ -49,7 +49,7 @@ internal class OperatorCallView @JvmOverloads constructor(
 
     private var titleView: TitleView? = null
     private var recyclerView: RecyclerView? = null
-    private var adapter: CallScopesAdapter? = null
+    private var adapter: CallsAdapter? = null
 
     var callback: Callback? = null
 
@@ -146,22 +146,22 @@ internal class OperatorCallView @JvmOverloads constructor(
         return callButton
     }
 
-    fun showCallButton(operatorCall: OperatorCall) {
-        setCallButtonVisibility(operatorCall, true)
+    fun showCallButton(callType: CallType) {
+        setCallButtonVisibility(callType, true)
     }
 
-    fun hideCallButton(operatorCall: OperatorCall) {
-        setCallButtonVisibility(operatorCall, false)
+    fun hideCallButton(callType: CallType) {
+        setCallButtonVisibility(callType, false)
     }
 
-    private fun setCallButtonVisibility(operatorCall: OperatorCall, isVisible: Boolean) {
-        if ((operatorCall == OperatorCall.AUDIO || operatorCall == OperatorCall.VIDEO) &&
+    private fun setCallButtonVisibility(callType: CallType, isVisible: Boolean) {
+        if ((callType == CallType.AUDIO || callType == CallType.VIDEO) &&
             contentView == null
         ) {
             buildContentView()
         }
 
-        if (operatorCall == OperatorCall.AUDIO) {
+        if (callType == CallType.AUDIO) {
             if (isVisible) {
                 if (!contentView.isViewAdded(audioCallButton)) {
                     audioCallButton = buildButtonView(
@@ -174,7 +174,7 @@ internal class OperatorCallView @JvmOverloads constructor(
                     )
 
                     audioCallButton?.setOnClickListener {
-                        callback?.onOperatorCallClicked(operatorCall)
+                        callback?.onCallTypeClicked(callType)
                     }
 
                     contentView?.addView(audioCallButton)
@@ -184,7 +184,7 @@ internal class OperatorCallView @JvmOverloads constructor(
                     contentView?.removeView(audioCallButton)
                 }
             }
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             if (isVisible) {
                 if (!contentView.isViewAdded(videoCallButton)) {
                     videoCallButton = buildButtonView(
@@ -197,7 +197,7 @@ internal class OperatorCallView @JvmOverloads constructor(
                     )
 
                     videoCallButton?.setOnClickListener {
-                        callback?.onOperatorCallClicked(operatorCall)
+                        callback?.onCallTypeClicked(callType)
                     }
 
                     if (contentView.isViewAdded(audioCallButton)) {
@@ -219,29 +219,25 @@ internal class OperatorCallView @JvmOverloads constructor(
         return view != null && this.indexOfChild(view) != -1
     }
 
-    fun setCallButtonEnabled(operatorCall: OperatorCall) {
-        setCallButtonEnabled(operatorCall, true)
+    fun setCallButtonEnabled(callType: CallType) {
+        setCallButtonEnabled(callType, true)
     }
 
-    fun setCallButtonDisabled(operatorCall: OperatorCall) {
-        setCallButtonEnabled(operatorCall, false)
+    fun setCallButtonDisabled(callType: CallType) {
+        setCallButtonEnabled(callType, false)
     }
 
-    private fun setCallButtonEnabled(operatorCall: OperatorCall, isEnabled: Boolean) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    private fun setCallButtonEnabled(callType: CallType, isEnabled: Boolean) {
+        if (callType == CallType.AUDIO) {
             if (audioCallButton?.isEnabled == isEnabled) return
             audioCallButton?.isEnabled = isEnabled
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             if (videoCallButton?.isEnabled == isEnabled) return
             videoCallButton?.isEnabled = isEnabled
         }
     }
 
-    fun showCallScopes(
-        parentCallScope: Configs.CallScope?,
-        callScopes: List<Configs.CallScope>,
-        language: Language
-    ) {
+    fun showCalls(parentCall: Configs.Call?, calls: List<Configs.Call>, language: Language) {
         if (titleView == null) {
             titleView = TitleView(context)
             titleView?.layoutParams = MarginLayoutParams(
@@ -263,7 +259,7 @@ internal class OperatorCallView @JvmOverloads constructor(
             )
         }
 
-        if (parentCallScope == null) {
+        if (parentCall == null) {
             titleView?.hideBackButtonOnLeft()
 
             titleView?.setText(R.string.kenes_call_with_operator)
@@ -278,14 +274,14 @@ internal class OperatorCallView @JvmOverloads constructor(
         } else {
             titleView?.showBackButtonOnLeft()
 
-            titleView?.text = parentCallScope.title.get(language)
+            titleView?.text = parentCall.title.get(language)
 
             titleView?.isClickable = true
 
             titleView?.setRippleBackground()
 
             if (titleView?.hasOnClickListeners() == false) {
-                titleView?.setOnClickListener { callback?.onCallScopeBackClicked() }
+                titleView?.setOnClickListener { callback?.onCallBackClicked() }
             }
 
             adapter?.isFooterEnabled = true
@@ -328,13 +324,13 @@ internal class OperatorCallView @JvmOverloads constructor(
         }
 
         if (adapter == null) {
-            adapter = CallScopesAdapter(language, object : CallScopesAdapter.Callback {
-                override fun onCallScopeClicked(callScope: Configs.CallScope) {
-                    callback?.onCallScopeClicked(callScope)
+            adapter = CallsAdapter(language, object : CallsAdapter.Callback {
+                override fun onCallClicked(call: Configs.Call) {
+                    callback?.onCallClicked(call)
                 }
 
-                override fun onCallScopeBackClicked() {
-                    callback?.onCallScopeBackClicked()
+                override fun onCallBackClicked() {
+                    callback?.onCallBackClicked()
                 }
             })
 
@@ -343,7 +339,7 @@ internal class OperatorCallView @JvmOverloads constructor(
             recyclerView?.adapter = adapter
 
             recyclerView?.addItemDecoration(
-                CallScopesAdapterItemDecoration(
+                CallsAdapterItemDecoration(
                 context,
                 resources.getDimension(R.dimen.kenes_rounded_border_width),
                 resources.getDimension(R.dimen.kenes_rounded_border_radius)
@@ -351,34 +347,34 @@ internal class OperatorCallView @JvmOverloads constructor(
             )
         }
 
-        adapter?.callScopes = callScopes
+        adapter?.calls = calls
     }
 
-    fun removeListener(operatorCall: OperatorCall) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    fun removeListener(callType: CallType) {
+        if (callType == CallType.AUDIO) {
             audioCallButton?.setOnClickListener(null)
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             videoCallButton?.setOnClickListener(null)
         }
     }
 
     interface Callback {
-        fun onCallScopeClicked(callScope: Configs.CallScope)
-        fun onCallScopeBackClicked()
+        fun onCallClicked(call: Configs.Call)
+        fun onCallBackClicked()
 
-        fun onOperatorCallClicked(operatorCall: OperatorCall)
+        fun onCallTypeClicked(callType: CallType)
     }
 
 }
 
 
-private class CallScopesAdapter(
+private class CallsAdapter constructor(
     private val language: Language,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private const val TAG = "CallScopesAdapter"
+        private val TAG = CallsAdapter::class.java.simpleName
 
         private val LAYOUT_HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
 
@@ -386,7 +382,7 @@ private class CallScopesAdapter(
         const val VIEW_TYPE_FOOTER = 101
     }
 
-    var callScopes: List<Configs.CallScope> = emptyList()
+    var calls: List<Configs.Call> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -410,25 +406,25 @@ private class CallScopesAdapter(
         }
     }
 
-    override fun getItemCount(): Int = callScopes.size + if (isFooterEnabled) 1 else 0
+    override fun getItemCount(): Int = calls.size + if (isFooterEnabled) 1 else 0
 
-    fun getItem(position: Int): Configs.CallScope? {
+    fun getItem(position: Int): Configs.Call? {
         if (position < 0) {
             return null
         }
-        return callScopes[position]
+        return calls[position]
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            VIEW_TYPE_CALL_SCOPE -> CallScopeViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
+            VIEW_TYPE_CALL_SCOPE -> CallsViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
             VIEW_TYPE_FOOTER -> FooterViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
             else -> throw ViewHolderViewTypeException(viewType)
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is CallScopeViewHolder) {
+        if (holder is CallsViewHolder) {
             val item = getItem(position)
             item?.let { holder.bind(it) }
         } else if (holder is FooterViewHolder) {
@@ -436,17 +432,17 @@ private class CallScopesAdapter(
         }
     }
 
-    private inner class CallScopeViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class CallsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
-        fun bind(callScope: Configs.CallScope) {
-            textView?.text = callScope.title.get(language)
+        fun bind(call: Configs.Call) {
+            textView?.text = call.title.get(language)
 
-            debug(TAG, "callScope: $callScope")
+            debug(TAG, "call: $call")
 
-            when (callScope.type) {
-                Configs.CallScope.Type.FOLDER -> {
+            when (call.type) {
+                Configs.Nestable.Type.FOLDER -> {
                     imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
                     imageView?.visibility = View.VISIBLE
 
@@ -457,30 +453,30 @@ private class CallScopesAdapter(
 
                     itemView.background = buildRippleDrawable(itemView.context)
 
-                    itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                    itemView.setOnClickListener { callback.onCallClicked(call) }
                 }
-                Configs.CallScope.Type.LINK -> {
+                Configs.Nestable.Type.LINK -> {
                     imageView?.visibility = View.GONE
 
-                    when (callScope.action) {
-                        Configs.CallScope.Action.AUDIO_CALL -> {
+                    when (call.callType) {
+                        CallType.AUDIO -> {
                             val drawable = setDrawableTint(
                                 itemView.context,
                                 R.drawable.kenes_ic_headphones_blue,
                                 ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue)
                             )
-                            textView?.showCompoundDrawableOnfLeft(
+                            textView?.showCompoundDrawableOnLeft(
                                 drawable,
                                 itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
                             )
                         }
-                        Configs.CallScope.Action.VIDEO_CALL -> {
+                        CallType.VIDEO -> {
                             val drawable = setDrawableTint(
                                 itemView.context,
                                 R.drawable.kenes_ic_camera_blue,
                                 ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue)
                             )
-                            textView?.showCompoundDrawableOnfLeft(
+                            textView?.showCompoundDrawableOnLeft(
                                 drawable,
                                 itemView.context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
                             )
@@ -495,7 +491,7 @@ private class CallScopesAdapter(
 
                     itemView.background = buildRippleDrawable(itemView.context)
 
-                    itemView.setOnClickListener { callback.onCallScopeClicked(callScope) }
+                    itemView.setOnClickListener { callback.onCallClicked(call) }
                 }
                 else -> {
                     imageView?.visibility = View.GONE
@@ -526,19 +522,19 @@ private class CallScopesAdapter(
 
             itemView.background = buildRippleDrawable(itemView.context)
 
-            itemView.setOnClickListener { callback.onCallScopeBackClicked() }
+            itemView.setOnClickListener { callback.onCallBackClicked() }
         }
     }
 
     interface Callback {
-        fun onCallScopeClicked(callScope: Configs.CallScope)
-        fun onCallScopeBackClicked()
+        fun onCallClicked(call: Configs.Call)
+        fun onCallBackClicked()
     }
 
 }
 
 
-private class CallScopesAdapterItemDecoration(
+private class CallsAdapterItemDecoration(
     context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float
@@ -553,7 +549,7 @@ private class CallScopesAdapterItemDecoration(
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        val adapter = (parent.adapter as? CallScopesAdapter?) ?: return
+        val adapter = (parent.adapter as? CallsAdapter?) ?: return
 
         val itemCount = parent.childCount
 //        val itemCount = adapter.itemCount
@@ -577,13 +573,13 @@ private class CallScopesAdapterItemDecoration(
 
                 val viewType = adapter.getItemViewType(index)
 
-                if (viewType == CallScopesAdapter.VIEW_TYPE_FOOTER) {
+                if (viewType == CallsAdapter.VIEW_TYPE_FOOTER) {
                     val path = getPathOfRoundedRectF(
                         child,
                         radius = parent.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
                     )
                     c.drawPath(path, paint)
-                } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+                } else if (viewType == CallsAdapter.VIEW_TYPE_CALL_SCOPE) {
                     val relationalItemCount = if (adapter.isFooterEnabled) {
                         itemCount - 1
                     } else {
@@ -650,7 +646,7 @@ private class CallScopesAdapterItemDecoration(
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = (parent.adapter as? CallScopesAdapter?) ?: return
+        val adapter = (parent.adapter as? CallsAdapter?) ?: return
 
 //        val itemCount = parent.childCount
         val itemCount = adapter.itemCount
@@ -661,9 +657,9 @@ private class CallScopesAdapterItemDecoration(
 
         // Offset between elements
         when (viewType) {
-            CallScopesAdapter.VIEW_TYPE_CALL_SCOPE ->
+            CallsAdapter.VIEW_TYPE_CALL_SCOPE ->
                 outRect.setEmpty()
-            CallScopesAdapter.VIEW_TYPE_FOOTER ->
+            CallsAdapter.VIEW_TYPE_FOOTER ->
                 outRect.top = parent.context.resources.getDimensionPixelOffset(R.dimen.kenes_footer_vertical_offset)
             else ->
                 outRect.setEmpty()
@@ -671,9 +667,9 @@ private class CallScopesAdapterItemDecoration(
 
         // Draw rounded background
         if (cornerRadius.compareTo(0f) != 0) {
-            val roundMode = if (viewType == CallScopesAdapter.VIEW_TYPE_FOOTER) {
+            val roundMode = if (viewType == CallsAdapter.VIEW_TYPE_FOOTER) {
                 RoundMode.ALL
-            } else if (viewType == CallScopesAdapter.VIEW_TYPE_CALL_SCOPE) {
+            } else if (viewType == CallsAdapter.VIEW_TYPE_CALL_SCOPE) {
                 val relationalItemCount = if (adapter.isFooterEnabled) {
                     itemCount - 1
                 } else {

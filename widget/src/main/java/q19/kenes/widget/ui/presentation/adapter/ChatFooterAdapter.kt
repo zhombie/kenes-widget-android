@@ -5,12 +5,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes_widget.R
-import q19.kenes.widget.core.errors.ViewHolderViewTypeException
+import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.utils.textview.removeCompoundDrawables
+import kz.q19.utils.textview.showCompoundDrawableOnfLeft
 import q19.kenes.widget.ui.presentation.model.ChatFooter
 import q19.kenes.widget.util.inflate
-import q19.kenes.widget.util.removeCompoundDrawables
-import q19.kenes.widget.util.showCompoundDrawableOnfLeft
+import q19.kenes_widget.R
 import java.util.*
 
 internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {

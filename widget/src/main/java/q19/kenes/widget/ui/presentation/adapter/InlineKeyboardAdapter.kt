@@ -10,33 +10,34 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes_widget.R
-import q19.kenes.widget.data.model.Message
+import kz.q19.domain.model.keyboard.Keyboard
+import kz.q19.domain.model.keyboard.button.Button
 import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.inflate
+import q19.kenes_widget.R
 
 internal class InlineKeyboardAdapter(
-    private val callback: (button: Message.ReplyMarkup.Button) -> Unit
+    private val callback: (button: Button) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val LAYOUT_KEYBOARD_BUTTON = R.layout.kenes_cell_message_keyboard_button
     }
 
-    var replyMarkup: Message.ReplyMarkup? = null
+    var replyMarkup: Keyboard? = null
         set(value) {
             field = value
             buttons = field?.getAllButtons() ?: emptyList()
         }
 
-    private var buttons: List<Message.ReplyMarkup.Button> = emptyList()
+    private var buttons: List<Button> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    private fun getItem(position: Int): Message.ReplyMarkup.Button {
+    private fun getItem(position: Int): Button {
         return buttons[position]
     }
 
@@ -55,7 +56,7 @@ internal class InlineKeyboardAdapter(
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val textView = view.findViewById<TextView>(R.id.textView)
 
-        fun bind(button: Message.ReplyMarkup.Button) {
+        fun bind(button: Button) {
             textView?.text = button.text
 
             itemView.background = buildRippleDrawable(itemView.context)

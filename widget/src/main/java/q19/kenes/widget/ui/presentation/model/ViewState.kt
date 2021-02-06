@@ -2,7 +2,7 @@ package q19.kenes.widget.ui.presentation.model
 
 internal sealed class ViewState {
     sealed class ChatBot : ViewState() {
-        class Categories(val isLoading: Boolean) : ChatBot()
+        class Dashboard(val isLoading: Boolean) : ChatBot()
         class UserPrompt(val isLoading: Boolean) : ChatBot()
     }
 
@@ -15,7 +15,7 @@ internal sealed class ViewState {
         class UserFeedback(val isFeedbackSent: Boolean) : TextDialog()
     }
 
-    object OperatorCall : ViewState()
+    object CallAgentCall : ViewState()
 
     sealed class AudioDialog : ViewState() {
         object Pending : AudioDialog()

@@ -2,7 +2,6 @@ package q19.kenes.widget.ui.components
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -10,10 +9,10 @@ import androidx.annotation.AttrRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import q19.kenes_widget.R
-import q19.kenes.widget.data.model.Configs
+import kz.q19.domain.model.configs.Configs
 import q19.kenes.widget.util.isVisible
 import q19.kenes.widget.util.loadCircleImage
+import q19.kenes_widget.R
 
 internal class HeaderView @JvmOverloads constructor(
     context: Context,
@@ -45,26 +44,26 @@ internal class HeaderView @JvmOverloads constructor(
         hideHangupButton()
     }
 
-    fun setOpponentInfo(opponent: Configs.Opponent?) {
-        if (opponent?.isDrawableResAvailable == true) {
-            setOpponentAvatar(opponent.drawableRes)
-        } else {
-            setOpponentAvatar(opponent?.avatarUrl)
-        }
-
-        if (!opponent?.name.isNullOrBlank()) {
-            setOpponentName(opponent?.name)
-            opponentNameView.visibility = View.VISIBLE
-        } else {
-            opponentNameView.visibility = View.GONE
-        }
-
-        if (!opponent?.secondName.isNullOrBlank()) {
-            setOpponentSecondName(opponent?.secondName)
-            opponentSecondNameView.visibility = View.VISIBLE
-        } else {
-            opponentSecondNameView.visibility = View.GONE
-        }
+    fun setOpponentInfo(opponent: Configs.CallAgent?) {
+//        if (opponent?.isDrawableResAvailable == true) {
+//            setOpponentAvatar(opponent.drawableRes)
+//        } else {
+//            setOpponentAvatar(opponent?.avatarUrl)
+//        }
+//
+//        if (!opponent?.name.isNullOrBlank()) {
+//            setOpponentName(opponent?.name)
+//            opponentNameView.visibility = View.VISIBLE
+//        } else {
+//            opponentNameView.visibility = View.GONE
+//        }
+//
+//        if (!opponent?.secondName.isNullOrBlank()) {
+//            setOpponentSecondName(opponent?.secondName)
+//            opponentSecondNameView.visibility = View.VISIBLE
+//        } else {
+//            opponentSecondNameView.visibility = View.GONE
+//        }
     }
 
     fun setOpponentAvatar(photoUrl: String?) {

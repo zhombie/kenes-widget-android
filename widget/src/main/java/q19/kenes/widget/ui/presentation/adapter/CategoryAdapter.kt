@@ -11,14 +11,14 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.domain.model.message.Category
+import kz.q19.utils.textview.removeCompoundDrawables
 import q19.kenes.widget.ui.util.*
-import q19.kenes_widget.R
-import q19.kenes.widget.core.errors.ViewHolderViewTypeException
-import q19.kenes.widget.data.model.Category
 import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.inflate
 import q19.kenes.widget.util.isVisible
-import q19.kenes.widget.util.removeCompoundDrawables
+import q19.kenes_widget.R
 
 internal class CategoryAdapter constructor(
     var isExpandable: Boolean,
