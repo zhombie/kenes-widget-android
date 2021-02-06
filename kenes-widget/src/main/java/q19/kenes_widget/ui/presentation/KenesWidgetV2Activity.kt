@@ -30,6 +30,7 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 import q19.kenes_widget.R
+import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
 import q19.kenes_widget.data.model.*
@@ -224,6 +225,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         presenter = KenesWidgetV2Presenter(
 //            appProvider = AppProvider(),
+            deviceInfo = DeviceInfo(this),
             language = Language.from(getCurrentLocale()),
             palette = palette
         )
@@ -257,8 +259,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
 
         operatorCallView.callback = object : OperatorCallView.Callback {
-            override fun onOperatorCallClicked(operatorCall: OperatorCall) {
-                presenter.onCallOperatorClicked(operatorCall)
+            override fun onOperatorCallClicked(callType: CallType) {
+                presenter.onCallOperatorClicked(callType)
             }
 
             override fun onCallScopeClicked(callScope: Configs.CallScope) {
@@ -408,7 +410,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         videoDialogView.callback = object : VideoDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                presenter.onGoToChatButtonClicked(OperatorCall.VIDEO)
+                presenter.onGoToChatButtonClicked(CallType.VIDEO)
             }
 
             override fun onHangupButtonClicked() {
@@ -434,7 +436,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
         audioDialogView.callback = object : AudioDialogView.Callback {
             override fun onGoToChatButtonClicked() {
-                presenter.onGoToChatButtonClicked(OperatorCall.AUDIO)
+                presenter.onGoToChatButtonClicked(CallType.AUDIO)
             }
 
             override fun onHangupButtonClicked() {
@@ -562,7 +564,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             }
 
             override fun onSwitchToCallAgentButtonClicked() {
-                presenter.onCallOperator(OperatorCall.TEXT)
+                presenter.onCallOperator(CallType.TEXT)
             }
 
             override fun onRegisterAppealButtonClicked() {
@@ -699,18 +701,18 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
-    override fun showOperatorCallButton(operatorCall: OperatorCall) {
+    override fun showOperatorCallButton(callType: CallType) {
         runOnUiThread {
-            operatorCallView.showCallButton(operatorCall)
-            operatorCallView.setCallButtonEnabled(operatorCall)
+            operatorCallView.showCallButton(callType)
+            operatorCallView.setCallButtonEnabled(callType)
         }
     }
 
-    override fun hideOperatorCallButton(operatorCall: OperatorCall) {
+    override fun hideOperatorCallButton(callType: CallType) {
         runOnUiThread {
-            operatorCallView.hideCallButton(operatorCall)
-            operatorCallView.setCallButtonDisabled(operatorCall)
-            operatorCallView.removeListener(operatorCall)
+            operatorCallView.hideCallButton(callType)
+            operatorCallView.setCallButtonDisabled(callType)
+            operatorCallView.removeListener(callType)
         }
     }
 
@@ -723,8 +725,8 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
             operatorCallPendingView.setCancelCallButtonDisabled()
             operatorCallPendingView.isVisible = false
 
-            operatorCallView.setCallButtonEnabled(OperatorCall.AUDIO)
-            operatorCallView.setCallButtonEnabled(OperatorCall.VIDEO)
+            operatorCallView.setCallButtonEnabled(CallType.AUDIO)
+            operatorCallView.setCallButtonEnabled(CallType.VIDEO)
         }
     }
 
@@ -857,10 +859,10 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
-    override fun showAlreadyCallingAlert(operatorCall: OperatorCall) {
+    override fun showAlreadyCallingAlert(callType: CallType) {
         runOnUiThread {
             showAlreadyCallingAlert {
-                presenter.onCallCancelClicked(operatorCall)
+                presenter.onCallCancelClicked(callType)
             }
         }
     }
@@ -893,15 +895,15 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
     }
 
-    override fun setUnreadMessagesCountOnCall(operatorCall: OperatorCall, count: String) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    override fun setUnreadMessagesCountOnCall(callType: CallType, count: String) {
+        if (callType == CallType.AUDIO) {
             runOnUiThread {
                 audioDialogView.setUnreadMessagesCount(count)
                 if (audioDialogView.isUnreadMessagesCounterHidden()) {
                     audioDialogView.showUnreadMessagesCounter()
                 }
             }
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             runOnUiThread {
                 videoDialogView.setUnreadMessagesCount(count)
                 if (videoDialogView.isUnreadMessagesCounterHidden()) {
@@ -1043,16 +1045,16 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         chatAdapter?.setProgress(progress, fileType, itemPosition)
     }
 
-    override fun resolvePermissions(operatorCall: OperatorCall, scope: String?) {
+    override fun resolvePermissions(callType: CallType, scope: String?) {
         permissionManager.checkPermission(
-            when (operatorCall) {
-                OperatorCall.AUDIO -> PermissionManager.Permission.AUDIO_CALL
-                OperatorCall.VIDEO -> PermissionManager.Permission.VIDEO_CALL
+            when (callType) {
+                CallType.AUDIO -> PermissionManager.Permission.AUDIO_CALL
+                CallType.VIDEO -> PermissionManager.Permission.VIDEO_CALL
                 else -> return
             }
         ) {
             if (it) {
-                presenter.onCallOperator(operatorCall, scope)
+                presenter.onCallOperator(callType, scope)
             }
         }
     }
@@ -1443,7 +1445,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
+                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_audio_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
@@ -1460,7 +1462,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
                             headerView.showHangupButton()
 
-                            operatorCallView.setCallButtonDisabled(OperatorCall.AUDIO)
+                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
                             operatorCallView.isVisible = false
                             operatorCallPendingView.isVisible = false
 
@@ -1575,7 +1577,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            operatorCallView.setCallButtonDisabled(OperatorCall.VIDEO)
+                            operatorCallView.setCallButtonDisabled(CallType.VIDEO)
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_video_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()

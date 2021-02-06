@@ -39,13 +39,13 @@ interface KenesWidgetV2View {
     fun setDefaultFooterView()
     fun setDefaultOperatorCallView()
 
-    fun showOperatorCallButton(operatorCall: OperatorCall)
-    fun hideOperatorCallButton(operatorCall: OperatorCall)
+    fun showOperatorCallButton(callType: CallType)
+    fun hideOperatorCallButton(callType: CallType)
 
     fun setOperatorCallInfoText(text: String)
     fun setOperatorCallPendingQueueCount(count: Int)
 
-    fun setUnreadMessagesCountOnCall(operatorCall: OperatorCall, count: String)
+    fun setUnreadMessagesCountOnCall(callType: CallType, count: String)
 
     fun addNewMessage(message: Message)
     fun setNewMessages(message: Message)
@@ -67,7 +67,7 @@ interface KenesWidgetV2View {
     fun clearChatFooterMessages()
     fun clearMessageInputViewText()
 
-    fun resolvePermissions(operatorCall: OperatorCall, scope: String? = null)
+    fun resolvePermissions(callType: CallType, scope: String? = null)
 
     fun restoreChatListViewState(chatListViewState: Parcelable)
 
@@ -76,7 +76,7 @@ interface KenesWidgetV2View {
     fun releasePeerConnection()
 
     fun showAlreadyCallingAlert(bottomNavigation: BottomNavigation)
-    fun showAlreadyCallingAlert(operatorCall: OperatorCall)
+    fun showAlreadyCallingAlert(callType: CallType)
     fun showNoOnlineCallAgentsAlert(text: String)
     fun showOpenLinkConfirmAlert(url: String)
     fun showFormSentSuccessAlert()

@@ -10,6 +10,7 @@ import org.webrtc.SessionDescription
 import q19.kenes_widget.data.model.*
 import q19.kenes_widget.util.JsonUtil.getNullableString
 import q19.kenes_widget.util.JsonUtil.jsonObject
+import q19.kenes_widget.util.JsonUtil.putIfValueNotNull
 import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.findEnumBy
@@ -423,36 +424,53 @@ class SocketClient(
         socket?.connect()
     }
 
-    fun callOperator(operatorCall: OperatorCall, scope: String? = null, language: String? = null) {
-        when (operatorCall) {
-            OperatorCall.TEXT -> {
-                socket?.emit("initialize", jsonObject {
-                    put("video", false)
-                    if (!scope.isNullOrBlank()) {
-                        put("scope", scope)
+    fun sendCallInitialization(callInitialization: CallInitialization) {
+        debug(TAG, "sendCallInitialization() -> $callInitialization")
+
+        socket?.emit("initialize", jsonObject {
+            when (callInitialization.callType) {
+                CallType.TEXT -> {
+                    // Ignored
+                }
+                CallType.AUDIO -> {
+                    put("media", "audio")
+                }
+                CallType.VIDEO -> {
+                    put("media", "video")
+                }
+            }
+
+            putIfValueNotNull("user_id", callInitialization.userId)
+            putIfValueNotNull("domain", callInitialization.domain)
+            putIfValueNotNull("topic", callInitialization.topic)
+
+            if (callInitialization.device != null) {
+                put("device", jsonObject {
+                    putIfValueNotNull("os", callInitialization.device.os)
+                    putIfValueNotNull("os_ver", callInitialization.device.osVersion)
+                    putIfValueNotNull("name", callInitialization.device.name)
+                    putIfValueNotNull("mobile_operator", callInitialization.device.mobileOperator)
+                    putIfValueNotNull("app_ver", callInitialization.device.appVersion)
+
+                    if (callInitialization.device.battery != null) {
+                        put("battery", jsonObject {
+                            putIfValueNotNull("percentage", callInitialization.device.battery.percentage)
+                            putIfValueNotNull("is_charging", callInitialization.device.battery.isCharging)
+                            putIfValueNotNull("temperature", callInitialization.device.battery.temperature)
+                        })
                     }
-                    put("lang", fetchLanguage(language))
                 })
             }
-            OperatorCall.AUDIO -> {
-                socket?.emit("initialize", jsonObject {
-                    put("audio", true)
-                    if (!scope.isNullOrBlank()) {
-                        put("scope", scope)
-                    }
-                    put("lang", fetchLanguage(language))
+
+            if (callInitialization.location != null) {
+                put("location", jsonObject {
+                    put("lat", callInitialization.location.latitude)
+                    put("lon", callInitialization.location.longitude)
                 })
             }
-            OperatorCall.VIDEO -> {
-                socket?.emit("initialize", jsonObject {
-                    put("video", true)
-                    if (!scope.isNullOrBlank()) {
-                        put("scope", scope)
-                    }
-                    put("lang", fetchLanguage(language))
-                })
-            }
-        }
+
+            put("lang", callInitialization.language.key)
+        })
     }
 
     fun getBasicCategories(language: String? = null) {

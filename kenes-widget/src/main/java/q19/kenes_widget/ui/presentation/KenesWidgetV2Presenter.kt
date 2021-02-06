@@ -6,12 +6,14 @@ import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
+import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.data.model.*
 import q19.kenes_widget.data.network.file.DownloadResult
 import q19.kenes_widget.data.network.file.downloadFile
 import q19.kenes_widget.data.network.file.uploadFile
 import q19.kenes_widget.data.network.http.IceServersTask
 import q19.kenes_widget.data.network.http.WidgetConfigsTask
+import q19.kenes_widget.data.network.socket.CallInitialization
 import q19.kenes_widget.data.network.socket.SocketClient
 import q19.kenes_widget.ui.presentation.model.BottomNavigation
 import q19.kenes_widget.ui.presentation.model.ChatBot
@@ -22,14 +24,15 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
-class KenesWidgetV2Presenter(
+class KenesWidgetV2Presenter constructor(
 //    private val appProvider: AppProvider,
+    private val deviceInfo: DeviceInfo,
     private val language: Language,
     private val palette: IntArray
 ) {
 
     companion object {
-        private const val TAG = "KenesWidgetV2Presenter"
+        private val TAG = KenesWidgetV2Presenter::class.java.simpleName
     }
 
     private var view: KenesWidgetV2View? = null
@@ -503,12 +506,12 @@ class KenesWidgetV2Presenter(
                     dialog.unreadMessages += 1
                     if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
                         view?.setUnreadMessagesCountOnCall(
-                            OperatorCall.AUDIO,
+                            CallType.AUDIO,
                             "${dialog.unreadMessages}+"
                         )
                     } else {
                         view?.setUnreadMessagesCountOnCall(
-                            OperatorCall.AUDIO,
+                            CallType.AUDIO,
                             "${dialog.unreadMessages}"
                         )
                     }
@@ -516,12 +519,12 @@ class KenesWidgetV2Presenter(
                     dialog.unreadMessages += 1
                     if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
                         view?.setUnreadMessagesCountOnCall(
-                            OperatorCall.VIDEO,
+                            CallType.VIDEO,
                             "${dialog.unreadMessages}+"
                         )
                     } else {
                         view?.setUnreadMessagesCountOnCall(
-                            OperatorCall.VIDEO,
+                            CallType.VIDEO,
                             "${dialog.unreadMessages}"
                         )
                     }
@@ -686,14 +689,14 @@ class KenesWidgetV2Presenter(
                         }
                     } else {
                         if (configs.booleans.isAudioCallEnabled) {
-                            view?.showOperatorCallButton(OperatorCall.AUDIO)
+                            view?.showOperatorCallButton(CallType.AUDIO)
                         } else {
-                            view?.hideOperatorCallButton(OperatorCall.AUDIO)
+                            view?.hideOperatorCallButton(CallType.AUDIO)
                         }
                         if (configs.booleans.isVideoCallEnabled) {
-                            view?.showOperatorCallButton(OperatorCall.VIDEO)
+                            view?.showOperatorCallButton(CallType.VIDEO)
                         } else {
-                            view?.hideOperatorCallButton(OperatorCall.VIDEO)
+                            view?.hideOperatorCallButton(CallType.VIDEO)
                         }
 
                         view?.showNavButton(BottomNavigation.OPERATOR_CALL)
@@ -911,27 +914,27 @@ class KenesWidgetV2Presenter(
         }
     }
 
-    fun onCallOperatorClicked(operatorCall: OperatorCall) {
-        tryToCall(operatorCall)
+    fun onCallOperatorClicked(callType: CallType) {
+        tryToCall(callType)
     }
 
-    private fun tryToCall(operatorCall: OperatorCall, scope: String? = null) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    private fun tryToCall(callType: CallType, scope: String? = null) {
+        if (callType == CallType.AUDIO) {
             if (configs?.booleans?.isAudioCallEnabled == false) return
 
-            view?.resolvePermissions(operatorCall, scope)
-        } else if (operatorCall == OperatorCall.VIDEO) {
+            view?.resolvePermissions(callType, scope)
+        } else if (callType == CallType.VIDEO) {
             if (configs?.booleans?.isVideoCallEnabled == false) return
 
-            view?.resolvePermissions(operatorCall, scope)
+            view?.resolvePermissions(callType, scope)
         }
     }
 
-    fun onCallOperator(operatorCall: OperatorCall, scope: String? = null) {
+    fun onCallOperator(callType: CallType, scope: String? = null) {
         debug(TAG, "onCallOperator() -> viewState: $viewState")
 
         if (dialog.isInitiator) {
-            view?.showAlreadyCallingAlert(operatorCall)
+            view?.showAlreadyCallingAlert(callType)
             return
         }
 
@@ -939,13 +942,32 @@ class KenesWidgetV2Presenter(
 
 //        view?.clearChatMessages()
 
-        viewState = when (operatorCall) {
-            OperatorCall.TEXT -> ViewState.TextDialog.Pending
-            OperatorCall.AUDIO -> ViewState.AudioDialog.Pending
-            OperatorCall.VIDEO -> ViewState.VideoDialog.Pending
+        viewState = when (callType) {
+            CallType.TEXT -> ViewState.TextDialog.Pending
+            CallType.AUDIO -> ViewState.AudioDialog.Pending
+            CallType.VIDEO -> ViewState.VideoDialog.Pending
         }
 
-        socketClient?.callOperator(operatorCall, scope = scope)
+        val callInitialization = CallInitialization(
+            callType = callType,
+            domain = UrlUtil.getHostname()?.removePrefix("https://"),
+            topic = scope,
+            device = CallInitialization.Device(
+                os = deviceInfo.os,
+                osVersion = deviceInfo.osVersion,
+                appVersion = deviceInfo.versionName,
+                name = deviceInfo.deviceName,
+                mobileOperator = deviceInfo.operator,
+                battery = CallInitialization.Device.Battery(
+                    percentage = deviceInfo.batteryPercent,
+                    isCharging = deviceInfo.isPhoneCharging,
+                    temperature = deviceInfo.batteryTemperature
+                )
+            ),
+            language = language
+        )
+
+        socketClient?.sendCallInitialization(callInitialization)
     }
 
     fun onCallScopeClicked(callScope: Configs.CallScope) {
@@ -972,9 +994,9 @@ class KenesWidgetV2Presenter(
             }
         } else if (callScope.type == Configs.CallScope.Type.LINK) {
             if (callScope.action == Configs.CallScope.Action.AUDIO_CALL) {
-                tryToCall(OperatorCall.AUDIO, scope = callScope.scope)
+                tryToCall(CallType.AUDIO, scope = callScope.scope)
             } else if (callScope.action == Configs.CallScope.Action.VIDEO_CALL) {
-                tryToCall(OperatorCall.VIDEO, scope = callScope.scope)
+                tryToCall(CallType.VIDEO, scope = callScope.scope)
             }
         }
     }
@@ -1094,10 +1116,10 @@ class KenesWidgetV2Presenter(
         }
     }
 
-    fun onGoToChatButtonClicked(operatorCall: OperatorCall) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    fun onGoToChatButtonClicked(callType: CallType) {
+        if (callType == CallType.AUDIO) {
             viewState = ViewState.AudioDialog.Live(false)
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             viewState = ViewState.VideoDialog.Live(false)
         }
     }
@@ -1245,15 +1267,15 @@ class KenesWidgetV2Presenter(
         }
     }
 
-    fun onCallCancelClicked(operatorCall: OperatorCall? = null) {
+    fun onCallCancelClicked(callType: CallType? = null) {
         cancelPendingCall()
 
-        viewState = if (operatorCall == null) {
+        viewState = if (callType == null) {
             ViewState.OperatorCall
         } else {
-            when (operatorCall) {
-                OperatorCall.TEXT -> ViewState.ChatBot.UserPrompt(false)
-                OperatorCall.AUDIO, OperatorCall.VIDEO -> ViewState.OperatorCall
+            when (callType) {
+                CallType.TEXT -> ViewState.ChatBot.UserPrompt(false)
+                CallType.AUDIO, CallType.VIDEO -> ViewState.OperatorCall
             }
         }
     }

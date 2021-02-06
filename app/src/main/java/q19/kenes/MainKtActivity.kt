@@ -15,8 +15,6 @@ class MainKtActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        openWidget()
-
         openWidget?.setOnClickListener { openWidget() }
     }
 

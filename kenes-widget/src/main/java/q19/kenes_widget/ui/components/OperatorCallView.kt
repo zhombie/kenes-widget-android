@@ -20,9 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes_widget.R
 import q19.kenes_widget.core.errors.ViewHolderViewTypeException
+import q19.kenes_widget.data.model.CallType
 import q19.kenes_widget.data.model.Configs
 import q19.kenes_widget.data.model.Language
-import q19.kenes_widget.data.model.OperatorCall
 import q19.kenes_widget.ui.components.base.TextView
 import q19.kenes_widget.ui.components.base.TitleView
 import q19.kenes_widget.ui.util.*
@@ -146,22 +146,22 @@ class OperatorCallView @JvmOverloads constructor(
         return callButton
     }
 
-    fun showCallButton(operatorCall: OperatorCall) {
-        setCallButtonVisibility(operatorCall, true)
+    fun showCallButton(callType: CallType) {
+        setCallButtonVisibility(callType, true)
     }
 
-    fun hideCallButton(operatorCall: OperatorCall) {
-        setCallButtonVisibility(operatorCall, false)
+    fun hideCallButton(callType: CallType) {
+        setCallButtonVisibility(callType, false)
     }
 
-    private fun setCallButtonVisibility(operatorCall: OperatorCall, isVisible: Boolean) {
-        if ((operatorCall == OperatorCall.AUDIO || operatorCall == OperatorCall.VIDEO) &&
+    private fun setCallButtonVisibility(callType: CallType, isVisible: Boolean) {
+        if ((callType == CallType.AUDIO || callType == CallType.VIDEO) &&
             contentView == null
         ) {
             buildContentView()
         }
 
-        if (operatorCall == OperatorCall.AUDIO) {
+        if (callType == CallType.AUDIO) {
             if (isVisible) {
                 if (!contentView.isViewAdded(audioCallButton)) {
                     audioCallButton = buildButtonView(
@@ -174,7 +174,7 @@ class OperatorCallView @JvmOverloads constructor(
                     )
 
                     audioCallButton?.setOnClickListener {
-                        callback?.onOperatorCallClicked(operatorCall)
+                        callback?.onOperatorCallClicked(callType)
                     }
 
                     contentView?.addView(audioCallButton)
@@ -184,7 +184,7 @@ class OperatorCallView @JvmOverloads constructor(
                     contentView?.removeView(audioCallButton)
                 }
             }
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             if (isVisible) {
                 if (!contentView.isViewAdded(videoCallButton)) {
                     videoCallButton = buildButtonView(
@@ -197,7 +197,7 @@ class OperatorCallView @JvmOverloads constructor(
                     )
 
                     videoCallButton?.setOnClickListener {
-                        callback?.onOperatorCallClicked(operatorCall)
+                        callback?.onOperatorCallClicked(callType)
                     }
 
                     if (contentView.isViewAdded(audioCallButton)) {
@@ -219,19 +219,19 @@ class OperatorCallView @JvmOverloads constructor(
         return view != null && this.indexOfChild(view) != -1
     }
 
-    fun setCallButtonEnabled(operatorCall: OperatorCall) {
-        setCallButtonEnabled(operatorCall, true)
+    fun setCallButtonEnabled(callType: CallType) {
+        setCallButtonEnabled(callType, true)
     }
 
-    fun setCallButtonDisabled(operatorCall: OperatorCall) {
-        setCallButtonEnabled(operatorCall, false)
+    fun setCallButtonDisabled(callType: CallType) {
+        setCallButtonEnabled(callType, false)
     }
 
-    private fun setCallButtonEnabled(operatorCall: OperatorCall, isEnabled: Boolean) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    private fun setCallButtonEnabled(callType: CallType, isEnabled: Boolean) {
+        if (callType == CallType.AUDIO) {
             if (audioCallButton?.isEnabled == isEnabled) return
             audioCallButton?.isEnabled = isEnabled
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             if (videoCallButton?.isEnabled == isEnabled) return
             videoCallButton?.isEnabled = isEnabled
         }
@@ -352,10 +352,10 @@ class OperatorCallView @JvmOverloads constructor(
         adapter?.callScopes = callScopes
     }
 
-    fun removeListener(operatorCall: OperatorCall) {
-        if (operatorCall == OperatorCall.AUDIO) {
+    fun removeListener(callType: CallType) {
+        if (callType == CallType.AUDIO) {
             audioCallButton?.setOnClickListener(null)
-        } else if (operatorCall == OperatorCall.VIDEO) {
+        } else if (callType == CallType.VIDEO) {
             videoCallButton?.setOnClickListener(null)
         }
     }
@@ -364,7 +364,7 @@ class OperatorCallView @JvmOverloads constructor(
         fun onCallScopeClicked(callScope: Configs.CallScope)
         fun onCallScopeBackClicked()
 
-        fun onOperatorCallClicked(operatorCall: OperatorCall)
+        fun onOperatorCallClicked(callType: CallType)
     }
 
 }

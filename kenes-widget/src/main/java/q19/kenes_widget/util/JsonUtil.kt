@@ -41,4 +41,16 @@ object JsonUtil {
         return jsonObject
     }
 
+    fun JSONObject.putIfValueNotNull(key: String, any: Any?) {
+        if (any is String?) {
+            if (!any.isNullOrBlank()) {
+                put(key, any)
+            }
+        } else {
+            if (any != null) {
+                put(key, any)
+            }
+        }
+    }
+
 }

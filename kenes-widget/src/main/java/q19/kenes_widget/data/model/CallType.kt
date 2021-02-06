@@ -1,6 +1,6 @@
 package q19.kenes_widget.data.model
 
-enum class OperatorCall {
+enum class CallType {
     TEXT,
     AUDIO,
     VIDEO

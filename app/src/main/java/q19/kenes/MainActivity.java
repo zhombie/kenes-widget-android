@@ -17,8 +17,6 @@ class MainActivity extends AppCompatActivity {
 
         Button openWidget = findViewById(R.id.openWidget);
 
-        openWidget();
-
         openWidget.setOnClickListener(v -> openWidget());
     }
 
