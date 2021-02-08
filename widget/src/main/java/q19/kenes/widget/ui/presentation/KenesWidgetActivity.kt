@@ -46,6 +46,7 @@ import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.util.*
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes_widget.R
+import q19.kenes.widget.core.device.DeviceInfo
 
 internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
 
@@ -213,6 +214,7 @@ internal class KenesWidgetActivity : LocalizationActivity(), KenesWidgetView {
         // ------------------------------------------------------------------------
 
         presenter = KenesWidgetPresenter(
+            deviceInfo = DeviceInfo(this),
             language = Language.from(getCurrentLocale()),
             peerConnectionClient = PeerConnectionClient(
                 context = this,

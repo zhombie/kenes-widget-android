@@ -38,8 +38,10 @@ import q19.kenes.widget.ui.presentation.model.Dialog
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.UrlUtil
+import q19.kenes.widget.core.device.DeviceInfo
 
 internal class KenesWidgetPresenter constructor(
+    private val deviceInfo: DeviceInfo,
     private val language: Language,
     private val peerConnectionClient: PeerConnectionClient
 ) : ChatBotListener, SocketStateListener, WebRTCListener, DialogListener, FormListener,
@@ -515,7 +517,7 @@ internal class KenesWidgetPresenter constructor(
         val callInitialization = CallInitialization(
             callType = callType,
             topic = scope,
-            language = language
+            language = language,
         )
 
         socketClient?.sendCallInitialization(callInitialization)
