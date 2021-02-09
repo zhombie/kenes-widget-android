@@ -4,61 +4,47 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/kenes_white"
-    android:orientation="vertical">
+    android:gravity="bottom|center_horizontal"
+    android:orientation="horizontal">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/kenes_very_light_gray" />
-
-    <LinearLayout
-        android:id="@+id/buttonsView"
-        android:layout_width="match_parent"
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/homeButton"
+        style="@style/BottomNavigationButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="bottom|center_horizontal"
-        android:orientation="horizontal">
+        android:layout_weight="1"
+        android:drawableTop="@drawable/kenes_ic_home_gray"
+        android:ellipsize="end"
+        android:text="@string/kenes_home" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/homeButton"
-            style="@style/BottomNavigationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_home_gray"
-            android:ellipsize="end"
-            android:text="@string/kenes_home" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/servicesButton"
+        style="@style/BottomNavigationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/kenes_ic_service_gray"
+        android:ellipsize="end"
+        android:text="@string/kenes_services" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/servicesButton"
-            style="@style/BottomNavigationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_service_gray"
-            android:ellipsize="end"
-            android:text="@string/kenes_services" />
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/callButton"
+        style="@style/BottomNavigationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/kenes_ic_headphones_gray"
+        android:ellipsize="end"
+        android:text="@string/kenes_calls" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/callButton"
-            style="@style/BottomNavigationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_headphones_gray"
-            android:ellipsize="end"
-            android:text="@string/kenes_calls" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/infoButton"
-            style="@style/BottomNavigationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:drawableTop="@drawable/kenes_ic_list_gray"
-            android:ellipsize="end"
-            android:text="@string/kenes_contacts" />
-
-    </LinearLayout>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/infoButton"
+        style="@style/BottomNavigationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/kenes_ic_list_gray"
+        android:ellipsize="end"
+        android:text="@string/kenes_contacts" />
 
 </LinearLayout>

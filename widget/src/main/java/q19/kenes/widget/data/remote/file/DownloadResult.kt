@@ -1,4 +1,4 @@
-package q19.kenes.widget.data.network.file
+package q19.kenes.widget.data.remote.file
 
 internal sealed class DownloadResult {
     object Success : DownloadResult()

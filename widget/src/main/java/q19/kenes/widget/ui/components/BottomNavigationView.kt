@@ -1,20 +1,25 @@
 package q19.kenes.widget.ui.components
 
 import android.content.Context
+import android.graphics.Typeface
+import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
-import androidx.annotation.AttrRes
-import androidx.annotation.ColorRes
-import androidx.annotation.StyleRes
+import androidx.annotation.*
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import q19.kenes.widget.ui.presentation.model.BottomNavigation
+import androidx.core.view.ViewCompat
+import kz.q19.utils.textview.showCompoundDrawableOnTop
 import q19.kenes.widget.util.DebouncedOnClickListener
 import q19.kenes.widget.util.Logger
+import q19.kenes.widget.util.dp2Px
 import q19.kenes.widget.util.getCompoundDrawableOnTop
 import q19.kenes_widget.R
+import kotlin.math.roundToInt
 
 internal class BottomNavigationView @JvmOverloads constructor(
     context: Context,
@@ -25,111 +30,190 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     companion object {
         private val TAG = BottomNavigationView::class.java.simpleName
+
+        private val DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX: Int = NavigationButton.HOME.index
     }
 
-    private var bottomNavigationView: LinearLayout? = null
+    enum class NavigationButton(val index: Int) {
+        HOME(0),
+        CALLS(1),
+        SERVICES(2),
+        INFO(3)
+    }
+
     private var homeButton: AppCompatButton? = null
-    private var callButton: AppCompatButton? = null
+    private var callsButton: AppCompatButton? = null
     private var servicesButton: AppCompatButton? = null
     private var infoButton: AppCompatButton? = null
 
-    private val navButtons = mutableListOf<AppCompatButton>()
+    private val navigationButtons: MutableList<AppCompatButton> = mutableListOf()
 
-    private var activeNavButtonIndex = 0
+    private var activeNavigationButtonIndex = DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX
         set(value) {
             field = value
-            updateActiveNavButtonTintColor(value)
+            updateActiveNavigationButtonTint(value)
         }
 
     var callback: Callback? = null
 
-    private var isNavButtonsEnabled: Boolean = true
+    private var isNavigationButtonsEnabled: Boolean = true
         set(value) {
             field = value
-            setIsNavButtonEnabled(value)
+            setNavigationButtonEnabled(value)
         }
 
     init {
-        val view = inflate(context, R.layout.kenes_view_bottom_navigation, this)
+        setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_white))
 
-        bottomNavigationView = view.findViewById(R.id.bottomNavigationView)
-        homeButton = view.findViewById(R.id.homeButton)
-        callButton = view.findViewById(R.id.callButton)
-        servicesButton = view.findViewById(R.id.servicesButton)
-        infoButton = view.findViewById(R.id.infoButton)
+        orientation = HORIZONTAL
+
+        // Home
+        homeButton = buildNavigationButton(
+            navigationButton = NavigationButton.HOME,
+            compoundDrawable = R.drawable.kenes_ic_home_gray,
+            title = R.string.kenes_home
+        ).also {
+            addView(it)
+            navigationButtons.add(NavigationButton.HOME.index, it)
+        }
+
+        // Calls
+        callsButton = buildNavigationButton(
+            navigationButton = NavigationButton.CALLS,
+            compoundDrawable = R.drawable.kenes_ic_headphones_gray,
+            title = R.string.kenes_calls
+        ).also {
+            addView(it)
+            navigationButtons.add(NavigationButton.CALLS.index, it)
+        }
+
+        // Services
+        servicesButton = buildNavigationButton(
+            navigationButton = NavigationButton.SERVICES,
+            compoundDrawable = R.drawable.kenes_ic_service_gray,
+            title = R.string.kenes_services
+        ).also {
+            addView(it)
+            navigationButtons.add(NavigationButton.SERVICES.index, it)
+        }
+
+        // Info
+        infoButton = buildNavigationButton(
+            navigationButton = NavigationButton.INFO,
+            compoundDrawable = R.drawable.kenes_ic_list_gray,
+            title = R.string.kenes_info
+        ).also {
+            addView(it)
+            navigationButtons.add(NavigationButton.INFO.index, it)
+        }
+
+        activeNavigationButtonIndex = DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX
     }
 
-    fun getFirstNavButton(): BottomNavigation? {
+    private fun buildNavigationButton(
+        navigationButton: NavigationButton,
+        @DrawableRes compoundDrawable: Int,
+        @StringRes title: Int
+    ): AppCompatButton {
+        val appCompatButton = AppCompatButton(context)
+        appCompatButton.run {
+            id = ViewCompat.generateViewId()
+            layoutParams = LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+            ).also {
+                it.weight = 1F
+            }
+            backgroundSelectableItemBackgroundBorderless()
+            gravity = Gravity.CENTER
+            showCompoundDrawableOnTop(compoundDrawable, padding = 7F.dp2Px().roundToInt())
+            ellipsize = TextUtils.TruncateAt.END
+            isAllCaps = true
+            setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_gray))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 9F)
+            setPadding(0, 7.5F.dp2Px().roundToInt(), 0, 7.5F.dp2Px().roundToInt())
+            setText(title)
+            setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
+            setOnClickListener(object : DebouncedOnClickListener() {
+                override fun onDebouncedClick(v: View) {
+                    updateActiveNavigationButtonTint(navigationButton.index)
+                    callback?.onNavigationButtonClicked(navigationButton)
+                }
+            })
+        }
+        return appCompatButton
+    }
+
+    fun getFirstNavigationButton(): NavigationButton? {
         return when {
-            isNavButtonFirst(homeButton) -> BottomNavigation.HOME
-            isNavButtonFirst(callButton) -> BottomNavigation.CALL
-            isNavButtonFirst(servicesButton) -> BottomNavigation.SERVICES
-            isNavButtonFirst(infoButton) -> BottomNavigation.INFO
+            isNavigationButtonFirst(homeButton) -> NavigationButton.HOME
+            isNavigationButtonFirst(callsButton) -> NavigationButton.CALLS
+            isNavigationButtonFirst(servicesButton) -> NavigationButton.SERVICES
+            isNavigationButtonFirst(infoButton) -> NavigationButton.INFO
             else -> null
         }
     }
 
-    private fun isNavButtonFirst(appCompatButton: AppCompatButton?): Boolean {
-        return navButtons.isNotEmpty() && navButtons.first() == appCompatButton
+    private fun isNavigationButtonFirst(appCompatButton: AppCompatButton?): Boolean {
+        if (navigationButtons.isNullOrEmpty()) return false
+        return navigationButtons.isNotEmpty() && navigationButtons.first() == appCompatButton
     }
 
-    fun setNavButtonActive(bottomNavigation: BottomNavigation) {
-        when (bottomNavigation) {
-            BottomNavigation.HOME -> setActiveNavButton(homeButton)
-            BottomNavigation.CALL -> setActiveNavButton(callButton)
-            BottomNavigation.SERVICES -> setActiveNavButton(servicesButton)
-            BottomNavigation.INFO -> setActiveNavButton(infoButton)
+    fun setNavigationButtonActive(navigationButton: NavigationButton): Boolean {
+        return when (navigationButton) {
+            NavigationButton.HOME -> setActiveNavigationButton(homeButton)
+            NavigationButton.CALLS -> setActiveNavigationButton(callsButton)
+            NavigationButton.SERVICES -> setActiveNavigationButton(servicesButton)
+            NavigationButton.INFO -> setActiveNavigationButton(infoButton)
         }
     }
 
-    private fun setActiveNavButton(appCompatButton: AppCompatButton?) {
-        if (appCompatButton == null) return
-        val index = navButtons.indexOf(appCompatButton)
-//        Logger.debug(TAG, "navButtons: $navButtons")
-        Logger.debug(TAG, "setActiveNavButton: $index")
+    private fun setActiveNavigationButton(appCompatButton: AppCompatButton?): Boolean {
+        if (appCompatButton == null) return false
+        val index = navigationButtons.indexOf(appCompatButton)
         if (index >= 0) {
-            activeNavButtonIndex = index
+            activeNavigationButtonIndex = index
+            return activeNavigationButtonIndex == index
         }
+        return false
     }
 
-    fun setNavButtonsEnabled() {
-        isNavButtonsEnabled = true
+    fun setNavigationButtonsEnabled(): Boolean {
+        isNavigationButtonsEnabled = true
+        return isNavigationButtonsEnabled
     }
 
-    fun setNavButtonsDisabled() {
-        isNavButtonsEnabled = false
+    fun setNavigationButtonsDisabled(): Boolean {
+        isNavigationButtonsEnabled = false
+        return !isNavigationButtonsEnabled
     }
 
-    private fun setIsNavButtonEnabled(isEnabled: Boolean) {
-        navButtons.forEach {
-            it.isEnabled = isEnabled
-        }
+    private fun setNavigationButtonEnabled(isEnabled: Boolean): Boolean {
+        navigationButtons.forEach { it.isEnabled = isEnabled }
+        return navigationButtons.all { it.isEnabled == isEnabled }
     }
 
-    private fun updateActiveNavButtonTintColor(index: Int) {
-        if (index >= 0 && index < navButtons.size) {
-            navButtons.forEach {
-                setInactiveNavButtonTintColor(it)
+    private fun updateActiveNavigationButtonTint(index: Int) {
+        if (index >= 0 && index < navigationButtons.size) {
+            navigationButtons.forEach {
+                setInactiveNavigationButtonTint(it)
             }
-            setActiveNavButtonTintColor(navButtons[index])
+            setActiveNavigationButtonTint(navigationButtons[index])
         }
     }
 
-    private fun setActiveNavButtonTintColor(appCompatButton: AppCompatButton?) {
-        setAppCompatButtonColor(appCompatButton, R.color.kenes_light_blue)
+    private fun setActiveNavigationButtonTint(appCompatButton: AppCompatButton?): Boolean {
+        return appCompatButton?.setTint(R.color.kenes_light_blue) == true
     }
 
-    private fun setInactiveNavButtonTintColor(appCompatButton: AppCompatButton?) {
-        setAppCompatButtonColor(appCompatButton, R.color.kenes_dark_gray)
+    private fun setInactiveNavigationButtonTint(appCompatButton: AppCompatButton?): Boolean {
+        return appCompatButton?.setTint(R.color.kenes_dark_gray) == true
     }
 
-    private fun setAppCompatButtonColor(
-        appCompatButton: AppCompatButton?,
-        @ColorRes colorResId: Int
-    ) {
-        if (appCompatButton == null) return
+    private fun AppCompatButton?.setTint(@ColorRes colorResId: Int): Boolean {
+        if (this == null) return false
 
-        val compoundDrawable = appCompatButton.getCompoundDrawableOnTop()
+        val compoundDrawable = getCompoundDrawableOnTop()
         val color = ContextCompat.getColor(context, colorResId)
 
         if (compoundDrawable != null) {
@@ -137,87 +221,74 @@ internal class BottomNavigationView @JvmOverloads constructor(
             DrawableCompat.setTint(drawableWrap, color)
         }
 
-        appCompatButton.setTextColor(color)
+        setTextColor(color)
+
+        return textColors == ContextCompat.getColorStateList(context, colorResId)
     }
 
-    fun showBottomNavigationView() {
-        setBottomNavigationViewVisibility(true)
+    fun show() {
+        visibility = View.VISIBLE
     }
 
-    fun hideBottomNavigationView() {
-        setBottomNavigationViewVisibility(false)
+    fun hide() {
+        visibility = View.GONE
     }
 
-    private fun setBottomNavigationViewVisibility(isVisible: Boolean) {
-        bottomNavigationView?.visibility = if (isVisible) View.VISIBLE else View.GONE
-    }
+    fun showNavigationButton(navigationButton: NavigationButton) {
+        val appCompatButton = when (navigationButton) {
+            NavigationButton.HOME -> homeButton
+            NavigationButton.CALLS -> callsButton
+            NavigationButton.SERVICES -> servicesButton
+            NavigationButton.INFO -> infoButton
+        }
 
-    fun showNavButton(bottomNavigation: BottomNavigation) {
-        Logger.debug(TAG, "showNavButton() -> bottomNavigation: $bottomNavigation")
-
-        val listener = object : DebouncedOnClickListener() {
+        appCompatButton.showNavigationButton(navigationButton.index, object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
-                callback?.onBottomNavigationButtonClicked(bottomNavigation)
+                updateActiveNavigationButtonTint(navigationButton.index)
+                callback?.onNavigationButtonClicked(navigationButton)
             }
-        }
+        })
+    }
 
-        when (bottomNavigation) {
-            BottomNavigation.HOME ->
-                showNavButton(homeButton, 0, listener)
-            BottomNavigation.CALL -> {
-                val index = navButtons.size / 2
-                showNavButton(callButton, index, listener)
-            }
-            BottomNavigation.SERVICES -> {
-                val index = navButtons.size / 2
-                showNavButton(servicesButton, index, listener)
-            }
-            BottomNavigation.INFO -> {
-                var index = navButtons.size
-                if (index > 0) {
-                    index -= 1
-                }
-                showNavButton(infoButton, index, listener)
-            }
+    fun hideNavigationButton(navigationButton: NavigationButton) {
+        Logger.debug(TAG, "hideNavButton() -> navigationButton: $navigationButton")
+        when (navigationButton) {
+            NavigationButton.HOME -> homeButton.hideNavigationButton()
+            NavigationButton.CALLS -> callsButton.hideNavigationButton()
+            NavigationButton.SERVICES -> servicesButton.hideNavigationButton()
+            NavigationButton.INFO -> infoButton.hideNavigationButton()
         }
     }
 
-    fun hideNavButton(bottomNavigation: BottomNavigation) {
-        Logger.debug(TAG, "hideNavButton() -> bottomNavigation: $bottomNavigation")
-        when (bottomNavigation) {
-            BottomNavigation.HOME -> hideNavButton(homeButton)
-            BottomNavigation.CALL -> hideNavButton(callButton)
-            BottomNavigation.SERVICES -> hideNavButton(servicesButton)
-            BottomNavigation.INFO -> hideNavButton(infoButton)
-        }
-    }
-
-    private fun showNavButton(
-        appCompatButton: AppCompatButton?,
+    private fun AppCompatButton?.showNavigationButton(
         index: Int,
         listener: DebouncedOnClickListener
     ) {
-        if (appCompatButton != null) {
-            appCompatButton.setOnClickListener(listener)
-            if (appCompatButton.visibility != View.VISIBLE) {
-                appCompatButton.visibility = View.VISIBLE
+        if (this != null) {
+            setOnClickListener(listener)
+            if (!navigationButtons.contains(this)) {
+                navigationButtons.add(index, this)
             }
-            navButtons.add(index, appCompatButton)
         }
     }
 
-    private fun hideNavButton(appCompatButton: AppCompatButton?) {
-        if (appCompatButton != null) {
-            appCompatButton.setOnClickListener(null)
-            if (appCompatButton.visibility != View.GONE) {
-                appCompatButton.visibility = View.GONE
+    private fun AppCompatButton?.hideNavigationButton() {
+        if (this != null) {
+            setOnClickListener(null)
+            if (navigationButtons.contains(this)) {
+                navigationButtons.remove(this)
             }
-            navButtons.remove(appCompatButton)
         }
+    }
+
+    private fun AppCompatButton.backgroundSelectableItemBackgroundBorderless() {
+        val outValue = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+        setBackgroundResource(outValue.resourceId)
     }
 
     fun interface Callback {
-        fun onBottomNavigationButtonClicked(bottomNavigation: BottomNavigation)
+        fun onNavigationButtonClicked(navigationButton: NavigationButton)
     }
 
 }

@@ -3,8 +3,13 @@ package q19.kenes.widget.util
 import android.content.res.Resources
 import android.view.View
 
-internal val Int.px: Int
-    get() = (this * Resources.getSystem().displayMetrics.density).toInt()
+fun Int.dp2Px(): Float = this.toFloat().dp2Px()
+
+fun Float.dp2Px(): Float = this * Resources.getSystem().displayMetrics.density
+
+fun Int.px2Dp(): Float = this.toFloat().px2Dp()
+
+fun Float.px2Dp(): Float = this / Resources.getSystem().displayMetrics.density
 
 
 /**

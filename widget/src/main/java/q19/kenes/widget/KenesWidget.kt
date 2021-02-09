@@ -3,29 +3,29 @@ package q19.kenes.widget
 import android.content.Context
 import android.content.Intent
 import kz.q19.common.locale.core.LanguageSetting
-import kz.q19.domain.model.language.Language.Companion.KAZAKH
-import kz.q19.domain.model.language.Language.Companion.RUSSIAN
 import q19.kenes.widget.ui.presentation.KenesWidgetActivity
+import java.io.Serializable
 
-object KenesWidget {
+class KenesWidget private constructor() {
 
-    class Builder constructor(private var hostname: String) {
+    class Builder {
 
         enum class Language {
-            KK,
-            RU
+            KAZAKH,
+            RUSSIAN
         }
 
         data class User constructor(
             val firstName: String? = null,
             val lastName: String? = null,
             val phoneNumber: String? = null
-        )
+        ) : Serializable
 
+        private var hostname: String? = null
         private var language: Language? = null
         private var user: User? = null
 
-        fun getHostname(): String {
+        fun getHostname(): String? {
             return hostname
         }
 
@@ -52,10 +52,10 @@ object KenesWidget {
             return this
         }
 
-        fun build(context: Context): Intent {
+        fun buildIntent(context: Context): Intent {
             val language = when (language) {
-                Language.KK -> KAZAKH
-                Language.RU -> RUSSIAN
+                Language.KAZAKH -> kz.q19.domain.model.language.Language.KAZAKH
+                Language.RUSSIAN -> kz.q19.domain.model.language.Language.RUSSIAN
                 else -> null
             }
             if (language?.locale != null) {
@@ -63,11 +63,9 @@ object KenesWidget {
             }
             return KenesWidgetActivity.newIntent(
                 context,
-                hostname = hostname,
+                hostname = requireNotNull(hostname) { "Declare hostname, without it widget won't work!" },
                 language = language,
-                firstName = user?.firstName,
-                lastName = user?.lastName,
-                phoneNumber = user?.phoneNumber
+                user = user
             )
         }
     }
