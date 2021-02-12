@@ -3,9 +3,11 @@ package q19.kenes.widget.ui.presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import kz.q19.domain.model.configs.Configs
@@ -16,9 +18,7 @@ import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.calls.CallsFragment
 import q19.kenes.widget.ui.presentation.home.ChatBotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
-import q19.kenes.widget.util.UrlUtil
-import q19.kenes.widget.util.bind
-import q19.kenes.widget.util.loadImage
+import q19.kenes.widget.util.*
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
@@ -35,7 +35,7 @@ class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         ): Intent =
             Intent(context, KenesWidgetActivity::class.java)
                 .putExtra(IntentKey.HOSTNAME, hostname)
-                .putExtra(IntentKey.LANGUAGE, language?.key)
+                .putExtra(IntentKey.LANGUAGE, language)
                 .putExtra(IntentKey.USER, user)
     }
 
@@ -45,6 +45,7 @@ class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         const val USER = "user"
     }
 
+    private val rootView by bind<LinearLayout>(R.id.rootView)
     private val toolbar by bind<LinearLayout>(R.id.toolbar)
     private val imageView by bind<AppCompatImageView>(R.id.imageView)
     private val titleView by bind<AppCompatTextView>(R.id.titleView)
@@ -71,13 +72,30 @@ class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
             UrlUtil.setHostname(hostname)
         }
 
+        // Language
+        var language = intent.getParcelableExtra<Language>(IntentKey.LANGUAGE)
+        if (language == null) {
+            language = getCurrentLanguage()
+        }
+
+        // Set language
+        val currentLocale = getCurrentLocale()
+        Logger.debug(TAG, "currentLocale: $currentLocale")
+        if (currentLocale == null || language.locale != currentLocale) {
+            Logger.debug(TAG, "setLocale() -> language.locale: ${language.locale}")
+            setLocale(language.locale)
+        }
+
         // Presenter
         presenter = KenesWidgetPresenter(Database.getInstance(this))
-        presenter?.setLanguage(Language.from(getCurrentLocale()))
+        presenter?.setLanguage(language)
         presenter?.attachView(this)
 
         // Fragments
         setupViewPager()
+
+        // Keyboard
+        setupKeyboard()
     }
 
     override fun onDestroy() {
@@ -98,6 +116,19 @@ class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
         bottomNavigationView.callback = BottomNavigationView.Callback {
             viewPager.setCurrentItem(it.index, false)
+        }
+    }
+
+    private fun setupKeyboard() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        window.decorView.addKeyboardInsetListener {
+            Logger.debug(TAG, "isKeyboardVisible: $it")
+            if (it) {
+                bottomNavigationView.visibility = View.GONE
+            } else {
+                bottomNavigationView.visibility = View.VISIBLE
+            }
         }
     }
 

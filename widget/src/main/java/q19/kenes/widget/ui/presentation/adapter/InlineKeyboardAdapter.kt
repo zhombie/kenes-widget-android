@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.domain.model.keyboard.Keyboard
 import kz.q19.domain.model.keyboard.button.Button
+import kz.q19.utils.view.inflate
 import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.util.Logger.debug
-import q19.kenes.widget.util.inflate
 import q19.kenes_widget.R
 
-internal class InlineKeyboardAdapter(
+internal class InlineKeyboardAdapter constructor(
     private val callback: (button: Button) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

@@ -13,7 +13,6 @@ import kz.q19.domain.model.keyboard.button.UrlButton
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.CallAction
-import kz.q19.domain.model.message.Category
 import kz.q19.domain.model.message.Message
 import kz.q19.domain.model.message.QRTCAction
 import kz.q19.domain.model.webrtc.IceCandidate
@@ -24,6 +23,7 @@ import kz.q19.socket.SocketClient
 import kz.q19.socket.SocketClientConfig
 import kz.q19.socket.listener.*
 import kz.q19.socket.model.CallInitialization
+import kz.q19.socket.model.Category
 import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import org.webrtc.MediaStream
@@ -84,7 +84,7 @@ internal class OldKenesWidgetPresenter constructor(
             }
 
             if (value is ViewState.ChatBot.UserPrompt) {
-                chatBot.activeCategory = null
+//                chatBot.activeCategory = null
             }
 
             if (value is ViewState.AudioDialog.Live || value is ViewState.VideoDialog.Live) {
@@ -134,24 +134,22 @@ internal class OldKenesWidgetPresenter constructor(
 
         view?.hideHangupButton()
 
-        chatBot.callback = object : ChatBot.Callback {
-            override fun onBasicCategoriesLoaded(categories: List<Category>) {
-//                debug(TAG, "onBasicCategoriesLoaded() -> categories: $categories")
+        chatBot.callback = ChatBot.Callback { categories ->
+//            debug(TAG, "onBasicCategoriesLoaded() -> categories: $categories")
 
-                val messages = categories
-                    .sortedBy { it.config?.order }
-                    .map { category ->
-                        Message.Builder()
-                            .setType(Message.Type.CATEGORY)
-                            .setCategory(category)
-                            .build()
-                    }
+//            val messages = categories
+//                .sortedBy { it.config?.order }
+//                .map { category ->
+//                    Message.Builder()
+//                        .setType(Message.Type.CATEGORY)
+//                        .setCategory(category)
+//                        .build()
+//                }
 
-                view?.clearChatFooterMessages()
-                view?.setNewMessages(messages)
+            view?.clearChatFooterMessages()
+//            view?.setNewMessages(messages)
 
-                viewState = ViewState.ChatBot.Dashboard(false)
-            }
+            viewState = ViewState.ChatBot.Dashboard(false)
         }
 
         initSocket()
@@ -371,7 +369,7 @@ internal class OldKenesWidgetPresenter constructor(
 
                 clear()
 
-                socketClient?.requestParentCategories()
+//                socketClient?.requestParentCategories()
                 viewState = ViewState.ChatBot.Dashboard(true)
             }
             BottomNavigationView.NavigationButton.CALLS -> {
@@ -450,7 +448,7 @@ internal class OldKenesWidgetPresenter constructor(
                 view?.clearChatMessages()
                 view?.clearChatFooterMessages()
 
-                socketClient?.requestParentCategories()
+//                socketClient?.requestParentCategories()
 
                 ViewState.ChatBot.Dashboard(true)
             }
@@ -667,12 +665,12 @@ internal class OldKenesWidgetPresenter constructor(
 //    }
 
     fun onCategoryChildClicked(category: Category) {
-        chatBot.activeCategory = category
+//        chatBot.activeCategory = category
 
         if (category.responses.isNotEmpty()) {
-            socketClient?.requestResponse(category.responses.first())
+//            socketClient?.requestResponse(category.responses.first())
         } else {
-            socketClient?.requestCategories(category.id)
+//            socketClient?.requestCategories(category.id)
         }
 
         viewState = ViewState.ChatBot.Dashboard(true)
@@ -681,27 +679,27 @@ internal class OldKenesWidgetPresenter constructor(
     fun onGoBackClicked(category: Category) {
         val categories = chatBot.allCategories.filter { it.id == category.parentId }
 
-        val messages = if (categories.all { it.parentId == Category.NO_PARENT_ID }) {
-            view?.clearChatFooterMessages()
-
-            chatBot.basicCategories.map {
-                Message.Builder()
-                    .setType(Message.Type.CATEGORY)
-                    .setCategory(category)
-                    .build()
-            }
-        } else {
-            categories.map {
-                Message.Builder()
-                    .setType(Message.Type.CROSS_CHILDREN)
-                    .setCategory(category)
-                    .build()
-            }
-        }
+//        val messages = if (categories.all { it.parentId == Category.NO_PARENT_ID }) {
+//            view?.clearChatFooterMessages()
+//
+//            chatBot.dashboardCategories.map {
+//                Message.Builder()
+//                    .setType(Message.Type.CATEGORY)
+////                    .setCategory(category)
+//                    .build()
+//            }
+//        } else {
+//            categories.map {
+//                Message.Builder()
+//                    .setType(Message.Type.CROSS_CHILDREN)
+////                    .setCategory(category)
+//                    .build()
+//            }
+//        }
 
         chatBot.activeCategory = null
 
-        view?.setNewMessages(messages)
+//        view?.setNewMessages(messages)
 
         chatListViewState?.let { view?.restoreChatListViewState(it) }
     }
@@ -777,26 +775,26 @@ internal class OldKenesWidgetPresenter constructor(
 
                     viewState = ViewState.Services.IDLE
                 } else {
-                    val messages = chatBot.basicCategories.map { category ->
-                        Message.Builder()
-                            .setType(Message.Type.CATEGORY)
-                            .setCategory(category)
-                            .build()
-                    }
+//                    val messages = chatBot.dashboardCategories.map { category ->
+//                        Message.Builder()
+//                            .setType(Message.Type.CATEGORY)
+////                            .setCategory(category)
+//                            .build()
+//                    }
 
                     view?.clearChatFooterMessages()
 
-                    viewState = if (messages.isEmpty()) {
-                        socketClient?.requestParentCategories()
-
-                        ViewState.ChatBot.Dashboard(true)
-                    } else {
-                        view?.setNewMessages(messages)
-
-                        chatListViewState?.let { view?.restoreChatListViewState(it) }
-
-                        ViewState.ChatBot.Dashboard(false)
-                    }
+//                    viewState = if (messages.isEmpty()) {
+////                        socketClient?.requestParentCategories()
+//
+//                        ViewState.ChatBot.Dashboard(true)
+//                    } else {
+////                        view?.setNewMessages(messages)
+//
+//                        chatListViewState?.let { view?.restoreChatListViewState(it) }
+//
+//                        ViewState.ChatBot.Dashboard(false)
+//                    }
                 }
             }
         }
@@ -1063,7 +1061,7 @@ internal class OldKenesWidgetPresenter constructor(
         socketClient?.sendUserLanguage(language)
 
         viewState = if (configs?.preferences?.isChatBotEnabled == true) {
-            socketClient?.requestParentCategories()
+//            socketClient?.requestParentCategories()
             ViewState.ChatBot.Dashboard(true)
         } else {
             when {
@@ -1140,9 +1138,9 @@ internal class OldKenesWidgetPresenter constructor(
 //        }
 
         if (chatBot.activeCategory != null) {
-            val newMessage = message.copy(category = chatBot.activeCategory)
+//            val newMessage = message.copy(category = chatBot.activeCategory)
 
-            view?.setNewMessages(newMessage)
+//            view?.setNewMessages(newMessage)
             view?.scrollToTop()
 //            view?.showGoToHomeButton()
 
@@ -1200,7 +1198,7 @@ internal class OldKenesWidgetPresenter constructor(
         }
     }
 
-    override fun onCategories(categories: List<kz.q19.domain.model.message.Category>) {
+    override fun onCategories(categories: List<Category>) {
         debug(TAG, "onCategories() -> categories: $categories")
 
         if (viewState is ViewState.ChatBot.UserPrompt) return
@@ -1208,16 +1206,16 @@ internal class OldKenesWidgetPresenter constructor(
 //        val sortedCategories = categories.sortedBy { it.config?.order }
         chatBot.allCategories.addAll(categories)
 
-        if (!chatBot.isBasicCategoriesFilled) {
-            chatBot.allCategories.forEach { category ->
+        if (!chatBot.isParentResponseGroupChildrenRequested) {
+//            chatBot.allCategories.forEach { category ->
 //                debug(TAG, "category: $category, ${category.parentId == null}")
 
-                if (category.parentId == null) {
-                    socketClient?.requestCategories(category.id)
-                }
-            }
+//                if (category.parentId == Category.NO_PARENT_ID) {
+//                    socketClient?.requestCategories(category.id)
+//                }
+//            }
 
-            chatBot.isBasicCategoriesFilled = true
+            chatBot.isParentResponseGroupChildrenRequested = true
         }
 
         if (chatBot.activeCategory != null) {
@@ -1229,7 +1227,7 @@ internal class OldKenesWidgetPresenter constructor(
                     .setType(Message.Type.CROSS_CHILDREN)
                     .apply {
                         chatBot.activeCategory?.let {
-                            setCategory(it)
+//                            setCategory(it)
                         }
                     }
                     .build()

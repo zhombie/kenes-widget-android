@@ -23,7 +23,7 @@ import kz.q19.utils.textview.removeCompoundDrawables
 import q19.kenes.widget.ui.components.base.TitleView
 import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.util.Logger.debug
-import q19.kenes.widget.util.inflate
+import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 
 internal class ServicesView @JvmOverloads constructor(

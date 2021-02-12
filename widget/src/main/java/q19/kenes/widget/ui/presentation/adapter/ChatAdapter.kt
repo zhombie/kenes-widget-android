@@ -14,20 +14,21 @@ import android.widget.*
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.file.File
 import kz.q19.domain.model.keyboard.button.Button
+import kz.q19.domain.model.knowledge_base.BaseResponse
 import kz.q19.domain.model.media.Media
-import kz.q19.domain.model.message.Category
 import kz.q19.domain.model.message.Message
-import kz.q19.utils.textview.removeCompoundDrawables
+import kz.q19.socket.model.Category
+import kz.q19.utils.view.inflate
 import q19.kenes.widget.ui.components.base.HtmlTextView
+import q19.kenes.widget.ui.presentation.home.ResponseGroupAdapter
+import q19.kenes.widget.ui.presentation.home.ResponseGroupAdapterItemDecoration
 import q19.kenes.widget.util.Logger.debug
-import q19.kenes.widget.util.inflate
 import q19.kenes.widget.util.loadRoundedImage
 import q19.kenes_widget.R
 import java.util.concurrent.TimeUnit
@@ -46,7 +47,7 @@ internal class ChatAdapter constructor(
         private val LAYOUT_TYPING = R.layout.kenes_cell_typing
         private val LAYOUT_CATEGORY = R.layout.kenes_cell_category
         private val LAYOUT_CROSS_CHILDREN = R.layout.kenes_cell_cross_children
-        private val LAYOUT_RESPONSE = R.layout.kenes_cell_response
+        private val LAYOUT_RESPONSE = R.layout.cell_response
 
         private const val KEY_PROGRESS = "progress"
         private const val KEY_FILE_TYPE = "fileType"
@@ -101,11 +102,11 @@ internal class ChatAdapter constructor(
     }
 
     fun clearCategoryMessages(isNotifyEnabled: Boolean = true): Boolean {
-        val isRemoved = messages.removeAll { it.category != null }
-        if (isRemoved && isNotifyEnabled) {
-            notifyDataSetChanged()
-        }
-        return isRemoved
+//        val isRemoved = messages.removeAll { it.category != null }
+//        if (isRemoved && isNotifyEnabled) {
+//            notifyDataSetChanged()
+//        }
+        return true
     }
 
     fun setDownloading(downloadStatus: File.DownloadStatus, itemPosition: Int) {
@@ -207,8 +208,6 @@ internal class ChatAdapter constructor(
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
 //            LAYOUT_CATEGORY -> OldCategoryViewHolder(view)
-            LAYOUT_CATEGORY -> CategoryViewHolder(view)
-            LAYOUT_CROSS_CHILDREN -> CrossChildrenViewHolder(view)
             LAYOUT_RESPONSE -> ResponseViewHolder(view)
             else -> throw ViewHolderViewTypeException(viewType)
         }
@@ -231,11 +230,6 @@ internal class ChatAdapter constructor(
                 if (holder is NotificationViewHolder) holder.bind(message)
             Message.Type.TYPING ->
                 if (holder is TypingViewHolder) holder.bind()
-            Message.Type.CATEGORY ->
-//                if (holder is OldCategoryViewHolder) holder.bind(message)
-                if (holder is CategoryViewHolder) holder.bind(message)
-            Message.Type.CROSS_CHILDREN ->
-                if (holder is CrossChildrenViewHolder) holder.bind(message)
             Message.Type.RESPONSE ->
                 if (holder is ResponseViewHolder) holder.bind(message)
         }
@@ -807,97 +801,6 @@ internal class ChatAdapter constructor(
         }
     }
 
-    private inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view),
-        CategoryAdapter.Callback {
-        private val titleView = view.findViewById<TextView>(R.id.titleView)
-        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-
-        private val adapter: CategoryAdapter
-        private val layoutManager =
-            LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
-
-        init {
-            recyclerView?.layoutManager = layoutManager
-            adapter = CategoryAdapter(isExpandable = true, isSeparateFooterEnabled = false, callback = this)
-            recyclerView?.adapter = adapter
-
-            recyclerView?.addItemDecoration(
-                CategoryAdapterItemDecoration(
-                    itemView.context,
-                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
-                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                )
-            )
-
-//            recyclerView?.disableChangeAnimations()
-        }
-
-        fun bind(message: Message) {
-            val category = message.category
-            if (category != null) {
-                titleView?.text = category.title
-
-                adapter.category = category
-            }
-        }
-
-        override fun onCategoryChildClicked(category: Category) {
-            callback?.onCategoryChildClicked(category)
-        }
-
-        override fun onGoBackButtonClicked(category: Category) {
-            // ignored
-        }
-    }
-
-    private inner class CrossChildrenViewHolder(view: View) : RecyclerView.ViewHolder(view),
-        CategoryAdapter.Callback {
-        private val titleView = view.findViewById<TextView>(R.id.titleView)
-        private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
-
-        private val adapter: CategoryAdapter
-        private val layoutManager =
-            LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
-
-        init {
-            recyclerView?.layoutManager = layoutManager
-            adapter = CategoryAdapter(isExpandable = false, isSeparateFooterEnabled = true, callback = this)
-            recyclerView?.adapter = adapter
-            recyclerView?.addItemDecoration(
-                CategoryAdapterItemDecoration(
-                    itemView.context,
-                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
-                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                )
-            )
-        }
-
-        fun bind(message: Message) {
-            val category = message.category
-            if (category != null) {
-                titleView?.text = category.title
-
-                // Add empty value, in order to make clear, that there is no children
-                if (category.children.isNullOrEmpty()) {
-//                    category.children.add(Category.EMPTY)
-                }
-                adapter.category = category
-
-                titleView?.setOnClickListener {
-                    callback?.onGoBackClicked(category)
-                }
-            }
-        }
-
-        override fun onCategoryChildClicked(category: Category) {
-            callback?.onCategoryChildClicked(category)
-        }
-
-        override fun onGoBackButtonClicked(category: Category) {
-            callback?.onGoBackClicked(category)
-        }
-    }
-
     private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
         private val textView = view.findViewById<HtmlTextView>(R.id.textView)
@@ -908,65 +811,65 @@ internal class ChatAdapter constructor(
         private val backButtonImageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind(message: Message) {
-            val category = message.category
+//            val category = message.category
 
-            if (category != null) {
-                if (category.title.isNullOrBlank()) {
-                    titleView?.visibility = View.GONE
-                } else {
-                    titleView?.text = category.title
-                    titleView?.visibility = View.VISIBLE
-
-                    titleView?.setOnClickListener {
-                        callback?.onGoBackClicked(category)
-                    }
-                }
-
-                if (message.text.isNullOrBlank()) {
-                    textView?.visibility = View.GONE
-                    timeView?.visibility = View.GONE
-                } else {
-                    textView?.setHtmlText(message.htmlText) { _, url ->
-                        debug(TAG, "OnClick: $url")
-                        callback?.onUrlInTextClicked(url)
-                    }
-
-                    timeView?.text = message.time
-
-                    textView?.enableAutoLinkMask()
-                    textView?.enableLinkMovementMethod()
-
-                    textView?.visibility = View.VISIBLE
-                    timeView?.visibility = View.VISIBLE
-                }
-
-                val attachments = message.attachments
-                if (!attachments.isNullOrEmpty()) {
-                    val attachment = attachments[0]
-
-                    attachmentView?.text = attachment.title
-                    attachmentView?.visibility = View.VISIBLE
-
-                    attachmentView?.setOnClickListener {
-                        callback?.onAttachmentClicked(attachment, absoluteAdapterPosition)
-                    }
-                } else {
-                    attachmentView?.visibility = View.GONE
-                }
-
-                backButtonImageView?.visibility = View.GONE
-                backButton?.removeCompoundDrawables()
-                backButton?.setText(R.string.kenes_back)
-                backButton?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
-                backButtonView?.isClickable = true
-                backButtonView?.isFocusable = true
-                backButtonView?.background = ResourcesCompat.getDrawable(
-                    itemView.resources,
-                    R.drawable.kenes_bg_rounded_horizonal_button,
-                    itemView.context.theme
-                )
-                backButtonView?.setOnClickListener { callback?.onGoBackClicked(category) }
-            }
+//            if (category != null) {
+//                if (category.title.isNullOrBlank()) {
+//                    titleView?.visibility = View.GONE
+//                } else {
+//                    titleView?.text = category.title
+//                    titleView?.visibility = View.VISIBLE
+//
+//                    titleView?.setOnClickListener {
+//                        callback?.onGoBackClicked(category)
+//                    }
+//                }
+//
+//                if (message.text.isNullOrBlank()) {
+//                    textView?.visibility = View.GONE
+//                    timeView?.visibility = View.GONE
+//                } else {
+//                    textView?.setHtmlText(message.htmlText) { _, url ->
+//                        debug(TAG, "OnClick: $url")
+//                        callback?.onUrlInTextClicked(url)
+//                    }
+//
+//                    timeView?.text = message.time
+//
+//                    textView?.enableAutoLinkMask()
+//                    textView?.enableLinkMovementMethod()
+//
+//                    textView?.visibility = View.VISIBLE
+//                    timeView?.visibility = View.VISIBLE
+//                }
+//
+//                val attachments = message.attachments
+//                if (!attachments.isNullOrEmpty()) {
+//                    val attachment = attachments[0]
+//
+//                    attachmentView?.text = attachment.title
+//                    attachmentView?.visibility = View.VISIBLE
+//
+//                    attachmentView?.setOnClickListener {
+//                        callback?.onAttachmentClicked(attachment, absoluteAdapterPosition)
+//                    }
+//                } else {
+//                    attachmentView?.visibility = View.GONE
+//                }
+//
+//                backButtonImageView?.visibility = View.GONE
+//                backButton?.removeCompoundDrawables()
+//                backButton?.setText(R.string.kenes_back)
+//                backButton?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
+//                backButtonView?.isClickable = true
+//                backButtonView?.isFocusable = true
+//                backButtonView?.background = ResourcesCompat.getDrawable(
+//                    itemView.resources,
+//                    R.drawable.kenes_bg_rounded_horizonal_button,
+//                    itemView.context.theme
+//                )
+//                backButtonView?.setOnClickListener { callback?.onGoBackClicked(category) }
+//            }
         }
     }
 

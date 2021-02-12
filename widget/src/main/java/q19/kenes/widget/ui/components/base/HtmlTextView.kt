@@ -1,6 +1,7 @@
 package q19.kenes.widget.ui.components.base
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -12,7 +13,6 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
-import q19.kenes.widget.util.ColorStateListBuilder
 
 internal class HtmlTextView @JvmOverloads constructor(
     context: Context,
@@ -21,17 +21,17 @@ internal class HtmlTextView @JvmOverloads constructor(
 ) : TextView(context, attrs, defStyleAttr) {
 
     private val colorStateList by lazy {
-        ColorStateListBuilder()
-            .addState(
-                IntArray(1) { android.R.attr.state_pressed },
-                ContextCompat.getColor(context, R.color.kenes_light_blue)
-            )
-            .addState(
-                IntArray(1) { android.R.attr.state_selected },
-                ContextCompat.getColor(context, R.color.kenes_light_blue)
-            )
-            .addState(intArrayOf(), ContextCompat.getColor(context, R.color.kenes_light_blue))
-            .build()
+        val stateSet = arrayOf(
+            intArrayOf(android.R.attr.state_pressed),
+            intArrayOf(android.R.attr.state_selected),
+            intArrayOf()
+        )
+        val colors = intArrayOf(
+            ContextCompat.getColor(context, R.color.kenes_light_blue),
+            ContextCompat.getColor(context, R.color.kenes_light_blue),
+            ContextCompat.getColor(context, R.color.kenes_light_blue)
+        )
+        ColorStateList(stateSet, colors)
     }
 
     init {

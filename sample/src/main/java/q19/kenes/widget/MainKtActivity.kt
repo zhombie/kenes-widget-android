@@ -25,7 +25,7 @@ class MainKtActivity : AppCompatActivity() {
          */
         val intent = KenesWidget.Builder()
             .setHostname(BuildConfig.HOSTNAME)
-            .setLanguage(KenesWidget.Builder.Language.RUSSIAN)
+            .setLanguage(KenesWidget.Builder.Language.KAZAKH)
             .buildIntent(this)
         startActivity(intent)
     }

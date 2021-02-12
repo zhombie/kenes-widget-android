@@ -1,6 +1,8 @@
 package q19.kenes.widget.ui.presentation.model
 
-import kz.q19.domain.model.message.Category
+import kz.q19.domain.model.knowledge_base.Response
+import kz.q19.domain.model.knowledge_base.ResponseGroup
+import kz.q19.socket.model.Category
 import q19.kenes.widget.util.Logger.debug
 
 internal class ChatBot {
@@ -8,28 +10,32 @@ internal class ChatBot {
     /**
      * State variables
      */
+    @Deprecated("")
     var activeCategory: Category? = null
 
-    /**
-     * Basic category variables
-     */
-    var isBasicCategoriesFilled = false
+    var activeResponseGroup: ResponseGroup? = null
+    var activeResponse: Response? = null
 
-    var basicCategories = listOf<Category>()
+    /**
+     * Response groups variables
+     */
+    var isParentResponseGroupChildrenRequested = false
+
+    @Deprecated("")
     val allCategories = ObservableList()
+
+    var responseGroups = listOf<ResponseGroup>()
 
     /**
      * Callback variable
      */
     var callback: Callback? = null
 
-    private val listCallback by lazy {
-        object : ObservableList.Callback {
-            override fun onFull(basic: List<Category>) {
-                allCategories.callback = null
-                basicCategories = basic
-                callback?.onBasicCategoriesLoaded(basic)
-            }
+    @Deprecated("")
+    private val observableListCallback by lazy {
+        ObservableList.Callback { categories ->
+            allCategories.callback = null
+            callback?.onDashboardCategoriesLoaded(categories)
         }
     }
 
@@ -38,19 +44,18 @@ internal class ChatBot {
     }
 
     private fun initialize() {
-        allCategories.callback = listCallback
+        allCategories.callback = observableListCallback
     }
 
     fun clear() {
         activeCategory = null
-        isBasicCategoriesFilled = false
+        isParentResponseGroupChildrenRequested = false
         initialize()
-        basicCategories = listOf()
         allCategories.clear()
     }
 
-    interface Callback {
-        fun onBasicCategoriesLoaded(categories: List<Category>)
+    fun interface Callback {
+        fun onDashboardCategoriesLoaded(categories: List<Category>)
     }
 
 }
@@ -72,17 +77,16 @@ internal class ObservableList : ArrayList<Category>() {
         val added = super.add(element)
 
         if (callback != null) {
-            val basic = filter { it.parentId == Category.NO_PARENT_ID }
+            val parents = filter { it.parentId == Category.NO_PARENT_ID }
 
-            val children = mutableListOf<Category>()
-            basic.forEach {
+            parents.forEach {
                 if (it.id == element.parentId && !it.children.contains(element)) {
 //                    it.children.add(element)
                 }
             }
 
-            if (!basic.isNullOrEmpty() && basic.all { !it.children.isNullOrEmpty() }) {
-                callback?.onFull(basic)
+            if (!parents.isNullOrEmpty() && parents.all { !it.children.isNullOrEmpty() }) {
+                callback?.onFull(parents)
             }
         }
 
@@ -102,29 +106,29 @@ internal class ObservableList : ArrayList<Category>() {
             return false
         }
 
-        val added = super.addAll(elements)
+        val isAdded = super.addAll(elements)
 
         if (callback != null) {
-            val basic = filter { it.parentId == null }
+            val parents = filter { it.parentId == Category.NO_PARENT_ID }.toMutableList()
 
             for (element in elements) {
-                basic.forEach {
+                parents.forEach {
                     if (it.id == element.parentId && !it.children.contains(element)) {
 //                        it.children.add(element)
                     }
                 }
             }
 
-            if (!basic.isNullOrEmpty() && basic.all { !it.children.isNullOrEmpty() }) {
-                callback?.onFull(basic)
+            if (!parents.isNullOrEmpty() && parents.all { !it.children.isNullOrEmpty() }) {
+                callback?.onFull(parents)
             }
         }
 
-        return added
+        return isAdded
     }
 
-    interface Callback {
-        fun onFull(basic: List<Category>)
+    fun interface Callback {
+        fun onFull(categories: List<Category>)
     }
 
 }

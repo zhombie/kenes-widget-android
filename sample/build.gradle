@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "q19.kenes.widget"
 
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 30
 
         def versionProps = readVersionFromFile()
@@ -65,7 +65,7 @@ android {
             dimension "mode"
 
             buildConfigField 'boolean', 'DEBUG', 'false'
-            buildConfigField 'String', 'HOSTNAME', '"https://kenes.1414.kz"'
+            buildConfigField 'String', 'HOSTNAME', '"https://help.mvd.gov.kz"'
 
             resValue "string", "app_name", "Kenes Widget"
 
@@ -93,6 +93,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
+    // AppCompat
     implementation 'androidx.appcompat:appcompat:1.2.0'
 
     // Firebase

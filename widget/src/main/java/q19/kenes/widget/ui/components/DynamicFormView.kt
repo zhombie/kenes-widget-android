@@ -19,8 +19,12 @@ import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.form.Form
 import kz.q19.domain.model.media.Media
+import kz.q19.utils.view.inflate
 import q19.kenes.widget.ui.components.base.TitleView
-import q19.kenes.widget.util.*
+import q19.kenes.widget.util.AbstractTextWatcher
+import q19.kenes.widget.util.AlertDialogBuilder
+import q19.kenes.widget.util.Logger
+import q19.kenes.widget.util.disableChangeAnimations
 import q19.kenes_widget.R
 
 internal class DynamicFormView @JvmOverloads constructor(

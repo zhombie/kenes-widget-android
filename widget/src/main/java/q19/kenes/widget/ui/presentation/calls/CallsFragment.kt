@@ -1,7 +1,6 @@
 package q19.kenes.widget.ui.presentation.calls
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import kz.q19.domain.model.configs.Configs
 import q19.kenes.widget.data.local.Database
@@ -31,7 +30,7 @@ class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView {
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume()")
+//        Log.d(TAG, "onResume()")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -39,7 +38,7 @@ class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView {
     }
 
     override fun showMediaCalls(calls: List<Configs.Call>) {
-        Log.d(TAG, "calls: $calls")
+//        Log.d(TAG, "calls: $calls")
     }
 
 }

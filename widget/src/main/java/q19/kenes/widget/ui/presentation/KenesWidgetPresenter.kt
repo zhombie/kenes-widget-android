@@ -7,6 +7,7 @@ import kz.q19.socket.SocketClient
 import kz.q19.socket.SocketClientConfig
 import kz.q19.socket.listener.SocketStateListener
 import q19.kenes.widget.data.local.Database
+import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ConfigsResponseHandler
 import q19.kenes.widget.data.remote.http.IceServersResponseHandler
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
@@ -23,13 +24,11 @@ class KenesWidgetPresenter constructor(
     private var language: Language = Language.DEFAULT
 
     private var asyncHttpClient: AsyncHttpClient? = null
+
     private var socketClient: SocketClient? = null
 
     override fun onFirstViewAttach() {
-        asyncHttpClient = AsyncHttpClient()
-        asyncHttpClient?.isLoggingEnabled = false
-        asyncHttpClient?.connectTimeout = 30 * 1000
-        asyncHttpClient?.responseTimeout = 30 * 1000
+        asyncHttpClient = AsyncHttpClientBuilder.build()
 
         loadConfigs()
         loadIceServers()
@@ -40,7 +39,7 @@ class KenesWidgetPresenter constructor(
     private fun loadConfigs() {
         asyncHttpClient?.get(UrlUtil.buildUrl("/configs"), ConfigsResponseHandler(
             onSuccess = { configs ->
-                Log.d(TAG, "configs: $configs")
+//                Log.d(TAG, "configs: $configs")
 
                 database.setConfigs(configs)
 

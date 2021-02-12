@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.nbsp.materialfilepicker.MaterialFilePicker
 import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
-import kz.q19.common.locale.ui.LocalizationActivity
 import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.form.Form
@@ -31,8 +30,8 @@ import kz.q19.domain.model.keyboard.button.Button
 import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.media.Media
-import kz.q19.domain.model.message.Category
 import kz.q19.domain.model.message.Message
+import kz.q19.socket.model.Category
 import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
@@ -42,11 +41,12 @@ import q19.kenes.widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapterItemDecoration
 import q19.kenes.widget.ui.presentation.adapter.ChatFooterAdapter
 import q19.kenes.widget.ui.presentation.model.ViewState
+import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.*
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes_widget.R
 
-internal class OldKenesWidgetActivity : LocalizationActivity(), OldKenesWidgetView {
+internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
     companion object {
         private val TAG = OldKenesWidgetActivity::class.java.simpleName
@@ -213,7 +213,7 @@ internal class OldKenesWidgetActivity : LocalizationActivity(), OldKenesWidgetVi
 
         presenter = OldKenesWidgetPresenter(
             deviceInfo = DeviceInfo(this),
-            language = Language.from(getCurrentLocale()),
+            language = Language.DEFAULT,
             peerConnectionClient = PeerConnectionClient(
                 context = this,
                 options = Options(),
@@ -791,13 +791,13 @@ internal class OldKenesWidgetActivity : LocalizationActivity(), OldKenesWidgetVi
         calls: List<Configs.Call>
     ) {
         runOnUiThread {
-            operatorCallView.showCalls(parentCall, calls, Language.from(getCurrentLocale()))
+//            operatorCallView.showCalls(parentCall, calls, Language.from(getCurrentLocale()))
         }
     }
 
     override fun showServices(parentService: Configs.Service?, services: List<Configs.Service>) {
         runOnUiThread {
-            servicesView.showServices(parentService, services, Language.from(getCurrentLocale()))
+//            servicesView.showServices(parentService, services, Language.from(getCurrentLocale()))
         }
     }
 

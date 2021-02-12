@@ -1,6 +1,7 @@
 package q19.kenes.widget.util
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -56,17 +57,18 @@ internal fun Context.showOpenLinkConfirmAlert(
 
     textView.setTextColor(ContextCompat.getColor(this, R.color.kenes_very_dark_gray))
 
-    val colorStateList = ColorStateListBuilder()
-        .addState(
-            IntArray(1) { android.R.attr.state_pressed },
-            ContextCompat.getColor(this, R.color.kenes_very_light_blue)
-        )
-        .addState(
-            IntArray(1) { android.R.attr.state_selected },
-            ContextCompat.getColor(this, R.color.kenes_very_light_blue)
-        )
-        .addState(intArrayOf(), ContextCompat.getColor(this, R.color.kenes_light_blue))
-        .build()
+    val stateSet = arrayOf(
+        intArrayOf(android.R.attr.state_pressed),
+        intArrayOf(android.R.attr.state_pressed),
+        intArrayOf()
+    )
+    val colors = intArrayOf(
+        ContextCompat.getColor(this, R.color.kenes_very_light_blue),
+        ContextCompat.getColor(this, R.color.kenes_very_light_blue),
+        ContextCompat.getColor(this, R.color.kenes_light_blue),
+    )
+
+    val colorStateList = ColorStateList(stateSet, colors)
 
     textView.highlightColor = Color.TRANSPARENT
 

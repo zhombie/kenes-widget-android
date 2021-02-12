@@ -9,7 +9,7 @@ import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.utils.textview.removeCompoundDrawables
 import kz.q19.utils.textview.showCompoundDrawableOnfLeft
 import q19.kenes.widget.ui.presentation.model.ChatFooter
-import q19.kenes.widget.util.inflate
+import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 import java.util.*
 

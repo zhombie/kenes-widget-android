@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.presentation.adapter
+package q19.kenes.widget.ui.presentation.home
 
 import android.content.Context
 import android.graphics.Canvas
@@ -6,267 +6,20 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import kz.q19.common.error.ViewHolderViewTypeException
-import kz.q19.domain.model.message.Category
-import kz.q19.utils.textview.removeCompoundDrawables
 import q19.kenes.widget.ui.util.*
 import q19.kenes.widget.util.Logger
-import q19.kenes.widget.util.inflate
-import q19.kenes.widget.util.isVisible
 import q19.kenes_widget.R
 
-internal class CategoryAdapter constructor(
-    var isExpandable: Boolean,
-    var isSeparateFooterEnabled: Boolean,
-    private val callback: Callback
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    companion object {
-//        private const val TAG = "CategoryAdapter"
-
-        private val LAYOUT_HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
-        private val LAYOUT_FOOTER = R.layout.kenes_cell_horizontal_button
-
-        private const val DEFAULT_SIZE_THRESHOLD = 2
-
-        const val VIEW_TYPE_HORIZONTAL_BUTTON = 100
-        const val VIEW_TYPE_FOOTER = 101
-    }
-
-    var category: Category? = null
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-    var size: Int = DEFAULT_SIZE_THRESHOLD
-        set(value) {
-            if (isExpandable) {
-                field = value
-                notifyDataSetChanged()
-            } else {
-                return
-            }
-        }
-
-    var isFooterEnabled: Boolean = false
-        private set
-
-    private fun getItem(position: Int): Category? {
-        return category?.children?.get(position)
-    }
-
-    private fun getActualSize(): Int {
-        return category?.children?.size ?: 0
-    }
-
-    private fun isCollapsed(): Boolean {
-        return if (isExpandable) {
-            size == DEFAULT_SIZE_THRESHOLD
-        } else {
-            false
-        }
-    }
-
-    fun toggle(): Int {
-        return if (isExpandable) {
-            size = if (isCollapsed()) {
-                getActualSize()
-            } else {
-                DEFAULT_SIZE_THRESHOLD
-            }
-            size
-        } else {
-            0
-        }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-//        Logger.debug(TAG, "getItemViewType() -> position: $position")
-        return if (isExpandable) {
-            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
-                VIEW_TYPE_HORIZONTAL_BUTTON
-            } else {
-                if (position == itemCount - 1) {
-                    VIEW_TYPE_FOOTER
-                } else {
-                    VIEW_TYPE_HORIZONTAL_BUTTON
-                }
-            }
-        } else {
-            if (isSeparateFooterEnabled) {
-                if (position == itemCount - 1) {
-                    VIEW_TYPE_FOOTER
-                } else {
-                    VIEW_TYPE_HORIZONTAL_BUTTON
-                }
-            } else {
-                VIEW_TYPE_HORIZONTAL_BUTTON
-            }
-        }
-    }
-
-    override fun getItemCount(): Int {
-        isFooterEnabled = false
-
-        val actualSize = getActualSize()
-
-        if (isExpandable) {
-            var itemCount = size
-
-            if (size < 0) {
-                itemCount = DEFAULT_SIZE_THRESHOLD
-            }
-
-            if (!category?.children.isNullOrEmpty() && size >= actualSize) {
-                itemCount = actualSize
-            }
-
-            if (actualSize > DEFAULT_SIZE_THRESHOLD) {
-                isFooterEnabled = true
-                itemCount += 1
-            }
-
-            return itemCount
-        } else {
-            return if (isSeparateFooterEnabled) {
-                isFooterEnabled = true
-                actualSize + 1
-            } else {
-                actualSize
-            }
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            VIEW_TYPE_HORIZONTAL_BUTTON ->
-                ViewHolder(parent.inflate(LAYOUT_HORIZONTAL_BUTTON))
-            VIEW_TYPE_FOOTER ->
-                FooterViewHolder(parent.inflate(LAYOUT_FOOTER))
-            else ->
-                throw ViewHolderViewTypeException(viewType)
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolder) {
-            holder.bind(getItem(position))
-        } else if (holder is FooterViewHolder) {
-            holder.bind()
-        }
-    }
-
-    private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
-
-        fun bind(category: Category?) {
-//            Logger.debug(TAG, "category: category")
-
-            textView?.text = category?.title
-
-            if (category == Category.EMPTY) {
-                imageView?.setImageDrawable(null)
-                imageView?.isVisible = false
-
-                itemView.isClickable = false
-                itemView.isFocusable = false
-
-                itemView.background = buildSimpleDrawable(itemView.context)
-            } else {
-                if (category?.responses.isNullOrEmpty()) {
-                    imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
-                    imageView?.isVisible = true
-                } else {
-                    imageView?.setImageResource(R.drawable.kenes_ic_document_blue)
-                    imageView?.isVisible = true
-                }
-
-                itemView.isClickable = true
-                itemView.isFocusable = true
-
-                itemView.background = buildRippleDrawable(itemView.context)
-
-                itemView.setOnClickListener {
-                    if (category != null) {
-                        callback.onCategoryChildClicked(category)
-                    }
-                }
-            }
-        }
-    }
-
-    private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
-
-        fun bind() {
-            imageView?.visibility = View.GONE
-
-            textView?.removeCompoundDrawables()
-
-            if (isExpandable) {
-                textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_grayish_blue))
-
-                if (isCollapsed()) {
-                    textView?.setText(R.string.kenes_show_all)
-                    itemView.visibility = View.VISIBLE
-                } else {
-                    textView?.setText(R.string.kenes_hide)
-                    itemView.visibility = View.VISIBLE
-                }
-            } else {
-                if (isSeparateFooterEnabled) {
-                    textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
-                    textView?.setText(R.string.kenes_back)
-                    itemView.visibility = View.VISIBLE
-                } else {
-                    textView?.text = null
-                    itemView.visibility = View.GONE
-                }
-            }
-
-            itemView.isClickable = true
-            itemView.isFocusable = true
-
-            itemView.background = buildRippleDrawable(itemView.context)
-
-            if (isSeparateFooterEnabled) {
-                itemView.setOnClickListener {
-                    category?.let {
-                        callback.onGoBackButtonClicked(it)
-                    }
-                }
-            } else {
-                itemView.setOnClickListener { toggle() }
-            }
-        }
-
-    }
-
-    interface Callback {
-        fun onCategoryChildClicked(category: Category)
-        fun onGoBackButtonClicked(category: Category)
-    }
-
-}
-
-
-
-class CategoryAdapterItemDecoration(
+class ResponseGroupAdapterItemDecoration constructor(
     context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float
 ) : RecyclerView.ItemDecoration() {
 
     companion object {
-        private const val TAG = "CategoryAdapterItemDecoration"
+        private val TAG = ResponseGroupAdapterItemDecoration::class.java.simpleName
     }
 
     private val paint: Paint = Paint()
@@ -278,7 +31,7 @@ class CategoryAdapterItemDecoration(
     }
 
     override fun onDrawOver(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-        val adapter = (parent.adapter as? CategoryAdapter?) ?: return
+        val adapter = (parent.adapter as? ResponseGroupAdapter?) ?: return
 
 //        val itemCount = parent.childCount
         val itemCount = adapter.itemCount
@@ -302,7 +55,7 @@ class CategoryAdapterItemDecoration(
 
                 val viewType = adapter.getItemViewType(position)
 
-                if (viewType == CategoryAdapter.VIEW_TYPE_HORIZONTAL_BUTTON) {
+                if (viewType == ResponseGroupAdapter.ViewType.HORIZONTAL_BUTTON) {
                     val relativeItemCount = if (adapter.isFooterEnabled) {
                         itemCount - 1
                     } else {
@@ -379,7 +132,7 @@ class CategoryAdapterItemDecoration(
                         )
                     }
 
-                } else if (viewType == CategoryAdapter.VIEW_TYPE_FOOTER) {
+                } else if (viewType == ResponseGroupAdapter.ViewType.FOOTER) {
                     if (adapter.isSeparateFooterEnabled) {
                         val path = getPathOfRoundedRectF(
                             child,
@@ -406,7 +159,7 @@ class CategoryAdapterItemDecoration(
     ) {
         super.getItemOffsets(outRect, view, parent, state)
 
-        val adapter = (parent.adapter as? CategoryAdapter?) ?: return
+        val adapter = (parent.adapter as? ResponseGroupAdapter?) ?: return
 
 //        val itemCount = parent.childCount
         val itemCount = adapter.itemCount
@@ -416,7 +169,7 @@ class CategoryAdapterItemDecoration(
         val viewType = adapter.getItemViewType(position)
 
         if (adapter.isSeparateFooterEnabled) {
-            if (viewType == CategoryAdapter.VIEW_TYPE_FOOTER) {
+            if (viewType == ResponseGroupAdapter.ViewType.FOOTER) {
                 outRect.top = parent.context.resources.getDimensionPixelOffset(R.dimen.kenes_footer_vertical_offset)
             } else {
                 outRect.setEmpty()
@@ -426,7 +179,7 @@ class CategoryAdapterItemDecoration(
         // Draw rounded background
         if (cornerRadius.compareTo(0f) != 0) {
             val roundMode = when (viewType) {
-                CategoryAdapter.VIEW_TYPE_HORIZONTAL_BUTTON -> {
+                ResponseGroupAdapter.ViewType.HORIZONTAL_BUTTON -> {
                     val relativeItemCount = if (adapter.isFooterEnabled) {
                         itemCount - 1
                     } else {
@@ -464,7 +217,7 @@ class CategoryAdapterItemDecoration(
                         }
                     }
                 }
-                CategoryAdapter.VIEW_TYPE_FOOTER -> {
+                ResponseGroupAdapter.ViewType.FOOTER -> {
                     if (adapter.isSeparateFooterEnabled) {
                         RoundMode.ALL
                     } else {

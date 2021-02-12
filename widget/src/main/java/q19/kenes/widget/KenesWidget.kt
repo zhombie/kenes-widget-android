@@ -2,11 +2,15 @@ package q19.kenes.widget
 
 import android.content.Context
 import android.content.Intent
-import kz.q19.common.locale.core.LanguageSetting
+import kz.q19.domain.model.language.Language
 import q19.kenes.widget.ui.presentation.KenesWidgetActivity
 import java.io.Serializable
 
 class KenesWidget private constructor() {
+
+    companion object {
+        val SUPPORTED_LOCALES = listOf(Language.RUSSIAN.locale, Language.KAZAKH.locale)
+    }
 
     class Builder {
 
@@ -57,9 +61,6 @@ class KenesWidget private constructor() {
                 Language.KAZAKH -> kz.q19.domain.model.language.Language.KAZAKH
                 Language.RUSSIAN -> kz.q19.domain.model.language.Language.RUSSIAN
                 else -> null
-            }
-            if (language?.locale != null) {
-                LanguageSetting.setLanguage(context, language.locale)
             }
             return KenesWidgetActivity.newIntent(
                 context,
