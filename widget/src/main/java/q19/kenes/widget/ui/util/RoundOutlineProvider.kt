@@ -1,78 +1,8 @@
 package q19.kenes.widget.ui.util
 
-import android.graphics.Outline
 import android.graphics.Path
 import android.graphics.RectF
-import android.os.Build
 import android.view.View
-import android.view.ViewOutlineProvider
-import androidx.annotation.RequiresApi
-
-/**
- * Enum describes mode round corners
- */
-enum class RoundMode {
-    TOP,
-    BOTTOM,
-    BOTTOM_LEFT,
-    BOTTOM_RIGHT,
-    ALL,
-    NONE
-}
-
-
-/**
- * [ViewOutlineProvider] witch works with [RoundMode]
- * @param outlineRadius corner radius
- * @param roundMode mode for corners
- */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-class RoundOutlineProvider(
-    private var outlineRadius: Float = 0F,
-    var roundMode: RoundMode = RoundMode.NONE
-) : ViewOutlineProvider() {
-
-    private val topOffset: Int
-        get() = when (roundMode) {
-            RoundMode.ALL, RoundMode.TOP -> 0
-            else -> cornerRadius.toInt()
-        }
-
-    private val bottomOffset: Int
-        get() = when (roundMode) {
-            RoundMode.NONE, RoundMode.TOP -> cornerRadius.toInt()
-            else -> 0
-        }
-
-    private val rightOffset: Int
-        get() = when (roundMode) {
-            RoundMode.BOTTOM_LEFT -> cornerRadius.toInt()
-            else -> 0
-        }
-
-    private val leftOffset: Int
-        get() = when (roundMode) {
-            RoundMode.BOTTOM_RIGHT -> cornerRadius.toInt()
-            else -> 0
-        }
-
-    private val cornerRadius: Float
-        get() = if (roundMode == RoundMode.NONE) {
-            0F
-        } else {
-            outlineRadius
-        }
-
-    override fun getOutline(view: View, outline: Outline) {
-        outline.setRoundRect(
-            0 - leftOffset,
-            0 - topOffset,
-            view.width + rightOffset,
-            view.height + bottomOffset,
-            cornerRadius
-        )
-    }
-}
 
 
 fun getPathOfRoundedRectF(

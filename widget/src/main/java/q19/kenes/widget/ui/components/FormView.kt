@@ -14,8 +14,8 @@ import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
+import kz.q19.utils.textview.AbstractTextWatcher
 import q19.kenes_widget.R
-import q19.kenes.widget.util.AbstractTextWatcher
 
 class FormView @JvmOverloads constructor(
     context: Context,

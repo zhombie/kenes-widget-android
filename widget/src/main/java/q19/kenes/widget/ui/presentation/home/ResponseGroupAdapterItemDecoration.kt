@@ -8,7 +8,11 @@ import android.graphics.Rect
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import q19.kenes.widget.ui.util.*
+import kz.q19.utils.view.outlineprovider.RoundMode
+import kz.q19.utils.view.outlineprovider.RoundOutlineProvider
+import q19.kenes.widget.ui.util.getPathOfQuadBottomRectF
+import q19.kenes.widget.ui.util.getPathOfQuadTopRectF
+import q19.kenes.widget.ui.util.getPathOfRoundedRectF
 import q19.kenes.widget.util.Logger
 import q19.kenes_widget.R
 

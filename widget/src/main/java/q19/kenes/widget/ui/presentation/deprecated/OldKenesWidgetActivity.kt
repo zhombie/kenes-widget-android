@@ -32,6 +32,11 @@ import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.socket.model.Category
+import kz.q19.utils.keyboard.hideKeyboard
+import kz.q19.utils.recyclerview.disableChangeAnimations
+import kz.q19.utils.recyclerview.setOverScrollColor
+import kz.q19.utils.view.binding.bind
+import kz.q19.utils.view.isVisible
 import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
@@ -535,7 +540,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
             }
         })
 
-        recyclerView.setOverscrollColor(R.color.kenes_very_light_blue)
+        recyclerView.setOverScrollColor(R.color.kenes_very_light_blue)
 
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
