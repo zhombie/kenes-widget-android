@@ -1,6 +1,6 @@
 package q19.kenes_widget.data.model
 
-data class DynamicForm(
+internal data class DynamicForm constructor(
     val id: Long,
     val title: String? = null,
     val isFlex: Int = 0,
@@ -14,7 +14,7 @@ data class DynamicForm(
 
 }
 
-data class DynamicFormField(
+internal data class DynamicFormField constructor(
     val id: Long,
     val isFlex: Boolean = false,
     val title: String? = null,

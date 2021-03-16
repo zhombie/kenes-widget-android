@@ -2,7 +2,7 @@ package q19.kenes_widget.data.model
 
 import java.util.*
 
-class Language(
+internal class Language constructor(
     val key: String,
     val value: String,
     val identificator: Int

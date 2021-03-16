@@ -5,7 +5,7 @@ import org.json.JSONObject
 import q19.kenes_widget.R
 import q19.kenes_widget.util.JsonUtil.jsonObject
 
-data class Configs(
+internal data class Configs constructor(
     val booleans: Booleans = Booleans(),
     val opponent: Opponent? = null,
     val contacts: List<Contact>? = null,
@@ -15,7 +15,7 @@ data class Configs(
     val callScopes: List<CallScope>? = null
 ) {
 
-    data class Opponent(
+    data class Opponent constructor(
         var name: String? = null,
         var secondName: String? = null,
         var avatarUrl: String? = null,
@@ -45,12 +45,12 @@ data class Configs(
         }
     }
 
-    data class Contact(
+    data class Contact constructor(
         var key: String,
         var value: String
     ) {
 
-        enum class Social(
+        enum class Social constructor(
             val key: String,
             val title: String,
             @DrawableRes val icon: Int
@@ -81,7 +81,7 @@ data class Configs(
 
     }
 
-    data class WorkingHours(
+    data class WorkingHours constructor(
         val messageKk: String? = null,
         val messageRu: String? = null
     ) {
@@ -101,13 +101,13 @@ data class Configs(
 
     }
 
-    data class InfoBlock(
+    data class InfoBlock constructor(
         val title: I18NString,
         val description: I18NString,
         val items: List<Item>
     )
 
-    data class I18NString(
+    data class I18NString constructor(
         val value: JSONObject
     ) {
         companion object {
@@ -130,14 +130,14 @@ data class Configs(
         }
     }
 
-    data class Item(
+    data class Item constructor(
         val icon: String?,
         val text: String,
         val description: I18NString,
         val action: String
     )
 
-    data class Booleans(
+    data class Booleans constructor(
         val isChabotEnabled: Boolean = false,
         val isAudioCallEnabled: Boolean = false,
         val isVideoCallEnabled: Boolean = false,
@@ -215,24 +215,24 @@ data class Configs(
 
         }
 
-        enum class Type(val value: String) {
+        enum class Type constructor(val value: String) {
             FOLDER("folder"),
             LINK("link")
         }
 
-        enum class Action(val value: String) {
+        enum class Action constructor(val value: String) {
             AUDIO_CALL("audio_call"),
             VIDEO_CALL("video_call")
         }
 
-        enum class ChatType(val value: String) {
+        enum class ChatType constructor(val value: String) {
             AUDIO("audio"),
             VIDEO("video"),
             EXTERNAL("external"),
             FORM("form")
         }
 
-        data class Details(
+        data class Details constructor(
             val order: Int
         )
 
@@ -244,4 +244,4 @@ data class Configs(
 
 }
 
-typealias Service = Configs.CallScope
+internal typealias Service = Configs.CallScope

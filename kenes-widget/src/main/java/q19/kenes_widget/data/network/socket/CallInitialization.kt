@@ -4,7 +4,7 @@ import android.location.Location
 import q19.kenes_widget.data.model.CallType
 import q19.kenes_widget.data.model.Language
 
-data class CallInitialization constructor(
+internal data class CallInitialization constructor(
     val callType: CallType,
     val userId: Long? = null,
     val domain: String? = null,
@@ -13,6 +13,8 @@ data class CallInitialization constructor(
     val location: Location? = null,
 
     val device: Device? = null,
+
+    val authorization: Authorization? = null,
 
     val language: Language
 ) {
@@ -30,6 +32,17 @@ data class CallInitialization constructor(
             val percentage: Double? = null,
             val isCharging: Boolean? = null,
             val temperature: Float? = null
+        )
+
+    }
+
+    data class Authorization constructor(
+        val bearer: Bearer
+    ) {
+
+        data class Bearer constructor(
+            val token: String,
+            val refreshToken: String? = null
         )
 
     }

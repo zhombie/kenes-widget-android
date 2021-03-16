@@ -7,6 +7,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import q19.kenes_widget.KenesWidget;
+import q19.kenes_widget.api.model.Authorization;
+import q19.kenes_widget.api.model.Language;
 
 class MainActivity extends AppCompatActivity {
 
@@ -28,9 +30,11 @@ class MainActivity extends AppCompatActivity {
           EN -> To launch the widget, you need to send the hostname.
           Example: https://kenes.vlx.kz
          */
-        startActivity(KenesWidget.open(this, new KenesWidget.EntryParams(
-                DemonstrationConstants.HOSTNAME,
-                DemonstrationConstants.INSTANCE.getLANGUAGE())));
+        new KenesWidget.Builder(this)
+            .setHostname(DemonstrationConstants.HOSTNAME)
+            .setLanguage(Language.KAZAKH)
+            .setAuthorization(new Authorization(new Authorization.Bearer("xyz", null)))
+            .launch();
     }
 
 }

@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.KenesWidget
+import q19.kenes_widget.api.model.Authorization
+import q19.kenes_widget.api.model.Language
 
 class MainKtActivity : AppCompatActivity() {
 
@@ -26,15 +28,11 @@ class MainKtActivity : AppCompatActivity() {
          * EN -> To launch the widget, you need to send the hostname.
          * Example: https://kenes.vlx.kz
          */
-        startActivity(
-            KenesWidget.open(
-                this,
-                KenesWidget.EntryParams(
-                    DemonstrationConstants.HOSTNAME,
-                    language = DemonstrationConstants.LANGUAGE
-                )
-            )
-        )
+        KenesWidget.Builder(this)
+            .setHostname(DemonstrationConstants.HOSTNAME)
+            .setLanguage(Language.RUSSIAN)
+            .setAuthorization(Authorization(Authorization.Bearer("xyz", null)))
+            .launch()
     }
 
 }
