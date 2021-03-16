@@ -15,7 +15,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import q19.kenes_widget.util.findEnumBy
 
-class SocketClient(
+internal class SocketClient constructor(
     private var socket: Socket? = null,
     private var language: String? = null,
     var listener: Listener? = null
@@ -459,6 +459,14 @@ class SocketClient(
                             putIfValueNotNull("temperature", callInitialization.device.battery.temperature)
                         })
                     }
+                })
+            }
+
+            if (callInitialization.authorization != null) {
+                put("auth", jsonObject {
+                    put("type", "bearer")
+                    put("token", callInitialization.authorization.bearer.token)
+                    put("refresh_token", callInitialization.authorization.bearer.refreshToken)
                 })
             }
 

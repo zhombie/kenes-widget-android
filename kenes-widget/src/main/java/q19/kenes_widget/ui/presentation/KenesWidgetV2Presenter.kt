@@ -6,6 +6,7 @@ import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
+import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.data.model.*
 import q19.kenes_widget.data.network.file.DownloadResult
@@ -24,10 +25,11 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
-class KenesWidgetV2Presenter constructor(
+internal class KenesWidgetV2Presenter constructor(
 //    private val appProvider: AppProvider,
     private val deviceInfo: DeviceInfo,
     private val language: Language,
+    private val authorization: Authorization?,
     private val palette: IntArray
 ) {
 
@@ -948,6 +950,17 @@ class KenesWidgetV2Presenter constructor(
             CallType.VIDEO -> ViewState.VideoDialog.Pending
         }
 
+        val authorization = if (authorization == null) {
+            null
+        } else {
+            CallInitialization.Authorization(
+                CallInitialization.Authorization.Bearer(
+                    token = authorization.bearer.token,
+                    refreshToken = authorization.bearer.refreshToken
+                )
+            )
+        }
+
         val callInitialization = CallInitialization(
             callType = callType,
             domain = UrlUtil.getHostname()?.removePrefix("https://"),
@@ -964,6 +977,7 @@ class KenesWidgetV2Presenter constructor(
                     temperature = deviceInfo.batteryTemperature
                 )
             ),
+            authorization = authorization,
             language = language
         )
 

@@ -30,6 +30,7 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 import q19.kenes_widget.R
+import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
@@ -45,16 +46,10 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.webrtc.PeerConnectionClient
 import java.io.File
 
-class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
+internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 
     companion object {
-        private const val TAG = "KenesWidgetV2Activity"
-
-        private const val KEY_HOSTNAME = "hostname"
-        private const val KEY_LANGUAGE = "language"
-        private const val KEY_FIRST_NAME = "firstName"
-        private const val KEY_LAST_NAME = "lastName"
-        private const val KEY_PHONE_NUMBER = "phoneNumber"
+        private val TAG = KenesWidgetV2Activity::class.java.simpleName
 
         private const val FILE_PICKER_REQUEST_CODE = 101
 
@@ -62,20 +57,25 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         fun newIntent(
             context: Context,
             hostname: String,
-            language: Language? = null,
-            firstName: String? = null,
-            lastName: String? = null,
-            phoneNumber: String? = null
+            language: Language,
+            authorization: Authorization? = null,
+            user: User? = null
         ): Intent =
             Intent(context, KenesWidgetV2Activity::class.java)
-                .putExtra(KEY_HOSTNAME, hostname)
-                .putExtra(KEY_LANGUAGE, language?.key)
-                .putExtra(KEY_FIRST_NAME, firstName)
-                .putExtra(KEY_LAST_NAME, lastName)
-                .putExtra(KEY_PHONE_NUMBER, phoneNumber)
+                .putExtra(IntentKey.HOSTNAME, hostname)
+                .putExtra(IntentKey.LANGUAGE, language.key)
+                .putExtra(IntentKey.AUTHORIZATION, authorization)
+                .putExtra(IntentKey.USER, user)
     }
 
     // -------------------------- Binding views -----------------------------------
+
+    private object IntentKey {
+        const val HOSTNAME = "hostname"
+        const val LANGUAGE = "language"
+        const val AUTHORIZATION = "authorization"
+        const val USER = "user"
+    }
 
     /**
      * Parent root view [rootView].
@@ -213,12 +213,18 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
         }
 
         // Hostname
-        val hostname = intent.getStringExtra(KEY_HOSTNAME)
+        val hostname = intent.getStringExtra(IntentKey.HOSTNAME)
 
         if (hostname.isNullOrBlank()) {
             throwError()
         } else {
             UrlUtil.setHostname(hostname)
+        }
+
+        val authorization: Authorization? = if (intent.getSerializableExtra(IntentKey.AUTHORIZATION) is Authorization) {
+            intent.getSerializableExtra(IntentKey.AUTHORIZATION) as Authorization
+        } else {
+            null
         }
 
         // ------------------------------------------------------------------------
@@ -227,6 +233,7 @@ class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View {
 //            appProvider = AppProvider(),
             deviceInfo = DeviceInfo(this),
             language = Language.from(getCurrentLocale()),
+            authorization = authorization,
             palette = palette
         )
         presenter.attachView(this)

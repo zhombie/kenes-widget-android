@@ -48,7 +48,7 @@ dependencies {
 
     implementation "androidx.browser:browser:1.3.0"
 
-    implementation 'androidx.recyclerview:recyclerview:1.2.0-beta01'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-beta02'
 
     implementation 'com.squareup.picasso:picasso:2.71828'
 
@@ -56,7 +56,7 @@ dependencies {
 
     implementation 'com.github.zhombie:ImageViewer:1.0'
 
-    implementation ('io.socket:socket.io-client:1.0.0') {
+    implementation ('io.socket:socket.io-client:1.0.1') {
         // excluding org.json which is provided by Android
         exclude group: 'org.json', module: 'json'
     }

@@ -1,6 +1,6 @@
 package q19.kenes_widget.data.model
 
-data class RatingButton(
+internal data class RatingButton constructor(
     var title: String?,
     var payload: String? = null
 ) {

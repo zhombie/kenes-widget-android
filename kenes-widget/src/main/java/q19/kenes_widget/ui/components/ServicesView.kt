@@ -27,7 +27,7 @@ import q19.kenes_widget.util.Logger.debug
 import q19.kenes_widget.util.inflate
 import q19.kenes_widget.util.removeCompoundDrawables
 
-class ServicesView @JvmOverloads constructor(
+internal class ServicesView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,

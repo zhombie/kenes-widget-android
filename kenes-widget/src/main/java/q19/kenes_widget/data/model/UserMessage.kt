@@ -3,12 +3,12 @@ package q19.kenes_widget.data.model
 import org.json.JSONObject
 import org.webrtc.SessionDescription
 
-class UserMessage(
+internal class UserMessage constructor(
     var rtc: RTC? = null,
     var action: Action? = null
 ) {
 
-    enum class Action(val value: String) {
+    enum class Action constructor(val value: String) {
         FINISH("finish");
 
         override fun toString(): String {
@@ -60,7 +60,7 @@ class UserMessage(
 
 }
 
-class RTC(
+internal class RTC constructor(
     var type: Type,
     var sdp: String? = null,
     var id: String? = null,
@@ -68,7 +68,7 @@ class RTC(
     var candidate: String? = null
 ) {
 
-    enum class Type(val value: String) {
+    enum class Type constructor(val value: String) {
         START("start"),
         PREPARE("prepare"),
         READY("ready"),
@@ -106,7 +106,7 @@ class RTC(
 
 }
 
-class RTCBuilder {
+internal class RTCBuilder {
     var type: RTC.Type? = null
     var sdp: String? = null
     var id: String? = null
@@ -119,6 +119,6 @@ class RTCBuilder {
 }
 
 
-inline fun rtc(lambda: RTCBuilder.() -> Unit): RTC {
+internal inline fun rtc(lambda: RTCBuilder.() -> Unit): RTC {
     return RTCBuilder().apply(lambda).build()
 }
