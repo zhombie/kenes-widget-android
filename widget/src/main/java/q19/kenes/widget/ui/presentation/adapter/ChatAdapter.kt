@@ -185,14 +185,6 @@ internal class ChatAdapter constructor(
                 }
                 Message.Type.NOTIFICATION ->
                     LAYOUT_NOTIFICATION
-                Message.Type.TYPING ->
-                    LAYOUT_TYPING
-                Message.Type.CATEGORY ->
-                    LAYOUT_CATEGORY
-                Message.Type.CROSS_CHILDREN ->
-                    LAYOUT_CROSS_CHILDREN
-                Message.Type.RESPONSE ->
-                    LAYOUT_RESPONSE
             }
         } else {
             super.getItemViewType(position)
@@ -208,7 +200,7 @@ internal class ChatAdapter constructor(
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
 //            LAYOUT_CATEGORY -> OldCategoryViewHolder(view)
-            LAYOUT_RESPONSE -> ResponseViewHolder(view)
+//            LAYOUT_RESPONSE -> ResponseViewHolder(view)
             else -> throw ViewHolderViewTypeException(viewType)
         }
     }
@@ -228,10 +220,6 @@ internal class ChatAdapter constructor(
             }
             Message.Type.NOTIFICATION ->
                 if (holder is NotificationViewHolder) holder.bind(message)
-            Message.Type.TYPING ->
-                if (holder is TypingViewHolder) holder.bind()
-            Message.Type.RESPONSE ->
-                if (holder is ResponseViewHolder) holder.bind(message)
         }
     }
 
