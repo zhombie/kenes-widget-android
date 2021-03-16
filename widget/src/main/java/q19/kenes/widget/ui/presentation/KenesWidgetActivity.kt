@@ -14,7 +14,6 @@ import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.view.binding.bind
 import q19.kenes.widget.KenesWidget
-import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.calls.CallsFragment
 import q19.kenes.widget.ui.presentation.home.ChatBotFragment
@@ -91,7 +90,7 @@ class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         }
 
         // Presenter
-        presenter = KenesWidgetPresenter(Database.getInstance(this))
+        presenter = injection.provideKenesWidgetPresenter()
         presenter?.setLanguage(language)
         presenter?.attachView(this)
 
@@ -105,6 +104,7 @@ class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
     override fun onDestroy() {
         presenter?.detachView()
         super.onDestroy()
+        injection.destroy()
     }
 
     private fun setupViewPager() {

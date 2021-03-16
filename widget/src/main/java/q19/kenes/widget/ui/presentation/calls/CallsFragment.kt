@@ -3,7 +3,7 @@ package q19.kenes.widget.ui.presentation.calls
 import android.os.Bundle
 import android.view.View
 import kz.q19.domain.model.configs.Configs
-import q19.kenes.widget.data.local.Database
+import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
@@ -24,7 +24,8 @@ class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        presenter = CallsPresenter(Database.getInstance(requireContext()))
+        val peerConnectionClient = PeerConnectionClient(requireContext())
+        presenter = context.injection?.provideCallsPresenter(peerConnectionClient)
         presenter?.attachView(this)
     }
 

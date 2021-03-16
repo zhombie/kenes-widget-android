@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import kz.q19.common.locale.LocaleManager
 import kz.q19.common.locale.utils.ActivityRecreationHelper
 import kz.q19.domain.model.language.Language
+import q19.kenes.widget.di.Injection
 import java.util.*
 
 open class BaseActivity : AppCompatActivity() {
@@ -23,6 +24,9 @@ open class BaseActivity : AppCompatActivity() {
         private val TAG = BaseActivity::class.java.simpleName
     }
 
+    internal val injection: Injection
+        get() = Injection.getInstance(this)
+    
     protected var toast: Toast? = null
     protected var alertDialog: androidx.appcompat.app.AlertDialog? = null
 

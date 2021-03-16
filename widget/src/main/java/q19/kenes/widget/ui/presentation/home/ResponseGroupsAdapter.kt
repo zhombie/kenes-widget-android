@@ -34,7 +34,7 @@ internal class ResponseGroupsAdapter constructor(
         }
     }
 
-    private val asyncListDiffer = AsyncListDiffer(this, diffCallback)
+    private val asyncListDiffer by lazy { AsyncListDiffer(this, diffCallback) }
 
     fun submitList(responseGroups: List<ResponseGroup>) {
         asyncListDiffer.submitList(responseGroups)

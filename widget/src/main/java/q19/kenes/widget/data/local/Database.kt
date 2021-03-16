@@ -78,6 +78,16 @@ class Database private constructor(context: Context) {
         return this.iceServers == iceServers
     }
 
+    fun destroy() {
+        onUpdateConfigsListener = null
+        onUpdateIceServersListener = null
+
+        configs = null
+        iceServers = null
+
+        INSTANCE = null
+    }
+
     fun interface OnUpdateConfigsListener {
         fun onUpdate(configs: Configs)
     }
