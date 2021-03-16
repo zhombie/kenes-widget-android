@@ -2,13 +2,13 @@ package q19.kenes_widget.data.repository
 
 import q19.kenes_widget.data.model.User
 
-interface UserInfoRepository {
+internal interface UserInfoRepository {
     fun getUserInfo(): User?
     fun saveUserInfo(user: User): Boolean
 }
 
 
-class UserInfoRepositoryImpl : UserInfoRepository {
+internal class UserInfoRepositoryImpl : UserInfoRepository {
 
     private var user: User? = null
 

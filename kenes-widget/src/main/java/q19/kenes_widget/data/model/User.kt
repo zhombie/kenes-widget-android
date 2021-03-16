@@ -2,11 +2,12 @@ package q19.kenes_widget.data.model
 
 import java.io.Serializable
 
-data class User constructor(
-    var firstName: String? = null,
-    var lastName: String? = null,
-    var phoneNumber: String? = null,
-    var email: String? = null
+internal data class User constructor(
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val iin: String? = null,
+    val phoneNumber: String? = null,
+    val email: String? = null
 ) : Serializable {
 
     fun isEmpty(): Boolean {

@@ -477,6 +477,16 @@ internal class SocketClient constructor(
                 })
             }
 
+            if (callInitialization.user != null) {
+                put("user", jsonObject {
+                    putIfValueNotNull("first_name", callInitialization.user.firstName)
+                    putIfValueNotNull("last_name", callInitialization.user.lastName)
+                    putIfValueNotNull("iin", callInitialization.user.iin)
+                    putIfValueNotNull("phone_number", callInitialization.user.phoneNumber)
+                    putIfValueNotNull("email", callInitialization.user.email)
+                })
+            }
+
             put("lang", callInitialization.language.key)
         })
     }

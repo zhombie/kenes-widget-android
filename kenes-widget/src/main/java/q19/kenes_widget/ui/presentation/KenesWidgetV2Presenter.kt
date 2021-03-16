@@ -6,7 +6,6 @@ import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
-import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.data.model.*
 import q19.kenes_widget.data.network.file.DownloadResult
@@ -16,6 +15,7 @@ import q19.kenes_widget.data.network.http.IceServersTask
 import q19.kenes_widget.data.network.http.WidgetConfigsTask
 import q19.kenes_widget.data.network.socket.CallInitialization
 import q19.kenes_widget.data.network.socket.SocketClient
+import q19.kenes_widget.data.network.socket.from
 import q19.kenes_widget.ui.presentation.model.BottomNavigation
 import q19.kenes_widget.ui.presentation.model.ChatBot
 import q19.kenes_widget.ui.presentation.model.Dialog
@@ -29,7 +29,8 @@ internal class KenesWidgetV2Presenter constructor(
 //    private val appProvider: AppProvider,
     private val deviceInfo: DeviceInfo,
     private val language: Language,
-    private val authorization: Authorization?,
+    private val authorization: CallInitialization.Authorization?,
+    private val user: User?,
     private val palette: IntArray
 ) {
 
@@ -950,38 +951,17 @@ internal class KenesWidgetV2Presenter constructor(
             CallType.VIDEO -> ViewState.VideoDialog.Pending
         }
 
-        val authorization = if (authorization == null) {
-            null
-        } else {
-            CallInitialization.Authorization(
-                CallInitialization.Authorization.Bearer(
-                    token = authorization.bearer.token,
-                    refreshToken = authorization.bearer.refreshToken
-                )
+        socketClient?.sendCallInitialization(
+            CallInitialization(
+                callType = callType,
+                domain = UrlUtil.getHostname()?.removePrefix("https://"),
+                topic = scope,
+                authorization = authorization,
+                device = deviceInfo.from(),
+                user = user,
+                language = language
             )
-        }
-
-        val callInitialization = CallInitialization(
-            callType = callType,
-            domain = UrlUtil.getHostname()?.removePrefix("https://"),
-            topic = scope,
-            device = CallInitialization.Device(
-                os = deviceInfo.os,
-                osVersion = deviceInfo.osVersion,
-                appVersion = deviceInfo.versionName,
-                name = deviceInfo.deviceName,
-                mobileOperator = deviceInfo.operator,
-                battery = CallInitialization.Device.Battery(
-                    percentage = deviceInfo.batteryPercent,
-                    isCharging = deviceInfo.isPhoneCharging,
-                    temperature = deviceInfo.batteryTemperature
-                )
-            ),
-            authorization = authorization,
-            language = language
         )
-
-        socketClient?.sendCallInitialization(callInitialization)
     }
 
     fun onCallScopeClicked(callScope: Configs.CallScope) {

@@ -5,6 +5,7 @@ internal fun q19.kenes_widget.api.model.User?.toDomain(): User? {
     return User(
         firstName = firstName,
         lastName = lastName,
+        iin = iin,
         phoneNumber = phoneNumber,
         email = email
     )

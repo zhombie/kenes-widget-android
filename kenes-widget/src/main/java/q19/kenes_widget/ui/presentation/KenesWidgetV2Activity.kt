@@ -30,11 +30,11 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 import q19.kenes_widget.R
-import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
 import q19.kenes_widget.data.model.*
+import q19.kenes_widget.data.network.socket.CallInitialization
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapterItemDecoration
@@ -58,7 +58,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             context: Context,
             hostname: String,
             language: Language,
-            authorization: Authorization? = null,
+            authorization: CallInitialization.Authorization? = null,
             user: User? = null
         ): Intent =
             Intent(context, KenesWidgetV2Activity::class.java)
@@ -221,8 +221,14 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             UrlUtil.setHostname(hostname)
         }
 
-        val authorization: Authorization? = if (intent.getSerializableExtra(IntentKey.AUTHORIZATION) is Authorization) {
-            intent.getSerializableExtra(IntentKey.AUTHORIZATION) as Authorization
+        val authorization = if (intent.getSerializableExtra(IntentKey.AUTHORIZATION) is CallInitialization.Authorization) {
+            intent.getSerializableExtra(IntentKey.AUTHORIZATION) as CallInitialization.Authorization
+        } else {
+            null
+        }
+
+        val user: User? = if (intent.getSerializableExtra(IntentKey.USER) is User) {
+            intent.getSerializableExtra(IntentKey.USER) as User
         } else {
             null
         }
@@ -234,6 +240,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             deviceInfo = DeviceInfo(this),
             language = Language.from(getCurrentLocale()),
             authorization = authorization,
+            user = user,
             palette = palette
         )
         presenter.attachView(this)

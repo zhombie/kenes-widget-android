@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import q19.kenes_widget.KenesWidget
 import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.api.model.Language
+import q19.kenes_widget.api.model.User
 
 class MainKtActivity : AppCompatActivity() {
 
@@ -31,7 +32,22 @@ class MainKtActivity : AppCompatActivity() {
         KenesWidget.Builder(this)
             .setHostname(DemonstrationConstants.HOSTNAME)
             .setLanguage(Language.RUSSIAN)
-            .setAuthorization(Authorization(Authorization.Bearer("xyz", null)))
+            .setAuthorization(
+                Authorization(
+                    Authorization.Bearer(
+                        token = "b29a2cfb-cd04-4131-bbf8-ffc216747cbb",
+                        refreshToken = null,
+                        scope = "scope:some:example",
+                        expiresIn = 1234L
+                    )
+                )
+            )
+            .setUser(
+                User.Builder()
+                    .setIIN("112233445566")
+                    .setPhoneNumber("77771234567")
+                    .build()
+            )
             .launch()
     }
 

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import q19.kenes_widget.KenesWidget;
 import q19.kenes_widget.api.model.Authorization;
 import q19.kenes_widget.api.model.Language;
+import q19.kenes_widget.api.model.User;
 
 class MainActivity extends AppCompatActivity {
 
@@ -33,7 +34,21 @@ class MainActivity extends AppCompatActivity {
         new KenesWidget.Builder(this)
             .setHostname(DemonstrationConstants.HOSTNAME)
             .setLanguage(Language.KAZAKH)
-            .setAuthorization(new Authorization(new Authorization.Bearer("xyz", null)))
+            .setAuthorization(
+                new Authorization(
+                    new Authorization.Bearer(
+                        "b29a2cfb-cd04-4131-bbf8-ffc216747cbb",
+                        null,
+                        "scope:some:example",
+                        1234L
+                    )
+                )
+            )
+            .setUser(
+                new User.Builder()
+                    .setPhoneNumber("77771234567")
+                    .build()
+            )
             .launch();
     }
 

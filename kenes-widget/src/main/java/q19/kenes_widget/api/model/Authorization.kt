@@ -10,8 +10,17 @@ data class Authorization constructor(
 
     data class Bearer constructor(
         val token: String,
-        val refreshToken: String? = null
+        val refreshToken: String? = null,
+        val scope: String? = null,
+        val expiresIn: Long? = null
     ) : Serializable {
+
+        constructor(token: String) : this(
+            token = token,
+            refreshToken = null,
+            scope = null,
+            expiresIn = null
+        )
 
         init {
             if (token.isBlank()) {

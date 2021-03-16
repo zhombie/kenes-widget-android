@@ -6,6 +6,7 @@ import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.api.model.Language
 import q19.kenes_widget.api.model.User
 import q19.kenes_widget.data.model.toDomain
+import q19.kenes_widget.data.network.socket.toDomain
 import q19.kenes_widget.ui.presentation.KenesWidgetV2Activity
 
 class KenesWidget private constructor() {
@@ -58,7 +59,7 @@ class KenesWidget private constructor() {
                 context,
                 hostname = requireNotNull(hostname) { "Declare hostname, without it Kenes Widget won't work!" },
                 language = language?.toDomain() ?: q19.kenes_widget.data.model.Language.RUSSIAN,
-                authorization = authorization,
+                authorization = authorization?.toDomain(),
                 user = user?.toDomain()
             )
         }
