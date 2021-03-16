@@ -82,7 +82,7 @@ class KenesWidgetPresenter constructor(
         socketClient?.registerUsersQueueEventListener()
         socketClient?.registerCallAgentGreetEventListener()
         socketClient?.registerCallAgentTypingEventListener()
-        socketClient?.registerUserDialogFeedbackEventListener()
+        socketClient?.registerUserCallFeedbackEventListener()
         socketClient?.registerFormInitializeEventListener()
         socketClient?.registerFormFinalizeEventListener()
         socketClient?.registerSocketDisconnectEventListener()

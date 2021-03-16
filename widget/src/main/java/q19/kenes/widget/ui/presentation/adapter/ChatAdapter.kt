@@ -15,19 +15,15 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.file.File
 import kz.q19.domain.model.keyboard.button.Button
-import kz.q19.domain.model.knowledge_base.BaseResponse
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.socket.model.Category
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.ui.components.base.HtmlTextView
-import q19.kenes.widget.ui.presentation.home.ResponseGroupAdapter
-import q19.kenes.widget.ui.presentation.home.ResponseGroupAdapterItemDecoration
 import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.loadRoundedImage
 import q19.kenes_widget.R
@@ -185,14 +181,14 @@ internal class ChatAdapter constructor(
                 }
                 Message.Type.NOTIFICATION ->
                     LAYOUT_NOTIFICATION
-                Message.Type.TYPING ->
-                    LAYOUT_TYPING
-                Message.Type.CATEGORY ->
-                    LAYOUT_CATEGORY
-                Message.Type.CROSS_CHILDREN ->
-                    LAYOUT_CROSS_CHILDREN
-                Message.Type.RESPONSE ->
-                    LAYOUT_RESPONSE
+//                Message.Type.TYPING ->
+//                    LAYOUT_TYPING
+//                Message.Type.CATEGORY ->
+//                    LAYOUT_CATEGORY
+//                Message.Type.CROSS_CHILDREN ->
+//                    LAYOUT_CROSS_CHILDREN
+//                Message.Type.RESPONSE ->
+//                    LAYOUT_RESPONSE
             }
         } else {
             super.getItemViewType(position)
@@ -226,12 +222,12 @@ internal class ChatAdapter constructor(
                     if (holder is IncomingMessageViewHolder) holder.bind(message)
                 }
             }
-            Message.Type.NOTIFICATION ->
-                if (holder is NotificationViewHolder) holder.bind(message)
-            Message.Type.TYPING ->
-                if (holder is TypingViewHolder) holder.bind()
-            Message.Type.RESPONSE ->
-                if (holder is ResponseViewHolder) holder.bind(message)
+//            Message.Type.NOTIFICATION ->
+//                if (holder is NotificationViewHolder) holder.bind(message)
+//            Message.Type.TYPING ->
+//                if (holder is TypingViewHolder) holder.bind()
+//            Message.Type.RESPONSE ->
+//                if (holder is ResponseViewHolder) holder.bind(message)
         }
     }
 

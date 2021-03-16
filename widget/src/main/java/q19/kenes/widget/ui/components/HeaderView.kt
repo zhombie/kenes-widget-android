@@ -10,7 +10,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
 import kz.q19.domain.model.configs.Configs
-import q19.kenes.widget.util.isVisible
+import kz.q19.utils.view.isVisible
 import q19.kenes.widget.util.loadCircleImage
 import q19.kenes_widget.R
 

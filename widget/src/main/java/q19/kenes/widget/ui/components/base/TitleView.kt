@@ -8,7 +8,7 @@ import android.graphics.drawable.shapes.RectShape
 import android.util.AttributeSet
 import androidx.core.content.ContextCompat
 import kz.q19.utils.textview.removeCompoundDrawables
-import kz.q19.utils.textview.showCompoundDrawableOnfLeft
+import kz.q19.utils.textview.showCompoundDrawableOnLeft
 import q19.kenes_widget.R
 
 internal class TitleView @JvmOverloads constructor(
@@ -27,7 +27,7 @@ internal class TitleView @JvmOverloads constructor(
     }
 
     fun showBackButtonOnLeft() {
-        showCompoundDrawableOnfLeft(
+        showCompoundDrawableOnLeft(
             R.drawable.kenes_ic_arrow_left_black,
             context.resources.getDimensionPixelOffset(R.dimen.kenes_title_compound_drawable_padding)
         )

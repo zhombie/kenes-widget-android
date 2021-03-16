@@ -7,9 +7,9 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.utils.textview.removeCompoundDrawables
-import kz.q19.utils.textview.showCompoundDrawableOnfLeft
-import q19.kenes.widget.ui.presentation.model.ChatFooter
+import kz.q19.utils.textview.showCompoundDrawableOnLeft
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.ui.presentation.model.ChatFooter
 import q19.kenes_widget.R
 import java.util.*
 
@@ -99,7 +99,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         fun bind(chatFooter: ChatFooter) {
             if (chatFooter.type == ChatFooter.Type.GO_TO_HOME) {
-                button?.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_arrow_left, 15)
+                button?.showCompoundDrawableOnLeft(R.drawable.kenes_selector_arrow_left, 15)
                 button?.setText(R.string.kenes_go_to_home)
                 button?.setOnClickListener { callback?.onGoToHomeButtonClicked() }
             }
@@ -113,7 +113,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         fun bind(chatFooter: ChatFooter) {
             if (chatFooter.type == ChatFooter.Type.FUZZY_QUESTION) {
-                button1?.showCompoundDrawableOnfLeft(R.drawable.kenes_selector_headphones, 15)
+                button1?.showCompoundDrawableOnLeft(R.drawable.kenes_selector_headphones, 15)
                 button1?.setText(R.string.kenes_switch_to_operator)
                 button1?.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
 

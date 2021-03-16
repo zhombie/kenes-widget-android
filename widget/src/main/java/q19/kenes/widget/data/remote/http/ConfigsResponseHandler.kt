@@ -5,6 +5,7 @@ import cz.msebera.android.httpclient.Header
 import kz.q19.data.api.model.response.configs.ConfigsResponse
 import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.configs.Configs
+import kz.q19.domain.model.i18n.I18NId
 import kz.q19.domain.model.i18n.I18NString
 import kz.q19.utils.json.*
 import org.json.JSONArray
@@ -21,13 +22,13 @@ internal open class ConfigsResponseHandler constructor(
     }
 
     override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
-        val json = response ?: return
+        val jsonObject = response ?: return
 
-        val configsJSONObject = json.getObjectOrNull("configs")
-        val contactsJSONObject = json.getObjectOrNull("contacts")
+        val configsJSONObject = jsonObject.getJSONObjectOrNull("configs")
+        val contactsJSONObject = jsonObject.getJSONObjectOrNull("contacts")
 //        val infoBlocksJSONArray = json?.optJSONArray("info_blocks")
-        val booleansJSONObject = json.getObjectOrNull("booleans")
-        val callScopesJSONArray = json.getArrayOrNull("call_scopes")
+        val booleansJSONObject = jsonObject.getJSONObjectOrNull("booleans")
+        val callScopesJSONArray = jsonObject.getJSONArrayOrNull("call_scopes")
 //        val localBotConfigsJSONObject = json.optJSONObject("local_bot_configs")
 
 //        Logger.debug(TAG, "callScopesJSONArray: $callScopesJSONArray")
@@ -131,7 +132,7 @@ internal open class ConfigsResponseHandler constructor(
                     }
 
                     var title: I18NString? = null
-                    val titleJsonObject = callScopeJSONObject.getObjectOrNull("title")
+                    val titleJsonObject = callScopeJSONObject.getJSONObjectOrNull("title")
                     if (titleJsonObject != null) {
                         val kk = if (!titleJsonObject.getStringOrNull("kk").isNullOrBlank()) {
                             titleJsonObject.getStringOrNull("kk")
@@ -149,7 +150,7 @@ internal open class ConfigsResponseHandler constructor(
                         continue
                     }
 
-                    val detailsJsonObject = callScopeJSONObject.getObjectOrNull("details")
+                    val detailsJsonObject = callScopeJSONObject.getJSONObjectOrNull("details")
 
                     val extra = Configs.Nestable.Extra(
                         order = detailsJsonObject?.getIntOrNull("order"),
@@ -185,7 +186,11 @@ internal open class ConfigsResponseHandler constructor(
                                         id = id,
                                         parentId = parentId,
                                         type = type,
-                                        formId = detailsJsonObject.getLong("form_id"),
+                                        formId = I18NId(
+                                            kk = detailsJsonObject.getJSONObjectOrNull("form")?.getLongOrNull("kk"),
+                                            ru = detailsJsonObject.getJSONObjectOrNull("form")?.getLongOrNull("ru"),
+                                            en = detailsJsonObject.getJSONObjectOrNull("form")?.getLongOrNull("en")
+                                        ),
                                         title = title,
                                         extra = extra
                                     )

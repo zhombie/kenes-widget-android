@@ -6,8 +6,8 @@ import kz.q19.domain.model.knowledge_base.BaseResponse
 import kz.q19.domain.model.knowledge_base.Response
 import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
-import kz.q19.utils.json.getArrayOrNull
 import kz.q19.utils.json.getIntOrNull
+import kz.q19.utils.json.getJSONArrayOrNull
 import kz.q19.utils.json.getLongOrNull
 import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
@@ -24,7 +24,7 @@ internal class ResponseGroupsResponseHandler constructor(
     override fun onSuccess(statusCode: Int, headers: Array<out Header>?, response: JSONObject?) {
         val json = response ?: return
 
-        val responseGroupsJSONArray = json.getArrayOrNull("response_groups")
+        val responseGroupsJSONArray = json.getJSONArrayOrNull("response_groups")
 
         val responseGroups = mutableListOf<ResponseGroup>()
 
@@ -34,12 +34,12 @@ internal class ResponseGroupsResponseHandler constructor(
                 if (responseGroupJSONObject is JSONObject) {
                     val children = mutableListOf<BaseResponse>()
 
-                    val childrenJSONArray = responseGroupJSONObject.getArrayOrNull("children")
+                    val childrenJSONArray = responseGroupJSONObject.getJSONArrayOrNull("children")
                     if (childrenJSONArray != null) {
                         for (j in 0 until childrenJSONArray.length()) {
                             val childJSONObject = childrenJSONArray[j]
                             if (childJSONObject is JSONObject) {
-                                val responses = childJSONObject.getArrayOrNull("responses")
+                                val responses = childJSONObject.getJSONArrayOrNull("responses")
                                 if (responses == null || responses.length() == 0) {
                                     children.add(childJSONObject.toResponseGroup(mutableListOf()) ?: continue)
                                 } else {
@@ -84,7 +84,7 @@ internal class ResponseGroupsResponseHandler constructor(
     private fun JSONObject.toResponse(): Response? {
         val responses = mutableListOf<Long>()
 
-        val responsesJSONArray = getArrayOrNull("responses")
+        val responsesJSONArray = getJSONArrayOrNull("responses")
 
         if (responsesJSONArray != null) {
             for (i in 0 until responsesJSONArray.length()) {

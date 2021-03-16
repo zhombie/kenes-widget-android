@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
-import kz.q19.utils.textview.showCompoundDrawableOnfLeft
+import kz.q19.utils.textview.showCompoundDrawableOnLeft
 import q19.kenes_widget.R
 
 internal class InfoView @JvmOverloads constructor(
@@ -146,7 +146,7 @@ private class MenuAdapter constructor(
             subView?.text = language.representation
             subView?.visibility = View.VISIBLE
 
-            textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_globe, 35)
+            textView?.showCompoundDrawableOnLeft(R.drawable.kenes_ic_globe, 35)
 
             itemView.setOnClickListener { callback.onLanguageChangeClicked(language) }
         }
@@ -158,7 +158,7 @@ private class MenuAdapter constructor(
                 textView?.visibility = View.GONE
             } else {
                 textView?.text = phoneNumber.value
-                textView?.showCompoundDrawableOnfLeft(R.drawable.kenes_ic_phone_blue, 35)
+                textView?.showCompoundDrawableOnLeft(R.drawable.kenes_ic_phone_blue, 35)
 
                 textView?.visibility = View.VISIBLE
 
@@ -191,7 +191,7 @@ private class MenuAdapter constructor(
             }
 
             textView?.text = itemView.context.getString(R.string.kenes_chat_bot, title)
-            textView?.showCompoundDrawableOnfLeft(iconRes, 35)
+            textView?.showCompoundDrawableOnLeft(iconRes, 35)
 
             textView?.visibility = View.VISIBLE
 

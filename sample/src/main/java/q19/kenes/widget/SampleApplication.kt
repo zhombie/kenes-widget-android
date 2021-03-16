@@ -2,7 +2,7 @@ package q19.kenes.widget
 
 import android.app.Application
 import android.content.res.Configuration
-import kz.q19.common.locale.LocaleManager
+import q19.kenes.widget.api.LocaleManager
 
 class SampleApplication : Application() {
 

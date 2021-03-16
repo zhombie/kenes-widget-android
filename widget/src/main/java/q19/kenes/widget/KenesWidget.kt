@@ -56,7 +56,7 @@ class KenesWidget private constructor() {
             return this
         }
 
-        fun buildIntent(context: Context): Intent {
+        fun build(context: Context): Intent {
             val language = when (language) {
                 Language.KAZAKH -> kz.q19.domain.model.language.Language.KAZAKH
                 Language.RUSSIAN -> kz.q19.domain.model.language.Language.RUSSIAN

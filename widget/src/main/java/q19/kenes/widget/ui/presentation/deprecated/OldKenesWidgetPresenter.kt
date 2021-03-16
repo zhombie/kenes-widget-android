@@ -42,7 +42,7 @@ internal class OldKenesWidgetPresenter constructor(
     private val deviceInfo: DeviceInfo,
     private val language: Language,
     private val peerConnectionClient: PeerConnectionClient
-) : ChatBotListener, SocketStateListener, WebRTCListener, DialogListener, FormListener,
+) : ChatBotListener, SocketStateListener, WebRTCListener, CallListener, FormListener,
     PeerConnectionClient.Listener {
 
     companion object {
@@ -178,7 +178,7 @@ internal class OldKenesWidgetPresenter constructor(
         socketClient?.registerUsersQueueEventListener()
         socketClient?.registerCallAgentGreetEventListener()
         socketClient?.registerCallAgentTypingEventListener()
-        socketClient?.registerUserDialogFeedbackEventListener()
+        socketClient?.registerUserCallFeedbackEventListener()
         socketClient?.registerFormInitializeEventListener()
         socketClient?.registerFormFinalizeEventListener()
         socketClient?.registerSocketDisconnectEventListener()
@@ -186,7 +186,7 @@ internal class OldKenesWidgetPresenter constructor(
         socketClient?.setSocketStateListener(this)
         socketClient?.setChatBotListener(this)
         socketClient?.setWebRTCListener(this)
-        socketClient?.setDialogListener(this)
+        socketClient?.setCallListener(this)
         socketClient?.setFormListener(this)
     }
 
@@ -417,7 +417,7 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     fun onRateButtonClicked(rateButton: RateButton) {
-        socketClient?.sendUserDialogFeedback(rateButton.rating, rateButton.chatId)
+        socketClient?.sendUserCallFeedback(rateButton.rating, rateButton.chatId)
 
         when (viewState) {
             is ViewState.TextDialog -> {
@@ -1222,16 +1222,16 @@ internal class OldKenesWidgetPresenter constructor(
             if (chatBot.activeCategory?.children?.containsAll(categories) == false) {
 //                chatBot.activeCategory?.children?.addAll(categories)
             }
-            view?.setNewMessages(
-                Message.Builder()
-                    .setType(Message.Type.CROSS_CHILDREN)
-                    .apply {
-                        chatBot.activeCategory?.let {
-//                            setCategory(it)
-                        }
-                    }
-                    .build()
-            )
+//            view?.setNewMessages(
+//                Message.Builder()
+//                    .setType(Message.Type.CROSS_CHILDREN)
+//                    .apply {
+//                        chatBot.activeCategory?.let {
+////                            setCategory(it)
+//                        }
+//                    }
+//                    .build()
+//            )
             view?.scrollToTop()
 //            view?.showGoToHomeButton()
         }
@@ -1256,14 +1256,14 @@ internal class OldKenesWidgetPresenter constructor(
         }
     }
 
-    override fun onNoOnlineCallAgents(text: String): Boolean {
+    override fun onNoOnlineCallAgents(text: String?): Boolean {
         debug(TAG, "onNoOnlineCallAgents -> viewState: $viewState")
 
         dialog.isInitiator = false
 
 //        view?.addNewMessage(Messag(type = Messag.Type.INCOMING, text = text))
 
-        view?.showNoOnlineCallAgentsAlert(text)
+        view?.showNoOnlineCallAgentsAlert(text ?: "")
 
         when (viewState) {
             is ViewState.TextDialog -> {
@@ -1298,7 +1298,7 @@ internal class OldKenesWidgetPresenter constructor(
 //        view?.addNewMessage(Messag(type = Messag.Type.INCOMING, text = newText))
     }
 
-    override fun onDialogFeedback(text: String, rateButtons: List<RateButton>?) {
+    override fun onCallFeedback(text: String, rateButtons: List<RateButton>?) {
         debug(TAG, "onFeedback() -> viewState: $viewState")
 
         view?.showFeedback(text, rateButtons)
@@ -1315,15 +1315,15 @@ internal class OldKenesWidgetPresenter constructor(
         }
     }
 
-    override fun onLiveChatTimeout(text: String, timestamp: Long): Boolean {
+    override fun onLiveChatTimeout(text: String?, timestamp: Long): Boolean {
         debug(TAG, "onChatTimeout -> viewState: $viewState")
 
-        disconnectFromCall(text, timestamp)
+        disconnectFromCall(text ?: "", timestamp)
 
         return true
     }
 
-    override fun onUserRedirected(text: String, timestamp: Long): Boolean {
+    override fun onUserRedirected(text: String?, timestamp: Long): Boolean {
         debug(TAG, "onUserRedirected() -> viewState: $viewState")
 
         dialog.clear()
@@ -1365,10 +1365,10 @@ internal class OldKenesWidgetPresenter constructor(
         return true
     }
 
-    override fun onCallAgentDisconnected(text: String, timestamp: Long): Boolean {
+    override fun onCallAgentDisconnected(text: String?, timestamp: Long): Boolean {
         debug(TAG, "onCallAgentDisconnected() -> viewState: $viewState")
 
-        disconnectFromCall(text, timestamp)
+        disconnectFromCall(text ?: "", timestamp)
 
         return true
     }

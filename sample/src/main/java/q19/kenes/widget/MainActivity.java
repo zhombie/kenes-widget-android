@@ -28,9 +28,9 @@ class MainActivity extends AppCompatActivity {
           Example: https://kenes.vlx.kz
          */
         Intent intent = new KenesWidget.Builder()
-                .setHostname(BuildConfig.HOSTNAME)
-                .setLanguage(KenesWidget.Builder.Language.KAZAKH)
-                .buildIntent(this);
+            .setHostname(BuildConfig.HOSTNAME)
+            .setLanguage(KenesWidget.Builder.Language.KAZAKH)
+            .build(this);
         startActivity(intent);
     }
 
