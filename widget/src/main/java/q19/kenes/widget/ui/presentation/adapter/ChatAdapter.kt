@@ -204,7 +204,7 @@ internal class ChatAdapter constructor(
             LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
             LAYOUT_TYPING -> TypingViewHolder(view)
 //            LAYOUT_CATEGORY -> OldCategoryViewHolder(view)
-            LAYOUT_RESPONSE -> ResponseViewHolder(view)
+//            LAYOUT_RESPONSE -> ResponseViewHolder(view)
             else -> throw ViewHolderViewTypeException(viewType)
         }
     }

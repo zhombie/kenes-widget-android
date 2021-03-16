@@ -14,9 +14,6 @@ import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
 import q19.kenes.widget.ui.presentation.model.ChatBot
-import q19.kenes.widget.ui.presentation.model.isResponseGroup
-import q19.kenes.widget.ui.presentation.model.toResponse
-import q19.kenes.widget.ui.presentation.model.toResponseGroup
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.UrlUtil
@@ -130,40 +127,40 @@ class ChatBotPresenter constructor(
     override fun onCategories(categories: List<Category>) {
         if (categories.isEmpty()) return
 
-        if (categories.all { it.parentId == Category.NO_PARENT_ID }) {
-            chatBot.responseGroups = categories
-                .filter { !it.title.isNullOrBlank() }
-                .map { it.toResponseGroup() }
+//        if (categories.all { it.parentId == Category.NO_PARENT_ID }) {
+//            chatBot.responseGroups = categories
+//                .filter { !it.title.isNullOrBlank() }
+//                .map { it.toResponseGroup() }
 
 //            Logger.debug(TAG, "onCategories() -> if chatBot.responseGroups: ${chatBot.responseGroups}")
-        } else {
-            categories.forEach { category ->
-                chatBot.responseGroups.forEach { baseResponse ->
-                    if (baseResponse.id == category.parentId) {
-                        Logger.debug(TAG, "baseResponse.id == category.parentId: $baseResponse, $category")
-                        if (category.isResponseGroup()) {
-                            baseResponse.children.add(category.toResponseGroup())
-                        } else {
-                            baseResponse.children.add(category.toResponse())
-                        }
-                    }
-                }
-            }
+//        } else {
+//            categories.forEach { category ->
+//                chatBot.responseGroups.forEach { baseResponse ->
+//                    if (baseResponse.id == category.parentId) {
+//                        Logger.debug(TAG, "baseResponse.id == category.parentId: $baseResponse, $category")
+//                        if (category.isResponseGroup()) {
+//                            baseResponse.children.add(category.toResponseGroup())
+//                        } else {
+//                            baseResponse.children.add(category.toResponse())
+//                        }
+//                    }
+//                }
+//            }
 
 //            Logger.debug(TAG, "onCategories() -> else chatBot.baseResponses: ${chatBot.responseGroups}")
-        }
+//        }
 
-        if (chatBot.responseGroups.all { it.children.isNotEmpty() }) {
-            view?.showResponseGroups(chatBot.responseGroups)
-        }
+//        if (chatBot.responseGroups.all { it.children.isNotEmpty() }) {
+//            view?.showResponseGroups(chatBot.responseGroups)
+//        }
 
-        if (!chatBot.isParentResponseGroupChildrenRequested) {
-            chatBot.isParentResponseGroupChildrenRequested = true
-
-            chatBot.responseGroups.forEach { baseResponse ->
-                socketClient?.getCategories(baseResponse.id)
-            }
-        }
+//        if (!chatBot.isParentResponseGroupChildrenRequested) {
+//            chatBot.isParentResponseGroupChildrenRequested = true
+//
+//            chatBot.responseGroups.forEach { baseResponse ->
+//                socketClient?.getCategories(baseResponse.id)
+//            }
+//        }
     }
 
 }
