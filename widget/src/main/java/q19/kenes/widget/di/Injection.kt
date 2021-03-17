@@ -7,9 +7,11 @@ import kz.q19.socket.SocketClient
 import kz.q19.socket.SocketClientConfig
 import kz.q19.socket.repository.SocketRepository
 import kz.q19.webrtc.PeerConnectionClient
+import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.KenesWidgetPresenter
 import q19.kenes.widget.ui.presentation.calls.CallsPresenter
+import q19.kenes.widget.ui.presentation.calls.media.VideoCallPresenter
 
 internal class Injection private constructor(context: Context) {
 
@@ -25,6 +27,8 @@ internal class Injection private constructor(context: Context) {
 
     private val database: Database by lazy { Database.getInstance(context) }
 
+    private val deviceInfo: DeviceInfo by lazy { DeviceInfo(context) }
+
     private val socketRepository: SocketRepository by lazy {
         val language = Language.from(LocaleManager.getLocale() ?: Language.DEFAULT.locale)
         SocketClientConfig.init(true, language)
@@ -32,11 +36,15 @@ internal class Injection private constructor(context: Context) {
     }
 
     fun provideKenesWidgetPresenter(): KenesWidgetPresenter {
-        return KenesWidgetPresenter(database)
+        return KenesWidgetPresenter(database, socketRepository)
     }
 
-    fun provideCallsPresenter(peerConnectionClient: PeerConnectionClient): CallsPresenter {
-        return CallsPresenter(database, peerConnectionClient, socketRepository)
+    fun provideCallsPresenter(): CallsPresenter {
+        return CallsPresenter(database, socketRepository)
+    }
+
+    fun provideVideoCallPresenter(peerConnectionClient: PeerConnectionClient): VideoCallPresenter {
+        return VideoCallPresenter(database, deviceInfo, peerConnectionClient, socketRepository)
     }
 
     fun destroy() {

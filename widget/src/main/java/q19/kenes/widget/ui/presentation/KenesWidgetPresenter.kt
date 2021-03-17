@@ -3,9 +3,8 @@ package q19.kenes.widget.ui.presentation
 import android.util.Log
 import com.loopj.android.http.AsyncHttpClient
 import kz.q19.domain.model.language.Language
-import kz.q19.socket.SocketClient
-import kz.q19.socket.SocketClientConfig
 import kz.q19.socket.listener.SocketStateListener
+import kz.q19.socket.repository.SocketRepository
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ConfigsResponseHandler
@@ -14,7 +13,8 @@ import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
 class KenesWidgetPresenter constructor(
-    private val database: Database
+    private val database: Database,
+    private val socketRepository: SocketRepository
 ) : BasePresenter<KenesWidgetView>(), SocketStateListener {
 
     companion object {
@@ -24,8 +24,6 @@ class KenesWidgetPresenter constructor(
     private var language: Language = Language.DEFAULT
 
     private var asyncHttpClient: AsyncHttpClient? = null
-
-    private var socketClient: SocketClient? = null
 
     override fun onFirstViewAttach() {
         asyncHttpClient = AsyncHttpClientBuilder.build()
@@ -43,7 +41,7 @@ class KenesWidgetPresenter constructor(
 
                 database.setConfigs(configs)
 
-                view?.showBotInfo(configs.bot)
+                getView().showBotInfo(configs.bot)
             },
             onFailure = { throwable ->
                 Log.d(TAG, "throwable: $throwable")
@@ -65,31 +63,20 @@ class KenesWidgetPresenter constructor(
     private fun initSocket() {
         Log.d(TAG, "initSocket()")
 
-        socketClient?.setSocketStateListener(this)
+        socketRepository.setSocketStateListener(this)
 
-        val socketUrl = UrlUtil.getSocketUrl(UrlUtil.getHostname())
-        if (socketUrl.isNullOrBlank()) {
-            throw NullPointerException("Socket url is null. Please, provide a valid url.")
+        socketRepository.registerSocketConnectEventListener()
+        socketRepository.registerMessageEventListener()
+        socketRepository.registerSocketDisconnectEventListener()
+
+        val url = UrlUtil.getSocketUrl()
+        if (!url.isNullOrBlank()) {
+            socketRepository.create(url)
         }
 
-        SocketClientConfig.init(true, language = language)
-        socketClient = SocketClient.getInstance()
-        socketClient?.create(socketUrl)
-
-        socketClient?.registerSocketConnectEventListener()
-        socketClient?.registerMessageEventListener()
-        socketClient?.registerChatBotDashboardEventListener()
-        socketClient?.registerUsersQueueEventListener()
-        socketClient?.registerCallAgentGreetEventListener()
-        socketClient?.registerCallAgentTypingEventListener()
-        socketClient?.registerUserCallFeedbackEventListener()
-        socketClient?.registerFormInitializeEventListener()
-        socketClient?.registerFormFinalizeEventListener()
-        socketClient?.registerSocketDisconnectEventListener()
-
-        socketClient?.connect()
-
-        socketClient?.sendUserLanguage(language)
+        if (!socketRepository.isConnected()) {
+            socketRepository.connect()
+        }
     }
 
     /**
@@ -99,9 +86,8 @@ class KenesWidgetPresenter constructor(
     override fun onDestroy() {
         Log.d(TAG, "onDestroy()")
 
-        socketClient?.setSocketStateListener(null)
-        socketClient?.release()
-        socketClient = null
+        socketRepository.setSocketStateListener(null)
+        socketRepository.release()
 
         asyncHttpClient?.cancelAllRequests(true)
         asyncHttpClient = null
@@ -121,6 +107,7 @@ class KenesWidgetPresenter constructor(
 
     override fun onSocketConnect() {
         Log.d(TAG, "onSocketConnect()")
+        socketRepository.sendUserLanguage(language)
     }
 
     override fun onSocketDisconnect() {

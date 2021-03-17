@@ -2,12 +2,15 @@ package q19.kenes.widget.ui.presentation.calls
 
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import kz.q19.domain.model.configs.Configs
-import kz.q19.webrtc.PeerConnectionClient
+import q19.kenes.widget.ui.presentation.calls.media.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
+import q19.kenes.widget.util.Logger
 import q19.kenes_widget.R
 
-class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView {
+class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView, CallsAdapter.Callback {
 
     companion object {
         private val TAG = CallsFragment::class.java.simpleName
@@ -19,27 +22,62 @@ class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView {
         }
     }
 
+    private var recyclerView: RecyclerView? = null
+
     private var presenter: CallsPresenter? = null
+
+    private var callsAdapter: CallsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val peerConnectionClient = PeerConnectionClient(requireContext())
-        presenter = context.injection?.provideCallsPresenter(peerConnectionClient)
+        presenter = context.injection?.provideCallsPresenter()
         presenter?.attachView(this)
     }
 
     override fun onResume() {
         super.onResume()
-//        Log.d(TAG, "onResume()")
+        Logger.debug(TAG, "onResume()")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        recyclerView = view.findViewById(R.id.recyclerView)
+
+        setupRecyclerView()
     }
 
+    private fun setupRecyclerView() {
+        callsAdapter = CallsAdapter(this)
+        recyclerView?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recyclerView?.adapter = callsAdapter
+    }
+
+    /**
+     * [CallsAdapter.Callback] implementation
+     */
+
+    override fun onCallClicked(call: Call) {
+        presenter?.onCallClicked(call)
+    }
+
+    /**
+     * [CallsView] implementation
+     */
+
     override fun showMediaCalls(calls: List<Configs.Call>) {
-//        Log.d(TAG, "calls: $calls")
+        Logger.debug(TAG, "calls: $calls")
+        callsAdapter?.calls = calls.mapNotNull {
+            val title = (it.title.get(getCurrentLanguage()) ?: it.title.ru)
+            if (title.isNullOrBlank()) return@mapNotNull null
+            Call(title)
+        }
+    }
+
+    override fun launchVideoCall(call: Call) {
+        VideoCallFragment.newInstance()
+            .show(childFragmentManager, null)
     }
 
 }

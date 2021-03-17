@@ -5,4 +5,6 @@ import q19.kenes.widget.ui.presentation.platform.BaseView
 
 interface CallsView : BaseView {
     fun showMediaCalls(calls: List<Configs.Call>)
+
+    fun launchVideoCall(call: Call)
 }

@@ -47,7 +47,8 @@ class ChatBotPresenter constructor(
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupsResponseHandler(
             onSuccess = { responseGroups ->
-                view?.showResponseGroups(responseGroups.sortedBy { it.extra.order })
+                Logger.debug(TAG, "responseGroups: ${responseGroups.sortedBy { it.extra.order }}")
+                getView().showResponseGroups(responseGroups.sortedBy { it.extra.order })
             },
             onFailure = {
             }
@@ -62,7 +63,7 @@ class ChatBotPresenter constructor(
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupsResponseHandler(
             onSuccess = { responseGroups ->
                 Logger.debug(TAG, "onResponseGroupClicked() -> responseGroup: $responseGroup, responseGroups: $responseGroups")
-                view?.showResponseGroups(responseGroups)
+                getView().showResponseGroups(responseGroups)
             },
             onFailure = {
             }
@@ -77,7 +78,7 @@ class ChatBotPresenter constructor(
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response"), params, ResponseInfoResponseHandler(
             onSuccess = { responseInfo ->
                 Logger.debug(TAG, "onResponseClicked() -> response: $response, responseInfo: $responseInfo")
-                view?.showResponseInfo(responseInfo)
+                getView().showResponseInfo(responseInfo)
             },
             onFailure = {
             }

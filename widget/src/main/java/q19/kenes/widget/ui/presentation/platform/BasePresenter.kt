@@ -4,8 +4,9 @@ abstract class BasePresenter<View: BaseView> {
 
     private var isFirstLaunch: Boolean = true
 
-    var view: View? = null
-        private set
+    private var view: View? = null
+
+    fun getView(): View = requireNotNull(view)
 
     fun attachView(view: View) {
         this.view = view
