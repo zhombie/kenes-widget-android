@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kz.q19.domain.model.configs.Configs
 import q19.kenes.widget.ui.presentation.calls.media.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.Logger
@@ -66,13 +65,9 @@ class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView, CallsAda
      * [CallsView] implementation
      */
 
-    override fun showMediaCalls(calls: List<Configs.Call>) {
+    override fun showMediaCalls(calls: List<Call>) {
         Logger.debug(TAG, "calls: $calls")
-        callsAdapter?.calls = calls.mapNotNull {
-            val title = (it.title.get(getCurrentLanguage()) ?: it.title.ru)
-            if (title.isNullOrBlank()) return@mapNotNull null
-            Call(title)
-        }
+        callsAdapter?.calls = calls
     }
 
     override fun launchVideoCall(call: Call) {
