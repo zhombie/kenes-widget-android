@@ -1,7 +1,6 @@
 package q19.kenes_widget.ui.presentation
 
 import android.os.Parcelable
-import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
@@ -11,8 +10,7 @@ import q19.kenes_widget.data.model.*
 import q19.kenes_widget.data.network.file.DownloadResult
 import q19.kenes_widget.data.network.file.downloadFile
 import q19.kenes_widget.data.network.file.uploadFile
-import q19.kenes_widget.data.network.http.IceServersTask
-import q19.kenes_widget.data.network.http.WidgetConfigsTask
+import q19.kenes_widget.data.network.http.*
 import q19.kenes_widget.data.network.socket.CallInitialization
 import q19.kenes_widget.data.network.socket.SocketClient
 import q19.kenes_widget.data.network.socket.from
@@ -21,7 +19,7 @@ import q19.kenes_widget.ui.presentation.model.ChatBot
 import q19.kenes_widget.ui.presentation.model.Dialog
 import q19.kenes_widget.ui.presentation.model.ViewState
 import q19.kenes_widget.util.FileUtil.getFileType
-import q19.kenes_widget.util.Logger.debug
+import q19.kenes_widget.util.Logger
 import q19.kenes_widget.util.UrlUtil
 import java.io.File
 
@@ -82,13 +80,15 @@ internal class KenesWidgetV2Presenter constructor(
             view?.setViewState(value)
         }
 
-    private val httpClient by lazy { AsyncHttpClient() }
+    private val httpClient by lazy { AsyncHTTPClient.get() }
 
     private var socketClient: SocketClient? = null
 
     private var configs: Configs? = null
     private var chatBot = ChatBot()
     private var dialog = Dialog()
+
+    private var idp: IDP? = null
 
     private var activeCallScope: Configs.CallScope? = null
     private var activeService: Service? = null
@@ -653,6 +653,43 @@ internal class KenesWidgetV2Presenter constructor(
             }
         } else {
             configs = data.also { configs ->
+                val idpHostname = configs.idp?.hostname?.removeSuffix("/")
+                if (!idpHostname.isNullOrBlank() && authorization?.bearer != null && authorization.bearer.token.isNotBlank()) {
+                    val httpClient = AsyncHTTPClient.new(listOf("Authorization" to "Bearer ${authorization.bearer.token}"))
+                    httpClient.get(
+                        "$idpHostname/idp/resource/user/basic",
+                        UserBasicHTTPResponseHandler(
+                            onSuccess = {
+                                Logger.debug(TAG, "onSuccess() -> person: $it")
+                                idp = if (idp == null) {
+                                    IDP(person = it)
+                                } else {
+                                    idp?.copy(person = it)
+                                }
+                            },
+                            onError = {
+                                Logger.debug(TAG, "onError() -> error: $it")
+                            }
+                        )
+                    )
+                    httpClient.get(
+                        "$idpHostname/idp/resource/user/phone",
+                        UserPhoneHTTPResponseHandler(
+                            onSuccess = {
+                                Logger.debug(TAG, "onSuccess() -> phone: $it")
+                                idp = if (idp == null) {
+                                    IDP(phoneNumber = it)
+                                } else {
+                                    idp?.copy(phoneNumber = it)
+                                }
+                            },
+                            onError = {
+                                Logger.debug(TAG, "onError() -> error: $it")
+                            }
+                        )
+                    )
+                }
+
                 configs.contacts?.let { contacts ->
                     if (!contacts.isNullOrEmpty()) {
                         view?.showContacts(contacts)
@@ -949,6 +986,19 @@ internal class KenesWidgetV2Presenter constructor(
             CallType.TEXT -> ViewState.TextDialog.Pending
             CallType.AUDIO -> ViewState.AudioDialog.Pending
             CallType.VIDEO -> ViewState.VideoDialog.Pending
+        }
+
+        val user = if (idp?.isEmpty() == true) {
+            this.user
+        } else {
+            User(
+                firstName = idp?.person?.name,
+                lastName = idp?.person?.surname,
+                middleName = idp?.person?.patronymic,
+                iin = idp?.person?.iin,
+                phoneNumber = idp?.phoneNumber,
+                birthDate = idp?.person?.birthDate
+            )
         }
 
         socketClient?.sendCallInitialization(
@@ -1519,6 +1569,10 @@ internal class KenesWidgetV2Presenter constructor(
     fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
         debug(TAG, "field: $field")
         view?.showAttachmentPicker(forced = true)
+    }
+
+    private fun debug(tag: String = TAG, message: String) {
+        Logger.debug(tag, message)
     }
 
 }

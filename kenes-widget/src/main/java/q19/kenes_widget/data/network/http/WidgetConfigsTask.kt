@@ -33,7 +33,7 @@ internal class WidgetConfigsTask constructor(private val url: String) : BaseTask
             val callScopesJson = json?.optJSONArray("call_scopes")
 //            val localBotConfigs = json.optJSONObject("local_bot_configs")
 
-            debug(TAG, "callScopesJson: $callScopesJson")
+//            debug(TAG, "callScopesJson: $callScopesJson")
 
             val opponent = Configs.Opponent(
                 name = configsJson?.optString("title"),
@@ -158,6 +158,7 @@ internal class WidgetConfigsTask constructor(private val url: String) : BaseTask
             }
 
             return Configs(
+                idp = Configs.IDP(json?.optJSONObject("idp")?.getNullableString("host_name")),
                 booleans = booleans,
                 opponent = opponent,
                 contacts = contacts,

@@ -6,6 +6,7 @@ import q19.kenes_widget.R
 import q19.kenes_widget.util.JsonUtil.jsonObject
 
 internal data class Configs constructor(
+    val idp: IDP? = null,
     val booleans: Booleans = Booleans(),
     val opponent: Opponent? = null,
     val contacts: List<Contact>? = null,
@@ -14,6 +15,10 @@ internal data class Configs constructor(
     val infoBlocks: List<InfoBlock>? = null,
     val callScopes: List<CallScope>? = null
 ) {
+
+    data class IDP constructor(
+        val hostname: String? = null
+    )
 
     data class Opponent constructor(
         var name: String? = null,

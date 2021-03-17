@@ -36,7 +36,9 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".MainKtActivity">
+        <activity
+            android:name=".MainKtActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

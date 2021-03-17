@@ -5,22 +5,26 @@ import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
 
 import q19.kenes_widget.KenesWidget;
 import q19.kenes_widget.api.model.Authorization;
 import q19.kenes_widget.api.model.Language;
-import q19.kenes_widget.api.model.User;
 
 class MainActivity extends AppCompatActivity {
+
+    private AppCompatEditText tokenEditText;
+    private Button openWidgetButton;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button openWidget = findViewById(R.id.openWidget);
+        tokenEditText = findViewById(R.id.tokenEditText);
+        openWidgetButton = findViewById(R.id.openWidgetButton);
 
-        openWidget.setOnClickListener(v -> openWidget());
+        openWidgetButton.setOnClickListener(v -> openWidget());
     }
 
     private void openWidget() {
@@ -31,25 +35,25 @@ class MainActivity extends AppCompatActivity {
           EN -> To launch the widget, you need to send the hostname.
           Example: https://kenes.vlx.kz
          */
-        new KenesWidget.Builder(this)
+        KenesWidget.Builder builder = new KenesWidget.Builder(this)
             .setHostname(DemonstrationConstants.HOSTNAME)
-            .setLanguage(Language.KAZAKH)
-            .setAuthorization(
-                new Authorization(
-                    new Authorization.Bearer(
-                        "b29a2cfb-cd04-4131-bbf8-ffc216747cbb",
-                        null,
-                        "scope:some:example",
-                        1234L
-                    )
+            .setLanguage(Language.KAZAKH);
+
+        String bearerToken = tokenEditText.getText().toString();
+        if (bearerToken != null) {
+            Authorization authorization = new Authorization(
+                new Authorization.Bearer(
+                    bearerToken,
+                    null,
+                    "scope:some:example",
+                    1234L
                 )
-            )
-            .setUser(
-                new User.Builder()
-                    .setPhoneNumber("77771234567")
-                    .build()
-            )
-            .launch();
+            );
+
+            builder.setAuthorization(authorization);
+        }
+
+        builder.launch();
     }
 
 }

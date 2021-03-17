@@ -481,9 +481,11 @@ internal class SocketClient constructor(
                 put("user", jsonObject {
                     putIfValueNotNull("first_name", callInitialization.user.firstName)
                     putIfValueNotNull("last_name", callInitialization.user.lastName)
+                    putIfValueNotNull("middle_name", callInitialization.user.middleName)
                     putIfValueNotNull("iin", callInitialization.user.iin)
                     putIfValueNotNull("phone_number", callInitialization.user.phoneNumber)
                     putIfValueNotNull("email", callInitialization.user.email)
+                    putIfValueNotNull("birthDate", callInitialization.user.birthDate)
                 })
             }
 

@@ -5,17 +5,21 @@ import java.io.Serializable
 class User private constructor(
     val firstName: String? = null,
     val lastName: String? = null,
-    val iin: String? = null,
-    val phoneNumber: String? = null,
-    val email: String? = null
+    val middleName: String? = null,
+    val iin: String? = null,  // 701020304050
+    val phoneNumber: String? = null,  // 77771234567
+    val email: String? = null,  // xyz@gmail.com
+    val birthDate: String? = null  // YYYY-MM-DD (1970-12-31)
 ) : Serializable {
 
     class Builder {
         private var firstName: String? = null
         private var lastName: String? = null
+        private var middleName: String? = null
         private var iin: String? = null
         private var phoneNumber: String? = null
         private var email: String? = null
+        private var birthDate: String? = null
 
         fun setFirstName(firstName: String): Builder {
             this.firstName = firstName
@@ -24,6 +28,11 @@ class User private constructor(
 
         fun setLastName(lastName: String): Builder {
             this.lastName = lastName
+            return this
+        }
+
+        fun setMiddleName(middleName: String): Builder {
+            this.middleName = middleName
             return this
         }
 
@@ -42,13 +51,20 @@ class User private constructor(
             return this
         }
 
+        fun setBirthDate(birthDate: String): Builder {
+            this.birthDate = birthDate
+            return this
+        }
+
         fun build(): User {
             return User(
                 firstName = firstName,
                 lastName = lastName,
+                middleName = middleName,
                 iin = iin,
                 phoneNumber = phoneNumber,
-                email = email
+                email = email,
+                birthDate = birthDate
             )
         }
     }
