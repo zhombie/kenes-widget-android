@@ -485,7 +485,7 @@ internal class SocketClient constructor(
                     putIfValueNotNull("iin", callInitialization.user.iin)
                     putIfValueNotNull("phone_number", callInitialization.user.phoneNumber)
                     putIfValueNotNull("email", callInitialization.user.email)
-                    putIfValueNotNull("birthDate", callInitialization.user.birthDate)
+                    putIfValueNotNull("birth_date", callInitialization.user.birthDate)
                 })
             }
 
