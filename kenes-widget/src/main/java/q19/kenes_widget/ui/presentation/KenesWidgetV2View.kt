@@ -99,4 +99,6 @@ internal interface KenesWidgetV2View {
     fun scrollToBottom()
 
     fun showAttachmentPicker(forced: Boolean)
+
+    fun showTopicsToSelect(callType: CallType)
 }

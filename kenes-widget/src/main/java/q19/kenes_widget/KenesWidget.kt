@@ -3,6 +3,7 @@ package q19.kenes_widget
 import android.content.Context
 import android.content.Intent
 import q19.kenes_widget.api.model.Authorization
+import q19.kenes_widget.api.model.DeepLink
 import q19.kenes_widget.api.model.Language
 import q19.kenes_widget.api.model.User
 import q19.kenes_widget.data.model.toDomain
@@ -17,6 +18,11 @@ class KenesWidget private constructor() {
         private var language: Language? = null
         private var authorization: Authorization? = null
         private var user: User? = null
+        private var deepLink: DeepLink? = null
+
+        fun getContext(): Context {
+            return context
+        }
 
         fun getHostname(): String? {
             return hostname
@@ -54,13 +60,23 @@ class KenesWidget private constructor() {
             return this
         }
 
+        fun getDeepLink(): DeepLink? {
+            return deepLink
+        }
+
+        fun setDeepLink(deepLink: DeepLink): Builder {
+            this.deepLink = deepLink
+            return this
+        }
+
         fun build(): Intent {
             return KenesWidgetV2Activity.newIntent(
                 context,
                 hostname = requireNotNull(hostname) { "Declare hostname, without it Kenes Widget won't work!" },
                 language = language?.toDomain() ?: q19.kenes_widget.data.model.Language.RUSSIAN,
                 authorization = authorization?.toDomain(),
-                user = user?.toDomain()
+                user = user?.toDomain(),
+                deepLink = deepLink
             )
         }
 

@@ -189,6 +189,15 @@ object UrlUtil {
         return "$hostname/$path"
     }
 
+    fun isDeepLinkAvailable(): Boolean {
+        val hostname = getHostname()
+        if (hostname.isNullOrBlank()) return false
+        if ("kenes.vlx.kz" in hostname) return true
+        if ("bot.nitec.kz" in hostname) return true
+        if ("kenes.1414.kz" in hostname) return true
+        return false
+    }
+
     val isDebug: Boolean
         get() {
             val hostname = getHostname()

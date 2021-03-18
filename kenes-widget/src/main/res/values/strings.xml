@@ -32,6 +32,7 @@
     <string name="kenes_change_language">Change language</string>
     <string name="kenes_select_language_from_list">Please, select a language from the list</string>
     <string name="kenes_attention">Attention</string>
+    <string name="kenes_selection">Selection</string>
     <string name="kenes_end_dialog">Are you sure you want to end the dialogue?</string>
     <string name="kenes_user_disconnected">User disconnected</string>
 
@@ -96,4 +97,7 @@
 
     <string name="kenes_show_all">Show all</string>
     <string name="kenes_hide">Hide</string>
+
+    <string name="kenes_psc">PSC</string>
+    <string name="kenes_spsc">SPSC</string>
 </resources>

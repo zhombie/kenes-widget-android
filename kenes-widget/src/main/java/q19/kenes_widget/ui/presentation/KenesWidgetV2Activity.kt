@@ -30,6 +30,7 @@ import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
 import q19.kenes_widget.R
+import q19.kenes_widget.api.model.DeepLink
 import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
@@ -59,13 +60,15 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             hostname: String,
             language: Language,
             authorization: CallInitialization.Authorization? = null,
-            user: User? = null
+            user: User? = null,
+            deepLink: DeepLink? = null
         ): Intent =
             Intent(context, KenesWidgetV2Activity::class.java)
                 .putExtra(IntentKey.HOSTNAME, hostname)
                 .putExtra(IntentKey.LANGUAGE, language.key)
                 .putExtra(IntentKey.AUTHORIZATION, authorization)
                 .putExtra(IntentKey.USER, user)
+                .putExtra(IntentKey.DEEP_LINK, deepLink)
     }
 
     // -------------------------- Binding views -----------------------------------
@@ -75,6 +78,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         const val LANGUAGE = "language"
         const val AUTHORIZATION = "authorization"
         const val USER = "user"
+        const val DEEP_LINK = "deep_link"
     }
 
     /**
@@ -233,6 +237,16 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             null
         }
 
+        val deepLink: DeepLink? = if (intent.getSerializableExtra(IntentKey.DEEP_LINK) is DeepLink) {
+            if (UrlUtil.isDeepLinkAvailable()) {
+                intent.getSerializableExtra(IntentKey.DEEP_LINK) as DeepLink
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+
         // ------------------------------------------------------------------------
 
         presenter = KenesWidgetV2Presenter(
@@ -241,6 +255,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             language = Language.from(getCurrentLocale()),
             authorization = authorization,
             user = user,
+            deepLink = deepLink,
             palette = palette
         )
         presenter.attachView(this)
@@ -1216,6 +1231,16 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         }
     }
 
+    override fun showTopicsToSelect(callType: CallType) {
+        shoTopicsSelectionAlert {
+            if (it == null) {
+                // Ignored
+            } else {
+                presenter.onCallOperatorClicked(callType, it.value)
+            }
+        }
+    }
+
     override fun setViewState(viewState: ViewState) {
         debug(TAG, "[renderViewState] -> viewState: $viewState")
 
@@ -1350,6 +1375,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                         runOnUiThread {
                             headerView.showHangupButton()
 
+                            chatAdapter?.clear()
+
                             chatFooterAdapter?.clear()
                         }
                     }
@@ -1418,6 +1445,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 //                    contactsView.isVisible = false
                     servicesView.isVisible = false
 
+                    chatAdapter?.clearCategoryMessages()
+
                     chatFooterAdapter?.clear()
 
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -1457,6 +1486,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                 when (viewState) {
                     ViewState.AudioDialog.Pending -> {
                         runOnUiThread {
+                            chatAdapter?.clear()
+
                             chatFooterAdapter?.clear()
 
                             operatorCallView.setCallButtonDisabled(CallType.AUDIO)
@@ -1468,6 +1499,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                     }
                     ViewState.AudioDialog.Start -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
 
                             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -1490,16 +1523,22 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                     }
                     ViewState.AudioDialog.Preparation -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
                         }
                     }
                     ViewState.AudioDialog.Ready -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
                         }
                     }
                     is ViewState.AudioDialog.Live -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
 
                             footerView.enableAttachmentButton()
@@ -1589,6 +1628,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                 when (viewState) {
                     ViewState.VideoDialog.Pending -> {
                         runOnUiThread {
+                            chatAdapter?.clear()
+
                             chatFooterAdapter?.clear()
 
                             operatorCallView.setCallButtonDisabled(CallType.VIDEO)
@@ -1600,6 +1641,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                     }
                     ViewState.VideoDialog.Start -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
 
                             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -1622,16 +1665,22 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                     }
                     ViewState.VideoDialog.Preparation -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
                         }
                     }
                     ViewState.VideoDialog.Ready -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
                         }
                     }
                     is ViewState.VideoDialog.Live -> {
                         runOnUiThread {
+                            chatAdapter?.clearCategoryMessages()
+
                             chatFooterAdapter?.clear()
 
                             footerView.enableAttachmentButton()

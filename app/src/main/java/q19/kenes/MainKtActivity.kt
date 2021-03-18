@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import q19.kenes_widget.KenesWidget
 import q19.kenes_widget.api.model.Authorization
+import q19.kenes_widget.api.model.DeepLink
 import q19.kenes_widget.api.model.Language
 
 class MainKtActivity : AppCompatActivity() {
@@ -55,6 +56,7 @@ class MainKtActivity : AppCompatActivity() {
                     setAuthorization(authorization)
                 }
             }
+            .setDeepLink(DeepLink(DeepLink.Action.VIDEO_CALL, "son"))
             .launch()
     }
 

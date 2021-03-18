@@ -5,6 +5,7 @@ import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
 import org.webrtc.SessionDescription
+import q19.kenes_widget.api.model.DeepLink
 import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.data.model.*
 import q19.kenes_widget.data.network.file.DownloadResult
@@ -29,6 +30,7 @@ internal class KenesWidgetV2Presenter constructor(
     private val language: Language,
     private val authorization: CallInitialization.Authorization?,
     private val user: User?,
+    private val deepLink: DeepLink?,
     private val palette: IntArray
 ) {
 
@@ -138,7 +140,7 @@ internal class KenesWidgetV2Presenter constructor(
                 view?.clearChatFooterMessages()
                 view?.setNewMessages(messages)
 
-                viewState = ViewState.ChatBot.Categories(false)
+//                viewState = ViewState.ChatBot.Categories(false)
             }
         }
 
@@ -169,11 +171,35 @@ internal class KenesWidgetV2Presenter constructor(
                 socketClient?.setLanguage(language.key)
                 socketClient?.sendUserLanguage(language.key)
 
-                viewState = if (configs?.booleans?.isChabotEnabled == true) {
+                if (UrlUtil.isDeepLinkAvailable()) {
+                    if (deepLink != null) {
+                        val topic = if (deepLink.payload.isNullOrBlank()) null else deepLink.payload
+
+                        if (deepLink.action == DeepLink.Action.AUDIO_CALL) {
+                            if (topic.isNullOrBlank()) {
+                                viewState = ViewState.OperatorCall
+                                view?.showTopicsToSelect(CallType.AUDIO)
+                            } else {
+                                viewState = ViewState.OperatorCall
+                                tryToCall(CallType.AUDIO, topic)
+                            }
+                        } else if (deepLink.action == DeepLink.Action.VIDEO_CALL) {
+                            if (topic.isNullOrBlank()) {
+                                viewState = ViewState.OperatorCall
+                                view?.showTopicsToSelect(CallType.VIDEO)
+                            } else {
+                                viewState = ViewState.OperatorCall
+                                tryToCall(CallType.VIDEO, topic)
+                            }
+                        }
+                    }
+                }
+
+                if (configs?.booleans?.isChabotEnabled == true) {
                     socketClient?.getBasicCategories()
-                    ViewState.ChatBot.Categories(true)
+//                    ViewState.ChatBot.Categories(true)
                 } else {
-                    when {
+                    viewState = when {
                         configs?.booleans?.isAudioCallEnabled == true || configs?.booleans?.isVideoCallEnabled == true ->
                             ViewState.OperatorCall
                         configs?.booleans?.isServicesEnabled == true ->
@@ -954,8 +980,8 @@ internal class KenesWidgetV2Presenter constructor(
         }
     }
 
-    fun onCallOperatorClicked(callType: CallType) {
-        tryToCall(callType)
+    fun onCallOperatorClicked(callType: CallType, scope: String? = null) {
+        tryToCall(callType, scope)
     }
 
     private fun tryToCall(callType: CallType, scope: String? = null) {

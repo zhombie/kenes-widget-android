@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import q19.kenes_widget.R
+import q19.kenes_widget.data.model.Topic
 
 val Context.AlertDialogBuilder
     get() = AlertDialog.Builder(this, R.style.AlertDialogTheme)
@@ -204,6 +205,24 @@ fun Context.showAddAttachmentButtonDisabledAlert(callback: () -> Unit): AlertDia
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
             dialog.dismiss()
             callback()
+        }
+        .show()
+}
+
+fun Context.shoTopicsSelectionAlert(callback: (topic: Topic?) -> Unit): AlertDialog {
+    val topics = listOf(
+        Topic(getString(R.string.kenes_psc), "son"),
+        Topic(getString(R.string.kenes_spsc), "spesson")
+    )
+    return AlertDialogBuilder
+        .setTitle(R.string.kenes_selection)
+        .setItems(topics.map { it.title }.toTypedArray()) { dialog, which ->
+            dialog.dismiss()
+            callback(topics[which])
+        }
+        .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
+            dialog.dismiss()
+            callback(null)
         }
         .show()
 }

@@ -30,6 +30,7 @@
     <string name="kenes_change_language">Сменить язык</string>
     <string name="kenes_select_language_from_list">Пожалуйста, выберите язык из списка</string>
     <string name="kenes_attention">Внимание</string>
+    <string name="kenes_selection">Выбор</string>
     <string name="kenes_end_dialog">Вы действительно хотите завершить диалог?</string>
     <string name="kenes_user_disconnected">Пользователь отключился</string>
 
@@ -94,4 +95,7 @@
 
     <string name="kenes_show_all">Показать все</string>
     <string name="kenes_hide">Скрыть</string>
+
+    <string name="kenes_psc">ЦОН</string>
+    <string name="kenes_spsc">СпецЦОН</string>
 </resources>
