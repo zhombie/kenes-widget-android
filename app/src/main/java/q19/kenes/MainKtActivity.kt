@@ -2,8 +2,12 @@ package q19.kenes
 
 import android.os.Bundle
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
+import androidx.appcompat.widget.SwitchCompat
 import q19.kenes_widget.KenesWidget
 import q19.kenes_widget.api.model.Authorization
 import q19.kenes_widget.api.model.DeepLink
@@ -15,13 +19,51 @@ class MainKtActivity : AppCompatActivity() {
         findViewById<AppCompatEditText>(R.id.tokenEditText)
     }
 
+    private val deepLinkSwitch by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<SwitchCompat>(R.id.deepLinkSwitch)
+    }
+
+    private val deepLinkActionView by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<LinearLayout>(R.id.deepLinkActionView)
+    }
+
+    private val deepLinkActionValueView by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<TextView>(R.id.deepLinkActionValueView)
+    }
+
+    private val deepLinkPayloadEditText by lazy(LazyThreadSafetyMode.NONE) {
+        findViewById<AppCompatEditText>(R.id.deepLinkPayloadEditText)
+    }
+
     private val openWidgetButton by lazy(LazyThreadSafetyMode.NONE) {
         findViewById<Button>(R.id.openWidgetButton)
     }
 
+    private var deepLinkAction: DeepLink.Action? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        deepLinkActionView.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setItems(arrayOf("None", "Audio call", "Video call")) { dialog, which ->
+                    dialog.dismiss()
+                    deepLinkAction = when (which) {
+                        0 -> null
+                        1 -> DeepLink.Action.AUDIO_CALL
+                        2 -> DeepLink.Action.VIDEO_CALL
+                        else -> null
+                    }
+
+                    deepLinkActionValueView.text = when (deepLinkAction) {
+                        DeepLink.Action.AUDIO_CALL -> "Audio call"
+                        DeepLink.Action.VIDEO_CALL -> "Video call"
+                        else -> null
+                    }
+                }
+                .show()
+        }
 
         openWidgetButton?.setOnClickListener { openWidget() }
     }
@@ -56,7 +98,15 @@ class MainKtActivity : AppCompatActivity() {
                     setAuthorization(authorization)
                 }
             }
-            .setDeepLink(DeepLink(DeepLink.Action.VIDEO_CALL, "son"))
+            .apply {
+                if (deepLinkSwitch.isChecked) {
+                    val deepLinkAction = deepLinkAction
+                    if (deepLinkAction != null) {
+                        val payload = deepLinkPayloadEditText.text?.toString()
+                        setDeepLink(DeepLink(deepLinkAction, payload))
+                    }
+                }
+            }
             .launch()
     }
 

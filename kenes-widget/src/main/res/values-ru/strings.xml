@@ -31,6 +31,7 @@
     <string name="kenes_select_language_from_list">Пожалуйста, выберите язык из списка</string>
     <string name="kenes_attention">Внимание</string>
     <string name="kenes_selection">Выбор</string>
+    <string name="kenes_request_psc_type_selection">Выберите тип отдела ЦОН для совершения звонка с оператором</string>
     <string name="kenes_end_dialog">Вы действительно хотите завершить диалог?</string>
     <string name="kenes_user_disconnected">Пользователь отключился</string>
 

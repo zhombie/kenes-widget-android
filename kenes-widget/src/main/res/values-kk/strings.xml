@@ -31,6 +31,7 @@
     <string name="kenes_select_language_from_list">Өтінеміз, тізімнен тілді таңдаңыз</string>
     <string name="kenes_attention">Назар аударыңыз</string>
     <string name="kenes_selection">Таңдау</string>
+    <string name="kenes_request_psc_type_selection">Оператормен байланыс үшін ХҚКО түрін таңдаңыз</string>
     <string name="kenes_end_dialog">Диалогты аяқтағыңыз келе ме?</string>
     <string name="kenes_user_disconnected">Пайдаланушы ажыратылды</string>
 

@@ -1232,11 +1232,13 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     }
 
     override fun showTopicsToSelect(callType: CallType) {
-        shoTopicsSelectionAlert {
-            if (it == null) {
-                // Ignored
-            } else {
-                presenter.onCallOperatorClicked(callType, it.value)
+        runOnUiThread {
+            shoTopicsSelectionAlert {
+                if (it == null) {
+                    // Ignored
+                } else {
+                    presenter.onCallOperatorClicked(callType, it.value)
+                }
             }
         }
     }

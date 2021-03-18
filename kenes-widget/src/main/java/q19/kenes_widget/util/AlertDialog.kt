@@ -215,7 +215,7 @@ fun Context.shoTopicsSelectionAlert(callback: (topic: Topic?) -> Unit): AlertDia
         Topic(getString(R.string.kenes_spsc), "spesson")
     )
     return AlertDialogBuilder
-        .setTitle(R.string.kenes_selection)
+        .setTitle(R.string.kenes_request_psc_type_selection)
         .setItems(topics.map { it.title }.toTypedArray()) { dialog, which ->
             dialog.dismiss()
             callback(topics[which])
