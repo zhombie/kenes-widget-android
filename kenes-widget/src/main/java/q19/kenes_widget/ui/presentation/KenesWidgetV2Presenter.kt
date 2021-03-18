@@ -1,6 +1,7 @@
 package q19.kenes_widget.ui.presentation
 
 import android.os.Parcelable
+import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
 import org.webrtc.IceCandidate
 import org.webrtc.PeerConnection
@@ -49,6 +50,9 @@ internal class KenesWidgetV2Presenter constructor(
     fun detachView() {
         viewState = ViewState.ChatBot.Categories(false)
 
+        authHttpClient?.cancelAllRequests(true)
+        httpClient.cancelAllRequests(true)
+
         chatListViewState = null
 
         configs?.clear()
@@ -83,6 +87,7 @@ internal class KenesWidgetV2Presenter constructor(
         }
 
     private val httpClient by lazy { AsyncHTTPClient.get() }
+    private var authHttpClient: AsyncHttpClient? = null
 
     private var socketClient: SocketClient? = null
 
@@ -175,7 +180,9 @@ internal class KenesWidgetV2Presenter constructor(
                     if (deepLink != null) {
                         val topic = if (deepLink.payload.isNullOrBlank()) null else deepLink.payload
 
-                        if (deepLink.action == DeepLink.Action.AUDIO_CALL) {
+                        if (deepLink.action == DeepLink.Action.CALLS_SCREEN) {
+                            viewState = ViewState.OperatorCall
+                        } else if (deepLink.action == DeepLink.Action.AUDIO_CALL) {
                             if (topic.isNullOrBlank()) {
                                 viewState = ViewState.OperatorCall
                                 view?.showTopicsToSelect(CallType.AUDIO)
@@ -679,41 +686,43 @@ internal class KenesWidgetV2Presenter constructor(
             }
         } else {
             configs = data.also { configs ->
-                val idpHostname = configs.idp?.hostname?.removeSuffix("/")
-                if (!idpHostname.isNullOrBlank() && authorization?.bearer != null && authorization.bearer.token.isNotBlank()) {
-                    val httpClient = AsyncHTTPClient.new(listOf("Authorization" to "Bearer ${authorization.bearer.token}"))
-                    httpClient.get(
-                        "$idpHostname/idp/resource/user/basic",
-                        UserBasicHTTPResponseHandler(
-                            onSuccess = {
-                                Logger.debug(TAG, "onSuccess() -> person: $it")
-                                idp = if (idp == null) {
-                                    IDP(person = it)
-                                } else {
-                                    idp?.copy(person = it)
+                if (UrlUtil.isIDPAvailable()) {
+                    val idpHostname = configs.idp?.hostname?.removeSuffix("/")
+                    if (!idpHostname.isNullOrBlank() && authorization?.bearer != null && authorization.bearer.token.isNotBlank()) {
+                        authHttpClient = AsyncHTTPClient.new(listOf("Authorization" to "Bearer ${authorization.bearer.token}"))
+                        authHttpClient?.get(
+                            "$idpHostname/idp/resource/user/basic",
+                            UserBasicHTTPResponseHandler(
+                                onSuccess = {
+                                    Logger.debug(TAG, "onSuccess() -> person: $it")
+                                    idp = if (idp == null) {
+                                        IDP(person = it)
+                                    } else {
+                                        idp?.copy(person = it)
+                                    }
+                                },
+                                onError = {
+                                    Logger.debug(TAG, "onError() -> error: $it")
                                 }
-                            },
-                            onError = {
-                                Logger.debug(TAG, "onError() -> error: $it")
-                            }
+                            )
                         )
-                    )
-                    httpClient.get(
-                        "$idpHostname/idp/resource/user/phone",
-                        UserPhoneHTTPResponseHandler(
-                            onSuccess = {
-                                Logger.debug(TAG, "onSuccess() -> phone: $it")
-                                idp = if (idp == null) {
-                                    IDP(phoneNumber = it)
-                                } else {
-                                    idp?.copy(phoneNumber = it)
+                        authHttpClient?.get(
+                            "$idpHostname/idp/resource/user/phone",
+                            UserPhoneHTTPResponseHandler(
+                                onSuccess = {
+                                    Logger.debug(TAG, "onSuccess() -> phone: $it")
+                                    idp = if (idp == null) {
+                                        IDP(phoneNumber = it)
+                                    } else {
+                                        idp?.copy(phoneNumber = it)
+                                    }
+                                },
+                                onError = {
+                                    Logger.debug(TAG, "onError() -> error: $it")
                                 }
-                            },
-                            onError = {
-                                Logger.debug(TAG, "onError() -> error: $it")
-                            }
+                            )
                         )
-                    )
+                    }
                 }
 
                 configs.contacts?.let { contacts ->

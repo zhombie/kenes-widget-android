@@ -47,19 +47,21 @@ class MainKtActivity : AppCompatActivity() {
 
         deepLinkActionView.setOnClickListener {
             AlertDialog.Builder(this)
-                .setItems(arrayOf("None", "Audio call", "Video call")) { dialog, which ->
+                .setItems(arrayOf("None", "Calls screen", "Audio call", "Video call")) { dialog, which ->
                     dialog.dismiss()
                     deepLinkAction = when (which) {
                         0 -> null
-                        1 -> DeepLink.Action.AUDIO_CALL
-                        2 -> DeepLink.Action.VIDEO_CALL
+                        1 -> DeepLink.Action.CALLS_SCREEN
+                        2 -> DeepLink.Action.AUDIO_CALL
+                        3 -> DeepLink.Action.VIDEO_CALL
                         else -> null
                     }
 
                     deepLinkActionValueView.text = when (deepLinkAction) {
+                        DeepLink.Action.CALLS_SCREEN -> "Calls screen"
                         DeepLink.Action.AUDIO_CALL -> "Audio call"
                         DeepLink.Action.VIDEO_CALL -> "Video call"
-                        else -> null
+                        else -> "None"
                     }
                 }
                 .show()

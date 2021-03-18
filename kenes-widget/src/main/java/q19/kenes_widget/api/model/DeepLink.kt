@@ -8,6 +8,7 @@ data class DeepLink constructor(
 ) : Serializable {
 
     enum class Action : Serializable {
+        CALLS_SCREEN,
         AUDIO_CALL,
         VIDEO_CALL
     }
