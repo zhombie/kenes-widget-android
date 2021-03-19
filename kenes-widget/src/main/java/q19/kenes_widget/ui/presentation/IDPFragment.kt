@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDialogFragment
 import q19.kenes_widget.R
+import q19.kenes_widget.data.model.IDP
 import q19.kenes_widget.data.model.Language
 import q19.kenes_widget.ui.components.ProgressView
 import q19.kenes_widget.ui.components.WebView
@@ -88,6 +89,7 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
             val code = url.getQueryParameter("code")
             if (!code.isNullOrBlank()) {
                 webView?.stopLoading()
+                webView?.destroy()
                 listener?.onReceivedCode(code)
             }
         }
@@ -99,13 +101,13 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
         url += "?"
         url += "response_type=code"
         url += "&"
-        url += "client_id=kenes"
+        url += "client_id=${IDP.CLIENT_ID}"
         url += "&"
-        url += "redirect_uri=https://kenes.vlx.kz"
+        url += "redirect_uri=${IDP.CLIENT_REDIRECT_URL}"
         url += "&"
         url += "state=xyz"
         url += "&"
-        url += "scope=user:basic:read user:phone:read"
+        url += "scope=${IDP.CLIENT_SCOPES.joinToString(separator = " ")}"
         url += "&"
         url += "lang=$language"
 
@@ -124,7 +126,9 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
 
     override fun onLoadProgress(progress: Int) {
         progressView?.showTextView()
-        progressView?.setText("Загрузка: $progress%")
+        if (progress in 0..100) {
+            progressView?.setText(getString(R.string.kenes_loading, progress))
+        }
         if (progress > 60) {
             progressView?.hide()
         }

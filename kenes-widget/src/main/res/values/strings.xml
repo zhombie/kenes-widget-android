@@ -104,4 +104,6 @@
 
     <string name="kenes_psc">PSC</string>
     <string name="kenes_spsc">SPSC</string>
+
+    <string name="kenes_loading">Loading %d%%</string>
 </resources>

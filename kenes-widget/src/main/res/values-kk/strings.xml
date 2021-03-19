@@ -102,4 +102,6 @@
 
     <string name="kenes_psc">ХҚКО</string>
     <string name="kenes_spsc">Мамандырылған ХҚКО</string>
+
+    <string name="kenes_loading">Жүктеу %d%%</string>
 </resources>

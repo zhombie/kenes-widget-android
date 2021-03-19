@@ -102,4 +102,6 @@
 
     <string name="kenes_psc">ЦОН</string>
     <string name="kenes_spsc">СпецЦОН</string>
+
+    <string name="kenes_loading">Загрузка %d%%</string>
 </resources>

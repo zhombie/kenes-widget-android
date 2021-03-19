@@ -1557,8 +1557,8 @@ internal class KenesWidgetV2Presenter constructor(
 
         val params = RequestParams()
         params.put("grant_type", "authorization_code")
-        params.put("client_id", "kenes")
-        params.put("redirect_uri", "https://kenes.vlx.kz")
+        params.put("client_id", IDP.CLIENT_ID)
+        params.put("redirect_uri", IDP.CLIENT_REDIRECT_URL)
         params.put("code", code)
 
         httpClient.setBasicAuth("kenes", "@kenes")
