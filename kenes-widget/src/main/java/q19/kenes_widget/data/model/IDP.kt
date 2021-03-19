@@ -1,5 +1,7 @@
 package q19.kenes_widget.data.model
 
+import q19.kenes_widget.util.UrlUtil
+
 internal data class IDP constructor(
     val person: Person? = null,
     val phoneNumber: String? = null
@@ -7,7 +9,7 @@ internal data class IDP constructor(
 
     companion object {
         const val CLIENT_ID = "kenes"
-        const val CLIENT_REDIRECT_URL = "https://kenes.vlx.kz"
+        val CLIENT_REDIRECT_URL = UrlUtil.getHostname()
         val CLIENT_SCOPES = setOf("user:basic:read", "user:phone:read")
     }
 
