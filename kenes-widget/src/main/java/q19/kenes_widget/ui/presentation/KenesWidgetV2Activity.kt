@@ -1269,8 +1269,12 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
         val fragment = IDPFragment.newInstance(hostname, getCurrentLanguage().key)
         fragment.isCancelable = true
         fragment.setListener { code ->
+            if (code.isNullOrBlank()) {
+                // Ignored
+            } else {
+                fragment.dismiss()
+            }
             presenter.onReceivedCode(code)
-            fragment.dismiss()
         }
         fragment.show(supportFragmentManager, null)
     }

@@ -1552,8 +1552,13 @@ internal class KenesWidgetV2Presenter constructor(
         view?.showAttachmentPicker(forced = true)
     }
 
-    fun onReceivedCode(code: String) {
+    fun onReceivedCode(code: String?) {
         Logger.debug(TAG, "code: $code")
+
+        if (code.isNullOrBlank()) {
+            performDeepLink()
+            return
+        }
 
         val params = RequestParams()
         params.put("grant_type", "authorization_code")

@@ -116,12 +116,18 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
         webView?.loadUrl(url)
     }
 
+    override fun dismiss() {
+        super.dismiss()
+        Logger.debug(TAG, "dismiss()")
+        listener?.onReceivedCode(null)
+    }
+
     /**
      * [WebView.Listener] implementation
      */
 
     override fun onSSLExceptionCloseRequested(isUser: Boolean) {
-        super.dismiss()
+        dismiss()
     }
 
     override fun onLoadProgress(progress: Int) {
@@ -135,7 +141,7 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
     }
 
     fun interface Listener {
-        fun onReceivedCode(code: String)
+        fun onReceivedCode(code: String?)
     }
 
 }
