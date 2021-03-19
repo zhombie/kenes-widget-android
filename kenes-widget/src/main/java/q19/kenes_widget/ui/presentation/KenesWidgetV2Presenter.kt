@@ -31,7 +31,7 @@ internal class KenesWidgetV2Presenter constructor(
     private val language: Language,
     private val authorization: Authorization?,
     private val user: User?,
-    private val deepLink: DeepLink?,
+    private var deepLink: DeepLink?,
     private val palette: IntArray
 ) {
 
@@ -1645,6 +1645,7 @@ internal class KenesWidgetV2Presenter constructor(
     private fun performDeepLink() {
         Logger.debug(TAG, "performDeepLink() -> deepLink: $deepLink")
         if (UrlUtil.isDeepLinkAvailable()) {
+            val deepLink = deepLink
             if (deepLink != null) {
                 val topic = if (deepLink.payload.isNullOrBlank()) null else deepLink.payload
 
@@ -1669,6 +1670,7 @@ internal class KenesWidgetV2Presenter constructor(
                 }
             }
         }
+        deepLink = null
     }
 
     private fun debug(tag: String = TAG, message: String) {

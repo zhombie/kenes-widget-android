@@ -1,5 +1,6 @@
 package q19.kenes_widget.ui.presentation
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,6 +51,12 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
 
         hostname = requireNotNull(arguments?.getString(BundleKey.HOSTNAME))
         language = arguments?.getString(BundleKey.LANGUAGE) ?: Language.DEFAULT.key
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.window?.attributes?.windowAnimations = R.style.FullscreenDialog_Animation
+        return dialog
     }
 
     override fun getTheme(): Int {
