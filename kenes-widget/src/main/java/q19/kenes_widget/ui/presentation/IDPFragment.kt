@@ -56,7 +56,7 @@ class IDPFragment : AppCompatDialogFragment(),
     private var hostname: String? = null
     private var language: String? = null
 
-    private var alertDialog: AlertDialog.Builder? = null
+    private var alertDialogBuilder: AlertDialog.Builder? = null
 
     private var previousUsableHeight: Int? = null
 
@@ -126,6 +126,7 @@ class IDPFragment : AppCompatDialogFragment(),
     }
 
     override fun dismiss() {
+        alertDialogBuilder = null
         view?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
         webView?.destroy()
         super.dismiss()
@@ -152,8 +153,8 @@ class IDPFragment : AppCompatDialogFragment(),
         agreeButton?.setOnClickListener {
             hideOverlayView()
 
-            alertDialog?.show()
-            alertDialog = null
+            alertDialogBuilder?.show()
+            alertDialogBuilder = null
         }
     }
 
@@ -255,9 +256,9 @@ class IDPFragment : AppCompatDialogFragment(),
             }
 
         if (overlayView?.visibility == View.VISIBLE) {
-            this.alertDialog = alertDialog
+            this.alertDialogBuilder = alertDialog
         } else {
-            this.alertDialog = null
+            this.alertDialogBuilder = null
             alertDialog.show()
         }
     }
