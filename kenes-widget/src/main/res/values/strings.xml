@@ -100,10 +100,14 @@
 
     <string name="kenes_show_all">Show all</string>
     <string name="kenes_hide">Hide</string>
-    <string name="kenes_action_continue">Proceed anyway</string>
+    <string name="kenes_action_proceed_anyway">Proceed anyway</string>
+    <string name="kenes_action_continue">Continue</string>
 
     <string name="kenes_psc">PSC</string>
     <string name="kenes_spsc">SPSC</string>
 
     <string name="kenes_loading">Loading %d%%</string>
+
+    <string name="kenes_info_authentication_importance_title">Welcome!</string>
+    <string name="kenes_info_authentication_importance_message">Kenes is a virtual assistant.\n\nIf you want to use application as authorized user, please, provide credentials;\n\notherwise you can always access application as unauthorized user</string>
 </resources>

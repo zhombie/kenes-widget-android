@@ -98,10 +98,14 @@
 
     <string name="kenes_show_all">Тағы</string>
     <string name="kenes_hide">Жабу</string>
+    <string name="kenes_action_proceed_anyway">Жалғастыру</string>
     <string name="kenes_action_continue">Жалғастыру</string>
 
     <string name="kenes_psc">ХҚКО</string>
     <string name="kenes_spsc">Мамандырылған ХҚКО</string>
 
     <string name="kenes_loading">Жүктеу %d%%</string>
+
+    <string name="kenes_info_authentication_importance_title">Қош келдіңіз!</string>
+    <string name="kenes_info_authentication_importance_message">Кеңес - виртуалды көмекші.\n\nЕгер сіз қосымшаны жүйеге енген пайдаланушы ретінде пайдаланғыңыз келсе, өзіңіздің деректеріңізді енгізіңіз;\n\nнемесе сізде жүйеге қосылмаған қолданушы ретінде қосымшаны қолдану мүмкіндігі де бар</string>
 </resources>

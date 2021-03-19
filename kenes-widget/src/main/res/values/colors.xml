@@ -20,6 +20,7 @@
     <color name="kenes_dark_grayish_pink">#7B797A</color>
     <color name="kenes_very_dark_grayish_blue">#606266</color>
     <color name="kenes_very_dark_gray">#474747</color>
+    <color name="kenes_black_alpha_dd">#DD000000</color>
     <color name="kenes_black">#000000</color>
 
     <color name="kenes_bright_orange">#E6A23C</color>

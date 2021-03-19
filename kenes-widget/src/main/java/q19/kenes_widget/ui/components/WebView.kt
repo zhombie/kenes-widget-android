@@ -8,8 +8,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.webkit.*
 import android.webkit.WebView
-import androidx.appcompat.app.AlertDialog
-import q19.kenes_widget.R
 
 class WebView @JvmOverloads constructor(
     context: Context,
@@ -110,18 +108,7 @@ class WebView @JvmOverloads constructor(
             handler: SslErrorHandler?,
             error: SslError?
         ) {
-            AlertDialog.Builder(context)
-                .setTitle(R.string.kenes_attention)
-                .setMessage(R.string.kenes_error_ssl)
-                .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
-                    dialog.dismiss()
-                    listener?.onSSLExceptionCloseRequested(true)
-                }
-                .setPositiveButton(R.string.kenes_action_continue) { dialog, _ ->
-                    dialog.dismiss()
-                    handler?.proceed()
-                }
-                .show()
+            listener?.onReceivedSSLError(handler, error)
         }
     }
 
@@ -130,7 +117,7 @@ class WebView @JvmOverloads constructor(
     }
 
     interface Listener {
-        fun onSSLExceptionCloseRequested(isUser: Boolean)
+        fun onReceivedSSLError(handler: SslErrorHandler?, error: SslError?)
         fun onLoadProgress(progress: Int)
     }
 

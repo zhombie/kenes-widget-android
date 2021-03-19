@@ -98,10 +98,14 @@
 
     <string name="kenes_show_all">Показать все</string>
     <string name="kenes_hide">Скрыть</string>
+    <string name="kenes_action_proceed_anyway">Продолжить</string>
     <string name="kenes_action_continue">Продолжить</string>
 
     <string name="kenes_psc">ЦОН</string>
     <string name="kenes_spsc">СпецЦОН</string>
 
     <string name="kenes_loading">Загрузка %d%%</string>
+
+    <string name="kenes_info_authentication_importance_title">Добро пожаловать!</string>
+    <string name="kenes_info_authentication_importance_message">Кенес - виртуальный ассистент.\n\nЕсли вы хотите использовать приложение в качестве авторизованного пользователя, укажите учетные данные;\n\nв противном случае вы всегда можете получить доступ к приложению как неавторизованный пользователь</string>
 </resources>

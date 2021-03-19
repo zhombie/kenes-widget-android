@@ -43,8 +43,8 @@
     </style>
 
     <style name="FullscreenDialog.Animation">
-        <item name="android:windowEnterAnimation">@anim/in</item>
-        <item name="android:windowExitAnimation">@anim/out</item>
+        <item name="android:windowEnterAnimation">@anim/kenes_in</item>
+        <item name="android:windowExitAnimation">@anim/kenes_out</item>
     </style>
 
     <style name="Alert.Button.Positive" parent="TextAppearance.AppCompat.Widget.Button">
