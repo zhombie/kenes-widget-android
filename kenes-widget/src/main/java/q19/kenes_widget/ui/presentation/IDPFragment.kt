@@ -1,11 +1,13 @@
 package q19.kenes_widget.ui.presentation
 
 import android.app.Dialog
+import android.graphics.Rect
 import android.net.http.SslError
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.webkit.SslErrorHandler
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -19,7 +21,9 @@ import q19.kenes_widget.ui.components.ProgressView
 import q19.kenes_widget.ui.components.WebView
 import q19.kenes_widget.util.Logger
 
-class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
+class IDPFragment : AppCompatDialogFragment(),
+    WebView.Listener,
+    ViewTreeObserver.OnGlobalLayoutListener {
 
     companion object {
         private val TAG = IDPFragment::class.java.simpleName
@@ -53,6 +57,8 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
 
     private var hostname: String? = null
     private var language: String? = null
+
+    private var previousUsableHeight: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,12 +96,15 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
         closeButton = view.findViewById(R.id.closeButton)
         agreeButton = view.findViewById(R.id.agreeButton)
 
+        view.viewTreeObserver.addOnGlobalLayoutListener(this)
+
         setupOverlayView()
         setupProgressView()
         setupWebView()
     }
 
     override fun dismiss() {
+        view?.viewTreeObserver?.removeOnGlobalLayoutListener(this)
         webView?.destroy()
         super.dismiss()
         Logger.debug(TAG, "dismiss()")
@@ -169,6 +178,43 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
         return url
     }
 
+    // Solution from: https://stackoverflow.com/questions/7417123/android-how-to-adjust-layout-in-full-screen-mode-when-softkeyboard-is-visible/19494006#19494006
+    private fun maybeResizeWebView() {
+        val webView = webView ?: return
+        val usableHeightNow = computeUsableHeight()
+        if (usableHeightNow != previousUsableHeight) {
+            val usableHeightSansKeyboard: Int = webView.rootView.height
+            val heightDifference = usableHeightSansKeyboard - usableHeightNow
+            if (heightDifference > usableHeightSansKeyboard / 4) {
+                // keyboard probably just became visible
+                webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    height = usableHeightSansKeyboard - heightDifference
+                }
+            } else {
+                // keyboard probably just became hidden
+                webView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    height = usableHeightSansKeyboard
+                }
+            }
+            webView.requestLayout()
+            previousUsableHeight = usableHeightNow
+        }
+    }
+
+    private fun computeUsableHeight(): Int {
+        val rect = Rect()
+        webView?.getWindowVisibleDisplayFrame(rect)
+        return rect.bottom - rect.top
+    }
+
+    /**
+     * [ViewTreeObserver.OnGlobalLayoutListener] implementation
+     */
+
+    override fun onGlobalLayout() {
+        maybeResizeWebView()
+    }
+
     /**
      * [WebView.Listener] implementation
      */
@@ -196,6 +242,14 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
         if (progress > 60) {
             progressView?.hide()
         }
+    }
+
+    private inline fun <reified T : ViewGroup.LayoutParams> View.updateLayoutParams(
+        block: T.() -> Unit
+    ) {
+        val params = layoutParams as T
+        block(params)
+        layoutParams = params
     }
 
     fun interface Listener {
