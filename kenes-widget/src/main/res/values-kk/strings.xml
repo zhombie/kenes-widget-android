@@ -94,8 +94,11 @@
 
     <string name="kenes_fill_fields">Өтініш, көрсетілген өрістерді толтырып шығыңыз: %s</string>
 
+    <string name="kenes_error_ssl">Бұл веб-сайттың қауіпсіздік сертификатында ақау бар. Сіз бәрібір парақшаны жүктеуді жалғастырғыңыз келеді ме?</string>
+
     <string name="kenes_show_all">Тағы</string>
     <string name="kenes_hide">Жабу</string>
+    <string name="kenes_action_continue">Жалғастыру</string>
 
     <string name="kenes_psc">ХҚКО</string>
     <string name="kenes_spsc">Мамандырылған ХҚКО</string>

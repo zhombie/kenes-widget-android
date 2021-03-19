@@ -35,7 +35,6 @@ import q19.kenes_widget.core.device.DeviceInfo
 import q19.kenes_widget.core.locale.LocalizationActivity
 import q19.kenes_widget.core.permission.PermissionManager
 import q19.kenes_widget.data.model.*
-import q19.kenes_widget.data.network.socket.CallInitialization
 import q19.kenes_widget.ui.components.*
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes_widget.ui.presentation.adapter.ChatAdapterItemDecoration
@@ -59,7 +58,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             context: Context,
             hostname: String,
             language: Language,
-            authorization: CallInitialization.Authorization? = null,
+            authorization: Authorization? = null,
             user: User? = null,
             deepLink: DeepLink? = null
         ): Intent =
@@ -225,8 +224,8 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             UrlUtil.setHostname(hostname)
         }
 
-        val authorization = if (intent.getSerializableExtra(IntentKey.AUTHORIZATION) is CallInitialization.Authorization) {
-            intent.getSerializableExtra(IntentKey.AUTHORIZATION) as CallInitialization.Authorization
+        val authorization = if (intent.getSerializableExtra(IntentKey.AUTHORIZATION) is Authorization) {
+            intent.getSerializableExtra(IntentKey.AUTHORIZATION) as Authorization
         } else {
             null
         }
@@ -1241,6 +1240,16 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                 }
             }
         }
+    }
+
+    override fun launchIDPAuth(hostname: String) {
+        val fragment = IDPFragment.newInstance(hostname, getCurrentLanguage().key)
+        fragment.isCancelable = false
+        fragment.setListener { code ->
+            presenter.onReceivedCode(code)
+            fragment.dismiss()
+        }
+        fragment.show(supportFragmentManager, null)
     }
 
     override fun setViewState(viewState: ViewState) {

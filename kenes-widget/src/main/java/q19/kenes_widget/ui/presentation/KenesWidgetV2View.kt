@@ -101,4 +101,6 @@ internal interface KenesWidgetV2View {
     fun showAttachmentPicker(forced: Boolean)
 
     fun showTopicsToSelect(callType: CallType)
+
+    fun launchIDPAuth(hostname: String)
 }

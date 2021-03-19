@@ -2,6 +2,7 @@ package q19.kenes_widget.data.network.http
 
 import com.loopj.android.http.JsonHttpResponseHandler
 import cz.msebera.android.httpclient.Header
+import org.json.JSONArray
 import org.json.JSONObject
 import q19.kenes_widget.data.model.IDP
 import q19.kenes_widget.util.Logger
@@ -28,6 +29,16 @@ internal class UserBasicHTTPResponseHandler constructor(
                 birthDate = personJSONObject.optString("birthDate"),
             )
         )
+    }
+
+    override fun onFailure(
+        statusCode: Int,
+        headers: Array<out Header>?,
+        throwable: Throwable?,
+        errorResponse: JSONArray?
+    ) {
+        Logger.debug(TAG, "onFailure() -> errorResponse: $errorResponse, throwable: $throwable")
+        onError(throwable)
     }
 
     override fun onFailure(

@@ -14,7 +14,7 @@ internal data class IDP constructor(
     )
 
     fun isEmpty(): Boolean {
-        return person?.iin?.isBlank() ?: phoneNumber.isNullOrBlank()
+        return person?.iin.isNullOrBlank() || phoneNumber.isNullOrBlank()
     }
 
 }

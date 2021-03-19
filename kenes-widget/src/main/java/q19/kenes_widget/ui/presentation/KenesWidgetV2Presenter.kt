@@ -29,7 +29,7 @@ internal class KenesWidgetV2Presenter constructor(
 //    private val appProvider: AppProvider,
     private val deviceInfo: DeviceInfo,
     private val language: Language,
-    private val authorization: CallInitialization.Authorization?,
+    private val authorization: Authorization?,
     private val user: User?,
     private val deepLink: DeepLink?,
     private val palette: IntArray
@@ -687,41 +687,9 @@ internal class KenesWidgetV2Presenter constructor(
         } else {
             configs = data.also { configs ->
                 if (UrlUtil.isIDPAvailable()) {
-                    val idpHostname = configs.idp?.hostname?.removeSuffix("/")
-                    if (!idpHostname.isNullOrBlank() && authorization?.bearer != null && authorization.bearer.token.isNotBlank()) {
-                        authHttpClient = AsyncHTTPClient.new(listOf("Authorization" to "Bearer ${authorization.bearer.token}"))
-                        authHttpClient?.get(
-                            "$idpHostname/idp/resource/user/basic",
-                            UserBasicHTTPResponseHandler(
-                                onSuccess = {
-                                    Logger.debug(TAG, "onSuccess() -> person: $it")
-                                    idp = if (idp == null) {
-                                        IDP(person = it)
-                                    } else {
-                                        idp?.copy(person = it)
-                                    }
-                                },
-                                onError = {
-                                    Logger.debug(TAG, "onError() -> error: $it")
-                                }
-                            )
-                        )
-                        authHttpClient?.get(
-                            "$idpHostname/idp/resource/user/phone",
-                            UserPhoneHTTPResponseHandler(
-                                onSuccess = {
-                                    Logger.debug(TAG, "onSuccess() -> phone: $it")
-                                    idp = if (idp == null) {
-                                        IDP(phoneNumber = it)
-                                    } else {
-                                        idp?.copy(phoneNumber = it)
-                                    }
-                                },
-                                onError = {
-                                    Logger.debug(TAG, "onError() -> error: $it")
-                                }
-                            )
-                        )
+                    val hostname = configs.idp?.hostname
+                    if (!hostname.isNullOrBlank()) {
+                        view?.launchIDPAuth(hostname)
                     }
                 }
 
@@ -1604,6 +1572,88 @@ internal class KenesWidgetV2Presenter constructor(
     fun onSelectAttachmentButtonClicked(field: DynamicFormField) {
         debug(TAG, "field: $field")
         view?.showAttachmentPicker(forced = true)
+    }
+
+    fun onReceivedCode(code: String) {
+        Logger.debug(TAG, "code: $code")
+
+        val params = RequestParams()
+        params.put("grant_type", "authorization_code")
+        params.put("client_id", "kenes")
+        params.put("redirect_uri", "https://kenes.vlx.kz")
+        params.put("code", code)
+
+        httpClient.setBasicAuth("kenes", "@kenes")
+
+        httpClient.post(
+            null,
+            "${configs?.idp?.hostname}/idp/oauth/token",
+            arrayOf(),
+            params,
+            "application/x-www-form-urlencoded",
+            OAuthTokenHTTPResponseHandler(
+                onSuccess = {
+                    Logger.debug(TAG, "OAuth: $it")
+
+                    if (it.tokenType == "bearer") {
+                        loadIDPData(
+                            Authorization(
+                                Authorization.Bearer(
+                                    token = it.accessToken,
+                                    refreshToken = it.refreshToken,
+                                    scope = it.scope,
+                                    expiresIn = it.expiresIn
+                                )
+                            )
+                        )
+                    }
+                },
+                onError = {
+                    Logger.debug(TAG, "OAuth: $it")
+                }
+            )
+        )
+    }
+
+    private fun loadIDPData(authorization: Authorization) {
+        if (UrlUtil.isIDPAvailable()) {
+            val idpHostname = configs?.idp?.hostname?.removeSuffix("/")
+            if (!idpHostname.isNullOrBlank() && authorization.bearer.token.isNotBlank()) {
+                authHttpClient = AsyncHTTPClient.new(listOf("Authorization" to "Bearer ${authorization.bearer.token}"))
+                authHttpClient?.get(
+                    "$idpHostname/idp/resource/user/basic",
+                    UserBasicHTTPResponseHandler(
+                        onSuccess = {
+                            Logger.debug(TAG, "onSuccess() -> person: $it")
+                            idp = if (idp == null) {
+                                IDP(person = it)
+                            } else {
+                                idp?.copy(person = it)
+                            }
+                        },
+                        onError = {
+                            Logger.debug(TAG, "onError() -> error: $it")
+                        }
+                    )
+                )
+                authHttpClient?.get(
+                    "$idpHostname/idp/resource/user/phone",
+                    UserPhoneHTTPResponseHandler(
+                        onSuccess = {
+                            Logger.debug(TAG, "onSuccess() -> phone: $it")
+                            idp = if (idp == null) {
+                                IDP(phoneNumber = it)
+                            } else {
+                                idp?.copy(phoneNumber = it)
+                            }
+                        },
+                        onError = {
+                            Logger.debug(TAG, "onError() -> error: $it")
+                        }
+                    )
+                )
+            }
+        }
     }
 
     private fun debug(tag: String = TAG, message: String) {

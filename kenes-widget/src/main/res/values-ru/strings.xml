@@ -94,8 +94,11 @@
 
     <string name="kenes_fill_fields">Пожалуйста, заполните следующие поля: %s</string>
 
+    <string name="kenes_error_ssl">Возникла проблема с сертификатом безопасности этого веб-сайта. Вы все равно хотите продолжить загрузку страницы?</string>
+
     <string name="kenes_show_all">Показать все</string>
     <string name="kenes_hide">Скрыть</string>
+    <string name="kenes_action_continue">Продолжить</string>
 
     <string name="kenes_psc">ЦОН</string>
     <string name="kenes_spsc">СпецЦОН</string>

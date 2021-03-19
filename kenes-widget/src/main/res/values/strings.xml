@@ -96,8 +96,11 @@
 
     <string name="kenes_fill_fields">Please, fill following fields: %s</string>
 
+    <string name="kenes_error_ssl">There is a problem with this website\'s security certificate. Do you want to proceed anyway?</string>
+
     <string name="kenes_show_all">Show all</string>
     <string name="kenes_hide">Hide</string>
+    <string name="kenes_action_continue">Proceed anyway</string>
 
     <string name="kenes_psc">PSC</string>
     <string name="kenes_spsc">SPSC</string>
