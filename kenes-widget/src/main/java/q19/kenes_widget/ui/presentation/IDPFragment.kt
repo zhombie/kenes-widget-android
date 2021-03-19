@@ -107,12 +107,18 @@ class IDPFragment : AppCompatDialogFragment(), WebView.Listener {
         webView?.loadUrl(url)
     }
 
+    /**
+     * [WebView.Listener] implementation
+     */
+
+    override fun onSSLExceptionCloseRequested(isUser: Boolean) {
+        super.dismiss()
+    }
+
     override fun onLoadProgress(progress: Int) {
-        if (progressView?.isTextViewVisibile() != true) {
-            progressView?.showTextView()
-        }
+        progressView?.showTextView()
         progressView?.setText("Загрузка: $progress%")
-        if (progress > 70) {
+        if (progress > 60) {
             progressView?.hide()
         }
     }

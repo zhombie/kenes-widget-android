@@ -19,6 +19,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -143,6 +144,10 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     private val servicesView by bind<ServicesView>(R.id.servicesView)
 
     private val keyboardView by bind<KeyboardView>(R.id.keyboardView)
+
+    // ------------------------------------------------------------------------
+
+    private var alertDialog: AlertDialog? = null
 
     // ------------------------------------------------------------------------
 
@@ -490,7 +495,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
             override fun onLanguageChangeClicked(language: Language) {
                 val supportedLanguages = Language.getSupportedLanguages()
                 val items = supportedLanguages.map { it.value }.toTypedArray()
-                showLanguageSelectionAlert(items) { which ->
+                alertDialog?.dismiss()
+                alertDialog = null
+                alertDialog = showLanguageSelectionAlert(items) { which ->
                     val selected = supportedLanguages[which]
 
                     presenter.onLanguageSelected(selected.key)
@@ -873,7 +880,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun showHangupConfirmationAlert() {
         runOnUiThread {
-            showHangupConfirmAlert {
+            alertDialog?.dismiss()
+            alertDialog = null
+            alertDialog = showHangupConfirmAlert {
                 presenter.onHangupLiveCall()
             }
         }
@@ -881,7 +890,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun showAlreadyCallingAlert(bottomNavigation: BottomNavigation) {
         runOnUiThread {
-            showAlreadyCallingAlert {
+            alertDialog?.dismiss()
+            alertDialog = null
+            alertDialog = showAlreadyCallingAlert {
                 presenter.onCancelPendingCallClicked(bottomNavigation)
             }
         }
@@ -889,7 +900,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun showAlreadyCallingAlert(callType: CallType) {
         runOnUiThread {
-            showAlreadyCallingAlert {
+            alertDialog?.dismiss()
+            alertDialog = null
+            alertDialog = showAlreadyCallingAlert {
                 presenter.onCallCancelClicked(callType)
             }
         }
@@ -897,13 +910,17 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun showNoOnlineCallAgentsAlert(text: String) {
         runOnUiThread {
-            showNoOnlineCallAgents(text) {}
+            alertDialog?.dismiss()
+            alertDialog = null
+            alertDialog = showNoOnlineCallAgents(text) {}
         }
     }
 
     override fun showOpenLinkConfirmAlert(url: String) {
         runOnUiThread {
-            showOpenLinkConfirmAlert(url) {
+            alertDialog?.dismiss()
+            alertDialog = null
+            alertDialog = showOpenLinkConfirmAlert(url) {
                 try {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                     startActivity(intent)
@@ -1115,7 +1132,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
     }
 
     override fun showFormSentSuccessAlert() {
-        showFormSentSuccess {
+        alertDialog?.dismiss()
+        alertDialog = null
+        alertDialog = showFormSentSuccess {
             formView.clearInputViews()
 
             presenter.onAppealRegistered()
@@ -1224,7 +1243,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
                         .withRequestCode(FILE_PICKER_REQUEST_CODE)
                         .start()
                 } else {
-                    showAddAttachmentButtonDisabledAlert {}
+                    alertDialog?.dismiss()
+                    alertDialog = null
+                    alertDialog = showAddAttachmentButtonDisabledAlert {}
                 }
             }
         }
@@ -1232,7 +1253,9 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun showTopicsToSelect(callType: CallType) {
         runOnUiThread {
-            shoTopicsSelectionAlert {
+            alertDialog?.dismiss()
+            alertDialog = null
+            alertDialog = shoTopicsSelectionAlert {
                 if (it == null) {
                     // Ignored
                 } else {
@@ -1244,7 +1267,7 @@ internal class KenesWidgetV2Activity : LocalizationActivity(), KenesWidgetV2View
 
     override fun launchIDPAuth(hostname: String) {
         val fragment = IDPFragment.newInstance(hostname, getCurrentLanguage().key)
-        fragment.isCancelable = false
+        fragment.isCancelable = true
         fragment.setListener { code ->
             presenter.onReceivedCode(code)
             fragment.dismiss()

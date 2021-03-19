@@ -39,6 +39,10 @@ internal class KenesWidgetV2Presenter constructor(
         private val TAG = KenesWidgetV2Presenter::class.java.simpleName
     }
 
+    init {
+        Logger.debug(TAG, "deepLink: $deepLink")
+    }
+
     private var view: KenesWidgetV2View? = null
 
     fun attachView(view: KenesWidgetV2View) {
@@ -175,32 +179,6 @@ internal class KenesWidgetV2Presenter constructor(
             override fun onConnect() {
                 socketClient?.setLanguage(language.key)
                 socketClient?.sendUserLanguage(language.key)
-
-                if (UrlUtil.isDeepLinkAvailable()) {
-                    if (deepLink != null) {
-                        val topic = if (deepLink.payload.isNullOrBlank()) null else deepLink.payload
-
-                        if (deepLink.action == DeepLink.Action.CALLS_SCREEN) {
-                            viewState = ViewState.OperatorCall
-                        } else if (deepLink.action == DeepLink.Action.AUDIO_CALL) {
-                            if (topic.isNullOrBlank()) {
-                                viewState = ViewState.OperatorCall
-                                view?.showTopicsToSelect(CallType.AUDIO)
-                            } else {
-                                viewState = ViewState.OperatorCall
-                                tryToCall(CallType.AUDIO, topic)
-                            }
-                        } else if (deepLink.action == DeepLink.Action.VIDEO_CALL) {
-                            if (topic.isNullOrBlank()) {
-                                viewState = ViewState.OperatorCall
-                                view?.showTopicsToSelect(CallType.VIDEO)
-                            } else {
-                                viewState = ViewState.OperatorCall
-                                tryToCall(CallType.VIDEO, topic)
-                            }
-                        }
-                    }
-                }
 
                 if (configs?.booleans?.isChabotEnabled == true) {
                     socketClient?.getBasicCategories()
@@ -1605,7 +1583,9 @@ internal class KenesWidgetV2Presenter constructor(
                                     expiresIn = it.expiresIn
                                 )
                             )
-                        )
+                        ) {
+                           performDeepLink()
+                        }
                     }
                 },
                 onError = {
@@ -1615,7 +1595,7 @@ internal class KenesWidgetV2Presenter constructor(
         )
     }
 
-    private fun loadIDPData(authorization: Authorization) {
+    private fun loadIDPData(authorization: Authorization, onComplete: () -> Unit) {
         if (UrlUtil.isIDPAvailable()) {
             val idpHostname = configs?.idp?.hostname?.removeSuffix("/")
             if (!idpHostname.isNullOrBlank() && authorization.bearer.token.isNotBlank()) {
@@ -1630,9 +1610,12 @@ internal class KenesWidgetV2Presenter constructor(
                             } else {
                                 idp?.copy(person = it)
                             }
+
+                            onComplete.invoke()
                         },
                         onError = {
                             Logger.debug(TAG, "onError() -> error: $it")
+                            onComplete.invoke()
                         }
                     )
                 )
@@ -1646,12 +1629,44 @@ internal class KenesWidgetV2Presenter constructor(
                             } else {
                                 idp?.copy(phoneNumber = it)
                             }
+
+                            onComplete.invoke()
                         },
                         onError = {
                             Logger.debug(TAG, "onError() -> error: $it")
+                            onComplete.invoke()
                         }
                     )
                 )
+            }
+        }
+    }
+
+    private fun performDeepLink() {
+        Logger.debug(TAG, "performDeepLink() -> deepLink: $deepLink")
+        if (UrlUtil.isDeepLinkAvailable()) {
+            if (deepLink != null) {
+                val topic = if (deepLink.payload.isNullOrBlank()) null else deepLink.payload
+
+                if (deepLink.action == DeepLink.Action.CALLS_SCREEN) {
+                    viewState = ViewState.OperatorCall
+                } else if (deepLink.action == DeepLink.Action.AUDIO_CALL) {
+                    if (topic.isNullOrBlank()) {
+                        viewState = ViewState.OperatorCall
+                        view?.showTopicsToSelect(CallType.AUDIO)
+                    } else {
+                        viewState = ViewState.OperatorCall
+                        tryToCall(CallType.AUDIO, topic)
+                    }
+                } else if (deepLink.action == DeepLink.Action.VIDEO_CALL) {
+                    if (topic.isNullOrBlank()) {
+                        viewState = ViewState.OperatorCall
+                        view?.showTopicsToSelect(CallType.VIDEO)
+                    } else {
+                        viewState = ViewState.OperatorCall
+                        tryToCall(CallType.VIDEO, topic)
+                    }
+                }
             }
         }
     }

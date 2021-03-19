@@ -52,6 +52,8 @@ class WebView @JvmOverloads constructor(
         settings.allowUniversalAccessFromFileURLs = true
         settings.javaScriptCanOpenWindowsAutomatically = true
         settings.mediaPlaybackRequiresUserGesture = false
+        settings.loadWithOverviewMode = true
+        settings.useWideViewPort = true
 
         // Enable remote debugging via chrome://inspect
         setWebContentsDebuggingEnabled(true)
@@ -113,6 +115,7 @@ class WebView @JvmOverloads constructor(
                 .setMessage(R.string.kenes_error_ssl)
                 .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
                     dialog.dismiss()
+                    listener?.onSSLExceptionCloseRequested(true)
                 }
                 .setPositiveButton(R.string.kenes_action_continue) { dialog, _ ->
                     dialog.dismiss()
@@ -127,6 +130,7 @@ class WebView @JvmOverloads constructor(
     }
 
     interface Listener {
+        fun onSSLExceptionCloseRequested(isUser: Boolean)
         fun onLoadProgress(progress: Int)
     }
 

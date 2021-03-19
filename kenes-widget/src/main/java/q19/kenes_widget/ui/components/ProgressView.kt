@@ -40,11 +40,15 @@ class ProgressView @JvmOverloads constructor(
     fun isProgressHidden(): Boolean = visibility == View.GONE
 
     fun showTextView() {
-        textView.visibility = View.VISIBLE
+        if (textView.visibility != View.VISIBLE) {
+            textView.visibility = View.VISIBLE
+        }
     }
 
     fun hideTextView() {
-        textView.visibility = View.GONE
+        if (textView.visibility != View.GONE) {
+            textView.visibility = View.GONE
+        }
     }
 
     fun isTextViewVisibile(): Boolean = visibility == View.VISIBLE

@@ -36,10 +36,10 @@
     </style>
 
     <style name="FullscreenDialog" parent="AlertDialogTheme">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowFullscreen">true</item>
         <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="Alert.Button.Positive" parent="TextAppearance.AppCompat.Widget.Button">
