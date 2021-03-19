@@ -1,13 +1,11 @@
 package q19.kenes_widget.ui.presentation
 
 import android.app.Dialog
+import android.content.DialogInterface
 import android.graphics.Rect
 import android.net.http.SslError
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.webkit.SslErrorHandler
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
@@ -71,6 +69,25 @@ class IDPFragment : AppCompatDialogFragment(),
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.setCancelable(false)
+        dialog.setOnKeyListener(DialogInterface.OnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                AlertDialog.Builder(requireContext())
+                    .setTitle(R.string.kenes_info_authentication_exit_title)
+                    .setMessage(R.string.kenes_info_authentication_exit_message)
+                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                        dialog.dismiss()
+                        dismiss()
+                    }
+                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+                return@OnKeyListener true
+            } else {
+                return@OnKeyListener true
+            }
+        })
         dialog.window?.attributes?.windowAnimations = R.style.FullscreenDialog_Animation
         return dialog
     }

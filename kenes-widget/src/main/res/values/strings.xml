@@ -110,4 +110,6 @@
 
     <string name="kenes_info_authentication_importance_title">Welcome!</string>
     <string name="kenes_info_authentication_importance_message">Kenes is a virtual assistant.\n\nIf you want to use application as authorized user, please, provide credentials;\n\notherwise you can always access application as unauthorized user</string>
+    <string name="kenes_info_authentication_exit_title">@string/kenes_attention</string>
+    <string name="kenes_info_authentication_exit_message">Do you really want to cancel authentication process?</string>
 </resources>
