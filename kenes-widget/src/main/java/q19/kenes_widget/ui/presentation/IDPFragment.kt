@@ -56,6 +56,8 @@ class IDPFragment : AppCompatDialogFragment(),
     private var hostname: String? = null
     private var language: String? = null
 
+    private var alertDialog: AlertDialog.Builder? = null
+
     private var previousUsableHeight: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,6 +120,9 @@ class IDPFragment : AppCompatDialogFragment(),
         setupOverlayView()
         setupProgressView()
         setupWebView()
+
+        val url = buildUrl()
+        webView?.loadUrl(url)
     }
 
     override fun dismiss() {
@@ -147,8 +152,8 @@ class IDPFragment : AppCompatDialogFragment(),
         agreeButton?.setOnClickListener {
             hideOverlayView()
 
-            val url = buildUrl()
-            webView?.loadUrl(url)
+            alertDialog?.show()
+            alertDialog = null
         }
     }
 
@@ -237,7 +242,7 @@ class IDPFragment : AppCompatDialogFragment(),
      */
 
     override fun onReceivedSSLError(handler: SslErrorHandler?, error: SslError?) {
-        AlertDialog.Builder(requireContext())
+        val alertDialog = AlertDialog.Builder(requireContext())
             .setTitle(R.string.kenes_attention)
             .setMessage(R.string.kenes_error_ssl)
             .setNegativeButton(R.string.kenes_cancel) { dialog, _ ->
@@ -248,7 +253,13 @@ class IDPFragment : AppCompatDialogFragment(),
                 dialog.dismiss()
                 handler?.proceed()
             }
-            .show()
+
+        if (overlayView?.visibility == View.VISIBLE) {
+            this.alertDialog = alertDialog
+        } else {
+            this.alertDialog = null
+            alertDialog.show()
+        }
     }
 
     override fun onLoadProgress(progress: Int) {
