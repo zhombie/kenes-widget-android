@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true">
 
-    <q19.kenes_widget.legacy.KenesWebView
-        android:id="@+id/kenesWebView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+<!--    <q19.kenes_widget.legacy.KenesWebView-->
+<!--        android:id="@+id/kenesWebView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent" />-->
 
     <ProgressBar
         android:id="@+id/progressBar"

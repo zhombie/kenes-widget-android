@@ -109,7 +109,7 @@ internal class DynamicFormView @JvmOverloads constructor(
 
         recyclerView?.adapter = adapter
 
-        recyclerView?.setHasFixedSize(true)
+//        recyclerView?.setHasFixedSize(true)
 
         recyclerView?.disableChangeAnimations()
 

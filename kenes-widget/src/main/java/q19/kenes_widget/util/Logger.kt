@@ -18,6 +18,28 @@ object Logger {
         }
     }
 
+    fun error(tag: String, message: String) {
+        if (UrlUtil.isDebug) {
+            if (message.length > LIMIT) {
+                Log.e(tag, message.substring(0, LIMIT))
+                debug(tag, message.substring(LIMIT))
+            } else {
+                Log.e(tag, message)
+            }
+        }
+    }
+
+    fun warn(tag: String, message: String) {
+        if (UrlUtil.isDebug) {
+            if (message.length > LIMIT) {
+                Log.w(tag, message.substring(0, LIMIT))
+                debug(tag, message.substring(LIMIT))
+            } else {
+                Log.w(tag, message)
+            }
+        }
+    }
+
     /** Information about the current build, taken from system properties.  */
     @JvmStatic
     fun logDeviceInfo(tag: String) {

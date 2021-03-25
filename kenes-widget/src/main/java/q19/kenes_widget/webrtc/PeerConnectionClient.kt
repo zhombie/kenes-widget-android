@@ -69,7 +69,7 @@ class PeerConnectionClient {
 
     private var isInitiator = false
 
-    private var audioManager: AppRTCAudioManager? = null
+    private var audioManager: RTCAudioManager? = null
 
     private var remoteVideoScalingType: ScalingType? = null
 
@@ -242,14 +242,16 @@ class PeerConnectionClient {
     }
 
     private fun startAudioManager() {
-        activity?.runOnUiThread {
-            audioManager = AppRTCAudioManager.create(activity)
-            audioManager?.start { selectedAudioDevice, availableAudioDevices ->
-                debug(TAG, "onAudioManagerDevicesChanged: $availableAudioDevices, selected: $selectedAudioDevice")
+        activity?.let { activity ->
+            activity.runOnUiThread {
+                audioManager = RTCAudioManager.create(activity)
+                audioManager?.start { selectedAudioDevice, availableAudioDevices ->
+                    debug(TAG, "onAudioManagerDevicesChanged: $availableAudioDevices, selected: $selectedAudioDevice")
+                }
             }
-        }
 
-        activity?.volumeControlStream = AudioManager.STREAM_VOICE_CALL
+            activity.volumeControlStream = AudioManager.STREAM_VOICE_CALL
+        }
     }
 
     private fun createVideoTrack(): VideoTrack? {
