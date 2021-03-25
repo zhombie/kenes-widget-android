@@ -203,6 +203,20 @@ internal class KenesWidgetV2Presenter constructor(
                     viewState = ViewState.TextDialog.Live
                 }
 
+                if (viewState is ViewState.AudioDialog) {
+                    if (viewState is ViewState.AudioDialog.Live && (viewState as ViewState.AudioDialog.Live).isDialogScreenShown) {
+                        debug(TAG, "Already is on Live Mode")
+                    } else {
+                        viewState = ViewState.AudioDialog.Live(true)
+                    }
+                } else if (viewState is ViewState.VideoDialog) {
+                    if (viewState is ViewState.VideoDialog.Live && (viewState as ViewState.VideoDialog.Live).isDialogScreenShown) {
+                        debug(TAG, "Already is on Live Mode")
+                    } else {
+                        viewState = ViewState.VideoDialog.Live(true)
+                    }
+                }
+
                 val newText = text.replace("{}", fullName)
 
                 view?.showOpponentInfo(fullName, photoUrl)
@@ -1362,16 +1376,9 @@ internal class KenesWidgetV2Presenter constructor(
     }
 
     fun onIceConnectionChange(iceConnectionState: PeerConnection.IceConnectionState) {
+        Logger.debug(TAG, "onIceConnectionChange() -> $iceConnectionState")
         when (iceConnectionState) {
-            PeerConnection.IceConnectionState.CONNECTED -> {
-//                peerConnectionClient?.setVideoMaxBitrate(500)
-                if (viewState is ViewState.AudioDialog) {
-                    viewState = ViewState.AudioDialog.Live(true)
-                } else if (viewState is ViewState.VideoDialog) {
-                    viewState = ViewState.VideoDialog.Live(true)
-                }
-            }
-            PeerConnection.IceConnectionState.COMPLETED -> {
+            PeerConnection.IceConnectionState.CONNECTED, PeerConnection.IceConnectionState.COMPLETED -> {
                 if (viewState is ViewState.AudioDialog) {
                     if (viewState is ViewState.AudioDialog.Live && (viewState as ViewState.AudioDialog.Live).isDialogScreenShown) {
                         debug(TAG, "Already is on Live Mode")
