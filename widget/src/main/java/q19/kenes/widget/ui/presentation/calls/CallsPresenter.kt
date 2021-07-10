@@ -5,7 +5,7 @@ import kz.q19.socket.repository.SocketRepository
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 
-class CallsPresenter constructor(
+internal class CallsPresenter constructor(
     private val database: Database,
     private val socketRepository: SocketRepository
 ) : BasePresenter<CallsView>() {

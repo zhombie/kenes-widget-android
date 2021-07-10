@@ -5,7 +5,7 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import q19.kenes.widget.di.Injection
 
-open class BaseDialogFragment constructor(
+internal open class BaseDialogFragment constructor(
     @LayoutRes contentLayoutId: Int
 ) : DialogFragment(contentLayoutId) {
 

@@ -7,7 +7,8 @@ import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.ui.presentation.platform.BaseDialogFragment
 import q19.kenes_widget.R
 
-class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_call), VideoCallView {
+internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_call),
+    VideoCallView {
 
     companion object {
         private val TAG = VideoCallFragment::class.java.simpleName

@@ -20,8 +20,6 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.nbsp.materialfilepicker.MaterialFilePicker
-import com.nbsp.materialfilepicker.ui.FilePickerActivity
 import com.squareup.picasso.Picasso
 import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.configs.Configs
@@ -495,11 +493,11 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
             }
 
             override fun onImageClicked(imageView: ImageView, imageUrl: String) {
-                imageView.showFullscreenImage(imageUrl)
+//                imageView.showFullscreenImage(imageUrl)
             }
 
             override fun onImageClicked(imageView: ImageView, bitmap: Bitmap) {
-                imageView.showFullscreenImage(bitmap)
+//                imageView.showFullscreenImage(bitmap)
             }
 
             override fun onImageLoadCompleted() {
@@ -575,9 +573,9 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == PermissionRequestCode.PICK_FILE && resultCode == Activity.RESULT_OK) {
-            val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH) ?: return
+//            val filePath = data?.getStringExtra(FilePickerActivity.RESULT_FILE_PATH) ?: return
 
-            presenter.onUploadFile(filePath)
+//            presenter.onUploadFile(filePath)
         }
     }
 
@@ -1092,13 +1090,13 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                     isPermitted = true
                 }
                 if (isPermitted) {
-                    MaterialFilePicker()
-                        .withActivity(this@OldKenesWidgetActivity)
-                        .withHiddenFiles(true)
-                        .withFilterDirectories(false)
-                        .withCloseMenu(true)
-                        .withRequestCode(PermissionRequestCode.PICK_FILE)
-                        .start()
+//                    MaterialFilePicker()
+//                        .withActivity(this@OldKenesWidgetActivity)
+//                        .withHiddenFiles(true)
+//                        .withFilterDirectories(false)
+//                        .withCloseMenu(true)
+//                        .withRequestCode(PermissionRequestCode.PICK_FILE)
+//                        .start()
                 } else {
                     showAddAttachmentButtonDisabledAlert {}
                 }

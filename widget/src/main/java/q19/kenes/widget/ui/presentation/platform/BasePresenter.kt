@@ -1,6 +1,6 @@
 package q19.kenes.widget.ui.presentation.platform
 
-abstract class BasePresenter<View: BaseView> {
+internal abstract class BasePresenter<View: BaseView> {
 
     private var isFirstLaunch: Boolean = true
 

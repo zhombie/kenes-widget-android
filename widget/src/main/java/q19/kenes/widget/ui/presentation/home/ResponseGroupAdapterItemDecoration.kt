@@ -16,7 +16,7 @@ import q19.kenes.widget.ui.util.getPathOfRoundedRectF
 import q19.kenes.widget.util.Logger
 import q19.kenes_widget.R
 
-class ResponseGroupAdapterItemDecoration constructor(
+internal class ResponseGroupAdapterItemDecoration constructor(
     context: Context,
     strokeWidth: Float,
     private val cornerRadius: Float

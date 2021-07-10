@@ -188,10 +188,15 @@ private class MenuAdapter constructor(
                     iconRes = R.drawable.kenes_ic_vk
                     title = "ВКонтакте"
                 }
+                else -> {
+                }
             }
 
             textView?.text = itemView.context.getString(R.string.kenes_chat_bot, title)
-            textView?.showCompoundDrawableOnLeft(iconRes, 35)
+
+            if (iconRes != null) {
+                textView?.showCompoundDrawableOnLeft(iconRes, 35)
+            }
 
             textView?.visibility = View.VISIBLE
 

@@ -18,7 +18,7 @@ import kz.q19.domain.model.language.Language
 import q19.kenes.widget.di.Injection
 import java.util.*
 
-open class BaseActivity : AppCompatActivity() {
+internal open class BaseActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = BaseActivity::class.java.simpleName

@@ -18,7 +18,7 @@ import kz.q19.domain.model.language.Language
 import q19.kenes.widget.di.Injection
 import java.util.*
 
-open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : Fragment(contentLayoutId) {
+internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : Fragment(contentLayoutId) {
 
     constructor() : this(0)
 

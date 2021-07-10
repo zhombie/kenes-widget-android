@@ -12,7 +12,7 @@ import q19.kenes.widget.data.remote.http.IceServersResponseHandler
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
-class KenesWidgetPresenter constructor(
+internal class KenesWidgetPresenter constructor(
     private val database: Database,
     private val socketRepository: SocketRepository
 ) : BasePresenter<KenesWidgetView>(), SocketStateListener {
@@ -37,8 +37,6 @@ class KenesWidgetPresenter constructor(
     private fun loadConfigs() {
         asyncHttpClient?.get(UrlUtil.buildUrl("/configs"), ConfigsResponseHandler(
             onSuccess = { configs ->
-//                Log.d(TAG, "configs: $configs")
-
                 database.setConfigs(configs)
 
                 getView().showBotInfo(configs.bot)
@@ -86,7 +84,7 @@ class KenesWidgetPresenter constructor(
     override fun onDestroy() {
         Log.d(TAG, "onDestroy()")
 
-        socketRepository.setSocketStateListener(null)
+        socketRepository.removeAllListeners()
         socketRepository.release()
 
         asyncHttpClient?.cancelAllRequests(true)

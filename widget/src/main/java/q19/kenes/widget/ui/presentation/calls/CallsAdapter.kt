@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 
-class CallsAdapter constructor(
+internal class CallsAdapter constructor(
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

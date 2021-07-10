@@ -18,7 +18,7 @@ import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.UrlUtil
 
-class ChatBotPresenter constructor(
+internal class ChatBotPresenter constructor(
     private val database: Database
 ) : BasePresenter<ChatBotView>(), ChatBotListener {
 

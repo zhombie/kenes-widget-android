@@ -4,7 +4,7 @@ import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.knowledge_base.ResponseInfo
 import q19.kenes.widget.ui.presentation.platform.BaseView
 
-interface ChatBotView : BaseView {
+internal interface ChatBotView : BaseView {
     fun showResponseGroups(responseGroups: List<ResponseGroup>)
     fun showResponseInfo(responseInfo: ResponseInfo)
 }

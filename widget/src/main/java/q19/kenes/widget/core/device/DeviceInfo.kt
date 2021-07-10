@@ -21,7 +21,7 @@ import androidx.core.content.ContextCompat
 import java.io.File
 import java.util.*
 
-class DeviceInfo constructor(private val context: Context) {
+internal class DeviceInfo constructor(private val context: Context) {
 
     companion object {
         private const val PLATFORM = "android"

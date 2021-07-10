@@ -25,7 +25,7 @@ import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
-class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
+internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
     companion object {
         private val TAG = KenesWidgetActivity::class.java.simpleName

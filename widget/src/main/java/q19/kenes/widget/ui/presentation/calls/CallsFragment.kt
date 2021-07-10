@@ -9,7 +9,7 @@ import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.Logger
 import q19.kenes_widget.R
 
-class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView, CallsAdapter.Callback {
+internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView, CallsAdapter.Callback {
 
     companion object {
         private val TAG = CallsFragment::class.java.simpleName

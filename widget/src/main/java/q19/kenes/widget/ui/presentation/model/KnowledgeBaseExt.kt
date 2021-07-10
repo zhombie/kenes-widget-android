@@ -5,11 +5,11 @@ import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
 import kz.q19.socket.model.Category
 
-fun Category.isResponseGroup(): Boolean {
+internal fun Category.isResponseGroup(): Boolean {
     return responses.isEmpty()
 }
 
-fun Category.toResponseGroup(): ResponseGroup {
+internal fun Category.toResponseGroup(): ResponseGroup {
     return ResponseGroup(
         id = id,
         title = title ?: "",
@@ -23,7 +23,7 @@ fun Category.toResponseGroup(): ResponseGroup {
     )
 }
 
-fun Category.toResponse(): Response {
+internal fun Category.toResponse(): Response {
     return Response(
         id = id,
         title = title ?: "",

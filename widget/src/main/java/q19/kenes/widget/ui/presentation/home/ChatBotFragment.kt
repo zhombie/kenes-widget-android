@@ -13,7 +13,7 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView {
+internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView {
 
     companion object {
         private val TAG = ChatBotFragment::class.java.simpleName
