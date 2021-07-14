@@ -5,11 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.view.binding.bind
@@ -42,24 +42,29 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
                 .putExtra(IntentKey.USER, user)
     }
 
+    // Intent Arguments
     private object IntentKey {
         const val HOSTNAME = "hostname"
         const val LANGUAGE = "language"
         const val USER = "user"
     }
 
+    // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
     private val toolbar by bind<LinearLayout>(R.id.toolbar)
-    private val imageView by bind<AppCompatImageView>(R.id.imageView)
-    private val titleView by bind<AppCompatTextView>(R.id.titleView)
-    private val subtitleView by bind<AppCompatTextView>(R.id.subtitleView)
+    private val imageView by bind<ShapeableImageView>(R.id.imageView)
+    private val titleView by bind<MaterialTextView>(R.id.titleView)
+    private val subtitleView by bind<MaterialTextView>(R.id.subtitleView)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
 
+    // (MVP) Presenter
     private var presenter: KenesWidgetPresenter? = null
 
+    // BottomNavigationView + ViewPager2 adapter
     private var viewPagerAdapter: ViewPagerAdapter? = null
 
+    // Fragments for ViewPager2 adapter
     private var fragments: Array<Fragment> = arrayOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,9 +131,9 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
     private fun setupKeyboard() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        window.decorView.addKeyboardInsetListener {
-            Logger.debug(TAG, "isKeyboardVisible: $it")
-            if (it) {
+        window.decorView.addKeyboardInsetListener { isKeyboardVisible ->
+            Logger.debug(TAG, "isKeyboardVisible: $isKeyboardVisible")
+            if (isKeyboardVisible) {
                 bottomNavigationView.visibility = View.GONE
             } else {
                 bottomNavigationView.visibility = View.VISIBLE

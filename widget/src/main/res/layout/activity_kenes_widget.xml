@@ -20,7 +20,7 @@
         android:paddingRight="16dp"
         android:paddingTop="10dp">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/imageView"
             android:layout_width="37dp"
             android:layout_height="37dp"
@@ -33,7 +33,7 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/titleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
                 android:textStyle="normal"
                 tools:text="Виртуальный ассистент" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/subtitleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

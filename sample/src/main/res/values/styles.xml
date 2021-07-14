@@ -7,7 +7,7 @@
     [EN] Recommended theme. Widget already has ActionBar/Toolbar,
     so there is no need to show another one. *
     -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!--
          [RU] Для примера.
 
