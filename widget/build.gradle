@@ -21,6 +21,8 @@ android {
         consumerProguardFiles 'consumer-rules.pro'
     }
 
+    resourcePrefix 'kenes_'
+
     buildTypes {
         debug {
             minifyEnabled false

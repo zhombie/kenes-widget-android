@@ -11,10 +11,7 @@
     <RelativeLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="58dp"
-        android:elevation="5dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:layout_height="58dp">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imageView"
@@ -47,7 +44,7 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textAllCaps="false"
-                android:textColor="#333333"
+                android:textColor="@color/kenes_dark_charcoal"
                 android:textSize="14sp"
                 android:textStyle="normal"
                 tools:text="Виртуальный ассистент" />
@@ -56,7 +53,7 @@
                 android:id="@+id/subtitleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:fontFamily="sans-serif"
                 android:includeFontPadding="false"
                 android:letterSpacing="0.0"
@@ -78,7 +75,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:background="#EEEEEE" />
+            android:background="#33DDDDDD" />
 
     </RelativeLayout>
 
@@ -92,7 +89,6 @@
     <q19.kenes.widget.ui.components.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:elevation="5dp" />
+        android:layout_height="56dp" />
 
 </LinearLayout>
