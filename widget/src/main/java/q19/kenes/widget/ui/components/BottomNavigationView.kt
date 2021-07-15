@@ -125,12 +125,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
             }
             backgroundSelectableItemBackgroundBorderless()
             gravity = Gravity.CENTER
-            showCompoundDrawableOnTop(compoundDrawable, padding = 7F.dp2Px().roundToInt())
+            showCompoundDrawableOnTop(compoundDrawable, padding = 6F.dp2Px().roundToInt())
             ellipsize = TextUtils.TruncateAt.END
             isAllCaps = true
             setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_gray))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 9F)
-            setPadding(0, 7.5F.dp2Px().roundToInt(), 0, 7.5F.dp2Px().roundToInt())
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 8F)
+            setPadding(0, 7F.dp2Px().roundToInt(), 0, 7F.dp2Px().roundToInt())
             setText(title)
             setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
             setOnClickListener(object : DebouncedOnClickListener() {
