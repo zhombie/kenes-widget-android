@@ -38,6 +38,7 @@ import kz.q19.utils.view.isVisible
 import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
+import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.components.*
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapter
@@ -46,7 +47,6 @@ import q19.kenes.widget.ui.presentation.adapter.ChatFooterAdapter
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.*
-import q19.kenes.widget.util.Logger.debug
 import q19.kenes_widget.R
 
 internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
@@ -1159,7 +1159,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                     servicesView.isVisible = false
 
                     bottomNavigationView.setNavigationButtonsEnabled()
-                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.HOME)
+//                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.HOME)
 
                     recyclerView.isVisible = true
 
@@ -1226,7 +1226,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                             footerView.disableAttachmentButton()
 
                             bottomNavigationView.setNavigationButtonsEnabled()
-                            bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.HOME)
+//                            bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.HOME)
                         }
                     }
                     ViewState.TextDialog.Pending -> {
@@ -1323,7 +1323,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                     footerView.isVisible = false
 
                     bottomNavigationView.setNavigationButtonsEnabled()
-                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.CALLS)
+//                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.CALLS)
 
                     setDefaultOperatorCallView()
                     operatorCallView.isVisible = true
@@ -1642,7 +1642,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                             infoView.isVisible = false
 
                             bottomNavigationView.setNavigationButtonsEnabled()
-                            bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.SERVICES)
+//                            bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.SERVICES)
 
                             servicesView.isVisible = true
                         }
@@ -1682,7 +1682,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 //                    contactsView.isVisible = false
                     servicesView.isVisible = false
 
-                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.INFO)
+//                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.INFO)
 
                     infoView.isVisible = true
                 }

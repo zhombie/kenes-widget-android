@@ -20,12 +20,12 @@ import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.textview.removeCompoundDrawables
-import q19.kenes.widget.ui.components.base.TitleView
-import q19.kenes.widget.ui.util.*
-import q19.kenes.widget.util.Logger.debug
 import kz.q19.utils.view.inflate
 import kz.q19.utils.view.outlineprovider.RoundMode
 import kz.q19.utils.view.outlineprovider.RoundOutlineProvider
+import q19.kenes.widget.core.logging.Logger.debug
+import q19.kenes.widget.ui.components.base.TitleView
+import q19.kenes.widget.ui.util.*
 import q19.kenes_widget.R
 
 internal class ServicesView @JvmOverloads constructor(

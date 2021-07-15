@@ -23,8 +23,8 @@ import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.socket.model.Category
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.ui.components.base.HtmlTextView
-import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.loadRoundedImage
 import q19.kenes_widget.R
 import java.util.concurrent.TimeUnit

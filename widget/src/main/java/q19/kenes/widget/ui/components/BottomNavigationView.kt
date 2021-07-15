@@ -14,8 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.textview.showCompoundDrawableOnTop
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.util.DebouncedOnClickListener
-import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.getCompoundDrawableOnTop
 import q19.kenes.widget.util.withTint
 import q19.kenes_widget.R
@@ -135,13 +135,13 @@ internal class BottomNavigationView @JvmOverloads constructor(
             setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
             setOnClickListener(object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
-                    updateActiveNavigationButtonTint(navigationButton.index)
-
                     if (navigationButton.index == activeNavigationButtonIndex) {
-                        callback?.onBottomNavigationButtonSelected(navigationButton)
-                    } else {
                         callback?.onBottomNavigationButtonReselected(navigationButton)
+                    } else {
+                        callback?.onBottomNavigationButtonSelected(navigationButton)
                     }
+
+                    setNavigationButtonActive(navigationButton)
                 }
             })
             return@with this
@@ -163,7 +163,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         return navigationButtons.isNotEmpty() && navigationButtons.first() == button
     }
 
-    fun setNavigationButtonActive(navigationButton: NavigationButton): Boolean {
+    private fun setNavigationButtonActive(navigationButton: NavigationButton): Boolean {
         return when (navigationButton) {
             NavigationButton.HOME -> setActiveNavigationButton(homeButton)
             NavigationButton.CALLS -> setActiveNavigationButton(callsButton)
@@ -246,13 +246,13 @@ internal class BottomNavigationView @JvmOverloads constructor(
             index = navigationButton.index,
             listener = object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
-                    updateActiveNavigationButtonTint(navigationButton.index)
-
                     if (navigationButton.index == activeNavigationButtonIndex) {
-                        callback?.onBottomNavigationButtonSelected(navigationButton)
-                    } else {
                         callback?.onBottomNavigationButtonReselected(navigationButton)
+                    } else {
+                        callback?.onBottomNavigationButtonSelected(navigationButton)
                     }
+
+                    setNavigationButtonActive(navigationButton)
                 }
             }
         )

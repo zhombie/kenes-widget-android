@@ -22,9 +22,9 @@ import kz.q19.domain.model.media.Media
 import kz.q19.utils.recyclerview.disableChangeAnimations
 import kz.q19.utils.textview.AbstractTextWatcher
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.base.TitleView
 import q19.kenes.widget.util.AlertDialogBuilder
-import q19.kenes.widget.util.Logger
 import q19.kenes_widget.R
 
 internal class DynamicFormView @JvmOverloads constructor(

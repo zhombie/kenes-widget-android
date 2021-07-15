@@ -14,11 +14,11 @@ import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.view.binding.bind
 import q19.kenes.widget.KenesWidget
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.calls.CallsFragment
 import q19.kenes.widget.ui.presentation.home.ChatBotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
-import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
 import q19.kenes.widget.util.loadImage
@@ -125,10 +125,12 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
         bottomNavigationView.callback = object : BottomNavigationView.Callback {
             override fun onBottomNavigationButtonSelected(navigationButton: BottomNavigationView.NavigationButton) {
+                Logger.debug(TAG, "onBottomNavigationButtonSelected() -> $navigationButton")
                 presenter?.onBottomNavigationButtonSelected(navigationButton.index)
             }
 
             override fun onBottomNavigationButtonReselected(navigationButton: BottomNavigationView.NavigationButton) {
+                Logger.debug(TAG, "onBottomNavigationButtonReselected() -> $navigationButton")
                 when (navigationButton) {
                     BottomNavigationView.NavigationButton.HOME -> {
 

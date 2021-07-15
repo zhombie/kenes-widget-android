@@ -1,4 +1,4 @@
-package q19.kenes.widget.util
+package q19.kenes.widget.core.logging
 
 import android.util.Log
 

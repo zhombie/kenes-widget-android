@@ -21,9 +21,9 @@ import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import org.webrtc.MediaStream
 import q19.kenes.widget.core.device.DeviceInfo
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
-import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.UrlUtil
 
 internal class VideoCallPresenter constructor(

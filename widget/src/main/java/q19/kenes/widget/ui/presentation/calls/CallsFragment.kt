@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.presentation.calls.media.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
-import q19.kenes.widget.util.Logger
 import q19.kenes_widget.R
 
 internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView, CallsAdapter.Callback {

@@ -9,8 +9,8 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes_widget.R
-import q19.kenes.widget.util.Logger
 
 internal class OperatorCallPendingView @JvmOverloads constructor(
     context: Context,

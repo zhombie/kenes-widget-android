@@ -29,13 +29,13 @@ import kz.q19.webrtc.PeerConnectionClient
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
 import q19.kenes.widget.core.device.DeviceInfo
+import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.data.remote.file.DownloadResult
 import q19.kenes.widget.data.remote.file.downloadFile
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.model.ChatBot
 import q19.kenes.widget.ui.presentation.model.Dialog
 import q19.kenes.widget.ui.presentation.model.ViewState
-import q19.kenes.widget.util.Logger.debug
 import q19.kenes.widget.util.UrlUtil
 
 internal class OldKenesWidgetPresenter constructor(

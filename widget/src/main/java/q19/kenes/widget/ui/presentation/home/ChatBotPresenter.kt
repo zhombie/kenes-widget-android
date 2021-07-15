@@ -7,6 +7,7 @@ import kz.q19.domain.model.message.Message
 import kz.q19.socket.SocketClient
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.model.Category
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
@@ -14,7 +15,6 @@ import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.model.ChatBot
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
-import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.UrlUtil
 
 internal class ChatBotPresenter constructor(
