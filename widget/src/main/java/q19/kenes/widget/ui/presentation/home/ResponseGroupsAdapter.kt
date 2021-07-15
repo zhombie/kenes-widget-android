@@ -59,11 +59,12 @@ internal class ResponseGroupsAdapter constructor(
         private val titleView = view.findViewById<AppCompatTextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        private val adapter: ResponseGroupChildrenAdapter
+        private val adapter: ResponseGroupChildrenAdapter =
+            ResponseGroupChildrenAdapter(isExpandable = true, callback = this)
+
         private val layoutManager: LinearLayoutManager
 
         init {
-            adapter = ResponseGroupChildrenAdapter(isExpandable = true, callback = this)
             recyclerView.adapter = adapter
 
             layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
@@ -73,9 +74,7 @@ internal class ResponseGroupsAdapter constructor(
         fun bind(responseGroup: ResponseGroup) {
             titleView.text = responseGroup.title
 
-            if (adapter.responseGroup == null) {
-                adapter.responseGroup = responseGroup
-            }
+            adapter.responseGroup = responseGroup
         }
 
         override fun onResponseGroupClicked(responseGroup: ResponseGroup) {

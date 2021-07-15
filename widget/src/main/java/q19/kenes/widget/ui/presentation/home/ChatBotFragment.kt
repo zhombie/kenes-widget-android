@@ -6,13 +6,14 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Response
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView {
+internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView, ChatBotFragmentDelegate {
 
     companion object {
         private val TAG = ChatBotFragment::class.java.simpleName
@@ -82,6 +83,24 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     override fun showResponse(response: Response) {
         activity?.runOnUiThread {
+        }
+    }
+
+    /**
+     * [ChatBotFragmentDelegate] implementation
+     */
+
+    override fun onScreenRenavigate() {
+        Logger.debug(TAG, "onScreenRenavigate()")
+
+        with(recyclerView?.layoutManager) {
+            if (this is LinearLayoutManager) {
+                if (findFirstCompletelyVisibleItemPosition() == 0) {
+                    presenter?.onResetDataRequested()
+                } else {
+                    recyclerView?.smoothScrollToPosition(0)
+                }
+            }
         }
     }
 

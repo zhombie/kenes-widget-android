@@ -30,7 +30,7 @@ internal class ResponseGroupChildrenAdapter constructor(
         val SHOW_ALL_RESPONSE_GROUP_CHILDREN = R.layout.cell_show_all_response_group_children
     }
 
-    object ViewType {
+    private object ViewType {
         const val EMPTY = 99
         const val CHILD = 100
         const val SHOW_ALL = 101
@@ -42,7 +42,7 @@ internal class ResponseGroupChildrenAdapter constructor(
             notifyDataSetChanged()
         }
 
-    var size: Int = DEFAULT_SIZE_THRESHOLD
+    private var size: Int = DEFAULT_SIZE_THRESHOLD
         set(value) {
             if (isExpandable) {
                 field = value
@@ -50,8 +50,7 @@ internal class ResponseGroupChildrenAdapter constructor(
             }
         }
 
-    var isFooterEnabled: Boolean = false
-        private set
+    private var isFooterEnabled: Boolean = false
 
     private fun getItem(position: Int): AnyResponse? {
         return if (responseGroup?.children.isNullOrEmpty()) {
@@ -87,7 +86,25 @@ internal class ResponseGroupChildrenAdapter constructor(
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (itemCount == DEFAULT_EMPTY_SIZE) return ViewType.EMPTY
+        if (itemCount == DEFAULT_EMPTY_SIZE) {
+            return when (val item = getItem(position)) {
+                is ResponseGroup -> {
+                    if (item.children.isEmpty()) {
+                        ViewType.EMPTY
+                    } else {
+                        ViewType.CHILD
+                    }
+                }
+                is ResponseGroup.Child -> {
+                    if (item.responses.isEmpty()) {
+                        ViewType.EMPTY
+                    } else {
+                        ViewType.CHILD
+                    }
+                }
+                else -> ViewType.EMPTY
+            }
+        }
         return if (isExpandable) {
             if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
                 ViewType.CHILD

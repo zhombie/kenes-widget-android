@@ -9,6 +9,15 @@ internal class ViewPagerAdapter constructor(
     private val fragments: Array<Fragment>
 ) : FragmentStateAdapter(fragmentActivity) {
 
+    fun getFragment(position: Int): Fragment? {
+        if (fragments.isEmpty()) return null
+        return if (position < fragments.size) {
+            fragments[position]
+        } else {
+            null
+        }
+    }
+
     override fun getItemCount(): Int = fragments.size
 
     override fun createFragment(position: Int): Fragment = fragments[position]

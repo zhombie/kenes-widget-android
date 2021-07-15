@@ -7,6 +7,8 @@ internal class ChatBot {
     var activeResponseGroup: ResponseGroup? = null
     var activeResponseGroupChild: ResponseGroup.Child? = null
 
+    var lastResponseGroupsLoadedTime: Long = -1L
+
     fun clear() {
         activeResponseGroup = null
         activeResponseGroupChild = null

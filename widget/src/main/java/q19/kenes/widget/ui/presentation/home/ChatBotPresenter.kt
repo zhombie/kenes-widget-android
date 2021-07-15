@@ -50,6 +50,9 @@ internal class ChatBotPresenter constructor(
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupsResponseHandler(
             onSuccess = { responseGroups ->
                 Logger.debug(TAG, "loadResponseGroups() -> responseGroups: $responseGroups")
+
+                chatBot.lastResponseGroupsLoadedTime = System.currentTimeMillis()
+
                 getView().showResponseGroups(responseGroups)
             },
             onFailure = {
@@ -98,6 +101,14 @@ internal class ChatBotPresenter constructor(
 
     fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
 
+    }
+
+    fun onResetDataRequested() {
+        if (System.currentTimeMillis() - chatBot.lastResponseGroupsLoadedTime > 60 * 1000L) {
+            loadResponseGroups()
+        }
+
+        chatBot.clear()
     }
 
 
