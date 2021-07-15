@@ -14,7 +14,8 @@
     <string name="kenes_cancel">Жою</string>
     <string name="kenes_back">Артқа</string>
 
-    <string name="kenes_message">Хабарлама</string>
+    <string name="kenes_hint_message_input_field">Сәлем! Қандай көмек қажет?</string>
+
     <string name="kenes_video_call">Бейне қоңырау</string>
     <string name="kenes_audio_call">Аудио қоңырау</string>
     <string name="kenes_operator">Оператор</string>

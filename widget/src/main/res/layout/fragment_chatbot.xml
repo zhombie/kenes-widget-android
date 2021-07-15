@@ -17,22 +17,18 @@
         android:paddingTop="10dp"
         android:paddingBottom="20dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="4"
+        tools:itemCount="2"
         tools:listitem="@layout/cell_response_group" />
 
-    <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/editText"
+    <q19.kenes.widget.ui.components.MessageInputView
+        android:id="@+id/messageInputView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/kenes_white"
         android:elevation="5dp"
-        android:gravity="center_vertical"
-        android:hint="Сообщение"
-        android:minHeight="52dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:textSize="14sp" />
+        android:paddingLeft="10dp"
+        android:paddingTop="7dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="7dp" />
 
 </LinearLayout>

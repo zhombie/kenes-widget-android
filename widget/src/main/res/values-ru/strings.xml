@@ -14,7 +14,8 @@
     <string name="kenes_cancel">Отмена</string>
     <string name="kenes_back">Назад</string>
 
-    <string name="kenes_message">Сообщение</string>
+    <string name="kenes_hint_message_input_field">Привет! Чем могу помочь?</string>
+
     <string name="kenes_video_call">Видеозвонок</string>
     <string name="kenes_audio_call">Аудиозвонок</string>
     <string name="kenes_operator">Оператор</string>

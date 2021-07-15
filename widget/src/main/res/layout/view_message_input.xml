@@ -4,30 +4,11 @@
     android:id="@+id/footerView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/kenes_white"
-    android:paddingStart="10dp"
-    android:paddingTop="10dp"
-    android:paddingEnd="@dimen/kenes_horizontal_spacing"
-    android:paddingBottom="10dp">
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/goToActiveDialogButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/kenes_bg_button_blue_rounded_15dp"
-        android:fontFamily="sans-serif"
-        android:gravity="center"
-        android:text="@string/kenes_return_to_video_call"
-        android:textAllCaps="false"
-        android:textColor="@color/kenes_selector_blue_to_light_blue"
-        android:textSize="15sp"
-        android:visibility="gone"
-        tools:visibility="visible" />
+    android:background="@drawable/bg_message_input_view"
+    android:paddingLeft="10dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="10dp"
+    android:paddingBottom="8dp">
 
     <androidx.appcompat.widget.AppCompatImageButton
         android:id="@+id/attachmentButton"
@@ -38,34 +19,33 @@
         android:layout_alignParentStart="true"
         android:layout_marginEnd="5dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:src="@drawable/kenes_ic_attachment" />
+        android:paddingLeft="5dp"
+        android:paddingRight="10dp"
+        android:src="@drawable/ic_attachment"
+        android:tint="#707579" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/inputView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/goToActiveDialogButton"
+        android:layout_centerVertical="true"
         android:layout_toStartOf="@id/sendMessageButton"
         android:layout_toEndOf="@id/attachmentButton"
-        android:background="@drawable/kenes_bg_message"
+        android:background="@null"
         android:cursorVisible="true"
         android:fontFamily="sans-serif"
         android:gravity="center_vertical"
-        android:hint="@string/kenes_message"
+        android:hint="@string/kenes_hint_message_input_field"
         android:lineSpacingExtra="3sp"
         android:maxLength="500"
         android:maxLines="6"
-        android:minHeight="48dp"
-        android:paddingStart="17.5dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="17.5dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:singleLine="false"
-        android:textColor="@color/kenes_very_dark_gray"
+        android:textColor="#333333"
+        android:textColorHint="#a2acb4"
         android:textCursorDrawable="@drawable/kenes_shape_cursor"
-        android:textSize="16sp"
+        android:textSize="14sp"
         tools:text="Тестовое сообщение для проверки линий" />
 
     <androidx.appcompat.widget.AppCompatImageButton
@@ -75,8 +55,10 @@
         android:layout_alignTop="@id/inputView"
         android:layout_alignBottom="@id/inputView"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="10dp"
+        android:layout_marginLeft="5dp"
         android:background="@null"
-        android:src="@drawable/kenes_selector_arrow_up" />
+        android:paddingLeft="10dp"
+        android:src="@drawable/ic_send"
+        android:tint="#008FFF" />
 
 </RelativeLayout>

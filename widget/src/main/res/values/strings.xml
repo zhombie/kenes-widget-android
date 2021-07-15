@@ -14,7 +14,8 @@
     <string name="kenes_ok" translatable="false">OK</string>
     <string name="kenes_back">Back</string>
 
-    <string name="kenes_message">Message</string>
+    <string name="kenes_hint_message_input_field">Hello! How can I help?</string>
+
     <string name="kenes_video_call">Video Call</string>
     <string name="kenes_audio_call">Audio Call</string>
     <string name="kenes_operator">Call agent</string>

@@ -109,7 +109,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
     /**
      * Footer view [footerView] for messenger.
      */
-    private val footerView by bind<FooterView>(R.id.footerView)
+    private val footerView by bind<MessageInputView>(R.id.footerView)
 
     /**
      * View [recyclerView] for chat.
@@ -357,23 +357,12 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
             }
         }
 
-        footerView.callback = object : FooterView.Callback {
-            override fun onGoToActiveDialogButtonClicked() {
-                presenter.onGoToActiveDialogButtonClicked()
-            }
-
-            override fun onAddAttachmentButtonClicked() {
+        footerView.callback = object : MessageInputView.Callback {
+            override fun onNewMediaSelection() {
                 presenter.onAddAttachmentButtonClicked()
             }
 
-            override fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean) {
-                if (!hasFocus) hideKeyboard(v)
-            }
-
-            override fun onInputViewClicked() {
-            }
-
-            override fun onSendMessageButtonClicked(message: String) {
+            override fun onSendTextMessage(message: String?) {
                 presenter.onSendMessageButtonClicked(message)
             }
         }
@@ -679,7 +668,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
         runOnUiThread {
             footerView.disableAttachmentButton()
 
-            footerView.setGoToActiveDialogButtonState(null)
+//            footerView.setGoToActiveDialogButtonState(null)
 
             footerView.disableSendMessageButton()
         }
@@ -1289,7 +1278,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
                                 bottomNavigationView.setNavigationButtonsEnabled()
                             } else {
-                                hideKeyboard(footerView.inputView)
+//                                hideKeyboard(footerView.inputView)
 
                                 recyclerView.isVisible = false
 
@@ -1329,7 +1318,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
                     recyclerView.isVisible = false
 
-                    footerView.setGoToActiveDialogButtonState(null)
+//                    footerView.setGoToActiveDialogButtonState(null)
                     footerView.disableAttachmentButton()
                     footerView.isVisible = false
 
@@ -1366,7 +1355,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
                             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                            hideKeyboard(footerView.inputView)
+//                            hideKeyboard(footerView.inputView)
 
                             headerView.showHangupButton()
 
@@ -1402,13 +1391,13 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                             audioDialogView.hideUnreadMessagesCounter()
 
                             if (viewState.isDialogScreenShown) {
-                                hideKeyboard(footerView.inputView)
+//                                hideKeyboard(footerView.inputView)
 
-                                footerView.setGoToActiveDialogButtonState(null)
+//                                footerView.setGoToActiveDialogButtonState(null)
 
                                 audioDialogView.isVisible = true
                             } else {
-                                footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
+//                                footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_audio_call)
 
                                 audioDialogView.isVisible = false
                             }
@@ -1455,7 +1444,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
                                 recyclerView.isVisible = true
                             } else {
-                                hideKeyboard(footerView.inputView)
+//                                hideKeyboard(footerView.inputView)
 
                                 operatorCallView.isVisible = false
                                 operatorCallPendingView.isVisible = false
@@ -1498,7 +1487,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
                             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                            hideKeyboard(footerView.inputView)
+//                            hideKeyboard(footerView.inputView)
 
                             headerView.showHangupButton()
 
@@ -1534,14 +1523,14 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
                             videoDialogView.hideUnreadMessagesCounter()
 
                             if (viewState.isDialogScreenShown) {
-                                hideKeyboard(footerView.inputView)
+//                                hideKeyboard(footerView.inputView)
 
-                                footerView.setGoToActiveDialogButtonState(null)
+//                                footerView.setGoToActiveDialogButtonState(null)
 
                                 videoDialogView.showControlButtons()
                                 videoDialogView.isVisible = true
                             } else {
-                                footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
+//                                footerView.setGoToActiveDialogButtonState(R.string.kenes_return_to_video_call)
 
                                 videoDialogView.isVisible = false
                             }
@@ -1590,7 +1579,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
                                 bottomNavigationView.setNavigationButtonsEnabled()
                             } else {
-                                hideKeyboard(footerView.inputView)
+//                                hideKeyboard(footerView.inputView)
 
                                 operatorCallView.isVisible = false
                                 operatorCallPendingView.isVisible = false

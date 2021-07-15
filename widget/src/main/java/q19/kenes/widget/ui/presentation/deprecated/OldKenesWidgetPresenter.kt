@@ -601,10 +601,10 @@ internal class OldKenesWidgetPresenter constructor(
         }
     }
 
-    fun onSendMessageButtonClicked(message: String) {
+    fun onSendMessageButtonClicked(message: String?) {
         debug(TAG, "onSendMessageButtonClicked -> viewState: $viewState")
 
-        if (message.isNotBlank()) {
+        if (!message.isNullOrBlank()) {
             if (viewState is ViewState.ChatBot) {
                 viewState = ViewState.ChatBot.UserPrompt(true)
             }

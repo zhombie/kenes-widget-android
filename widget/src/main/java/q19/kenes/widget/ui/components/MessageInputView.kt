@@ -5,26 +5,22 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.KeyEvent
-import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.AttrRes
-import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
-import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
 
-internal class FooterView @JvmOverloads constructor(
+internal class MessageInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val goToActiveDialogButton: AppCompatButton
-    val inputView: AppCompatEditText
+    private val inputView: AppCompatEditText
     private val attachmentButton: AppCompatImageButton
     private val sendMessageButton: AppCompatImageButton
 
@@ -34,35 +30,16 @@ internal class FooterView @JvmOverloads constructor(
     var callback: Callback? = null
 
     init {
-        val view = inflate(context, R.layout.kenes_view_footer, this)
+        val view = inflate(context, R.layout.view_message_input, this)
 
-        goToActiveDialogButton = view.findViewById(R.id.goToActiveDialogButton)
         inputView = view.findViewById(R.id.inputView)
         attachmentButton = view.findViewById(R.id.attachmentButton)
         sendMessageButton = view.findViewById(R.id.sendMessageButton)
 
-        goToActiveDialogButton.setOnClickListener { callback?.onGoToActiveDialogButtonClicked() }
-
-        attachmentButton.setOnClickListener { callback?.onAddAttachmentButtonClicked() }
+        attachmentButton.setOnClickListener { callback?.onNewMediaSelection() }
 
         sendMessageButton.setOnClickListener {
-            callback?.onSendMessageButtonClicked(inputView?.text?.toString() ?: return@setOnClickListener)
-        }
-
-        inputView.setOnFocusChangeListener { v, hasFocus ->
-            callback?.onInputViewFocusChangeListener(v, hasFocus)
-        }
-
-        inputView.setOnClickListener { callback?.onInputViewClicked() }
-    }
-
-    fun setGoToActiveDialogButtonState(@StringRes stringRes: Int? = null) {
-        if (stringRes == null) {
-            goToActiveDialogButton.text = null
-            goToActiveDialogButton.visibility = View.GONE
-        } else {
-            goToActiveDialogButton.setText(stringRes)
-            goToActiveDialogButton.visibility = View.VISIBLE
+            callback?.onSendTextMessage(inputView?.text?.toString())
         }
     }
 
@@ -117,11 +94,8 @@ internal class FooterView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onGoToActiveDialogButtonClicked()
-        fun onAddAttachmentButtonClicked()
-        fun onInputViewFocusChangeListener(v: View, hasFocus: Boolean)
-        fun onInputViewClicked()
-        fun onSendMessageButtonClicked(message: String)
+        fun onNewMediaSelection()
+        fun onSendTextMessage(message: String?)
     }
 
 }
