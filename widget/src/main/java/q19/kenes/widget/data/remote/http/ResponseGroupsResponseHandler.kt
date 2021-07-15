@@ -2,15 +2,14 @@ package q19.kenes.widget.data.remote.http
 
 import com.loopj.android.http.JsonHttpResponseHandler
 import cz.msebera.android.httpclient.Header
-import kz.q19.domain.model.knowledge_base.BaseResponse
-import kz.q19.domain.model.knowledge_base.Response
-import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.json.getIntOrNull
 import kz.q19.utils.json.getJSONArrayOrNull
 import kz.q19.utils.json.getLongOrNull
 import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
+import q19.kenes.widget.domain.model.AnyResponse
+import q19.kenes.widget.domain.model.ResponseGroup
 
 internal class ResponseGroupsResponseHandler constructor(
     private val onSuccess: (responseGroups: List<ResponseGroup>) -> Unit,
@@ -32,7 +31,7 @@ internal class ResponseGroupsResponseHandler constructor(
             for (i in 0 until responseGroupsJSONArray.length()) {
                 val responseGroupJSONObject = responseGroupsJSONArray[i]
                 if (responseGroupJSONObject is JSONObject) {
-                    val children = mutableListOf<BaseResponse>()
+                    val children = mutableListOf<AnyResponse>()
 
                     val childrenJSONArray = responseGroupJSONObject.getJSONArrayOrNull("children")
                     if (childrenJSONArray != null) {
@@ -43,7 +42,7 @@ internal class ResponseGroupsResponseHandler constructor(
                                 if (responses == null || responses.length() == 0) {
                                     children.add(childJSONObject.toResponseGroup(mutableListOf()) ?: continue)
                                 } else {
-                                    children.add(childJSONObject.toResponse() ?: continue)
+                                    children.add(childJSONObject.toResponseGroupChild() ?: continue)
                                 }
                             }
                         }
@@ -57,7 +56,7 @@ internal class ResponseGroupsResponseHandler constructor(
         onSuccess(responseGroups)
     }
 
-    private fun JSONObject.toResponseGroup(children: MutableList<BaseResponse>): ResponseGroup? {
+    private fun JSONObject.toResponseGroup(children: MutableList<AnyResponse>): ResponseGroup? {
         return ResponseGroup(
             id = getLongOrNull("id") ?: return null,
             title = getStringOrNull("title") ?: "",
@@ -67,8 +66,7 @@ internal class ResponseGroupsResponseHandler constructor(
                 Language.ID.EN.value.toInt() -> Language.ENGLISH
                 else -> return null
             },
-            children = children,
-            extra = ResponseGroup.Extra(getIntOrNull("order"))
+            children = children
         )
     }
 
@@ -81,7 +79,7 @@ internal class ResponseGroupsResponseHandler constructor(
         onFailure(throwable)
     }
 
-    private fun JSONObject.toResponse(): Response? {
+    private fun JSONObject.toResponseGroupChild(): ResponseGroup.Child? {
         val responses = mutableListOf<Long>()
 
         val responsesJSONArray = getJSONArrayOrNull("responses")
@@ -99,7 +97,7 @@ internal class ResponseGroupsResponseHandler constructor(
             }
         }
 
-        return Response(
+        return ResponseGroup.Child(
             id = getLongOrNull("id") ?: return null,
             title = getStringOrNull("title") ?: "",
             language = when (getIntOrNull("lang")) {

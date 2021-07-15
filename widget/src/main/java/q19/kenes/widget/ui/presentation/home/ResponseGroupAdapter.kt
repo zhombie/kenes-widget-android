@@ -7,12 +7,10 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
-import kz.q19.domain.model.knowledge_base.BaseResponse
-import kz.q19.domain.model.knowledge_base.Response
-import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.utils.textview.removeCompoundDrawables
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.ui.util.buildRippleDrawable
+import q19.kenes.widget.domain.model.AnyResponse
+import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
 internal class ResponseGroupAdapter constructor(
@@ -29,7 +27,7 @@ internal class ResponseGroupAdapter constructor(
     }
 
     private object Layout {
-        val HORIZONTAL_BUTTON = R.layout.kenes_cell_horizontal_button
+        val RESPONSE_GROUP_CHILD = R.layout.cell_response_group_child
     }
 
     object ViewType {
@@ -55,7 +53,7 @@ internal class ResponseGroupAdapter constructor(
     var isFooterEnabled: Boolean = false
         private set
 
-    private fun getItem(position: Int): BaseResponse? {
+    private fun getItem(position: Int): AnyResponse? {
         return if (responseGroup?.children.isNullOrEmpty()) {
             null
         } else {
@@ -152,11 +150,11 @@ internal class ResponseGroupAdapter constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewType.EMPTY ->
-                EmptyViewHolder(parent.inflate(Layout.HORIZONTAL_BUTTON))
+                EmptyViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
             ViewType.HORIZONTAL_BUTTON ->
-                ViewHolder(parent.inflate(Layout.HORIZONTAL_BUTTON))
+                ViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
             ViewType.FOOTER ->
-                FooterViewHolder(parent.inflate(Layout.HORIZONTAL_BUTTON))
+                FooterViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
             else ->
                 throw ViewHolderViewTypeException(viewType)
         }
@@ -176,64 +174,75 @@ internal class ResponseGroupAdapter constructor(
     }
 
     private inner class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
 
         fun bind() {
+            iconView.visibility = View.GONE
+
             textView.text = "Empty"
-            imageView.visibility = View.GONE
+
+            arrowView.visibility = View.GONE
         }
     }
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
 
-        fun bind(baseResponse: BaseResponse) {
-            when (baseResponse) {
+        fun bind(anyResponse: AnyResponse) {
+            when (anyResponse) {
                 is ResponseGroup -> {
-                    textView?.text = baseResponse.title
+                    iconView?.setImageResource(R.drawable.ic_folder)
+                    iconView?.visibility = View.VISIBLE
 
-                    imageView?.setImageResource(R.drawable.kenes_ic_caret_right_blue)
-                    imageView?.visibility = View.VISIBLE
+                    textView?.text = anyResponse.title
+
+                    arrowView?.setImageResource(R.drawable.ic_arrow_right)
+                    arrowView?.visibility = View.VISIBLE
 
                     itemView.setOnClickListener {
-                        callback.onResponseGroupClicked(baseResponse)
+                        callback.onResponseGroupClicked(anyResponse)
                     }
                 }
-                is Response -> {
-//                    Log.d(TAG, "is Response -> $baseResponse")
+                is ResponseGroup.Child -> {
+                    iconView?.setImageResource(R.drawable.ic_article)
+                    iconView?.visibility = View.VISIBLE
 
-                    textView?.text = baseResponse.title
+                    textView?.text = anyResponse.title
 
-                    imageView?.setImageResource(R.drawable.kenes_ic_document_blue)
-                    imageView?.visibility = View.VISIBLE
+                    arrowView?.setImageResource(R.drawable.ic_arrow_right)
+                    arrowView?.visibility = View.VISIBLE
 
                     itemView.setOnClickListener {
-                        callback.onResponseClicked(baseResponse)
+                        callback.onResponseGroupChildClicked(anyResponse)
                     }
                 }
                 else -> {
+                    iconView?.setImageDrawable(null)
+                    iconView?.visibility = View.GONE
+
                     textView?.text = null
-                    imageView?.setImageDrawable(null)
-                    imageView?.visibility = View.GONE
+
+                    arrowView?.setImageDrawable(null)
+                    arrowView?.visibility = View.GONE
+
                     itemView.setOnClickListener(null)
                 }
             }
-
-            itemView.isClickable = true
-            itemView.isFocusable = true
-
-            itemView.background = buildRippleDrawable(itemView.context)
         }
     }
 
     private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
 
         fun bind() {
-            imageView?.visibility = View.GONE
+            iconView?.setImageDrawable(null)
+            iconView?.visibility = View.GONE
 
             textView?.removeCompoundDrawables()
 
@@ -242,26 +251,28 @@ internal class ResponseGroupAdapter constructor(
 
                 if (isCollapsed()) {
                     textView?.setText(R.string.kenes_show_all)
+
                     itemView.visibility = View.VISIBLE
                 } else {
                     textView?.setText(R.string.kenes_hide)
+
                     itemView.visibility = View.VISIBLE
                 }
             } else {
                 if (isSeparateFooterEnabled) {
                     textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
                     textView?.setText(R.string.kenes_back)
+
                     itemView.visibility = View.VISIBLE
                 } else {
                     textView?.text = null
+
                     itemView.visibility = View.GONE
                 }
             }
 
-            itemView.isClickable = true
-            itemView.isFocusable = true
-
-            itemView.background = buildRippleDrawable(itemView.context)
+            arrowView?.setImageDrawable(null)
+            arrowView?.visibility = View.GONE
 
             if (isSeparateFooterEnabled) {
                 itemView.setOnClickListener {
@@ -279,7 +290,7 @@ internal class ResponseGroupAdapter constructor(
 
     interface Callback {
         fun onResponseGroupClicked(responseGroup: ResponseGroup)
-        fun onResponseClicked(response: Response)
+        fun onResponseGroupChildClicked(child: ResponseGroup.Child)
         fun onGoBackButtonClicked(responseGroup: ResponseGroup)
     }
 

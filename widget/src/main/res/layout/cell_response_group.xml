@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_marginLeft="12dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="12dp"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="0dp"
+    app:contentPaddingBottom="12dp"
+    app:contentPaddingTop="12dp">
 
-    <TextView
-        android:id="@+id/titleView"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/kenes_horizontal_spacing"
-        android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-        android:layout_marginBottom="@dimen/kenes_title_bottom_offset"
-        android:paddingTop="@dimen/kenes_title_padding"
-        android:paddingBottom="@dimen/kenes_title_padding"
-        android:textAppearance="@style/BoldTitle"
-        tools:text="Бизнесу" />
+        android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/kenes_horizontal_spacing"
-        android:layout_marginEnd="@dimen/kenes_horizontal_spacing"
-        android:clipToPadding="false"
-        android:orientation="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="5"
-        tools:listitem="@layout/kenes_cell_horizontal_button" />
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/titleView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="sans-serif-black"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:textColor="#333"
+            android:textSize="16sp"
+            tools:text="Бизнесу" />
 
-</LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="5"
+            tools:listitem="@layout/cell_response_group_child" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

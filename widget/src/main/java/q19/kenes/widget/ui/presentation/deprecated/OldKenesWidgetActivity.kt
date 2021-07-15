@@ -238,8 +238,14 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
         /**
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
-        bottomNavigationView.callback = BottomNavigationView.Callback { navigationButton ->
-            presenter.onBottomNavigationButtonClicked(navigationButton)
+        bottomNavigationView.callback = object : BottomNavigationView.Callback {
+            override fun onBottomNavigationButtonSelected(navigationButton: BottomNavigationView.NavigationButton) {
+                presenter.onBottomNavigationButtonClicked(navigationButton)
+            }
+
+            override fun onBottomNavigationButtonReselected(navigationButton: BottomNavigationView.NavigationButton) {
+                presenter.onBottomNavigationButtonClicked(navigationButton)
+            }
         }
 
         /**

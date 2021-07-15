@@ -6,10 +6,9 @@ import android.view.View
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kz.q19.domain.model.knowledge_base.Response
-import kz.q19.domain.model.knowledge_base.ResponseGroup
-import kz.q19.domain.model.knowledge_base.ResponseInfo
 import q19.kenes.widget.data.local.Database
+import q19.kenes.widget.domain.model.Response
+import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
@@ -59,8 +58,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
                 presenter?.onResponseGroupClicked(responseGroup)
             }
 
-            override fun onResponseClicked(response: Response) {
-                presenter?.onResponseClicked(response)
+            override fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
+                presenter?.onResponseGroupChildClicked(child)
             }
 
             override fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
@@ -78,12 +77,10 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     override fun showResponseGroups(responseGroups: List<ResponseGroup>) {
 //        Log.d(TAG, "responseGroups: $responseGroups")
-        activity?.runOnUiThread {
-            adapter?.submitList(responseGroups)
-        }
+        adapter?.submitList(responseGroups)
     }
 
-    override fun showResponseInfo(responseInfo: ResponseInfo) {
+    override fun showResponse(response: Response) {
         activity?.runOnUiThread {
         }
     }

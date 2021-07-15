@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F7F8F9"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,8 @@
         android:paddingTop="10dp"
         android:paddingBottom="20dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="4" />
+        tools:itemCount="4"
+        tools:listitem="@layout/cell_response_group" />
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/editText"

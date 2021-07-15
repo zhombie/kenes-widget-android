@@ -9,10 +9,10 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.*
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
-import com.google.android.material.button.MaterialButton
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.textview.showCompoundDrawableOnTop
 import q19.kenes.widget.util.DebouncedOnClickListener
@@ -41,12 +41,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
         INFO(3)
     }
 
-    private var homeButton: MaterialButton? = null
-    private var callsButton: MaterialButton? = null
-    private var servicesButton: MaterialButton? = null
-    private var infoButton: MaterialButton? = null
+    private var homeButton: AppCompatButton? = null
+    private var callsButton: AppCompatButton? = null
+    private var servicesButton: AppCompatButton? = null
+    private var infoButton: AppCompatButton? = null
 
-    private val navigationButtons: MutableList<MaterialButton> = mutableListOf()
+    private val navigationButtons: MutableList<AppCompatButton> = mutableListOf()
 
     private var activeNavigationButtonIndex = DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX
         set(value) {
@@ -114,8 +114,8 @@ internal class BottomNavigationView @JvmOverloads constructor(
         navigationButton: NavigationButton,
         @DrawableRes compoundDrawable: Int,
         @StringRes title: Int
-    ): MaterialButton {
-        return with(MaterialButton(context)) {
+    ): AppCompatButton {
+        return with(AppCompatButton(context)) {
             id = ViewCompat.generateViewId()
             layoutParams = LayoutParams(
                 LayoutParams.WRAP_CONTENT,
@@ -136,7 +136,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
             setOnClickListener(object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
                     updateActiveNavigationButtonTint(navigationButton.index)
-                    callback?.onNavigationButtonClicked(navigationButton)
+
+                    if (navigationButton.index == activeNavigationButtonIndex) {
+                        callback?.onBottomNavigationButtonSelected(navigationButton)
+                    } else {
+                        callback?.onBottomNavigationButtonReselected(navigationButton)
+                    }
                 }
             })
             return@with this
@@ -153,7 +158,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun isNavigationButtonFirst(button: MaterialButton?): Boolean {
+    private fun isNavigationButtonFirst(button: AppCompatButton?): Boolean {
         if (navigationButtons.isNullOrEmpty()) return false
         return navigationButtons.isNotEmpty() && navigationButtons.first() == button
     }
@@ -167,7 +172,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun setActiveNavigationButton(button: MaterialButton?): Boolean {
+    private fun setActiveNavigationButton(button: AppCompatButton?): Boolean {
         if (button == null) return false
         val index = navigationButtons.indexOf(button)
         if (index >= 0) {
@@ -201,15 +206,15 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun setActiveNavigationButtonTint(button: MaterialButton?): Boolean {
+    private fun setActiveNavigationButtonTint(button: AppCompatButton?): Boolean {
         return button?.setTint(R.color.kenes_light_blue) == true
     }
 
-    private fun setInactiveNavigationButtonTint(button: MaterialButton?): Boolean {
+    private fun setInactiveNavigationButtonTint(button: AppCompatButton?): Boolean {
         return button?.setTint(R.color.kenes_dark_gray) == true
     }
 
-    private fun MaterialButton?.setTint(@ColorRes colorResId: Int): Boolean {
+    private fun AppCompatButton?.setTint(@ColorRes colorResId: Int): Boolean {
         if (this == null) return false
 
         val compoundDrawable = getCompoundDrawableOnTop()
@@ -244,7 +249,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
         appCompatButton.showNavigationButton(navigationButton.index, object : DebouncedOnClickListener() {
             override fun onDebouncedClick(v: View) {
                 updateActiveNavigationButtonTint(navigationButton.index)
-                callback?.onNavigationButtonClicked(navigationButton)
+
+                if (navigationButton.index == activeNavigationButtonIndex) {
+                    callback?.onBottomNavigationButtonSelected(navigationButton)
+                } else {
+                    callback?.onBottomNavigationButtonReselected(navigationButton)
+                }
             }
         })
     }
@@ -259,7 +269,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun MaterialButton?.showNavigationButton(
+    private fun AppCompatButton?.showNavigationButton(
         index: Int,
         listener: DebouncedOnClickListener
     ) {
@@ -271,7 +281,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun MaterialButton?.hideNavigationButton() {
+    private fun AppCompatButton?.hideNavigationButton() {
         if (this != null) {
             setOnClickListener(null)
             if (navigationButtons.contains(this)) {
@@ -280,14 +290,15 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun MaterialButton.backgroundSelectableItemBackgroundBorderless() {
+    private fun AppCompatButton.backgroundSelectableItemBackgroundBorderless() {
         val outValue = TypedValue()
         context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
         setBackgroundResource(outValue.resourceId)
     }
 
-    fun interface Callback {
-        fun onNavigationButtonClicked(navigationButton: NavigationButton)
+    interface Callback {
+        fun onBottomNavigationButtonSelected(navigationButton: NavigationButton)
+        fun onBottomNavigationButtonReselected(navigationButton: NavigationButton)
     }
 
 }

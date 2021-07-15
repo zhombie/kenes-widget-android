@@ -1,10 +1,10 @@
 package q19.kenes.widget.ui.presentation.home
 
-import kz.q19.domain.model.knowledge_base.ResponseGroup
-import kz.q19.domain.model.knowledge_base.ResponseInfo
+import q19.kenes.widget.domain.model.Response
+import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.platform.BaseView
 
 internal interface ChatBotView : BaseView {
     fun showResponseGroups(responseGroups: List<ResponseGroup>)
-    fun showResponseInfo(responseInfo: ResponseInfo)
+    fun showResponse(response: Response)
 }

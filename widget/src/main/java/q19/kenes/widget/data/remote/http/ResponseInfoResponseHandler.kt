@@ -2,7 +2,6 @@ package q19.kenes.widget.data.remote.http
 
 import com.loopj.android.http.JsonHttpResponseHandler
 import cz.msebera.android.httpclient.Header
-import kz.q19.domain.model.knowledge_base.ResponseInfo
 import kz.q19.domain.model.media.Media
 import kz.q19.utils.enums.findEnumBy
 import kz.q19.utils.json.getJSONArrayOrNull
@@ -10,9 +9,10 @@ import kz.q19.utils.json.getJSONObjectOrNull
 import kz.q19.utils.json.getLongOrNull
 import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
+import q19.kenes.widget.domain.model.Response
 
 internal class ResponseInfoResponseHandler constructor(
-    private val onSuccess: (responseInfo: ResponseInfo) -> Unit,
+    private val onSuccess: (responseInfo: Response) -> Unit,
     private val onFailure: (throwable: Throwable?) -> Unit
 ) : JsonHttpResponseHandler() {
 
@@ -38,7 +38,11 @@ internal class ResponseInfoResponseHandler constructor(
                             Media(
                                 id = "Unknown",
                                 type = findEnumBy { it.key == attachmentJSONObject.getStringOrNull("type") },
-                                extension = findEnumBy { it.value == attachmentJSONObject.getStringOrNull("ext") },
+                                extension = findEnumBy {
+                                    it.value == attachmentJSONObject.getStringOrNull(
+                                        "ext"
+                                    )
+                                },
                                 urlPath = attachmentJSONObject.getStringOrNull("url"),
                             )
                         )
@@ -46,25 +50,25 @@ internal class ResponseInfoResponseHandler constructor(
                 }
             }
 
-            val form: ResponseInfo.Form? = null
+            var form: Response.Form? = null
             val formJSONObject = responseJSONObject.getJSONObjectOrNull("form")
             if (formJSONObject != null) {
-                ResponseInfo.Form(
+                form = Response.Form(
                     id = formJSONObject.getLong("id"),
                     title = formJSONObject.getStringOrNull("title") ?: "",
                     prompt = formJSONObject.getStringOrNull("prompt")
                 )
             }
 
-            val responseInfo = ResponseInfo(
-                id = responseJSONObject.getString("id"),
-                text = responseJSONObject.getStringOrNull("text") ?: "",
-                time = responseJSONObject.getLongOrNull("time") ?: -1L,
-                attachments = attachments,
-                form = form
+            onSuccess(
+                Response(
+                    id = responseJSONObject.getString("id"),
+                    text = responseJSONObject.getStringOrNull("text") ?: "",
+                    time = responseJSONObject.getLongOrNull("time") ?: -1L,
+                    attachments = attachments,
+                    form = form
+                )
             )
-
-            onSuccess(responseInfo)
         }
     }
 

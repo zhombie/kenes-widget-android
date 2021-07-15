@@ -9,6 +9,7 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ConfigsResponseHandler
 import q19.kenes.widget.data.remote.http.IceServersResponseHandler
+import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
@@ -75,6 +76,10 @@ internal class KenesWidgetPresenter constructor(
         if (!socketRepository.isConnected()) {
             socketRepository.connect()
         }
+    }
+
+    fun onBottomNavigationButtonSelected(index: Int) {
+        getView().navigateTo(index)
     }
 
     /**

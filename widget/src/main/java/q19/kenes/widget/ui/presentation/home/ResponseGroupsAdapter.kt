@@ -2,14 +2,13 @@ package q19.kenes.widget.ui.presentation.home
 
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kz.q19.domain.model.knowledge_base.Response
-import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
 internal class ResponseGroupsAdapter constructor(
@@ -57,7 +56,7 @@ internal class ResponseGroupsAdapter constructor(
     }
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), ResponseGroupAdapter.Callback {
-        private val titleView = view.findViewById<TextView>(R.id.titleView)
+        private val titleView = view.findViewById<AppCompatTextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
         private val adapter: ResponseGroupAdapter
@@ -70,13 +69,13 @@ internal class ResponseGroupsAdapter constructor(
             layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
             recyclerView.layoutManager = layoutManager
 
-            recyclerView.addItemDecoration(
-                ResponseGroupAdapterItemDecoration(
-                    itemView.context,
-                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
-                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-                )
-            )
+//            recyclerView.addItemDecoration(
+//                ResponseGroupAdapterItemDecoration(
+//                    itemView.context,
+//                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
+//                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
+//                )
+//            )
         }
 
         fun bind(responseGroup: ResponseGroup) {
@@ -91,8 +90,8 @@ internal class ResponseGroupsAdapter constructor(
             callback.onResponseGroupClicked(responseGroup)
         }
 
-        override fun onResponseClicked(response: Response) {
-            callback.onResponseClicked(response)
+        override fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
+            callback.onResponseGroupChildClicked(child)
         }
 
         override fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
@@ -103,7 +102,7 @@ internal class ResponseGroupsAdapter constructor(
 
     interface Callback {
         fun onResponseGroupClicked(responseGroup: ResponseGroup)
-        fun onResponseClicked(response: Response)
+        fun onResponseGroupChildClicked(child: ResponseGroup.Child)
         fun onGoBackButtonClicked(responseGroup: ResponseGroup)
     }
 
