@@ -128,7 +128,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
             showCompoundDrawableOnTop(compoundDrawable, padding = 6F.dp2Px().roundToInt())
             ellipsize = TextUtils.TruncateAt.END
             isAllCaps = true
-            setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_gray))
+            setTextColor(ContextCompat.getColor(context, R.color.kenes_black_with_opacity_80))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 8F)
             setPadding(0, 7F.dp2Px().roundToInt(), 0, 7F.dp2Px().roundToInt())
             setText(title)
@@ -207,11 +207,11 @@ internal class BottomNavigationView @JvmOverloads constructor(
     }
 
     private fun setActiveNavigationButtonTint(button: AppCompatButton?): Boolean {
-        return button?.setTint(R.color.kenes_light_blue) == true
+        return button?.setTint(R.color.kenes_blue) == true
     }
 
     private fun setInactiveNavigationButtonTint(button: AppCompatButton?): Boolean {
-        return button?.setTint(R.color.kenes_dark_gray) == true
+        return button?.setTint(R.color.kenes_black_with_opacity_80) == true
     }
 
     private fun AppCompatButton?.setTint(@ColorRes colorResId: Int): Boolean {
@@ -246,17 +246,20 @@ internal class BottomNavigationView @JvmOverloads constructor(
             NavigationButton.INFO -> infoButton
         }
 
-        appCompatButton.showNavigationButton(navigationButton.index, object : DebouncedOnClickListener() {
-            override fun onDebouncedClick(v: View) {
-                updateActiveNavigationButtonTint(navigationButton.index)
+        appCompatButton.showNavigationButton(
+            index = navigationButton.index,
+            listener = object : DebouncedOnClickListener() {
+                override fun onDebouncedClick(v: View) {
+                    updateActiveNavigationButtonTint(navigationButton.index)
 
-                if (navigationButton.index == activeNavigationButtonIndex) {
-                    callback?.onBottomNavigationButtonSelected(navigationButton)
-                } else {
-                    callback?.onBottomNavigationButtonReselected(navigationButton)
+                    if (navigationButton.index == activeNavigationButtonIndex) {
+                        callback?.onBottomNavigationButtonSelected(navigationButton)
+                    } else {
+                        callback?.onBottomNavigationButtonReselected(navigationButton)
+                    }
                 }
             }
-        })
+        )
     }
 
     fun hideNavigationButton(navigationButton: NavigationButton) {
@@ -292,7 +295,11 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     private fun AppCompatButton.backgroundSelectableItemBackgroundBorderless() {
         val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, outValue, true)
+        context.theme.resolveAttribute(
+            android.R.attr.selectableItemBackgroundBorderless,
+            outValue,
+            true
+        )
         setBackgroundResource(outValue.resourceId)
     }
 

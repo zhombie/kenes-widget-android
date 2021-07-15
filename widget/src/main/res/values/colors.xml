@@ -2,9 +2,9 @@
 <resources>
     <color name="kenes_transparent">#00000000</color>
     <color name="kenes_white">#FFFFFF</color>
-    <color name="kenes_">#A2ACB4</color>
     <color name="kenes_blue">#008FFF</color>
     <color name="kenes_dark_charcoal">#333333</color>
+    <color name="kenes_black_with_opacity_80">#80000000</color>
     <color name="kenes_black">#000000</color>
 
     <!--DEPRECATED-->
