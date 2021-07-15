@@ -55,27 +55,19 @@ internal class ResponseGroupsAdapter constructor(
         }
     }
 
-    private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), ResponseGroupAdapter.Callback {
+    private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), ResponseGroupChildrenAdapter.Callback {
         private val titleView = view.findViewById<AppCompatTextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        private val adapter: ResponseGroupAdapter
+        private val adapter: ResponseGroupChildrenAdapter
         private val layoutManager: LinearLayoutManager
 
         init {
-            adapter = ResponseGroupAdapter(isExpandable = true, isSeparateFooterEnabled = false, callback = this)
+            adapter = ResponseGroupChildrenAdapter(isExpandable = true, callback = this)
             recyclerView.adapter = adapter
 
             layoutManager = LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
             recyclerView.layoutManager = layoutManager
-
-//            recyclerView.addItemDecoration(
-//                ResponseGroupAdapterItemDecoration(
-//                    itemView.context,
-//                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_width),
-//                    itemView.context.resources.getDimension(R.dimen.kenes_rounded_border_radius)
-//                )
-//            )
         }
 
         fun bind(responseGroup: ResponseGroup) {

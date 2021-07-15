@@ -2,38 +2,38 @@ package q19.kenes.widget.ui.presentation.home
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
-import kz.q19.utils.textview.removeCompoundDrawables
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.domain.model.AnyResponse
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
-internal class ResponseGroupAdapter constructor(
-    var isExpandable: Boolean,
-    var isSeparateFooterEnabled: Boolean,
+internal class ResponseGroupChildrenAdapter constructor(
+    private val isExpandable: Boolean,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val TAG = ResponseGroupAdapter::class.java.simpleName
+        private val TAG = ResponseGroupChildrenAdapter::class.java.simpleName
 
         private const val DEFAULT_EMPTY_SIZE = 1
         private const val DEFAULT_SIZE_THRESHOLD = 2
     }
 
     private object Layout {
+        val EMPTY_RESPONSE_GROUP = R.layout.cell_empty_response_group
         val RESPONSE_GROUP_CHILD = R.layout.cell_response_group_child
+        val SHOW_ALL_RESPONSE_GROUP_CHILDREN = R.layout.cell_show_all_response_group_children
     }
 
     object ViewType {
         const val EMPTY = 99
-        const val HORIZONTAL_BUTTON = 100
-        const val FOOTER = 101
+        const val CHILD = 100
+        const val SHOW_ALL = 101
     }
 
     var responseGroup: ResponseGroup? = null
@@ -90,24 +90,16 @@ internal class ResponseGroupAdapter constructor(
         if (itemCount == DEFAULT_EMPTY_SIZE) return ViewType.EMPTY
         return if (isExpandable) {
             if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
-                ViewType.HORIZONTAL_BUTTON
+                ViewType.CHILD
             } else {
                 if (position == itemCount - 1) {
-                    ViewType.FOOTER
+                    ViewType.SHOW_ALL
                 } else {
-                    ViewType.HORIZONTAL_BUTTON
+                    ViewType.CHILD
                 }
             }
         } else {
-            if (isSeparateFooterEnabled) {
-                if (position == itemCount - 1) {
-                    ViewType.FOOTER
-                } else {
-                    ViewType.HORIZONTAL_BUTTON
-                }
-            } else {
-                ViewType.HORIZONTAL_BUTTON
-            }
+            ViewType.CHILD
         }
     }
 
@@ -120,7 +112,7 @@ internal class ResponseGroupAdapter constructor(
             return DEFAULT_EMPTY_SIZE
         }
 
-        if (isExpandable) {
+        return if (isExpandable) {
             var itemCount = size
 
             if (size < 0) {
@@ -136,25 +128,20 @@ internal class ResponseGroupAdapter constructor(
                 itemCount += 1
             }
 
-            return itemCount
+            itemCount
         } else {
-            return if (isSeparateFooterEnabled) {
-                isFooterEnabled = true
-                actualSize + 1
-            } else {
-                actualSize
-            }
+            actualSize
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewType.EMPTY ->
-                EmptyViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
-            ViewType.HORIZONTAL_BUTTON ->
+                EmptyViewHolder(parent.inflate(Layout.EMPTY_RESPONSE_GROUP))
+            ViewType.CHILD ->
                 ViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
-            ViewType.FOOTER ->
-                FooterViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
+            ViewType.SHOW_ALL ->
+                ShowAllViewHolder(parent.inflate(Layout.SHOW_ALL_RESPONSE_GROUP_CHILDREN))
             else ->
                 throw ViewHolderViewTypeException(viewType)
         }
@@ -169,21 +156,12 @@ internal class ResponseGroupAdapter constructor(
                     holder.bind(item)
                 }
             }
-            is FooterViewHolder -> holder.bind()
+            is ShowAllViewHolder -> holder.bind()
         }
     }
 
     private inner class EmptyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
-        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
-
         fun bind() {
-            iconView.visibility = View.GONE
-
-            textView.text = "Empty"
-
-            arrowView.visibility = View.GONE
         }
     }
 
@@ -235,57 +213,28 @@ internal class ResponseGroupAdapter constructor(
         }
     }
 
-    private inner class FooterViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
-        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
+    private inner class ShowAllViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
 
         fun bind() {
-            iconView?.setImageDrawable(null)
-            iconView?.visibility = View.GONE
-
-            textView?.removeCompoundDrawables()
-
-            if (isExpandable) {
-                textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_grayish_blue))
-
-                if (isCollapsed()) {
-                    textView?.setText(R.string.kenes_show_all)
-
-                    itemView.visibility = View.VISIBLE
-                } else {
-                    textView?.setText(R.string.kenes_hide)
-
-                    itemView.visibility = View.VISIBLE
-                }
+            if (isCollapsed()) {
+                imageView.setImageDrawable(
+                    AppCompatResources.getDrawable(
+                        itemView.context,
+                        R.drawable.ic_arrow_down
+                    )
+                )
             } else {
-                if (isSeparateFooterEnabled) {
-                    textView?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
-                    textView?.setText(R.string.kenes_back)
-
-                    itemView.visibility = View.VISIBLE
-                } else {
-                    textView?.text = null
-
-                    itemView.visibility = View.GONE
-                }
+                imageView.setImageDrawable(
+                    AppCompatResources.getDrawable(
+                        itemView.context,
+                        R.drawable.ic_arrow_up
+                    )
+                )
             }
 
-            arrowView?.setImageDrawable(null)
-            arrowView?.visibility = View.GONE
-
-            if (isSeparateFooterEnabled) {
-                itemView.setOnClickListener {
-                    val responseGroup = responseGroup
-                    if (responseGroup != null) {
-                        callback.onGoBackButtonClicked(responseGroup)
-                    }
-                }
-            } else {
-                itemView.setOnClickListener { toggle() }
-            }
+            itemView.setOnClickListener { toggle() }
         }
-
     }
 
     interface Callback {

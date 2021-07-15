@@ -93,6 +93,5 @@
 
     <string name="kenes_fill_fields">Пожалуйста, заполните следующие поля: %s</string>
 
-    <string name="kenes_show_all">Показать все</string>
-    <string name="kenes_hide">Скрыть</string>
+    <string name="no_available_response_group_children">Данных пока нет</string>
 </resources>

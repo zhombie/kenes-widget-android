@@ -93,6 +93,5 @@
 
     <string name="kenes_fill_fields">Өтініш, көрсетілген өрістерді толтырып шығыңыз: %s</string>
 
-    <string name="kenes_show_all">Тағы</string>
-    <string name="kenes_hide">Жабу</string>
+    <string name="no_available_response_group_children">Әзірге деректер жоқ</string>
 </resources>

@@ -11,13 +11,13 @@ import android.widget.LinearLayout
 import androidx.annotation.*
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.textview.showCompoundDrawableOnTop
 import q19.kenes.widget.util.DebouncedOnClickListener
 import q19.kenes.widget.util.Logger
 import q19.kenes.widget.util.getCompoundDrawableOnTop
+import q19.kenes.widget.util.withTint
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
@@ -217,13 +217,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
     private fun AppCompatButton?.setTint(@ColorRes colorResId: Int): Boolean {
         if (this == null) return false
 
-        val compoundDrawable = getCompoundDrawableOnTop()
         val color = ContextCompat.getColor(context, colorResId)
 
-        if (compoundDrawable != null) {
-            val drawableWrap = DrawableCompat.wrap(compoundDrawable).mutate()
-            DrawableCompat.setTint(drawableWrap, color)
-        }
+        getCompoundDrawableOnTop()?.withTint(color)
 
         setTextColor(color)
 
