@@ -10,10 +10,12 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Response
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.MessageInputView
+import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView, ChatBotFragmentDelegate {
+internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView,
+    HomeFragmentDelegate {
 
     companion object {
         private val TAG = ChatBotFragment::class.java.simpleName
@@ -54,8 +56,10 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     override fun onDestroy() {
-        presenter?.detachView()
         super.onDestroy()
+
+        presenter?.detachView()
+        presenter = null
     }
 
     private fun setupRecyclerView() {
@@ -92,7 +96,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     /**
-     * [ChatBotFragmentDelegate] implementation
+     * [HomeFragmentDelegate] implementation
      */
 
     override fun onScreenRenavigate() {

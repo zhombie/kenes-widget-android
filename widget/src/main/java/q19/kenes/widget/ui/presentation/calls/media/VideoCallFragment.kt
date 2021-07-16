@@ -46,8 +46,10 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
     }
 
     override fun onDestroy() {
-        presenter?.detachView()
         super.onDestroy()
+
+        presenter?.detachView()
+        presenter = null
     }
 
 }

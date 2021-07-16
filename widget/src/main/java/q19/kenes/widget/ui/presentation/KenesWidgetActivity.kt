@@ -18,7 +18,6 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.calls.CallsFragment
 import q19.kenes.widget.ui.presentation.home.ChatBotFragment
-import q19.kenes.widget.ui.presentation.home.ChatBotFragmentDelegate
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
@@ -50,6 +49,9 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         const val USER = "user"
     }
 
+    // (MVP) Presenter
+    private var presenter: KenesWidgetPresenter? = null
+
     // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
     private val toolbar by bind<LinearLayout>(R.id.toolbar)
@@ -58,9 +60,6 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
     private val subtitleView by bind<AppCompatTextView>(R.id.subtitleView)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
-
-    // (MVP) Presenter
-    private var presenter: KenesWidgetPresenter? = null
 
     // BottomNavigationView + ViewPager2 adapter
     private var viewPagerAdapter: ViewPagerAdapter? = null
@@ -108,8 +107,11 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
     }
 
     override fun onDestroy() {
-        presenter?.detachView()
         super.onDestroy()
+
+        presenter?.detachView()
+        presenter = null
+
         injection.destroy()
     }
 
@@ -135,13 +137,8 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
                 val fragment = viewPagerAdapter?.getFragment(viewPager.currentItem)
                 Logger.debug(TAG, "onBottomNavigationButtonReselected() -> $fragment")
-
-                when (navigationButton) {
-                    BottomNavigationView.NavigationButton.HOME -> {
-                        if (fragment is ChatBotFragmentDelegate) {
-                            fragment.onScreenRenavigate()
-                        }
-                    }
+                if (fragment is HomeFragmentDelegate) {
+                    fragment.onScreenRenavigate()
                 }
             }
         }

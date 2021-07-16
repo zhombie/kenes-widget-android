@@ -5,11 +5,14 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes.widget.core.logging.Logger
+import q19.kenes.widget.core.permission.PermissionManager
+import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.calls.media.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView, CallsAdapter.Callback {
+internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
+    HomeFragmentDelegate, CallsAdapter.Callback {
 
     companion object {
         private val TAG = CallsFragment::class.java.simpleName
@@ -21,10 +24,16 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
         }
     }
 
-    private var recyclerView: RecyclerView? = null
-
+    // (MVP) Presenter
     private var presenter: CallsPresenter? = null
 
+    // Android permissions manager
+    private var permissionManager: PermissionManager? = null
+
+    // UI Views
+    private var recyclerView: RecyclerView? = null
+
+    // RecyclerView adapter
     private var callsAdapter: CallsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +41,8 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
 
         presenter = context.injection?.provideCallsPresenter()
         presenter?.attachView(this)
+
+        permissionManager = PermissionManager(requireActivity())
     }
 
     override fun onResume() {
@@ -48,8 +59,12 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     }
 
     override fun onDestroy() {
-        presenter?.detachView()
         super.onDestroy()
+
+        permissionManager?.removeAllListeners()
+        permissionManager = null
+
+        presenter?.detachView()
     }
 
     private fun setupRecyclerView() {
@@ -59,11 +74,22 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     }
 
     /**
+     * [HomeFragmentDelegate] implementation
+     */
+
+    override fun onScreenRenavigate() {
+    }
+
+    /**
      * [CallsAdapter.Callback] implementation
      */
 
     override fun onCallClicked(call: Call) {
-        presenter?.onCallClicked(call)
+        permissionManager?.checkPermission(PermissionManager.Permission.VIDEO_CALL) {
+            if (it) {
+                presenter?.onCallClicked(call)
+            }
+        }
     }
 
     /**
