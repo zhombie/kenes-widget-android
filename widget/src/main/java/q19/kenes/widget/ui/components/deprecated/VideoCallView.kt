@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.components
+package q19.kenes.widget.ui.components.deprecated
 
 import android.content.Context
 import android.util.AttributeSet
@@ -11,22 +11,24 @@ import androidx.appcompat.widget.AppCompatButton
 import q19.kenes_widget.R
 
 @Deprecated("Use [OperatorCallView]")
-internal class AudioCallView @JvmOverloads constructor(
+internal class VideoCallView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
     @StyleRes defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val audioCallButton: AppCompatButton
-    private val audioCallInfoView: TextView
+    private val videoCallButton: AppCompatButton
+    private val cancelCallButton: AppCompatButton
+    private val videoCallInfoView: TextView
     private val queueCountView: TextView
 
     init {
-        val view = inflate(context, R.layout.kenes_view_audio_call, this)
+        val view = inflate(context, R.layout.kenes_view_video_call, this)
 
-        audioCallButton = view.findViewById(R.id.audioCallButton)
-        audioCallInfoView = view.findViewById(R.id.audioCallInfoView)
+        videoCallButton = view.findViewById(R.id.videoCallButton)
+        cancelCallButton = view.findViewById(R.id.cancelCallButton)
+        videoCallInfoView = view.findViewById(R.id.videoCallInfoView)
         queueCountView = view.findViewById(R.id.queueCountView)
     }
 
@@ -39,22 +41,34 @@ internal class AudioCallView @JvmOverloads constructor(
     }
 
     private fun setCallButtonEnabled(isEnabled: Boolean) {
-        if (audioCallButton.isEnabled == isEnabled) return
-        audioCallButton.isEnabled = isEnabled
+        if (videoCallButton.isEnabled == isEnabled) return
+        videoCallButton.isEnabled = isEnabled
+    }
+
+    fun showCancelCallButton() {
+        setCancelCallButtonVisibility(true)
+    }
+
+    fun hideCancelCallButton() {
+        setCancelCallButtonVisibility(false)
+    }
+
+    private fun setCancelCallButtonVisibility(isVisible: Boolean) {
+        cancelCallButton.visibility = if (isVisible) View.VISIBLE else View.INVISIBLE
     }
 
     fun setInfoViewText(text: String?) {
-        audioCallInfoView.text = text
+        videoCallInfoView.text = text
     }
 
     fun showInfoViewText() {
-        if (audioCallInfoView.visibility == View.VISIBLE) return
-        audioCallInfoView.visibility = View.VISIBLE
+        if (videoCallInfoView.visibility == View.VISIBLE) return
+        videoCallInfoView.visibility = View.VISIBLE
     }
 
     fun hideInfoViewText() {
-        if (audioCallInfoView.visibility == View.GONE) return
-        audioCallInfoView.visibility = View.GONE
+        if (videoCallInfoView.visibility == View.GONE) return
+        videoCallInfoView.visibility = View.GONE
     }
 
     fun setPendingQueueCountViewText(text: String?) {
@@ -72,7 +86,11 @@ internal class AudioCallView @JvmOverloads constructor(
     }
 
     fun setOnCallClickListener(callback: () -> Unit) {
-        audioCallButton.setOnClickListener { callback() }
+        videoCallButton.setOnClickListener { callback() }
+    }
+
+    fun setOnCancelCallClickListener(callback: () -> Unit) {
+        cancelCallButton.setOnClickListener { callback() }
     }
 
 }

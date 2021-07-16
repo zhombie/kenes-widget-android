@@ -3,8 +3,11 @@ package q19.kenes.widget.ui.presentation.home
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.button.MaterialButton
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Response
@@ -27,12 +30,22 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         }
     }
 
-    private var recyclerView: RecyclerView? = null
-    private var messageInputView: MessageInputView? = null
-
+    // (MVP) Presenter
     private var presenter: ChatBotPresenter? = null
 
+    // UI Views
+    private var recyclerView: RecyclerView? = null
+    private var messageInputView: MessageInputView? = null
+    private var chatView: LinearLayout? = null
+    private var peekView: LinearLayout? = null
+    private var toggleButton: MaterialButton? = null
+    private var closeButton: MaterialButton? = null
+
+    // RecyclerView adapter
     private var adapter: ResponseGroupsAdapter? = null
+
+    // CoordinatorLayout + BottomSheet
+    private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +64,13 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
         recyclerView = view.findViewById(R.id.recyclerView)
         messageInputView = view.findViewById(R.id.messageInputView)
+        chatView = view.findViewById(R.id.chatView)
+        peekView = view.findViewById(R.id.peekView)
+        toggleButton = view.findViewById(R.id.toggleButton)
+        closeButton = view.findViewById(R.id.closeButton)
 
         setupRecyclerView()
+        setupBottomSheet()
     }
 
     override fun onDestroy() {
@@ -80,6 +98,39 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         recyclerView?.adapter = adapter
     }
 
+    private fun setupBottomSheet() {
+        chatView?.let {
+            bottomSheetBehavior = BottomSheetBehavior.from(it)
+
+            bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    Logger.debug(TAG, "onStateChanged() -> $slideOffset")
+
+                    val alpha = 1F - slideOffset
+                    peekView?.alpha = alpha
+                    if (alpha == 0F) {
+                        peekView?.visibility = View.INVISIBLE
+                    } else {
+                        peekView?.visibility = View.VISIBLE
+                    }
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    Logger.debug(TAG, "onStateChanged() -> $newState")
+                }
+            })
+        }
+
+        toggleButton?.setOnClickListener {
+            if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_COLLAPSED) {
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        closeButton?.setOnClickListener {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
 
     /**
      * [ChatBotView] implementation

@@ -41,6 +41,11 @@ import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.components.*
+import q19.kenes.widget.ui.components.deprecated.*
+import q19.kenes.widget.ui.components.deprecated.AudioDialogView
+import q19.kenes.widget.ui.components.deprecated.DynamicFormView
+import q19.kenes.widget.ui.components.deprecated.FeedbackView
+import q19.kenes.widget.ui.components.deprecated.OperatorCallPendingView
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapter
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapterItemDecoration
 import q19.kenes.widget.ui.presentation.adapter.ChatFooterAdapter

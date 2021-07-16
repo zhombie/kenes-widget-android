@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.components
+package q19.kenes.widget.ui.components.deprecated
 
 import android.content.Context
 import android.util.AttributeSet

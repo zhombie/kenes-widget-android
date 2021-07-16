@@ -7,12 +7,12 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/imageView"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/iconView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_sad" />
+        android:text="😞"
+        android:textSize="24sp" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/textView"

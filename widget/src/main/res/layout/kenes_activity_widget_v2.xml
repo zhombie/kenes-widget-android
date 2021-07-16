@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <q19.kenes.widget.ui.components.HeaderView
+        <q19.kenes.widget.ui.components.deprecated.HeaderView
             android:id="@+id/headerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -30,21 +30,21 @@
             tools:itemCount="5"
             tools:listitem="@layout/kenes_cell_outgoing_message" />
 
-        <q19.kenes.widget.ui.components.CallTypeView
+        <q19.kenes.widget.ui.components.deprecated.CallTypeView
             android:id="@+id/operatorCallView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes.widget.ui.components.InfoView
+        <q19.kenes.widget.ui.components.deprecated.InfoView
             android:id="@+id/infoView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes.widget.ui.components.FeedbackView
+        <q19.kenes.widget.ui.components.deprecated.FeedbackView
             android:id="@+id/feedbackView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -65,21 +65,21 @@
         <!--            android:layout_weight="1"-->
         <!--            android:visibility="gone" />-->
 
-        <q19.kenes.widget.ui.components.ServicesView
+        <q19.kenes.widget.ui.components.deprecated.ServicesView
             android:id="@+id/servicesView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes.widget.ui.components.FormView
+        <q19.kenes.widget.ui.components.deprecated.FormView
             android:id="@+id/formView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes.widget.ui.components.DynamicFormView
+        <q19.kenes.widget.ui.components.deprecated.DynamicFormView
             android:id="@+id/dynamicFormView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -91,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <q19.kenes.widget.ui.components.KeyboardView
+        <q19.kenes.widget.ui.components.deprecated.KeyboardView
             android:id="@+id/keyboardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -105,19 +105,19 @@
 
     </LinearLayout>
 
-    <q19.kenes.widget.ui.components.VideoDialogView
+    <q19.kenes.widget.ui.components.deprecated.VideoDialogView
         android:id="@+id/videoDialogView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <q19.kenes.widget.ui.components.AudioDialogView
+    <q19.kenes.widget.ui.components.deprecated.AudioDialogView
         android:id="@+id/audioDialogView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <q19.kenes.widget.ui.components.OperatorCallPendingView
+    <q19.kenes.widget.ui.components.deprecated.OperatorCallPendingView
         android:id="@+id/operatorCallPendingView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F2F9F9F9"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/closeButton"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/kenes_transparent"
+            android:layout_gravity="right"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="@null"
+            app:icon="@drawable/ic_cancel"
+            app:iconGravity="textStart"
+            app:iconPadding="5dp"
+            app:iconSize="30dp"
+            app:iconTint="@color/kenes_gray" />
+
+        <LinearLayout
+            android:id="@+id/peekView"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="#3b4859"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <View
+                android:id="@+id/swipeableView"
+                android:layout_width="35dp"
+                android:layout_height="3dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/ic_swipeable" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toggleButton"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="3dp"
+                android:backgroundTint="@color/kenes_white"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.01"
+                android:text="Написать свой вопрос"
+                android:textAllCaps="false"
+                android:textColor="@color/kenes_dark_charcoal"
+                android:textSize="15sp"
+                app:cornerRadius="5dp" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                android:text="👋 Привет! Не можешь найти ответ?"
+                android:textColor="@color/kenes_white"
+                android:textSize="11sp" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="20dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="2"
+        tools:listitem="@layout/cell_incoming_text_message" />
+
+    <q19.kenes.widget.ui.components.MessageInputView
+        android:id="@+id/messageInputView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/kenes_white"
+        android:elevation="5dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="7dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="7dp" />
+
+</LinearLayout>
