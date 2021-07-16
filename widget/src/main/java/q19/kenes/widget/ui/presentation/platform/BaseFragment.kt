@@ -27,14 +27,10 @@ internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : 
 
     protected var menu: Menu? = null
 
-    protected var toast: Toast? = null
-
     override fun onDestroy() {
-        menu = null
-
-        toast?.cancel()
-        toast = null
         super.onDestroy()
+
+        menu = null
     }
 
     fun getCurrentLocale(): Locale? {
@@ -62,10 +58,7 @@ internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : 
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             val context = context ?: return
             if (duration == Toast.LENGTH_SHORT || duration == Toast.LENGTH_LONG) {
-                toast?.cancel()
-                toast = null
-                toast = Toast.makeText(context, text, duration)
-                toast?.show()
+                Toast.makeText(context, text, duration).show()
             }
         }
     }
@@ -74,10 +67,7 @@ internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : 
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             val context = context ?: return
             if (duration == Toast.LENGTH_SHORT || duration == Toast.LENGTH_LONG) {
-                toast?.cancel()
-                toast = null
-                toast = Toast.makeText(context, resId, duration)
-                toast?.show()
+                Toast.makeText(context, resId, duration).show()
             }
         }
     }

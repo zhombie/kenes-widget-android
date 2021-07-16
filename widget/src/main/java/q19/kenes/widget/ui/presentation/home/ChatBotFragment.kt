@@ -3,13 +3,13 @@ package q19.kenes.widget.ui.presentation.home
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.appcompat.widget.AppCompatEditText
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Response
 import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
@@ -26,7 +26,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     private var recyclerView: RecyclerView? = null
-    private var editText: AppCompatEditText? = null
+    private var messageInputView: MessageInputView? = null
 
     private var presenter: ChatBotPresenter? = null
 
@@ -48,9 +48,14 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recyclerView)
-        editText = view.findViewById(R.id.editText)
+        messageInputView = view.findViewById(R.id.messageInputView)
 
         setupRecyclerView()
+    }
+
+    override fun onDestroy() {
+        presenter?.detachView()
+        super.onDestroy()
     }
 
     private fun setupRecyclerView() {

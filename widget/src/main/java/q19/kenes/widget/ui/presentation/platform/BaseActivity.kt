@@ -27,7 +27,6 @@ internal open class BaseActivity : AppCompatActivity() {
     internal val injection: Injection
         get() = Injection.getInstance(this)
     
-    protected var toast: Toast? = null
     protected var alertDialog: androidx.appcompat.app.AlertDialog? = null
 
     private var localeManagerAppCompatDelegate: LocaleManagerAppCompatDelegate? = null
@@ -59,9 +58,6 @@ internal open class BaseActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        toast?.cancel()
-        toast = null
-
         alertDialog?.dismiss()
         alertDialog = null
 
@@ -85,10 +81,7 @@ internal open class BaseActivity : AppCompatActivity() {
     fun toast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             if (duration == Toast.LENGTH_SHORT || duration == Toast.LENGTH_LONG) {
-                toast?.cancel()
-                toast = null
-                toast = Toast.makeText(this, text, duration)
-                toast?.show()
+                Toast.makeText(this, text, duration).show()
             }
         }
     }
@@ -96,10 +89,7 @@ internal open class BaseActivity : AppCompatActivity() {
     fun toast(@StringRes resId: Int, duration: Int = Toast.LENGTH_SHORT) {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
             if (duration == Toast.LENGTH_SHORT || duration == Toast.LENGTH_LONG) {
-                toast?.cancel()
-                toast = null
-                toast = Toast.makeText(this, resId, duration)
-                toast?.show()
+                Toast.makeText(this, resId, duration).show()
             }
         }
     }

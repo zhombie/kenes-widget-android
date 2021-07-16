@@ -47,6 +47,11 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
         setupRecyclerView()
     }
 
+    override fun onDestroy() {
+        presenter?.detachView()
+        super.onDestroy()
+    }
+
     private fun setupRecyclerView() {
         callsAdapter = CallsAdapter(this)
         recyclerView?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
