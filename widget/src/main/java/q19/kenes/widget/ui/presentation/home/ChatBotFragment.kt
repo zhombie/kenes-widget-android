@@ -58,6 +58,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         activity?.onBackPressedDispatcher?.addCallback {
             if (presenter?.onGoBackButtonClicked() == true) {
                 isEnabled = false
+                activity?.onBackPressed()
             }
         }
     }

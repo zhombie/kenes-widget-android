@@ -117,6 +117,10 @@ internal class ChatBotPresenter constructor(
     fun onGoBackButtonClicked(): Boolean {
         Logger.debug(TAG, "onGoBackButtonClicked()")
 
+        if (chatBot.activeResponseGroup == null && chatBot.activeResponseGroupChild == null) {
+            return true
+        }
+
         return when {
             chatBot.activeResponseGroupChild != null -> {
                 if (chatBot.activeResponseGroup == null) {

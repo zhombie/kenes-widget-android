@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.utils.html.HTMLCompat
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.ResponseGroup
@@ -17,6 +18,7 @@ import q19.kenes_widget.R
 
 internal class ResponseGroupChildrenAdapter constructor(
     private val isExpandable: Boolean,
+    size: Int = DEFAULT_SIZE_THRESHOLD,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -47,7 +49,7 @@ internal class ResponseGroupChildrenAdapter constructor(
             notifyDataSetChanged()
         }
 
-    private var size: Int = DEFAULT_SIZE_THRESHOLD
+    private var size: Int = size
         set(value) {
             if (isExpandable) {
                 field = value
@@ -266,7 +268,11 @@ internal class ResponseGroupChildrenAdapter constructor(
         private val textView = view.findViewById<MaterialTextView>(R.id.textView)
 
         fun bind(responseInfo: ResponseInfo) {
-            textView.text = responseInfo.text
+            if (responseInfo.text.isNullOrBlank()) {
+                textView.text = null
+            } else {
+                textView.text = HTMLCompat.fromHtml(responseInfo.text)
+            }
         }
     }
 
