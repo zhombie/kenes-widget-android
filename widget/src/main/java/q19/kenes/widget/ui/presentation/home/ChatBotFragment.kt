@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.addCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -53,6 +54,12 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
         presenter = ChatBotPresenter(Database.getInstance(requireContext()))
         presenter?.attachView(this)
+
+        activity?.onBackPressedDispatcher?.addCallback {
+            if (presenter?.onGoBackButtonClicked() == true) {
+                isEnabled = false
+            }
+        }
     }
 
     override fun onResume() {

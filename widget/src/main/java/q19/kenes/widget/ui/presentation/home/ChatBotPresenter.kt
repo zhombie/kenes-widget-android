@@ -92,16 +92,19 @@ internal class ChatBotPresenter constructor(
         chatBot.activeResponseGroupChild = child
 
         val params = RequestParams(
-            "response_id", child.responses.first()
+            "response_id", child.responses.first().id
         )
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response"), params, ResponseInfoResponseHandler(
-            onSuccess = { response ->
-                Logger.debug(TAG, "onResponseClicked() -> " +
+            responseId = child.responses.first().id,
+            onSuccess = { responseInfo ->
+                Logger.debug(TAG, "onResponseGroupChildClicked() -> " +
                     "child: $child, " +
-                    "response: $response")
+                    "responseInfo: $responseInfo")
 
-                getView().showResponseInfo(response)
+                chatBot.activeResponseGroupChild = child.copy(responses = listOf(responseInfo))
+
+                getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroupChild))
             },
             onFailure = {
             }
@@ -110,6 +113,26 @@ internal class ChatBotPresenter constructor(
 
     fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
 
+    }
+
+    fun onGoBackButtonClicked(): Boolean {
+        Logger.debug(TAG, "onGoBackButtonClicked()")
+
+        return when {
+            chatBot.activeResponseGroupChild != null -> {
+                chatBot.activeResponseGroupChild = null
+                getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroup))
+                false
+            }
+            chatBot.activeResponseGroup != null -> {
+                chatBot.activeResponseGroupChild = null
+                loadResponseGroups()
+                false
+            }
+            else -> {
+                true
+            }
+        }
     }
 
     fun onResetDataRequested() {

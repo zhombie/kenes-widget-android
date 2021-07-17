@@ -95,6 +95,8 @@ internal class ResponseGroupsAdapter constructor(
                 }
                 is ResponseGroup.Child -> {
                     titleView.text = nestable.title
+
+                    adapter.children = nestable.responses
                 }
                 else -> {
                     titleView.text = null

@@ -23,20 +23,22 @@ internal class ResponseGroupChildrenAdapter constructor(
     companion object {
         private val TAG = ResponseGroupChildrenAdapter::class.java.simpleName
 
-        private const val DEFAULT_EMPTY_SIZE = 1
+        private const val DEFAULT_EMPTY_SIZE = 0
         private const val DEFAULT_SIZE_THRESHOLD = 2
     }
 
     private object Layout {
         val EMPTY_RESPONSE_GROUP = R.layout.cell_empty_response_group
         val RESPONSE_GROUP_CHILD = R.layout.cell_response_group_child
+        val RESPONSE_INFO = R.layout.cell_response_info
         val SHOW_ALL_RESPONSE_GROUP_CHILDREN = R.layout.cell_show_all_response_group_children
     }
 
     private object ViewType {
         const val EMPTY = 99
         const val CHILD = 100
-        const val SHOW_ALL = 101
+        const val RESPONSE_INFO = 101
+        const val SHOW_ALL = 102
     }
 
     var children: List<Element>? = null
@@ -105,21 +107,30 @@ internal class ResponseGroupChildrenAdapter constructor(
                         ViewType.CHILD
                     }
                 }
+                is ResponseInfo -> {
+                    ViewType.RESPONSE_INFO
+                }
                 else -> ViewType.EMPTY
             }
         }
-        return if (isExpandable) {
-            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
-                ViewType.CHILD
-            } else {
-                if (position == itemCount - 1) {
-                    ViewType.SHOW_ALL
-                } else {
-                    ViewType.CHILD
-                }
-            }
+
+        val item = getItem(position)
+        return if (item is ResponseInfo) {
+            ViewType.RESPONSE_INFO
         } else {
-            ViewType.CHILD
+            if (isExpandable) {
+                if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
+                    ViewType.CHILD
+                } else {
+                    if (position == itemCount - 1) {
+                        ViewType.SHOW_ALL
+                    } else {
+                        ViewType.CHILD
+                    }
+                }
+            } else {
+                ViewType.CHILD
+            }
         }
     }
 
@@ -159,7 +170,9 @@ internal class ResponseGroupChildrenAdapter constructor(
             ViewType.EMPTY ->
                 EmptyViewHolder(parent.inflate(Layout.EMPTY_RESPONSE_GROUP))
             ViewType.CHILD ->
-                ViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
+                ChildViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
+            ViewType.RESPONSE_INFO ->
+                ResponseInfoViewHolder(parent.inflate(Layout.RESPONSE_INFO))
             ViewType.SHOW_ALL ->
                 ShowAllViewHolder(parent.inflate(Layout.SHOW_ALL_RESPONSE_GROUP_CHILDREN))
             else ->
@@ -170,9 +183,15 @@ internal class ResponseGroupChildrenAdapter constructor(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is EmptyViewHolder -> holder.bind()
-            is ViewHolder -> {
+            is ChildViewHolder -> {
                 val item = getItem(position)
                 if (item != null) {
+                    holder.bind(item)
+                }
+            }
+            is ResponseInfoViewHolder -> {
+                val item = getItem(position)
+                if (item is ResponseInfo) {
                     holder.bind(item)
                 }
             }
@@ -185,7 +204,7 @@ internal class ResponseGroupChildrenAdapter constructor(
         }
     }
 
-    private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    private inner class ChildViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
@@ -218,9 +237,6 @@ internal class ResponseGroupChildrenAdapter constructor(
                         callback.onResponseGroupChildClicked(element)
                     }
                 }
-                is ResponseInfo -> {
-                    textView?.text = element.text
-                }
                 else -> {
                     iconView?.setImageDrawable(null)
                     iconView?.visibility = View.GONE
@@ -233,6 +249,14 @@ internal class ResponseGroupChildrenAdapter constructor(
                     itemView.setOnClickListener(null)
                 }
             }
+        }
+    }
+
+    private inner class ResponseInfoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val textView = view.findViewById<MaterialTextView>(R.id.textView)
+
+        fun bind(responseInfo: ResponseInfo) {
+            textView.text = responseInfo.text
         }
     }
 

@@ -27,7 +27,7 @@ data class ResponseGroup constructor(
     override val title: String,
     override val language: Language,
     val children: List<Nestable>
-) : Nestable(id, title, language), Parcelable {
+) : Nestable(id = id, title = title, language = language), Parcelable {
 
     @Keep
     @Parcelize
@@ -35,8 +35,8 @@ data class ResponseGroup constructor(
         override val id: Long,
         override val title: String,
         override val language: Language,
-        val responses: List<Long>  // Collection of response ids
-    ) : Nestable(id, title, language), Parcelable
+        val responses: List<ResponseInfo>  // Collection of response ids
+    ) : Nestable(id = id, title = title, language = language), Parcelable
 
 }
 
@@ -44,9 +44,10 @@ data class ResponseGroup constructor(
 @Parcelize
 @Keep
 data class ResponseInfo constructor(
-    val id: String,
-    val text: String,
-    val time: Long,
+    val id: Long,
+    val messageId: String? = null,
+    val text: String? = null,
+    val time: Long = -1L,
     val attachments: List<Media> = emptyList(),
     val form: Form? = null
 ) : Element(), Parcelable {
