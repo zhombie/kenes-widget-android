@@ -10,6 +10,7 @@ import kz.q19.socket.model.Category
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
+import q19.kenes.widget.data.remote.http.ResponseGroupChildrenResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
 import q19.kenes.widget.domain.model.ResponseGroup
@@ -68,12 +69,15 @@ internal class ChatBotPresenter constructor(
             "nested", false
         )
 
-        asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupsResponseHandler(
-            onSuccess = { responseGroups ->
+        asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupChildrenResponseHandler(
+            onSuccess = { children ->
                 Logger.debug(TAG, "onResponseGroupClicked() -> " +
                     "responseGroup: $responseGroup, " +
-                    "responseGroups: $responseGroups")
-                getView().showResponseGroups(responseGroups)
+                    "children: $children")
+
+                chatBot.activeResponseGroup = responseGroup.copy(children = children)
+
+                getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroup))
             },
             onFailure = {
             }
@@ -81,10 +85,14 @@ internal class ChatBotPresenter constructor(
     }
 
     fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
+        Logger.debug(TAG, "onResponseGroupChildClicked() -> $child")
+
+        if (child.responses.isEmpty()) return
+
         chatBot.activeResponseGroupChild = child
 
         val params = RequestParams(
-            "response_id", child.id
+            "response_id", child.responses.first()
         )
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response"), params, ResponseInfoResponseHandler(
@@ -92,7 +100,8 @@ internal class ChatBotPresenter constructor(
                 Logger.debug(TAG, "onResponseClicked() -> " +
                     "child: $child, " +
                     "response: $response")
-                getView().showResponse(response)
+
+                getView().showResponseInfo(response)
             },
             onFailure = {
             }

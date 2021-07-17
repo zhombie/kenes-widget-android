@@ -4,14 +4,20 @@ import android.os.Parcelable
 import androidx.annotation.Keep
 import kotlinx.parcelize.Parcelize
 import kz.q19.domain.model.language.Language
+import kz.q19.domain.model.media.Media
 
 @Keep
 @Parcelize
-open class AnyResponse constructor(
+open class Element : Parcelable
+
+
+@Keep
+@Parcelize
+open class Nestable constructor(
     open val id: Long,
     open val title: String,
     open val language: Language
-) : Parcelable
+) : Element(), Parcelable
 
 
 @Keep
@@ -20,8 +26,8 @@ data class ResponseGroup constructor(
     override val id: Long,
     override val title: String,
     override val language: Language,
-    val children: MutableList<AnyResponse>
-) : AnyResponse(id, title, language), Parcelable {
+    val children: List<Nestable>
+) : Nestable(id, title, language), Parcelable {
 
     @Keep
     @Parcelize
@@ -30,6 +36,27 @@ data class ResponseGroup constructor(
         override val title: String,
         override val language: Language,
         val responses: List<Long>  // Collection of response ids
-    ) : AnyResponse(id, title, language), Parcelable
+    ) : Nestable(id, title, language), Parcelable
+
+}
+
+
+@Parcelize
+@Keep
+data class ResponseInfo constructor(
+    val id: String,
+    val text: String,
+    val time: Long,
+    val attachments: List<Media> = emptyList(),
+    val form: Form? = null
+) : Element(), Parcelable {
+
+    @Parcelize
+    @Keep
+    data class Form constructor(
+        val id: Long,
+        val title: String,
+        val prompt: String? = null
+    ) : Parcelable
 
 }

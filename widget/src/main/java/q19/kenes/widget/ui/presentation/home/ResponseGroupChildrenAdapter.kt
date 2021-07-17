@@ -6,10 +6,13 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.domain.model.AnyResponse
+import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.domain.model.ResponseInfo
 import q19.kenes_widget.R
 
 internal class ResponseGroupChildrenAdapter constructor(
@@ -36,7 +39,7 @@ internal class ResponseGroupChildrenAdapter constructor(
         const val SHOW_ALL = 101
     }
 
-    var responseGroup: ResponseGroup? = null
+    var children: List<Element>? = null
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -52,16 +55,16 @@ internal class ResponseGroupChildrenAdapter constructor(
 
     private var isFooterEnabled: Boolean = false
 
-    private fun getItem(position: Int): AnyResponse? {
-        return if (responseGroup?.children.isNullOrEmpty()) {
+    private fun getItem(position: Int): Element? {
+        return if (children.isNullOrEmpty()) {
             null
         } else {
-            responseGroup?.children?.get(position)
+            children?.get(position)
         }
     }
 
     private fun getActualSize(): Int {
-        return responseGroup?.children?.size ?: 0
+        return children?.size ?: 0
     }
 
     private fun isCollapsed(): Boolean {
@@ -136,7 +139,7 @@ internal class ResponseGroupChildrenAdapter constructor(
                 itemCount = DEFAULT_SIZE_THRESHOLD
             }
 
-            if (!responseGroup?.children.isNullOrEmpty() && size >= actualSize) {
+            if (!children.isNullOrEmpty() && size >= actualSize) {
                 itemCount = actualSize
             }
 
@@ -187,33 +190,36 @@ internal class ResponseGroupChildrenAdapter constructor(
         private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
         private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
 
-        fun bind(anyResponse: AnyResponse) {
-            when (anyResponse) {
+        fun bind(element: Element) {
+            when (element) {
                 is ResponseGroup -> {
                     iconView?.setImageResource(R.drawable.ic_folder)
                     iconView?.visibility = View.VISIBLE
 
-                    textView?.text = anyResponse.title
+                    textView?.text = element.title
 
                     arrowView?.setImageResource(R.drawable.ic_arrow_right)
                     arrowView?.visibility = View.VISIBLE
 
                     itemView.setOnClickListener {
-                        callback.onResponseGroupClicked(anyResponse)
+                        callback.onResponseGroupClicked(element)
                     }
                 }
                 is ResponseGroup.Child -> {
                     iconView?.setImageResource(R.drawable.ic_article)
                     iconView?.visibility = View.VISIBLE
 
-                    textView?.text = anyResponse.title
+                    textView?.text = element.title
 
-                    arrowView?.setImageResource(R.drawable.ic_arrow_right)
-                    arrowView?.visibility = View.VISIBLE
+                    arrowView?.setImageDrawable(null)
+                    arrowView?.visibility = View.GONE
 
                     itemView.setOnClickListener {
-                        callback.onResponseGroupChildClicked(anyResponse)
+                        callback.onResponseGroupChildClicked(element)
                     }
+                }
+                is ResponseInfo -> {
+                    textView?.text = element.text
                 }
                 else -> {
                     iconView?.setImageDrawable(null)
@@ -231,7 +237,8 @@ internal class ResponseGroupChildrenAdapter constructor(
     }
 
     private inner class ShowAllViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val textView = view.findViewById<MaterialTextView>(R.id.textView)
+        private val imageView = view.findViewById<ShapeableImageView>(R.id.imageView)
 
         fun bind() {
             if (isCollapsed()) {
@@ -241,6 +248,8 @@ internal class ResponseGroupChildrenAdapter constructor(
                         R.drawable.ic_arrow_down
                     )
                 )
+
+                textView.setText(R.string.show_all)
             } else {
                 imageView.setImageDrawable(
                     AppCompatResources.getDrawable(
@@ -248,6 +257,8 @@ internal class ResponseGroupChildrenAdapter constructor(
                         R.drawable.ic_arrow_up
                     )
                 )
+
+                textView.setText(R.string.collapse_list)
             }
 
             itemView.setOnClickListener { toggle() }

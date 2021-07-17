@@ -94,4 +94,7 @@
     <string name="kenes_fill_fields">Please, fill following fields: %s</string>
 
     <string name="no_available_response_group_children">There is no data yet</string>
+
+    <string name="show_all">Show all</string>
+    <string name="collapse_list">Collapse list</string>
 </resources>

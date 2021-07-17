@@ -94,4 +94,7 @@
     <string name="kenes_fill_fields">Пожалуйста, заполните следующие поля: %s</string>
 
     <string name="no_available_response_group_children">Данных пока нет</string>
+
+    <string name="show_all">Показать все</string>
+    <string name="collapse_list">Свернуть список</string>
 </resources>

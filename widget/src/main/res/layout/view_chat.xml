@@ -16,7 +16,7 @@
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="7dp"
             android:backgroundTint="@color/kenes_transparent"
             android:layout_gravity="right"
             android:minHeight="0dp"
@@ -25,14 +25,14 @@
             app:icon="@drawable/ic_cancel"
             app:iconGravity="textStart"
             app:iconPadding="5dp"
-            app:iconSize="30dp"
+            app:iconSize="28dp"
             app:iconTint="@color/kenes_gray" />
 
         <LinearLayout
             android:id="@+id/peekView"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:background="#3b4859"
+            android:background="#F23B4859"
             android:gravity="center"
             android:orientation="vertical">
 
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="4dp"
                 android:backgroundTint="@color/kenes_white"
                 android:fontFamily="sans-serif-medium"
                 android:letterSpacing="0.01"
