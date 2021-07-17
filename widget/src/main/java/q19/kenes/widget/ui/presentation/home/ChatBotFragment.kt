@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,16 +33,18 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         }
     }
 
+
     // (MVP) Presenter
     private var presenter: ChatBotPresenter? = null
 
     // UI Views
-    private var recyclerView: RecyclerView? = null
-    private var messageInputView: MessageInputView? = null
+    private var responsesView: RecyclerView? = null
     private var chatView: LinearLayout? = null
     private var peekView: LinearLayout? = null
     private var toggleButton: MaterialButton? = null
     private var closeButton: MaterialButton? = null
+    private var messagesView: RecyclerView? = null
+    private var messageInputView: MessageInputView? = null
 
     // RecyclerView adapter
     private var adapter: ResponseGroupsAdapter? = null
@@ -49,13 +52,15 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     // CoordinatorLayout + BottomSheet
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
 
+    private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         presenter = ChatBotPresenter(Database.getInstance(requireContext()))
         presenter?.attachView(this)
 
-        activity?.onBackPressedDispatcher?.addCallback {
+        onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback {
             if (presenter?.onGoBackButtonClicked() == true) {
                 isEnabled = false
                 activity?.onBackPressed()
@@ -71,25 +76,30 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView = view.findViewById(R.id.recyclerView)
-        messageInputView = view.findViewById(R.id.messageInputView)
+        responsesView = view.findViewById(R.id.responsesView)
         chatView = view.findViewById(R.id.chatView)
         peekView = view.findViewById(R.id.peekView)
         toggleButton = view.findViewById(R.id.toggleButton)
         closeButton = view.findViewById(R.id.closeButton)
+        messagesView = view.findViewById(R.id.messagesView)
+        messageInputView = view.findViewById(R.id.messageInputView)
 
-        setupRecyclerView()
+        setupResponsesView()
         setupBottomSheet()
+        setupMessagesView()
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
+        onBackPressedDispatcherCallback?.remove()
+        onBackPressedDispatcherCallback = null
+
         presenter?.detachView()
         presenter = null
     }
 
-    private fun setupRecyclerView() {
+    private fun setupResponsesView() {
         adapter = ResponseGroupsAdapter(object : ResponseGroupsAdapter.Callback {
             override fun onResponseGroupClicked(responseGroup: ResponseGroup) {
                 presenter?.onResponseGroupClicked(responseGroup)
@@ -103,8 +113,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
                 presenter?.onGoBackButtonClicked(responseGroup)
             }
         })
-        recyclerView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        recyclerView?.adapter = adapter
+        responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        responsesView?.adapter = adapter
     }
 
     private fun setupBottomSheet() {
@@ -117,7 +127,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
                     val alpha = 1F - slideOffset
                     peekView?.alpha = alpha
-                    if (alpha == 0F) {
+                    if (alpha <= 0F) {
                         peekView?.visibility = View.INVISIBLE
                     } else {
                         peekView?.visibility = View.VISIBLE
@@ -141,6 +151,11 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         }
     }
 
+    private fun setupMessagesView() {
+        messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        messagesView?.adapter = MessagesAdapter()
+    }
+
     /**
      * [ChatBotView] implementation
      */
@@ -150,8 +165,6 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     override fun showResponseInfo(responseInfo: ResponseInfo) {
-        activity?.runOnUiThread {
-        }
     }
 
     /**
@@ -161,12 +174,12 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     override fun onScreenRenavigate() {
         Logger.debug(TAG, "onScreenRenavigate()")
 
-        with(recyclerView?.layoutManager) {
+        with(responsesView?.layoutManager) {
             if (this is LinearLayoutManager) {
                 if (findFirstCompletelyVisibleItemPosition() == 0) {
                     presenter?.onResetDataRequested()
                 } else {
-                    recyclerView?.smoothScrollToPosition(0)
+                    responsesView?.smoothScrollToPosition(0)
                 }
             }
         }

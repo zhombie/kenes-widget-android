@@ -116,33 +116,36 @@ internal class ResponseGroupChildrenAdapter constructor(
             }
         }
 
-        return if (isExpandable) {
-            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
-                val item = getItem(position)
-                if (item is ResponseInfo) {
-                    ViewType.RESPONSE_INFO
-                } else {
+        fun any(): Int {
+            return when (val item = getItem(position)) {
+                is ResponseGroup ->
                     ViewType.CHILD
-                }
-            } else {
-                if (position == itemCount - 1) {
-                    ViewType.SHOW_ALL
-                } else {
-                    val item = getItem(position)
-                    if (item is ResponseInfo) {
-                        ViewType.RESPONSE_INFO
+                is ResponseGroup.Child -> {
+                    if (item.responses.isEmpty()) {
+                        ViewType.EMPTY
                     } else {
                         ViewType.CHILD
                     }
                 }
+                is ResponseInfo ->
+                    ViewType.RESPONSE_INFO
+                else ->
+                    ViewType.CHILD
+            }
+        }
+
+        return if (isExpandable) {
+            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
+                any()
+            } else {
+                if (position == itemCount - 1) {
+                    ViewType.SHOW_ALL
+                } else {
+                    any()
+                }
             }
         } else {
-            val item = getItem(position)
-            if (item is ResponseInfo) {
-                ViewType.RESPONSE_INFO
-            } else {
-                ViewType.CHILD
-            }
+            any()
         }
     }
 
