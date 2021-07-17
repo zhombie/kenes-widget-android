@@ -112,7 +112,6 @@ internal class ChatBotPresenter constructor(
     }
 
     fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
-
     }
 
     fun onGoBackButtonClicked(): Boolean {
@@ -120,16 +119,24 @@ internal class ChatBotPresenter constructor(
 
         return when {
             chatBot.activeResponseGroupChild != null -> {
-                chatBot.activeResponseGroupChild = null
-                getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroup))
+                if (chatBot.activeResponseGroup == null) {
+                    chatBot.clear()
+                    loadResponseGroups()
+                } else {
+                    chatBot.activeResponseGroupChild = null
+                    getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroup))
+                }
+
                 false
             }
             chatBot.activeResponseGroup != null -> {
-                chatBot.activeResponseGroupChild = null
+                chatBot.clear()
                 loadResponseGroups()
                 false
             }
             else -> {
+                chatBot.clear()
+                loadResponseGroups()
                 true
             }
         }

@@ -114,20 +114,30 @@ internal class ResponseGroupChildrenAdapter constructor(
             }
         }
 
-        val item = getItem(position)
-        return if (item is ResponseInfo) {
-            ViewType.RESPONSE_INFO
-        } else {
-            if (isExpandable) {
-                if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
-                    ViewType.CHILD
+        return if (isExpandable) {
+            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
+                val item = getItem(position)
+                if (item is ResponseInfo) {
+                    ViewType.RESPONSE_INFO
                 } else {
-                    if (position == itemCount - 1) {
-                        ViewType.SHOW_ALL
+                    ViewType.CHILD
+                }
+            } else {
+                if (position == itemCount - 1) {
+                    ViewType.SHOW_ALL
+                } else {
+                    val item = getItem(position)
+                    if (item is ResponseInfo) {
+                        ViewType.RESPONSE_INFO
                     } else {
                         ViewType.CHILD
                     }
                 }
+            }
+        } else {
+            val item = getItem(position)
+            if (item is ResponseInfo) {
+                ViewType.RESPONSE_INFO
             } else {
                 ViewType.CHILD
             }
