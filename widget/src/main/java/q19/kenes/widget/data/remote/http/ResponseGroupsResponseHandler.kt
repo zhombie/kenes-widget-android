@@ -23,11 +23,11 @@ internal class ResponseGroupsResponseHandler constructor(
 
         val responseGroups = mutableListOf<ResponseGroup>()
 
-        if (responseGroupsJSONArray != null) {
+        if (responseGroupsJSONArray != null && responseGroupsJSONArray.length() > 0) {
             for (i in 0 until responseGroupsJSONArray.length()) {
                 val responseGroupJSONObject = responseGroupsJSONArray[i]
                 if (responseGroupJSONObject is JSONObject) {
-                    val children = mutableListOf<Nestable>()
+                    val nestables = mutableListOf<Nestable>()
 
                     val childrenJSONArray = responseGroupJSONObject.getJSONArrayOrNull("children")
                     if (childrenJSONArray != null && childrenJSONArray.length() > 0) {
@@ -36,15 +36,15 @@ internal class ResponseGroupsResponseHandler constructor(
                             if (childJSONObject is JSONObject) {
                                 val responses = childJSONObject.getJSONArrayOrNull("responses")
                                 if (responses == null || responses.length() == 0) {
-                                    children.add(childJSONObject.toResponseGroup(mutableListOf()) ?: continue)
+                                    nestables.add(childJSONObject.toResponseGroup(mutableListOf()) ?: continue)
                                 } else {
-                                    children.add(childJSONObject.toResponseGroupChild() ?: continue)
+                                    nestables.add(childJSONObject.toResponseGroupChild() ?: continue)
                                 }
                             }
                         }
                     }
 
-                    responseGroups.add(responseGroupJSONObject.toResponseGroup(children) ?: continue)
+                    responseGroups.add(responseGroupJSONObject.toResponseGroup(nestables) ?: continue)
                 }
             }
         }

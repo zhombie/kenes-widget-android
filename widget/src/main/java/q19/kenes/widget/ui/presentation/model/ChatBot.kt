@@ -1,17 +1,11 @@
 package q19.kenes.widget.ui.presentation.model
 
-import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.domain.model.Nestable
 
 internal class ChatBot {
 
-    var activeResponseGroup: ResponseGroup? = null
-    var activeResponseGroupChild: ResponseGroup.Child? = null
+    val breadcrumb = mutableListOf<Nestable>()
 
     var lastResponseGroupsLoadedTime: Long = -1L
-
-    fun clear() {
-        activeResponseGroup = null
-        activeResponseGroupChild = null
-    }
 
 }

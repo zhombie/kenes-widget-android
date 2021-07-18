@@ -93,7 +93,7 @@
 
     <string name="kenes_fill_fields">Өтініш, көрсетілген өрістерді толтырып шығыңыз: %s</string>
 
-    <string name="no_available_response_group_children">Әзірге деректер жоқ</string>
+    <string name="no_knowledge_base_available_response">Әзірге деректер жоқ</string>
 
     <string name="show_all">Барлығын көрсету</string>
     <string name="collapse_list">Тізімді жию</string>

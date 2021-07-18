@@ -54,7 +54,7 @@ internal class ChatBotPresenter constructor(
 
                 chatBot.lastResponseGroupsLoadedTime = System.currentTimeMillis()
 
-                getView().showResponseGroups(responseGroups)
+                getView().showResponses(responseGroups)
             },
             onFailure = {
             }
@@ -62,7 +62,9 @@ internal class ChatBotPresenter constructor(
     }
 
     fun onResponseGroupClicked(responseGroup: ResponseGroup) {
-        chatBot.activeResponseGroup = responseGroup
+        Logger.debug(TAG, "onResponseGroupClicked() -> $responseGroup")
+
+        chatBot.breadcrumb.add(responseGroup)
 
         val params = RequestParams(
             "parent_id", responseGroup.id,
@@ -75,9 +77,12 @@ internal class ChatBotPresenter constructor(
                     "responseGroup: $responseGroup, " +
                     "children: $children")
 
-                chatBot.activeResponseGroup = responseGroup.copy(children = children)
+                val index = chatBot.breadcrumb.indexOf(responseGroup)
+                chatBot.breadcrumb[index] = responseGroup.copy(children = children)
 
-                getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroup))
+                Logger.debug(TAG, "onResponseGroupClicked() -> ${chatBot.breadcrumb}")
+
+                getView().showResponses(listOf(chatBot.breadcrumb[index]))
             },
             onFailure = {
             }
@@ -87,24 +92,31 @@ internal class ChatBotPresenter constructor(
     fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
         Logger.debug(TAG, "onResponseGroupChildClicked() -> $child")
 
-        if (child.responses.isEmpty()) return
+        if (child.responses.isEmpty()) {
+            getView().showNoResponsesFoundMessage()
+            return
+        }
 
-        chatBot.activeResponseGroupChild = child
+        chatBot.breadcrumb.add(child)
+
+        Logger.debug(TAG, "onResponseGroupChildClicked() -> ${chatBot.breadcrumb}")
 
         val params = RequestParams(
             "response_id", child.responses.first().id
         )
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response"), params, ResponseInfoResponseHandler(
-            responseId = child.responses.first().id,
             onSuccess = { responseInfo ->
                 Logger.debug(TAG, "onResponseGroupChildClicked() -> " +
                     "child: $child, " +
                     "responseInfo: $responseInfo")
 
-                chatBot.activeResponseGroupChild = child.copy(responses = listOf(responseInfo))
+                val index = chatBot.breadcrumb.indexOf(child)
+                chatBot.breadcrumb[index] = child.copy(responses = listOf(responseInfo))
 
-                getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroupChild))
+                Logger.debug(TAG, "onResponseGroupChildClicked() -> ${chatBot.breadcrumb}")
+
+                getView().showResponses(listOf(chatBot.breadcrumb[index]))
             },
             onFailure = {
             }
@@ -117,29 +129,23 @@ internal class ChatBotPresenter constructor(
     fun onGoBackButtonClicked(): Boolean {
         Logger.debug(TAG, "onGoBackButtonClicked()")
 
-        if (chatBot.activeResponseGroup == null && chatBot.activeResponseGroupChild == null) {
-            return true
-        }
+        if (chatBot.breadcrumb.isEmpty()) return true
 
         return when {
-            chatBot.activeResponseGroupChild != null -> {
-                if (chatBot.activeResponseGroup == null) {
-                    chatBot.clear()
+            chatBot.breadcrumb.isNotEmpty() -> {
+                Logger.debug(TAG, "onGoBackButtonClicked() -> ${chatBot.breadcrumb}")
+
+                chatBot.breadcrumb.removeLast()
+                Logger.debug(TAG, "onGoBackButtonClicked() -> ${chatBot.breadcrumb}")
+                if (chatBot.breadcrumb.isEmpty()) {
                     loadResponseGroups()
                 } else {
-                    chatBot.activeResponseGroupChild = null
-                    getView().showResponseGroups(listOfNotNull(chatBot.activeResponseGroup))
+                    getView().showResponses(listOfNotNull(chatBot.breadcrumb.last()))
                 }
 
                 false
             }
-            chatBot.activeResponseGroup != null -> {
-                chatBot.clear()
-                loadResponseGroups()
-                false
-            }
             else -> {
-                chatBot.clear()
                 loadResponseGroups()
                 true
             }
@@ -151,7 +157,7 @@ internal class ChatBotPresenter constructor(
             loadResponseGroups()
         }
 
-        chatBot.clear()
+        chatBot.breadcrumb.clear()
     }
 
 
@@ -168,7 +174,7 @@ internal class ChatBotPresenter constructor(
         asyncHttpClient?.cancelAllRequests(true)
         asyncHttpClient = null
 
-        chatBot.clear()
+        chatBot.breadcrumb.clear()
     }
 
 

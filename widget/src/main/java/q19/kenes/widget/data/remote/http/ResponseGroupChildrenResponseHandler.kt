@@ -4,10 +4,10 @@ import com.loopj.android.http.JsonHttpResponseHandler
 import cz.msebera.android.httpclient.Header
 import kz.q19.utils.json.getJSONArrayOrNull
 import org.json.JSONObject
-import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.domain.model.Nestable
 
 internal class ResponseGroupChildrenResponseHandler constructor(
-    private val onSuccess: (children: List<ResponseGroup.Child>) -> Unit,
+    private val onSuccess: (children: List<Nestable>) -> Unit,
     private val onFailure: (throwable: Throwable?) -> Unit
 ) : JsonHttpResponseHandler() {
 
@@ -20,23 +20,38 @@ internal class ResponseGroupChildrenResponseHandler constructor(
 
         val responseGroupsJSONArray = json.getJSONArrayOrNull("response_groups")
 
-        val children = mutableListOf<ResponseGroup.Child>()
+        val nestables = mutableListOf<Nestable>()
 
-        if (responseGroupsJSONArray != null) {
+        if (responseGroupsJSONArray != null && responseGroupsJSONArray.length() > 0) {
             for (i in 0 until responseGroupsJSONArray.length()) {
                 val responseGroupJSONObject = responseGroupsJSONArray[i]
                 if (responseGroupJSONObject is JSONObject) {
+                    val childrenJSONArray = responseGroupJSONObject.getJSONArrayOrNull("children")
+                    if (childrenJSONArray != null && childrenJSONArray.length() > 0) {
+                        for (j in 0 until childrenJSONArray.length()) {
+                            val childJSONObject = childrenJSONArray[j]
+                            if (childJSONObject is JSONObject) {
+                                val responses = childJSONObject.getJSONArrayOrNull("responses")
+                                if (responses == null || responses.length() == 0) {
+                                    nestables.add(childJSONObject.toResponseGroup(mutableListOf()) ?: continue)
+                                } else {
+                                    nestables.add(childJSONObject.toResponseGroupChild() ?: continue)
+                                }
+                            }
+                        }
+                    }
+
                     val responsesJSONArray = responseGroupJSONObject.getJSONArrayOrNull("responses")
                     if (responsesJSONArray != null && responsesJSONArray.length() > 0) {
                         for (k in 0 until responsesJSONArray.length()) {
-                            children.add(responseGroupJSONObject.toResponseGroupChild() ?: continue)
+                            nestables.add(responseGroupJSONObject.toResponseGroupChild() ?: continue)
                         }
                     }
                 }
             }
         }
 
-        onSuccess(children)
+        onSuccess(nestables)
     }
 
     override fun onFailure(

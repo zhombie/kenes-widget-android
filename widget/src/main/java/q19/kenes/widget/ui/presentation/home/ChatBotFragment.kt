@@ -14,7 +14,6 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
-import q19.kenes.widget.domain.model.ResponseInfo
 import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
@@ -160,11 +159,12 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
      * [ChatBotView] implementation
      */
 
-    override fun showResponseGroups(responseGroups: List<Nestable>) {
-        adapter?.submitList(responseGroups)
+    override fun showResponses(nestables: List<Nestable>) {
+        adapter?.submitList(nestables)
     }
 
-    override fun showResponseInfo(responseInfo: ResponseInfo) {
+    override fun showNoResponsesFoundMessage() {
+        toast(R.string.no_knowledge_base_available_response)
     }
 
     /**

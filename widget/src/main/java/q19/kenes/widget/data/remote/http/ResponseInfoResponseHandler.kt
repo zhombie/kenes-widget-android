@@ -12,7 +12,6 @@ import org.json.JSONObject
 import q19.kenes.widget.domain.model.ResponseInfo
 
 internal class ResponseInfoResponseHandler constructor(
-    private val responseId: Long,
     private val onSuccess: (responseInfo: ResponseInfo) -> Unit,
     private val onFailure: (throwable: Throwable?) -> Unit
 ) : JsonHttpResponseHandler() {
@@ -63,8 +62,8 @@ internal class ResponseInfoResponseHandler constructor(
 
             onSuccess(
                 ResponseInfo(
-                    id = responseId,
-                    messageId = responseJSONObject.getString("id"),
+                    id = responseJSONObject.getLong("id"),
+                    messageId = responseJSONObject.getString("message_id"),
                     text = responseJSONObject.getStringOrNull("text") ?: "",
                     time = responseJSONObject.getLongOrNull("time") ?: -1L,
                     attachments = attachments,

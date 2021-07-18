@@ -23,7 +23,7 @@
         android:fontFamily="sans-serif-medium"
         android:maxLines="2"
         android:singleLine="false"
-        android:text="@string/no_available_response_group_children"
+        android:text="@string/no_knowledge_base_available_response"
         android:textColor="@color/kenes_dark_charcoal"
         android:textSize="13sp" />
 
