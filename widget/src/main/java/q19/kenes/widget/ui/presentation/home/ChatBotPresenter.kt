@@ -41,10 +41,17 @@ internal class ChatBotPresenter constructor(
         socketClient = SocketClient.getInstance()
         socketClient?.setChatBotListener(this)
 
-        loadResponseGroups()
+        loadResponseGroups(true)
     }
 
-    private fun loadResponseGroups() {
+    private fun loadResponseGroups(reload: Boolean) {
+        if (!reload) {
+            if (chatBot.primaryResponseGroups != null) {
+                getView().showResponses(chatBot.primaryResponseGroups!!)
+                return
+            }
+        }
+
         getView().showLoadingIndicator()
 
         val params = RequestParams(
@@ -57,6 +64,7 @@ internal class ChatBotPresenter constructor(
 
                 getView().hideLoadingIndicator()
 
+                chatBot.primaryResponseGroups = responseGroups
                 chatBot.lastResponseGroupsLoadedTime = System.currentTimeMillis()
 
                 getView().showResponses(responseGroups)
@@ -156,7 +164,7 @@ internal class ChatBotPresenter constructor(
                 chatBot.breadcrumb.removeLast()
                 Logger.debug(TAG, "onGoBackButtonClicked() -> ${chatBot.breadcrumb}")
                 if (chatBot.breadcrumb.isEmpty()) {
-                    loadResponseGroups()
+                    loadResponseGroups(false)
                 } else {
                     getView().showResponses(listOfNotNull(chatBot.breadcrumb.last()))
                 }
@@ -164,7 +172,7 @@ internal class ChatBotPresenter constructor(
                 false
             }
             else -> {
-                loadResponseGroups()
+                loadResponseGroups(false)
                 true
             }
         }
@@ -172,7 +180,7 @@ internal class ChatBotPresenter constructor(
 
     fun onResetDataRequested() {
         if (System.currentTimeMillis() - chatBot.lastResponseGroupsLoadedTime > 60 * 1000L) {
-            loadResponseGroups()
+            loadResponseGroups(true)
         }
 
         chatBot.breadcrumb.clear()
@@ -193,6 +201,7 @@ internal class ChatBotPresenter constructor(
         asyncHttpClient = null
 
         chatBot.breadcrumb.clear()
+        chatBot.primaryResponseGroups = null
     }
 
 
