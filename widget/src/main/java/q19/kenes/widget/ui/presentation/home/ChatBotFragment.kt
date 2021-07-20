@@ -12,6 +12,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
+import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.MessageInputView
@@ -100,16 +101,19 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     private fun setupResponsesView() {
         adapter = ResponseGroupsAdapter(object : ResponseGroupsAdapter.Callback {
+            override fun onGoBackButtonClicked(element: Element) {
+                presenter?.onGoBackButtonClicked(element)
+            }
+
+            override fun onMenuButtonClicked() {
+            }
+
             override fun onResponseGroupClicked(responseGroup: ResponseGroup) {
                 presenter?.onResponseGroupClicked(responseGroup)
             }
 
             override fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
                 presenter?.onResponseGroupChildClicked(child)
-            }
-
-            override fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
-                presenter?.onGoBackButtonClicked(responseGroup)
             }
         })
         responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

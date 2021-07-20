@@ -36,7 +36,12 @@ internal class ResponseGroupsResponseHandler constructor(
                             if (childJSONObject is JSONObject) {
                                 val responses = childJSONObject.getJSONArrayOrNull("responses")
                                 if (responses == null || responses.length() == 0) {
-                                    nestables.add(childJSONObject.toResponseGroup(mutableListOf()) ?: continue)
+                                    nestables.add(
+                                        childJSONObject.toResponseGroup(
+                                            isPrimary = false,
+                                            children = mutableListOf()
+                                        ) ?: continue
+                                    )
                                 } else {
                                     nestables.add(childJSONObject.toResponseGroupChild() ?: continue)
                                 }
@@ -44,7 +49,12 @@ internal class ResponseGroupsResponseHandler constructor(
                         }
                     }
 
-                    responseGroups.add(responseGroupJSONObject.toResponseGroup(nestables) ?: continue)
+                    responseGroups.add(
+                        responseGroupJSONObject.toResponseGroup(
+                            isPrimary = true,
+                            children = nestables
+                        ) ?: continue
+                    )
                 }
             }
         }

@@ -10,7 +10,7 @@ import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.domain.model.ResponseInfo
 
-fun JSONObject.toResponseGroup(children: MutableList<Nestable>): ResponseGroup? {
+fun JSONObject.toResponseGroup(isPrimary: Boolean, children: MutableList<Nestable>): ResponseGroup? {
     return ResponseGroup(
         id = getLongOrNull("id") ?: return null,
         title = getStringOrNull("title") ?: "",
@@ -20,6 +20,7 @@ fun JSONObject.toResponseGroup(children: MutableList<Nestable>): ResponseGroup? 
             Language.ID.EN.value.toInt() -> Language.ENGLISH
             else -> return null
         },
+        isPrimary = isPrimary,
         children = children
     )
 }

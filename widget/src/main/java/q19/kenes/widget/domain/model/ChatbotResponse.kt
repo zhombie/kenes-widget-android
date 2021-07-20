@@ -26,6 +26,7 @@ data class ResponseGroup constructor(
     override val id: Long,
     override val title: String,
     override val language: Language,
+    val isPrimary: Boolean,
     val children: List<Nestable>
 ) : Nestable(id = id, title = title, language = language), Parcelable {
 

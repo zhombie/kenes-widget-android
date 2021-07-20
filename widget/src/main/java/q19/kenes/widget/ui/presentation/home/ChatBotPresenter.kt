@@ -13,6 +13,7 @@ import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ResponseGroupChildrenResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
+import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.model.ChatBot
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
@@ -123,7 +124,8 @@ internal class ChatBotPresenter constructor(
         ))
     }
 
-    fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
+    fun onGoBackButtonClicked(element: Element) {
+        onGoBackButtonClicked()
     }
 
     fun onGoBackButtonClicked(): Boolean {

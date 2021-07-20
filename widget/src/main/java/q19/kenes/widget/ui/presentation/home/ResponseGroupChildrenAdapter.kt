@@ -311,7 +311,7 @@ internal class ResponseGroupChildrenAdapter constructor(
     interface Callback {
         fun onResponseGroupClicked(responseGroup: ResponseGroup)
         fun onResponseGroupChildClicked(child: ResponseGroup.Child)
-        fun onGoBackButtonClicked(responseGroup: ResponseGroup)
+        fun onGoBackButtonClicked(element: Element)
     }
 
 }

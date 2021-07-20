@@ -2,13 +2,16 @@ package q19.kenes.widget.ui.presentation.home
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
+import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
@@ -71,6 +74,9 @@ internal class ResponseGroupsAdapter constructor(
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view),
         ResponseGroupChildrenAdapter.Callback {
+        private val toolbar = view.findViewById<FrameLayout>(R.id.toolbar)
+        private val backButton = view.findViewById<MaterialButton>(R.id.backButton)
+        private val menuButton = view.findViewById<MaterialButton>(R.id.menuButton)
         private val titleView = view.findViewById<AppCompatTextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
@@ -89,19 +95,34 @@ internal class ResponseGroupsAdapter constructor(
 
             when (nestable) {
                 is ResponseGroup -> {
+                    if (nestable.isPrimary) {
+                        toolbar.visibility = View.GONE
+                    } else {
+                        menuButton.visibility = View.GONE
+                        toolbar.visibility = View.VISIBLE
+                    }
+
                     titleView.text = nestable.title
 
                     adapter.children = nestable.children
                 }
                 is ResponseGroup.Child -> {
+                    menuButton.visibility = View.VISIBLE
+                    toolbar.visibility = View.VISIBLE
+
                     titleView.text = nestable.title
 
                     adapter.children = nestable.responses
                 }
                 else -> {
+                    toolbar.visibility = View.GONE
+
                     titleView.text = null
                 }
             }
+
+            backButton.setOnClickListener { callback.onGoBackButtonClicked(nestable) }
+            menuButton.setOnClickListener { callback.onMenuButtonClicked() }
         }
 
         override fun onResponseGroupClicked(responseGroup: ResponseGroup) {
@@ -112,16 +133,18 @@ internal class ResponseGroupsAdapter constructor(
             callback.onResponseGroupChildClicked(child)
         }
 
-        override fun onGoBackButtonClicked(responseGroup: ResponseGroup) {
-            callback.onGoBackButtonClicked(responseGroup)
+        override fun onGoBackButtonClicked(element: Element) {
+            callback.onGoBackButtonClicked(element)
         }
 
     }
 
     interface Callback {
+        fun onGoBackButtonClicked(element: Element)
+        fun onMenuButtonClicked()
+
         fun onResponseGroupClicked(responseGroup: ResponseGroup)
         fun onResponseGroupChildClicked(child: ResponseGroup.Child)
-        fun onGoBackButtonClicked(responseGroup: ResponseGroup)
     }
 
 }
