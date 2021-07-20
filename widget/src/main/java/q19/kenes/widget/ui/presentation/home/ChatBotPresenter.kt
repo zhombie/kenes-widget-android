@@ -45,6 +45,8 @@ internal class ChatBotPresenter constructor(
     }
 
     private fun loadResponseGroups() {
+        getView().showLoadingIndicator()
+
         val params = RequestParams(
             "nested", true
         )
@@ -53,17 +55,22 @@ internal class ChatBotPresenter constructor(
             onSuccess = { responseGroups ->
                 Logger.debug(TAG, "loadResponseGroups() -> responseGroups: $responseGroups")
 
+                getView().hideLoadingIndicator()
+
                 chatBot.lastResponseGroupsLoadedTime = System.currentTimeMillis()
 
                 getView().showResponses(responseGroups)
             },
             onFailure = {
+                getView().hideLoadingIndicator()
             }
         ))
     }
 
     fun onResponseGroupClicked(responseGroup: ResponseGroup) {
         Logger.debug(TAG, "onResponseGroupClicked() -> $responseGroup")
+
+        getView().showLoadingIndicator()
 
         chatBot.breadcrumb.add(responseGroup)
 
@@ -78,6 +85,8 @@ internal class ChatBotPresenter constructor(
                     "responseGroup: $responseGroup, " +
                     "children: $children")
 
+                getView().hideLoadingIndicator()
+
                 val index = chatBot.breadcrumb.indexOf(responseGroup)
                 chatBot.breadcrumb[index] = responseGroup.copy(children = children)
 
@@ -86,6 +95,7 @@ internal class ChatBotPresenter constructor(
                 getView().showResponses(listOf(chatBot.breadcrumb[index]))
             },
             onFailure = {
+                getView().hideLoadingIndicator()
             }
         ))
     }
@@ -94,9 +104,12 @@ internal class ChatBotPresenter constructor(
         Logger.debug(TAG, "onResponseGroupChildClicked() -> $child")
 
         if (child.responses.isEmpty()) {
+            chatBot.breadcrumb.remove(child)
             getView().showNoResponsesFoundMessage()
             return
         }
+
+        getView().showLoadingIndicator()
 
         chatBot.breadcrumb.add(child)
 
@@ -112,6 +125,8 @@ internal class ChatBotPresenter constructor(
                     "child: $child, " +
                     "responseInfo: $responseInfo")
 
+                getView().hideLoadingIndicator()
+
                 val index = chatBot.breadcrumb.indexOf(child)
                 chatBot.breadcrumb[index] = child.copy(responses = listOf(responseInfo))
 
@@ -120,6 +135,7 @@ internal class ChatBotPresenter constructor(
                 getView().showResponses(listOf(chatBot.breadcrumb[index]))
             },
             onFailure = {
+                getView().hideLoadingIndicator()
             }
         ))
     }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ProgressView">
+        <attr name="backgroundColor" />
+        <attr name="type" format="enum">
+            <enum name="indeterminate" value="0" />
+            <enum name="determinate" value="1" />
+        </attr>
+        <attr name="isCancelable" format="boolean" />
+    </declare-styleable>
+</resources>

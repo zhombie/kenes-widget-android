@@ -46,4 +46,7 @@
     <dimen name="kenes_footer_vertical_offset">15dp</dimen>
 
     <dimen name="kenes_section_padding">35dp</dimen>
+
+    <dimen name="progress_circle_size">45dp</dimen>
+    <dimen name="progress_track_thickness">4dp</dimen>
 </resources>

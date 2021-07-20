@@ -6,6 +6,7 @@
     <color name="kenes_gray">#BDBDBD</color>
     <color name="kenes_dark_charcoal">#333333</color>
     <color name="kenes_black_with_opacity_80">#80000000</color>
+    <color name="kenes_black_with_opacity_BB">#BB000000</color>
     <color name="kenes_black">#000000</color>
 
     <!--DEPRECATED-->

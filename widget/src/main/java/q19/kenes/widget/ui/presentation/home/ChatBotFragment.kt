@@ -16,6 +16,7 @@ import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.MessageInputView
+import q19.kenes.widget.ui.components.ProgressView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
@@ -39,6 +40,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     // UI Views
     private var responsesView: RecyclerView? = null
+    private var progressView: ProgressView? = null
     private var chatView: LinearLayout? = null
     private var peekView: LinearLayout? = null
     private var toggleButton: MaterialButton? = null
@@ -77,6 +79,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         super.onViewCreated(view, savedInstanceState)
 
         responsesView = view.findViewById(R.id.responsesView)
+        progressView = view.findViewById(R.id.progressView)
         chatView = view.findViewById(R.id.chatView)
         peekView = view.findViewById(R.id.peekView)
         toggleButton = view.findViewById(R.id.toggleButton)
@@ -117,6 +120,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
             }
         })
         responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        responsesView?.itemAnimator = null
         responsesView?.adapter = adapter
     }
 
@@ -162,6 +166,14 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     /**
      * [ChatBotView] implementation
      */
+
+    override fun hideLoadingIndicator() {
+        progressView?.hide()
+    }
+
+    override fun showLoadingIndicator() {
+        progressView?.show()
+    }
 
     override fun showResponses(nestables: List<Nestable>) {
         adapter?.submitList(nestables)
