@@ -7,6 +7,7 @@ import kz.q19.domain.model.message.Message
 import kz.q19.socket.SocketClient
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.model.Category
+import kz.q19.utils.html.HTMLCompat
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
@@ -174,6 +175,34 @@ internal class ChatBotPresenter constructor(
             else -> {
                 loadResponseGroups(false)
                 true
+            }
+        }
+    }
+
+    fun onCopyText() {
+        if (chatBot.breadcrumb.isEmpty()) return
+
+        val nestable = chatBot.breadcrumb.last()
+        if (nestable is ResponseGroup.Child) {
+            if (nestable.responses.isEmpty()) return
+            val responseInfo = nestable.responses.first()
+            val text = responseInfo.text
+            if (!text.isNullOrBlank()) {
+                getView().copyHTMLText(nestable.title, HTMLCompat.fromHtml(text), text)
+            }
+        }
+    }
+
+    fun onShare() {
+        if (chatBot.breadcrumb.isEmpty()) return
+
+        val nestable = chatBot.breadcrumb.last()
+        if (nestable is ResponseGroup.Child) {
+            if (nestable.responses.isEmpty()) return
+            val responseInfo = nestable.responses.first()
+            val text = responseInfo.text
+            if (!text.isNullOrBlank()) {
+                getView().share(nestable.title, HTMLCompat.fromHtml(text), text)
             }
         }
     }

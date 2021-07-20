@@ -13,6 +13,8 @@
     <string name="kenes_no">Нет</string>
     <string name="kenes_cancel">Отмена</string>
     <string name="kenes_back">Назад</string>
+    <string name="copy">Скопировать</string>
+    <string name="share">Поделиться</string>
 
     <string name="kenes_hint_message_input_field">Привет! Чем могу помочь?</string>
 

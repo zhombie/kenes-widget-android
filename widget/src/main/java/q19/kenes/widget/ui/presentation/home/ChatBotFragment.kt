@@ -1,5 +1,8 @@
 package q19.kenes.widget.ui.presentation.home
 
+import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,6 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kz.q19.utils.android.clipboardManager
+import kz.q19.utils.html.HTMLCompat
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Element
@@ -109,6 +115,20 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
             }
 
             override fun onMenuButtonClicked() {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setItems(
+                        arrayOf(
+                            getString(R.string.copy),
+                            getString(R.string.share)
+                        )
+                    ) { dialog, which ->
+                        dialog.dismiss()
+                        when (which) {
+                            0 -> presenter?.onCopyText()
+                            1 -> presenter?.onShare()
+                        }
+                    }
+                    .show()
             }
 
             override fun onResponseGroupClicked(responseGroup: ResponseGroup) {
@@ -177,6 +197,39 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     override fun showResponses(nestables: List<Nestable>) {
         adapter?.submitList(nestables)
+    }
+
+    override fun copyHTMLText(label: String, text: CharSequence?, htmlText: String) {
+        if (text.isNullOrBlank()) {
+            context?.clipboardManager?.setPrimaryClip(
+                ClipData.newHtmlText(label, HTMLCompat.fromHtml(htmlText), htmlText)
+            )
+        } else {
+            context?.clipboardManager?.setPrimaryClip(ClipData.newPlainText(label, text))
+        }
+
+        toast(R.string.copy)
+    }
+
+    override fun share(title: String, text: CharSequence?, htmlText: String) {
+        try {
+            val share = Intent.createChooser(Intent().apply {
+                action = Intent.ACTION_SEND
+
+                type = "text/plain"
+
+                putExtra(Intent.EXTRA_TITLE, title)
+
+                if (text.isNullOrBlank()) {
+                    putExtra(Intent.EXTRA_HTML_TEXT, htmlText)
+                } else {
+                    putExtra(Intent.EXTRA_TEXT, text)
+                }
+            }, null)
+            startActivity(share)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+        }
     }
 
     override fun showNoResponsesFoundMessage() {
