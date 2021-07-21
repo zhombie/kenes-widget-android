@@ -22,6 +22,8 @@ internal interface ChatBotView : BaseView {
 
     fun clearMessageInputViewText()
 
+    fun hideChatMessagesHeaderView()
+
     // Alert messages
     fun showNoResponsesFoundMessage()
 }

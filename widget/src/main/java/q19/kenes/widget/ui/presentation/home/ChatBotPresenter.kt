@@ -235,13 +235,22 @@ internal class ChatBotPresenter constructor(
             getView().clearMessageInputViewText()
             socketRepository.sendUserMessage(outgoingMessage)
 
-            getView().addNewMessage(
+            if (chatBot.chatMessages.isEmpty()) {
+                getView().hideChatMessagesHeaderView()
+            }
+
+            addNewMessage(
                 Message.Builder()
                     .setType(Message.Type.OUTGOING)
                     .setText(outgoingMessage)
                     .build()
             )
         }
+    }
+
+    private fun addNewMessage(message: Message) {
+        chatBot.chatMessages.add(message)
+        getView().addNewMessage(message)
     }
 
     /**
@@ -294,6 +303,7 @@ internal class ChatBotPresenter constructor(
         chatBot.breadcrumb.clear()
         chatBot.lastResponseGroupsLoadedTime = -1L
         chatBot.primaryResponseGroups = null
+        chatBot.chatMessages.clear()
     }
 
 }

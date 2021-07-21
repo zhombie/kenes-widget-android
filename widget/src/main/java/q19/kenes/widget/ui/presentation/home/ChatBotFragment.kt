@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -57,6 +58,9 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     // RecyclerView adapter
     private var responseGroupsAdapter: ResponseGroupsAdapter? = null
+
+    private var concatAdapter: ConcatAdapter? = null
+    private var chatMessagesHeaderAdapter: ChatMessagesHeaderAdapter? = null
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
     // CoordinatorLayout + BottomSheet
@@ -108,6 +112,12 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
         messageInputView?.setCallback(null)
         messageInputView = null
+
+        chatMessagesAdapter?.let { concatAdapter?.removeAdapter(it) }
+        chatMessagesAdapter = null
+
+        chatMessagesHeaderAdapter?.let { concatAdapter?.removeAdapter(it) }
+        chatMessagesHeaderAdapter = null
 
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
@@ -201,8 +211,12 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     private fun setupMessagesView() {
         messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
+
+        chatMessagesHeaderAdapter = ChatMessagesHeaderAdapter()
         chatMessagesAdapter = ChatMessagesAdapter()
-        messagesView?.adapter = chatMessagesAdapter
+        concatAdapter = ConcatAdapter(chatMessagesAdapter, chatMessagesHeaderAdapter)
+
+        messagesView?.adapter = concatAdapter
 
         messageInputView?.setCallback(object : MessageInputView.Callback {
             override fun onNewMediaSelection() {
@@ -279,6 +293,11 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     override fun clearMessageInputViewText() {
         messageInputView?.clearInputViewText()
+    }
+
+    override fun hideChatMessagesHeaderView() {
+        chatMessagesHeaderAdapter?.let { concatAdapter?.removeAdapter(it) }
+        chatMessagesHeaderAdapter = null
     }
 
     override fun showNoResponsesFoundMessage() {

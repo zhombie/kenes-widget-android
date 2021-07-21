@@ -39,7 +39,7 @@ class ChatMessagesAdapter constructor(
         const val NOTIFICATION: Int = 120
     }
 
-    private var messages: MutableList<Message> = mutableListOf()
+    private val messages: MutableList<Message> = mutableListOf()
 
     fun addNewMessage(message: Message, notify: Boolean = true): Boolean {
         messages.add(0, message)
@@ -97,28 +97,56 @@ class ChatMessagesAdapter constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewType.OUTGOING_TEXT_MESSAGE ->
-                OutgoingTextMessageViewHolder(parent.inflate(OutgoingTextMessageViewHolder.LAYOUT), callback)
+                OutgoingTextMessageViewHolder(
+                    parent.inflate(OutgoingTextMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.OUTGOING_IMAGE_MESSAGE ->
-                OutgoingImageMessageViewHolder(parent.inflate(OutgoingImageMessageViewHolder.LAYOUT), callback)
+                OutgoingImageMessageViewHolder(
+                    parent.inflate(OutgoingImageMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.OUTGOING_VIDEO_MESSAGE ->
-                OutgoingVideoMessageViewHolder(parent.inflate(OutgoingVideoMessageViewHolder.LAYOUT), callback)
+                OutgoingVideoMessageViewHolder(
+                    parent.inflate(OutgoingVideoMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.OUTGOING_AUDIO_MESSAGE ->
-                OutgoingAudioMessageViewHolder(parent.inflate(OutgoingAudioMessageViewHolder.LAYOUT), callback)
+                OutgoingAudioMessageViewHolder(
+                    parent.inflate(OutgoingAudioMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.OUTGOING_RICH_CONTENT_MESSAGE ->
-                OutgoingRichContentMessageViewHolder(parent.inflate(
-                    OutgoingRichContentMessageViewHolder.LAYOUT), callback)
+                OutgoingRichContentMessageViewHolder(
+                    parent.inflate(OutgoingRichContentMessageViewHolder.LAYOUT),
+                    callback
+                )
 
             ViewType.INCOMING_TEXT_MESSAGE ->
-                IncomingTextMessageViewHolder(parent.inflate(IncomingTextMessageViewHolder.LAYOUT), callback)
+                IncomingTextMessageViewHolder(
+                    parent.inflate(IncomingTextMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.INCOMING_IMAGE_MESSAGE ->
-                IncomingImageMessageViewHolder(parent.inflate(IncomingImageMessageViewHolder.LAYOUT), callback)
+                IncomingImageMessageViewHolder(
+                    parent.inflate(IncomingImageMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.INCOMING_VIDEO_MESSAGE ->
-                IncomingVideoMessageViewHolder(parent.inflate(IncomingVideoMessageViewHolder.LAYOUT), callback)
+                IncomingVideoMessageViewHolder(
+                    parent.inflate(IncomingVideoMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.INCOMING_AUDIO_MESSAGE ->
-                IncomingAudioMessageViewHolder(parent.inflate(IncomingAudioMessageViewHolder.LAYOUT), callback)
+                IncomingAudioMessageViewHolder(
+                    parent.inflate(IncomingAudioMessageViewHolder.LAYOUT),
+                    callback
+                )
             ViewType.INCOMING_RICH_CONTENT_MESSAGE ->
-                IncomingRichContentMessageViewHolder(parent.inflate(
-                    IncomingRichContentMessageViewHolder.LAYOUT), callback)
+                IncomingRichContentMessageViewHolder(
+                    parent.inflate(IncomingRichContentMessageViewHolder.LAYOUT),
+                    callback
+                )
 
             ViewType.NOTIFICATION ->
                 NotificationMessageViewHolder(parent.inflate(NotificationMessageViewHolder.LAYOUT))
