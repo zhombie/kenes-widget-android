@@ -5,10 +5,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentOnAttachListener
 import androidx.viewpager2.widget.ViewPager2
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
@@ -25,7 +28,8 @@ import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
-internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
+internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFragment.Listener,
+    FragmentOnAttachListener {
 
     companion object {
         private val TAG = KenesWidgetActivity::class.java.simpleName
@@ -54,7 +58,7 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
     // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
-    private val toolbar by bind<LinearLayout>(R.id.toolbar)
+    private val toolbar by bind<RelativeLayout>(R.id.toolbar)
     private val imageView by bind<AppCompatImageView>(R.id.imageView)
     private val titleView by bind<AppCompatTextView>(R.id.titleView)
     private val subtitleView by bind<AppCompatTextView>(R.id.subtitleView)
@@ -98,6 +102,8 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         presenter = injection.provideKenesWidgetPresenter(language)
         presenter?.attachView(this)
 
+        supportFragmentManager.addFragmentOnAttachListener(this)
+
         // Fragments
         setupViewPager()
 
@@ -107,6 +113,8 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        supportFragmentManager.removeFragmentOnAttachListener(this)
 
         presenter?.detachView()
         presenter = null
@@ -156,6 +164,15 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         }
     }
 
+    /**
+     * [FragmentOnAttachListener] implementation
+     */
+
+    override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
+        if (fragment is ChatBotFragment) {
+            fragment.setListener(this)
+        }
+    }
 
     /**
      * [KenesWidgetView] implementation
@@ -169,6 +186,38 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
 
     override fun navigateTo(index: Int) {
         viewPager.setCurrentItem(index, false)
+    }
+
+    /**
+     * [ChatBotFragment.Listener] implementation
+     */
+
+    override fun onBottomSheetSlide(slideOffset: Float) {
+//        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
+//
+//        toolbar.setBackgroundColor(
+//            ColorUtils.blendARGB(
+//                Color.parseColor("#FFFFFF"),
+//                Color.parseColor("#F23B4859"),
+//                slideOffset
+//            )
+//        )
+//
+//        titleView.setTextColor(
+//            ColorUtils.blendARGB(
+//                ContextCompat.getColor(this, R.color.kenes_dark_charcoal),
+//                Color.parseColor("#FFFFFF"),
+//                slideOffset
+//            )
+//        )
+//
+//        subtitleView.setTextColor(
+//            ColorUtils.blendARGB(
+//                ContextCompat.getColor(this, R.color.kenes_dark_charcoal),
+//                Color.parseColor("#FFFFFF"),
+//                slideOffset
+//            )
+//        )
     }
 
 }

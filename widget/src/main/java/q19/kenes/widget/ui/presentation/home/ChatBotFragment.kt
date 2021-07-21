@@ -71,6 +71,16 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
 
+    interface Listener {
+        fun onBottomSheetSlide(slideOffset: Float)
+    }
+
+    private var listener: Listener? = null
+
+    fun setListener(listener: Listener?) {
+        this.listener = listener
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -109,6 +119,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     override fun onDestroy() {
         super.onDestroy()
+
+        listener = null
 
         responseGroupsAdapter?.setCallback(null)
         responseGroupsAdapter = null
@@ -184,6 +196,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
                     peekView?.updateLayoutParams<ViewGroup.LayoutParams> {
                         height = (peekHeight * reverseOffset).roundToInt()
                     }
+
+                    listener?.onBottomSheetSlide(slideOffset)
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
