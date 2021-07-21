@@ -1,14 +1,15 @@
 package q19.kenes.widget.data.remote.http
 
 import com.loopj.android.http.AsyncHttpClient
+import q19.kenes_widget.BuildConfig
 
-object AsyncHttpClientBuilder {
+class AsyncHttpClientBuilder {
 
     private var asyncHttpClient: AsyncHttpClient? = null
 
     init {
         asyncHttpClient = AsyncHttpClient()
-        asyncHttpClient?.isLoggingEnabled = false
+        asyncHttpClient?.isLoggingEnabled = BuildConfig.DEBUG
         asyncHttpClient?.connectTimeout = 30 * 1000
         asyncHttpClient?.responseTimeout = 30 * 1000
     }

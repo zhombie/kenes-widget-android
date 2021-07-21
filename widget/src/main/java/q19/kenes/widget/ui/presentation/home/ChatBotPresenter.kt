@@ -37,7 +37,7 @@ internal class ChatBotPresenter constructor(
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        asyncHttpClient = AsyncHttpClientBuilder.build()
+        asyncHttpClient = AsyncHttpClientBuilder().build()
 
         socketClient = SocketClient.getInstance()
         socketClient?.setChatBotListener(this)
