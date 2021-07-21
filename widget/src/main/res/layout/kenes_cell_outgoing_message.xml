@@ -75,7 +75,7 @@
 
         </LinearLayout>
 
-        <q19.kenes.widget.ui.components.base.HtmlTextView
+        <q19.kenes.widget.ui.components.HTMLTextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

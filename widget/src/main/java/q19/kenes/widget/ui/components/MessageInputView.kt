@@ -27,7 +27,7 @@ internal class MessageInputView @JvmOverloads constructor(
     var isAttachmentButtonEnabled: Boolean = false
         private set
 
-    var callback: Callback? = null
+    private var callback: Callback? = null
 
     init {
         val view = inflate(context, R.layout.view_message_input, this)
@@ -41,6 +41,10 @@ internal class MessageInputView @JvmOverloads constructor(
         sendMessageButton.setOnClickListener {
             callback?.onSendTextMessage(inputView?.text?.toString())
         }
+    }
+
+    fun setCallback(callback: Callback?) {
+        this.callback = callback
     }
 
     fun clearInputViewText() {

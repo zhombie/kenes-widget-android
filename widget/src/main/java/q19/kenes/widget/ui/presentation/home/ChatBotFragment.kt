@@ -14,10 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.clipboardManager
 import kz.q19.utils.html.HTMLCompat
+import kz.q19.utils.keyboard.hideKeyboard
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
@@ -55,7 +56,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     private var messageInputView: MessageInputView? = null
 
     // RecyclerView adapter
-    private var adapter: ResponseGroupsAdapter? = null
+    private var responseGroupsAdapter: ResponseGroupsAdapter? = null
+    private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
     // CoordinatorLayout + BottomSheet
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
@@ -65,7 +67,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        presenter = ChatBotPresenter(Database.getInstance(requireContext()))
+        presenter = injection?.provideChatBotPresenter(getCurrentLanguage())
         presenter?.attachView(this)
 
         onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback {
@@ -101,6 +103,12 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     override fun onDestroy() {
         super.onDestroy()
 
+        responseGroupsAdapter?.setCallback(null)
+        responseGroupsAdapter = null
+
+        messageInputView?.setCallback(null)
+        messageInputView = null
+
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
 
@@ -109,7 +117,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     private fun setupResponsesView() {
-        adapter = ResponseGroupsAdapter(object : ResponseGroupsAdapter.Callback {
+        responseGroupsAdapter = ResponseGroupsAdapter()
+        responseGroupsAdapter?.setCallback(object : ResponseGroupsAdapter.Callback {
             override fun onGoBackButtonClicked(element: Element) {
                 presenter?.onGoBackButtonClicked(element)
             }
@@ -141,28 +150,38 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         })
         responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         responsesView?.itemAnimator = null
-        responsesView?.adapter = adapter
+        responsesView?.adapter = responseGroupsAdapter
     }
 
     private fun setupBottomSheet() {
         chatView?.let {
             bottomSheetBehavior = BottomSheetBehavior.from(it)
-
+            bottomSheetBehavior?.isDraggable = false
             bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     Logger.debug(TAG, "onStateChanged() -> $slideOffset")
 
-                    val alpha = 1F - slideOffset
-                    peekView?.alpha = alpha
-                    if (alpha <= 0F) {
-                        peekView?.visibility = View.INVISIBLE
+                    val reverseOffset = 1F - slideOffset
+
+                    peekView?.alpha = reverseOffset
+
+                    if (slideOffset >= 1F) {
+                        if (peekView?.visibility != View.GONE) {
+                            peekView?.visibility = View.GONE
+                        }
                     } else {
-                        peekView?.visibility = View.VISIBLE
+                        if (peekView?.visibility != View.VISIBLE) {
+                            peekView?.visibility = View.VISIBLE
+                        }
                     }
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     Logger.debug(TAG, "onStateChanged() -> $newState")
+
+                    if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                        activity?.hideKeyboard()
+                    }
 
                     presenter?.onBottomSheetStateChanged(newState == BottomSheetBehavior.STATE_EXPANDED)
                 }
@@ -181,8 +200,18 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     private fun setupMessagesView() {
-        messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        messagesView?.adapter = MessagesAdapter()
+        messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
+        chatMessagesAdapter = ChatMessagesAdapter()
+        messagesView?.adapter = chatMessagesAdapter
+
+        messageInputView?.setCallback(object : MessageInputView.Callback {
+            override fun onNewMediaSelection() {
+            }
+
+            override fun onSendTextMessage(message: String?) {
+                presenter?.onSendTextMessage(message)
+            }
+        })
     }
 
     /**
@@ -198,7 +227,13 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     override fun showResponses(nestables: List<Nestable>) {
-        adapter?.submitList(nestables)
+        responseGroupsAdapter?.submitList(nestables)
+    }
+
+    override fun addNewMessage(message: Message) {
+        activity?.runOnUiThread {
+            chatMessagesAdapter?.addNewMessage(message)
+        }
     }
 
     override fun copyHTMLText(label: String, text: CharSequence?, htmlText: String) {
@@ -240,6 +275,10 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         } else {
             bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
         }
+    }
+
+    override fun clearMessageInputViewText() {
+        messageInputView?.clearInputViewText()
     }
 
     override fun showNoResponsesFoundMessage() {

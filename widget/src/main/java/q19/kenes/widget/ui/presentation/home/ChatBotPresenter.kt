@@ -3,10 +3,11 @@ package q19.kenes.widget.ui.presentation.home
 import android.util.Log
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
+import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.Message
-import kz.q19.socket.SocketClient
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.model.Category
+import kz.q19.socket.repository.SocketRepository
 import kz.q19.utils.html.HTMLCompat
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
@@ -21,7 +22,9 @@ import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
 internal class ChatBotPresenter constructor(
-    private val database: Database
+    private val language: Language,
+    private val database: Database,
+    private val socketRepository: SocketRepository
 ) : BasePresenter<ChatBotView>(), ChatBotListener {
 
     companion object {
@@ -30,8 +33,6 @@ internal class ChatBotPresenter constructor(
 
     private var asyncHttpClient: AsyncHttpClient? = null
 
-    private var socketClient: SocketClient? = null
-
     private var chatBot = ChatBot()
 
     override fun onFirstViewAttach() {
@@ -39,8 +40,9 @@ internal class ChatBotPresenter constructor(
 
         asyncHttpClient = AsyncHttpClientBuilder().build()
 
-        socketClient = SocketClient.getInstance()
-        socketClient?.setChatBotListener(this)
+        socketRepository.setChatBotListener(this)
+
+        socketRepository.registerMessageEventListener()
 
         loadResponseGroups(true)
     }
@@ -224,26 +226,23 @@ internal class ChatBotPresenter constructor(
         chatBot.breadcrumb.clear()
     }
 
+    fun onSendTextMessage(message: String?) {
+        if (message.isNullOrBlank()) {
+            //
+        } else {
+            val outgoingMessage = message.trim()
 
-    /**
-     * [BasePresenter] implementation
-     */
+            getView().clearMessageInputViewText()
+            socketRepository.sendUserMessage(outgoingMessage)
 
-    override fun onDestroy() {
-        Log.d(TAG, "onDestroy()")
-
-        socketClient?.setChatBotListener(null)
-        socketClient = null
-
-        asyncHttpClient?.cancelAllRequests(true)
-        asyncHttpClient = null
-
-        chatBot.isBottomSheetExpanded = false
-        chatBot.breadcrumb.clear()
-        chatBot.lastResponseGroupsLoadedTime = -1L
-        chatBot.primaryResponseGroups = null
+            getView().addNewMessage(
+                Message.Builder()
+                    .setType(Message.Type.OUTGOING)
+                    .setText(outgoingMessage)
+                    .build()
+            )
+        }
     }
-
 
     /**
      * [ChatBotListener] implementation
@@ -256,15 +255,45 @@ internal class ChatBotPresenter constructor(
 
     override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
         Log.d(TAG, "onNoResultsFound() -> $text, $timestamp")
+
+        getView().addNewMessage(
+            Message.Builder()
+                .setType(Message.Type.INCOMING)
+                .setText(text)
+                .setCreatedAt(timestamp)
+                .build()
+        )
+
         return true
     }
 
     override fun onMessage(message: Message) {
         Log.d(TAG, "onMessage() -> $message")
+
+        getView().addNewMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {
         Log.d(TAG, "onCategories() -> $categories")
+    }
+
+    /**
+     * [BasePresenter] implementation
+     */
+
+    override fun onDestroy() {
+        Log.d(TAG, "onDestroy()")
+
+        socketRepository.unregisterMessageEventListener()
+        socketRepository.setChatBotListener(null)
+
+        asyncHttpClient?.cancelAllRequests(true)
+        asyncHttpClient = null
+
+        chatBot.isBottomSheetExpanded = false
+        chatBot.breadcrumb.clear()
+        chatBot.lastResponseGroupsLoadedTime = -1L
+        chatBot.primaryResponseGroups = null
     }
 
 }

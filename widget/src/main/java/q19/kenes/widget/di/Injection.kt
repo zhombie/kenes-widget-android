@@ -12,6 +12,7 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.KenesWidgetPresenter
 import q19.kenes.widget.ui.presentation.calls.CallsPresenter
 import q19.kenes.widget.ui.presentation.calls.media.VideoCallPresenter
+import q19.kenes.widget.ui.presentation.home.ChatBotPresenter
 
 internal class Injection private constructor(context: Context) {
 
@@ -35,16 +36,20 @@ internal class Injection private constructor(context: Context) {
         SocketClient.getInstance()
     }
 
-    fun provideKenesWidgetPresenter(): KenesWidgetPresenter {
-        return KenesWidgetPresenter(database, socketRepository)
+    fun provideKenesWidgetPresenter(language: Language): KenesWidgetPresenter {
+        return KenesWidgetPresenter(language, database, socketRepository)
     }
 
-    fun provideCallsPresenter(): CallsPresenter {
-        return CallsPresenter(database, socketRepository)
+    fun provideChatBotPresenter(language: Language): ChatBotPresenter {
+        return ChatBotPresenter(language, database, socketRepository)
     }
 
-    fun provideVideoCallPresenter(peerConnectionClient: PeerConnectionClient): VideoCallPresenter {
-        return VideoCallPresenter(database, deviceInfo, peerConnectionClient, socketRepository)
+    fun provideCallsPresenter(language: Language): CallsPresenter {
+        return CallsPresenter(language, database, socketRepository)
+    }
+
+    fun provideVideoCallPresenter(language: Language, peerConnectionClient: PeerConnectionClient): VideoCallPresenter {
+        return VideoCallPresenter(language, database, deviceInfo, peerConnectionClient, socketRepository)
     }
 
     fun destroy() {

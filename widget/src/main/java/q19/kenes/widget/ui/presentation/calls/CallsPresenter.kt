@@ -6,6 +6,7 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 
 internal class CallsPresenter constructor(
+    private val language: Language,
     private val database: Database,
     private val socketRepository: SocketRepository
 ) : BasePresenter<CallsView>() {
@@ -13,8 +14,6 @@ internal class CallsPresenter constructor(
     companion object {
         private val TAG = CallsPresenter::class.java.simpleName
     }
-
-    private var language: Language? = null
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()

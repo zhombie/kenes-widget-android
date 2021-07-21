@@ -40,13 +40,11 @@ import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.core.permission.PermissionManager
-import q19.kenes.widget.ui.components.*
+import q19.kenes.widget.ui.components.BottomNavigationView
+import q19.kenes.widget.ui.components.MessageInputView
+import q19.kenes.widget.ui.components.ProgressView
 import q19.kenes.widget.ui.components.deprecated.*
-import q19.kenes.widget.ui.components.deprecated.AudioDialogView
-import q19.kenes.widget.ui.components.deprecated.DynamicFormView
-import q19.kenes.widget.ui.components.deprecated.FeedbackView
-import q19.kenes.widget.ui.components.deprecated.OperatorCallPendingView
-import q19.kenes.widget.ui.presentation.adapter.ChatAdapter
+import q19.kenes.widget.ui.presentation.adapter.OldChatAdapter
 import q19.kenes.widget.ui.presentation.adapter.ChatAdapterItemDecoration
 import q19.kenes.widget.ui.presentation.adapter.ChatFooterAdapter
 import q19.kenes.widget.ui.presentation.model.ViewState
@@ -156,7 +154,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
     // ------------------------------------------------------------------------
 
     private var concatAdapter: ConcatAdapter? = null
-    private var chatAdapter: ChatAdapter? = null
+    private var chatAdapter: OldChatAdapter? = null
     private var chatFooterAdapter: ChatFooterAdapter? = null
 
     // ------------------------------------------------------------------------
@@ -362,15 +360,15 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
             }
         }
 
-        footerView.callback = object : MessageInputView.Callback {
-            override fun onNewMediaSelection() {
-                presenter.onAddAttachmentButtonClicked()
-            }
-
-            override fun onSendTextMessage(message: String?) {
-                presenter.onSendMessageButtonClicked(message)
-            }
-        }
+//        footerView.callback = object : MessageInputView.Callback {
+//            override fun onNewMediaSelection() {
+//                presenter.onAddAttachmentButtonClicked()
+//            }
+//
+//            override fun onSendTextMessage(message: String?) {
+//                presenter.onSendMessageButtonClicked(message)
+//            }
+//        }
 
 //        footerView.setOnInputViewFocusChangeListener { v, actionId, event ->
 //            if (actionId == EditorInfo.IME_ACTION_SEND || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
@@ -470,7 +468,7 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
     }
 
     private fun setupRecyclerView() {
-        chatAdapter = ChatAdapter(object : ChatAdapter.Callback {
+        chatAdapter = OldChatAdapter(object : OldChatAdapter.Callback {
             override fun onShowAllCategoryChildClicked(category: Category) {
 //                presenter.onShowAllCategoryChildClicked(category)
             }

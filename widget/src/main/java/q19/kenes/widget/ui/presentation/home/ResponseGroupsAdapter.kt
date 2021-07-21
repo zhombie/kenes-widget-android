@@ -16,9 +16,7 @@ import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
-internal class ResponseGroupsAdapter constructor(
-    private val callback: Callback
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val TAG = ResponseGroupsAdapter::class.java.simpleName
@@ -51,6 +49,12 @@ internal class ResponseGroupsAdapter constructor(
     }
 
     private val asyncListDiffer by lazy { AsyncListDiffer(this, diffCallback) }
+
+    private var callback: Callback? = null
+
+    fun setCallback(callback: Callback?) {
+        this.callback = callback
+    }
 
     fun submitList(nestables: List<Nestable>) {
         asyncListDiffer.submitList(nestables)
@@ -121,20 +125,20 @@ internal class ResponseGroupsAdapter constructor(
                 }
             }
 
-            backButton.setOnClickListener { callback.onGoBackButtonClicked(nestable) }
-            menuButton.setOnClickListener { callback.onMenuButtonClicked() }
+            backButton.setOnClickListener { callback?.onGoBackButtonClicked(nestable) }
+            menuButton.setOnClickListener { callback?.onMenuButtonClicked() }
         }
 
         override fun onResponseGroupClicked(responseGroup: ResponseGroup) {
-            callback.onResponseGroupClicked(responseGroup)
+            callback?.onResponseGroupClicked(responseGroup)
         }
 
         override fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
-            callback.onResponseGroupChildClicked(child)
+            callback?.onResponseGroupChildClicked(child)
         }
 
         override fun onGoBackButtonClicked(element: Element) {
-            callback.onGoBackButtonClicked(element)
+            callback?.onGoBackButtonClicked(element)
         }
 
     }

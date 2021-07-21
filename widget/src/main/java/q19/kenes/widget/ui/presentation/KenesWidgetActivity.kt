@@ -95,8 +95,7 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView {
         }
 
         // Presenter
-        presenter = injection.provideKenesWidgetPresenter()
-        presenter?.setLanguage(language)
+        presenter = injection.provideKenesWidgetPresenter(language)
         presenter?.attachView(this)
 
         // Fragments

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_gravity="left"
+    android:layout_gravity="center_horizontal"
     android:gravity="left"
     android:orientation="vertical">
 
@@ -12,7 +12,7 @@
         android:id="@+id/cardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardBackgroundColor="#E4E6EB"
+        app:cardBackgroundColor="#b4bacd"
         app:cardCornerRadius="15dp"
         app:cardElevation="0dp">
 
@@ -26,7 +26,7 @@
             android:layout_marginBottom="8dp"
             android:fontFamily="sans-serif"
             android:textAllCaps="false"
-            android:textColor="@color/kenes_dark_charcoal"
+            android:textColor="@color/kenes_white"
             android:textSize="@dimen/chat_message_text_size"
             android:textStyle="normal"
             tools:text="Outgoing message" />

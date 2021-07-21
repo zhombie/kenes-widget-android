@@ -27,6 +27,7 @@ import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
 internal class VideoCallPresenter constructor(
+    private val language: Language,
     private val database: Database,
     private val deviceInfo: DeviceInfo,
     private val peerConnectionClient: PeerConnectionClient,

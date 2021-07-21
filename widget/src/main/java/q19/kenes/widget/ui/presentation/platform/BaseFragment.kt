@@ -1,6 +1,5 @@
 package q19.kenes.widget.ui.presentation.platform
 
-import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.drawable.Drawable
 import android.view.Menu
@@ -22,7 +21,7 @@ internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : 
 
     constructor() : this(0)
 
-    internal val Context?.injection: Injection?
+    protected val injection: Injection?
         get() = if (context == null) null else Injection.getInstance(requireContext())
 
     protected var menu: Menu? = null

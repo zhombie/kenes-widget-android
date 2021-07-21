@@ -39,7 +39,7 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        presenter = context.injection?.provideCallsPresenter()
+        presenter = injection?.provideCallsPresenter(getCurrentLanguage())
         presenter?.attachView(this)
 
         permissionManager = PermissionManager(requireActivity())

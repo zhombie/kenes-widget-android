@@ -31,7 +31,7 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Material_NoActionBar_Fullscreen)
 
         val peerConnectionClient = PeerConnectionClient(requireContext())
-        presenter = context.injection?.provideVideoCallPresenter(peerConnectionClient)
+        presenter = injection?.provideVideoCallPresenter(getCurrentLanguage(), peerConnectionClient)
         presenter?.attachView(this)
     }
 

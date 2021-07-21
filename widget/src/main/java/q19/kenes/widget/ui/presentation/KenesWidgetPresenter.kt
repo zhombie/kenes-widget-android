@@ -13,6 +13,7 @@ import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
 internal class KenesWidgetPresenter constructor(
+    private val language: Language,
     private val database: Database,
     private val socketRepository: SocketRepository
 ) : BasePresenter<KenesWidgetView>(), SocketStateListener {
@@ -20,8 +21,6 @@ internal class KenesWidgetPresenter constructor(
     companion object {
         private val TAG = KenesWidgetPresenter::class.java.simpleName
     }
-
-    private var language: Language = Language.DEFAULT
 
     private var asyncHttpClient: AsyncHttpClient? = null
 
@@ -67,19 +66,33 @@ internal class KenesWidgetPresenter constructor(
         socketRepository.registerMessageEventListener()
         socketRepository.registerSocketDisconnectEventListener()
 
-        val url = UrlUtil.getSocketUrl()
-        if (!url.isNullOrBlank()) {
-            socketRepository.create(url)
-        }
-
         if (!socketRepository.isConnected()) {
-            socketRepository.connect()
+            val url = UrlUtil.getSocketUrl()
+            if (!url.isNullOrBlank()) {
+                socketRepository.create(url)
+
+                socketRepository.connect()
+            }
         }
     }
 
     fun onBottomNavigationButtonSelected(index: Int) {
         getView().navigateTo(index)
     }
+
+    /**
+     * [SocketStateListener] implementation
+     */
+
+    override fun onSocketConnect() {
+        Log.d(TAG, "onSocketConnect()")
+        socketRepository.sendUserLanguage(language)
+    }
+
+    override fun onSocketDisconnect() {
+        Log.d(TAG, "onSocketDisconnect()")
+    }
+
 
     /**
      * [BasePresenter] implementation
@@ -93,27 +106,6 @@ internal class KenesWidgetPresenter constructor(
 
         asyncHttpClient?.cancelAllRequests(true)
         asyncHttpClient = null
-
-        super.onDestroy()
-    }
-
-
-    fun setLanguage(language: Language) {
-        this.language = language
-    }
-
-
-    /**
-     * [SocketStateListener] implementation
-     */
-
-    override fun onSocketConnect() {
-        Log.d(TAG, "onSocketConnect()")
-        socketRepository.sendUserLanguage(language)
-    }
-
-    override fun onSocketDisconnect() {
-        Log.d(TAG, "onSocketDisconnect()")
     }
 
 }

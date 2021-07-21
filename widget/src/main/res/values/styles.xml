@@ -128,4 +128,12 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="MessageTimeViewTextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">#B4BACD</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
 </resources>

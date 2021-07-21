@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.components.base
+package q19.kenes.widget.ui.components
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -12,30 +12,38 @@ import android.text.util.Linkify
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.google.android.material.textview.MaterialTextView
 import q19.kenes_widget.R
 
-internal class HtmlTextView @JvmOverloads constructor(
+class HTMLTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
-) : TextView(context, attrs, defStyleAttr) {
+    defStyleAttr: Int = android.R.attr.textViewStyle,
+    defStyleRes: Int = 0
+) : MaterialTextView(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val colorStateList by lazy {
-        val stateSet = arrayOf(
-            intArrayOf(android.R.attr.state_pressed),
-            intArrayOf(android.R.attr.state_selected),
-            intArrayOf()
+    companion object {
+        private val TAG = HTMLTextView::class.java.simpleName
+    }
+
+    private val colorStateList: ColorStateList by lazy {
+        ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_pressed),
+                intArrayOf(android.R.attr.state_selected),
+                intArrayOf(android.R.attr.state_enabled)
+            ),
+            intArrayOf(
+                ContextCompat.getColor(context, R.color.kenes_blue),
+                ContextCompat.getColor(context, R.color.kenes_blue),
+                ContextCompat.getColor(context, R.color.kenes_blue)
+            )
         )
-        val colors = intArrayOf(
-            ContextCompat.getColor(context, R.color.kenes_light_blue),
-            ContextCompat.getColor(context, R.color.kenes_light_blue),
-            ContextCompat.getColor(context, R.color.kenes_light_blue)
-        )
-        ColorStateList(stateSet, colors)
     }
 
     init {
         highlightColor = Color.TRANSPARENT
+
         setLinkTextColor(colorStateList)
     }
 
@@ -50,9 +58,7 @@ internal class HtmlTextView @JvmOverloads constructor(
     fun setHtmlText(spanned: Spanned?, listener: (view: View, url: String) -> Unit) {
         if (spanned == null) return
         val spannableStringBuilder = SpannableStringBuilder(spanned)
-        val urls = spannableStringBuilder.getSpans(
-            0, spanned.length, URLSpan::class.java
-        )
+        val urls = spannableStringBuilder.getSpans(0, spanned.length, URLSpan::class.java)
         for (span in urls) {
             spannableStringBuilder.setLinkClickable(span, listener)
         }
