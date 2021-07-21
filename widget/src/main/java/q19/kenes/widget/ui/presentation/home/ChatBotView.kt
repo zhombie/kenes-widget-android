@@ -15,6 +15,8 @@ internal interface ChatBotView : BaseView {
     fun copyHTMLText(label: String, text: CharSequence?, htmlText: String)
     fun share(title: String, text: CharSequence?, htmlText: String)
 
+    fun toggleBottomSheet()
+
     // Alert messages
     fun showNoResponsesFoundMessage()
 }

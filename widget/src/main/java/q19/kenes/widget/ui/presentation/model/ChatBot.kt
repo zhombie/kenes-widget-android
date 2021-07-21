@@ -7,8 +7,10 @@ internal class ChatBot {
 
     var primaryResponseGroups: List<ResponseGroup>? = null
 
-    val breadcrumb = mutableListOf<Nestable>()
+    val breadcrumb: MutableList<Nestable> = mutableListOf()
 
     var lastResponseGroupsLoadedTime: Long = -1L
+
+    var isBottomSheetExpanded: Boolean = false
 
 }

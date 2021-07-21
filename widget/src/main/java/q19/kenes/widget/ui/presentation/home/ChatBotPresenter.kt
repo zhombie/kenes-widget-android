@@ -156,6 +156,11 @@ internal class ChatBotPresenter constructor(
     fun onGoBackButtonClicked(): Boolean {
         Logger.debug(TAG, "onGoBackButtonClicked()")
 
+        if (chatBot.isBottomSheetExpanded) {
+            getView().toggleBottomSheet()
+            return false
+        }
+
         if (chatBot.breadcrumb.isEmpty()) return true
 
         return when {
@@ -177,6 +182,10 @@ internal class ChatBotPresenter constructor(
                 true
             }
         }
+    }
+
+    fun onBottomSheetStateChanged(isExpanded: Boolean) {
+        chatBot.isBottomSheetExpanded = isExpanded
     }
 
     fun onCopyText() {
@@ -229,7 +238,9 @@ internal class ChatBotPresenter constructor(
         asyncHttpClient?.cancelAllRequests(true)
         asyncHttpClient = null
 
+        chatBot.isBottomSheetExpanded = false
         chatBot.breadcrumb.clear()
+        chatBot.lastResponseGroupsLoadedTime = -1L
         chatBot.primaryResponseGroups = null
     }
 

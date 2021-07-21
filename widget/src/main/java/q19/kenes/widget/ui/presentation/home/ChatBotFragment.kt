@@ -163,6 +163,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     Logger.debug(TAG, "onStateChanged() -> $newState")
+
+                    presenter?.onBottomSheetStateChanged(newState == BottomSheetBehavior.STATE_EXPANDED)
                 }
             })
         }
@@ -229,6 +231,14 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
             startActivity(share)
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
+        }
+    }
+
+    override fun toggleBottomSheet() {
+        if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_COLLAPSED) {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        } else {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
         }
     }
 
