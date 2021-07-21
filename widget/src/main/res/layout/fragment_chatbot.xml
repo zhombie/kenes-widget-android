@@ -35,6 +35,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/bottom_sheet_behavior"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="100dp" />
+        app:behavior_peekHeight="@dimen/bottom_sheet_peek_height" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

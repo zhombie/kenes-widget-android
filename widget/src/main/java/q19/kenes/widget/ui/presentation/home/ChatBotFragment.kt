@@ -6,9 +6,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +30,7 @@ import q19.kenes.widget.ui.components.ProgressView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
+import kotlin.math.roundToInt
 
 internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView,
     HomeFragmentDelegate {
@@ -168,6 +171,9 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
             bottomSheetBehavior = BottomSheetBehavior.from(it)
             bottomSheetBehavior?.isDraggable = false
             bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+                private val peekHeight =
+                    requireContext().resources.getDimensionPixelOffset(R.dimen.bottom_sheet_peek_height)
+
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     Logger.debug(TAG, "onStateChanged() -> $slideOffset")
 
@@ -175,14 +181,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
                     peekView?.alpha = reverseOffset
 
-                    if (slideOffset >= 1F) {
-                        if (peekView?.visibility != View.GONE) {
-                            peekView?.visibility = View.GONE
-                        }
-                    } else {
-                        if (peekView?.visibility != View.VISIBLE) {
-                            peekView?.visibility = View.VISIBLE
-                        }
+                    peekView?.updateLayoutParams<ViewGroup.LayoutParams> {
+                        height = (peekHeight * reverseOffset).roundToInt()
                     }
                 }
 

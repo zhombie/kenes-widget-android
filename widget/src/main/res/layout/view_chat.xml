@@ -33,7 +33,7 @@
         <LinearLayout
             android:id="@+id/peekView"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="@dimen/bottom_sheet_peek_height"
             android:background="#F23B4859"
             android:gravity="center"
             android:orientation="vertical">
@@ -78,7 +78,6 @@
         android:id="@+id/messagesView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
         android:layout_weight="1"
         android:clipChildren="false"
         android:clipToPadding="false"

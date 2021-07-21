@@ -47,6 +47,8 @@
 
     <dimen name="kenes_section_padding">35dp</dimen>
 
+    <dimen name="bottom_sheet_peek_height">100dp</dimen>
+
     <dimen name="progress_circle_size">45dp</dimen>
     <dimen name="progress_track_thickness">4dp</dimen>
 
