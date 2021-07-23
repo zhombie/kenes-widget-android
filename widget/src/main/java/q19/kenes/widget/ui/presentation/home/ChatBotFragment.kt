@@ -72,6 +72,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
 
     interface Listener {
+        fun onResponsesViewScrolled(scrollYPosition: Int)
         fun onBottomSheetSlide(slideOffset: Float)
     }
 
@@ -134,6 +135,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         chatMessagesHeaderAdapter?.let { concatAdapter?.removeAdapter(it) }
         chatMessagesHeaderAdapter = null
 
+        responsesView?.clearOnScrollListeners()
+
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
 
@@ -176,6 +179,13 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         responsesView?.itemAnimator = null
         responsesView?.adapter = responseGroupsAdapter
+
+        responsesView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                listener?.onResponsesViewScrolled(recyclerView.computeVerticalScrollOffset())
+            }
+        })
     }
 
     private fun setupBottomSheet() {

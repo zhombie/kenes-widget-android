@@ -5,16 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.RelativeLayout
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
+import kz.q19.utils.android.dp2Px
 import kz.q19.utils.view.binding.bind
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
@@ -33,6 +33,8 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFra
 
     companion object {
         private val TAG = KenesWidgetActivity::class.java.simpleName
+
+        private val MAX_TOOLBAR_ELEVATION = 3F.dp2Px()
 
         fun newIntent(
             context: Context,
@@ -58,10 +60,10 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFra
 
     // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
-    private val toolbar by bind<RelativeLayout>(R.id.toolbar)
-    private val imageView by bind<AppCompatImageView>(R.id.imageView)
-    private val titleView by bind<AppCompatTextView>(R.id.titleView)
-    private val subtitleView by bind<AppCompatTextView>(R.id.subtitleView)
+    private val toolbar by bind<LinearLayout>(R.id.toolbar)
+    private val imageView by bind<ShapeableImageView>(R.id.imageView)
+    private val titleView by bind<MaterialTextView>(R.id.titleView)
+    private val subtitleView by bind<MaterialTextView>(R.id.subtitleView)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
 
@@ -191,6 +193,19 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFra
     /**
      * [ChatBotFragment.Listener] implementation
      */
+
+    override fun onResponsesViewScrolled(scrollYPosition: Int) {
+        Logger.debug(TAG, "onResponsesViewScrolled() -> $scrollYPosition")
+        if (toolbar.elevation > MAX_TOOLBAR_ELEVATION) return
+        var elevation: Float = scrollYPosition.toFloat()
+        if (elevation < 0F) {
+            elevation = 0F
+        }
+        if (elevation > MAX_TOOLBAR_ELEVATION) {
+            elevation = MAX_TOOLBAR_ELEVATION
+        }
+        toolbar.elevation = elevation
+    }
 
     override fun onBottomSheetSlide(slideOffset: Float) {
 //        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
