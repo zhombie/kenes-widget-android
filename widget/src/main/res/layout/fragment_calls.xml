@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="4" />
+        tools:itemCount="4"
+        tools:listitem="@layout/cell_call" />
 
 </LinearLayout>

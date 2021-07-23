@@ -1,15 +1,8 @@
 package q19.kenes.widget.ui.presentation.platform
 
-import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
-import android.view.Menu
 import android.widget.Toast
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import kz.q19.common.locale.LocaleManager
@@ -24,14 +17,6 @@ internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : 
     protected val injection: Injection?
         get() = if (context == null) null else Injection.getInstance(requireContext())
 
-    protected var menu: Menu? = null
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        menu = null
-    }
-
     fun getCurrentLocale(): Locale? {
         return LocaleManager.getLocale()
     }
@@ -39,18 +24,6 @@ internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : 
     fun getCurrentLanguage(): Language {
         val locale = getCurrentLocale()
         return locale?.let { Language.from(it) } ?: Language.DEFAULT
-    }
-
-    fun getColorCompat(@ColorRes resId: Int): Int {
-        return ContextCompat.getColor(requireContext(), resId)
-    }
-
-    fun getColorStateListCompat(@ColorRes resId: Int): ColorStateList? {
-        return ContextCompat.getColorStateList(requireContext(), resId)
-    }
-
-    fun getDrawableCompat(@DrawableRes resId: Int): Drawable? {
-        return AppCompatResources.getDrawable(requireContext(), resId)
     }
 
     fun toast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {

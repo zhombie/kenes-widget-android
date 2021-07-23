@@ -34,7 +34,7 @@
             android:id="@+id/peekView"
             android:layout_width="match_parent"
             android:layout_height="@dimen/bottom_sheet_peek_height"
-            android:background="#F23B4859"
+            android:background="@drawable/bg_bottom_sheet_peek_height"
             android:gravity="center"
             android:orientation="vertical">
 

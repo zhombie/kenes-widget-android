@@ -179,6 +179,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     private fun setupBottomSheet() {
+        closeButton?.alpha = 0F
+
         chatView?.let {
             bottomSheetBehavior = BottomSheetBehavior.from(it)
             bottomSheetBehavior?.isDraggable = false
@@ -190,6 +192,8 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
                     Logger.debug(TAG, "onStateChanged() -> $slideOffset")
 
                     val reverseOffset = 1F - slideOffset
+
+                    closeButton?.alpha = slideOffset
 
                     peekView?.alpha = reverseOffset
 
