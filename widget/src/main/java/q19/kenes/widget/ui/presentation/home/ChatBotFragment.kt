@@ -3,10 +3,12 @@ package q19.kenes.widget.ui.presentation.home
 import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EdgeEffect
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -180,6 +182,14 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         responsesView?.itemAnimator = null
         responsesView?.adapter = responseGroupsAdapter
 
+        responsesView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+                return EdgeEffect(view.context).apply {
+                    color = Color.parseColor("#2667E5")
+                }
+            }
+        }
+
         responsesView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -245,6 +255,14 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         concatAdapter = ConcatAdapter(chatMessagesAdapter, chatMessagesHeaderAdapter)
 
         messagesView?.adapter = concatAdapter
+
+        messagesView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+                return EdgeEffect(view.context).apply {
+                    color = Color.parseColor("#2667E5")
+                }
+            }
+        }
 
         messageInputView?.setCallback(object : MessageInputView.Callback {
             override fun onNewMediaSelection() {
