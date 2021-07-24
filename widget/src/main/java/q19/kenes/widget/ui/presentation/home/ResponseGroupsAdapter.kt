@@ -3,12 +3,8 @@ package q19.kenes.widget.ui.presentation.home
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.*
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
@@ -81,17 +77,21 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
         private val toolbar = view.findViewById<FrameLayout>(R.id.toolbar)
         private val backButton = view.findViewById<MaterialButton>(R.id.backButton)
         private val menuButton = view.findViewById<MaterialButton>(R.id.menuButton)
-        private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
-        private val adapter = ResponseGroupChildrenAdapter(isExpandable = true, callback = this)
+        private val headerAdapter = ResponseGroupChildrenHeaderAdapter()
+        private val childrenAdapter =
+            ResponseGroupChildrenAdapter(isExpandable = true, callback = this)
+        private var concatAdapter: ConcatAdapter? = null
 
         private val layoutManager =
             LinearLayoutManager(itemView.context, LinearLayoutManager.VERTICAL, false)
 
         init {
-            recyclerView.adapter = adapter
             recyclerView.layoutManager = layoutManager
+
+            concatAdapter = ConcatAdapter(headerAdapter, childrenAdapter)
+            recyclerView.adapter = concatAdapter
         }
 
         fun bind(nestable: Nestable) {
@@ -106,22 +106,22 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
                         toolbar.visibility = View.VISIBLE
                     }
 
-                    titleView.text = nestable.title
+                    headerAdapter.title = nestable.title
 
-                    adapter.children = nestable.children
+                    childrenAdapter.children = nestable.children
                 }
                 is ResponseGroup.Child -> {
                     menuButton.visibility = View.VISIBLE
                     toolbar.visibility = View.VISIBLE
 
-                    titleView.text = nestable.title
+                    headerAdapter.title = nestable.title
 
-                    adapter.children = nestable.responses
+                    childrenAdapter.children = nestable.responses
                 }
                 else -> {
                     toolbar.visibility = View.GONE
 
-                    titleView.text = null
+                    headerAdapter.title = null
                 }
             }
 
