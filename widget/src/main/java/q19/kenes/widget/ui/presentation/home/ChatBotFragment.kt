@@ -62,15 +62,17 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     private var messageInputView: MessageInputView? = null
 
     // RecyclerView adapter
+    private var concatAdapter: ConcatAdapter? = null
+
     private var responseGroupsAdapter: ResponseGroupsAdapter? = null
 
-    private var concatAdapter: ConcatAdapter? = null
     private var chatMessagesHeaderAdapter: ChatMessagesHeaderAdapter? = null
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
     // CoordinatorLayout + BottomSheet
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
 
+    // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
 
     interface Listener {
@@ -253,7 +255,6 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         chatMessagesHeaderAdapter = ChatMessagesHeaderAdapter()
         chatMessagesAdapter = ChatMessagesAdapter()
         concatAdapter = ConcatAdapter(chatMessagesAdapter, chatMessagesHeaderAdapter)
-
         messagesView?.adapter = concatAdapter
 
         messagesView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {

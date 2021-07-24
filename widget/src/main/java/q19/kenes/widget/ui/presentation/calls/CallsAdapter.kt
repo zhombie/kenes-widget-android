@@ -2,9 +2,9 @@ package q19.kenes.widget.ui.presentation.calls
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 
@@ -37,8 +37,8 @@ internal class CallsAdapter constructor(
     }
 
     private inner class ViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val imageView = view.findViewById<AppCompatImageView>(R.id.imageView)
+        private val textView = view.findViewById<MaterialTextView>(R.id.textView)
+        private val imageView = view.findViewById<ShapeableImageView>(R.id.arrowView)
 
         fun bind(call: Call) {
             textView.text = call.title

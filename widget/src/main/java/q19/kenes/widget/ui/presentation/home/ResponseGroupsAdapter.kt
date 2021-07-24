@@ -3,12 +3,12 @@ package q19.kenes.widget.ui.presentation.home
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
@@ -81,7 +81,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
         private val toolbar = view.findViewById<FrameLayout>(R.id.toolbar)
         private val backButton = view.findViewById<MaterialButton>(R.id.backButton)
         private val menuButton = view.findViewById<MaterialButton>(R.id.menuButton)
-        private val titleView = view.findViewById<AppCompatTextView>(R.id.titleView)
+        private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
         private val adapter = ResponseGroupChildrenAdapter(isExpandable = true, callback = this)

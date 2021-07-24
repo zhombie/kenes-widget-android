@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#005bab"
-    android:padding="20dp">
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="15dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="15dp">
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/textView"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iconView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
+        android:src="@drawable/ic_folder" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_weight="1"
         android:ellipsize="end"
-        android:fontFamily="sans-serif-medium"
+        android:fontFamily="sans-serif"
+        android:includeFontPadding="false"
         android:gravity="left"
         android:maxLines="3"
         android:singleLine="false"
-        android:textColor="@color/kenes_white"
-        android:textSize="15sp"
+        android:textColor="@color/kenes_dark_charcoal"
+        android:textSize="14sp"
         android:textStyle="normal"
-        app:fontFamily="sans-serif"
         tools:text="СпецЦОН" />
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@id/textView"
-        android:layout_alignBottom="@id/textView"
-        android:layout_alignParentEnd="true"
-        android:visibility="gone"
-        tools:srcCompat="@drawable/kenes_ic_caret_right_blue"
-        tools:visibility="visible" />
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/arrowView"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:src="@drawable/ic_arrow_right" />
 
-</RelativeLayout>
+</LinearLayout>

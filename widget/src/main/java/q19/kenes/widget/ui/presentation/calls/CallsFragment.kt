@@ -2,6 +2,7 @@ package q19.kenes.widget.ui.presentation.calls
 
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes.widget.core.logging.Logger
@@ -34,6 +35,8 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     private var recyclerView: RecyclerView? = null
 
     // RecyclerView adapter
+    private var concatAdapter: ConcatAdapter? = null
+    private var callsHeaderAdapter: CallsHeaderAdapter? = null
     private var callsAdapter: CallsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,9 +71,12 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     }
 
     private fun setupRecyclerView() {
-        callsAdapter = CallsAdapter(this)
         recyclerView?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        recyclerView?.adapter = callsAdapter
+
+        callsHeaderAdapter = CallsHeaderAdapter()
+        callsAdapter = CallsAdapter(this)
+        concatAdapter = ConcatAdapter(callsHeaderAdapter, callsAdapter)
+        recyclerView?.adapter = concatAdapter
     }
 
     /**

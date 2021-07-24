@@ -3,8 +3,6 @@ package q19.kenes.widget.ui.presentation.home
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
@@ -220,9 +218,9 @@ internal class ResponseGroupChildrenAdapter constructor(
     }
 
     private inner class ChildViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val iconView = view.findViewById<AppCompatImageView>(R.id.iconView)
-        private val textView = view.findViewById<AppCompatTextView>(R.id.textView)
-        private val arrowView = view.findViewById<AppCompatImageView>(R.id.arrowView)
+        private val iconView = view.findViewById<ShapeableImageView>(R.id.iconView)
+        private val textView = view.findViewById<MaterialTextView>(R.id.textView)
+        private val arrowView = view.findViewById<ShapeableImageView>(R.id.arrowView)
 
         fun bind(element: Element) {
             when (element) {
