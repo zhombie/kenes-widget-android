@@ -44,21 +44,29 @@ class Database private constructor(context: Context) {
     private var onUpdateConfigsListener: OnUpdateConfigsListener? = null
     private var onUpdateIceServersListener: OnUpdateIceServersListener? = null
 
-    fun setOnUpdateConfigsListener(listener: OnUpdateConfigsListener) {
-        onUpdateConfigsListener = listener
+    fun setOnUpdateConfigsListener(listener: OnUpdateConfigsListener?) {
+        if (listener == null) {
+            onUpdateConfigsListener = listener
+        } else {
+            onUpdateConfigsListener = listener
 
-        val configs = getConfigs()
-        if (configs != null) {
-            onUpdateConfigsListener?.onUpdate(configs)
+            val configs = getConfigs()
+            if (configs != null) {
+                onUpdateConfigsListener?.onUpdate(configs)
+            }
         }
     }
 
-    fun setOnUpdateIceServersListener(listener: OnUpdateIceServersListener) {
-        onUpdateIceServersListener = listener
+    fun setOnUpdateIceServersListener(listener: OnUpdateIceServersListener?) {
+        if (listener == null) {
+            onUpdateIceServersListener = listener
+        } else {
+            onUpdateIceServersListener = listener
 
-        val iceServers = getIceServers()
-        if (iceServers != null) {
-            onUpdateIceServersListener?.onUpdate(iceServers)
+            val iceServers = getIceServers()
+            if (iceServers != null) {
+                onUpdateIceServersListener?.onUpdate(iceServers)
+            }
         }
     }
 

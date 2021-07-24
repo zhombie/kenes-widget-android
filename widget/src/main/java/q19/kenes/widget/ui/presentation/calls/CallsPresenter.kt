@@ -19,17 +19,24 @@ internal class CallsPresenter constructor(
         super.onFirstViewAttach()
 
         database.setOnUpdateConfigsListener { configs ->
-            val mediaCalls = configs.calls?.filter { it.isParent() } ?: emptyList()
-            getView().showMediaCalls(mediaCalls.mapNotNull {
-                val title = it.title.get(language) ?: it.title.ru
+            val primaryMediaCalls = configs.calls?.filter { it.isParent() } ?: emptyList()
+            val calls = primaryMediaCalls.mapNotNull {
+                val title = it.title.get(language) ?: it.title.get(Language.DEFAULT)
                 if (title.isNullOrBlank()) return@mapNotNull null
                 Call(title)
-            })
+            }
+            getView().showMediaCalls(calls)
         }
     }
 
     fun onCallClicked(call: Call) {
         getView().launchVideoCall(call)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        database.setOnUpdateConfigsListener(null)
     }
 
 }
