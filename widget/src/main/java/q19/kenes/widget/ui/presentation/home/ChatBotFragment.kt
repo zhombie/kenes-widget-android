@@ -5,7 +5,6 @@ import android.content.ClipData
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EdgeEffect
@@ -102,7 +101,19 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
     override fun onResume() {
         super.onResume()
-        Log.d(TAG, "onResume()")
+
+        Logger.debug(TAG, "onResume()")
+
+        if (onBackPressedDispatcherCallback == null) {
+            onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
+                if (presenter?.onGoBackButtonClicked() == true) {
+                    isEnabled = false
+                    activity?.onBackPressed()
+                }
+            }
+        } else {
+            onBackPressedDispatcherCallback?.isEnabled = true
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,6 +131,14 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
         setupResponsesView()
         setupBottomSheet()
         setupMessagesView()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        Logger.debug(TAG, "onPause()")
+
+        onBackPressedDispatcherCallback?.isEnabled = false
     }
 
     override fun onDestroy() {

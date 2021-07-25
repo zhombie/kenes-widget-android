@@ -1,6 +1,5 @@
 package q19.kenes.widget.ui.presentation.home
 
-import android.util.Log
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.language.Language
@@ -163,26 +162,18 @@ internal class ChatBotPresenter constructor(
             return false
         }
 
-        if (chatBot.breadcrumb.isEmpty()) return true
+        return if (chatBot.breadcrumb.isEmpty()) {
+            true
+        } else {
+            chatBot.breadcrumb.removeLast()
 
-        return when {
-            chatBot.breadcrumb.isNotEmpty() -> {
-                Logger.debug(TAG, "onGoBackButtonClicked() -> ${chatBot.breadcrumb}")
-
-                chatBot.breadcrumb.removeLast()
-                Logger.debug(TAG, "onGoBackButtonClicked() -> ${chatBot.breadcrumb}")
-                if (chatBot.breadcrumb.isEmpty()) {
-                    loadResponseGroups(false)
-                } else {
-                    getView().showResponses(listOfNotNull(chatBot.breadcrumb.last()))
-                }
-
-                false
-            }
-            else -> {
+            if (chatBot.breadcrumb.isEmpty()) {
                 loadResponseGroups(false)
-                true
+            } else {
+                getView().showResponses(listOfNotNull(chatBot.breadcrumb.last()))
             }
+
+            false
         }
     }
 
@@ -258,12 +249,12 @@ internal class ChatBotPresenter constructor(
      */
 
     override fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean {
-        Log.d(TAG, "onFuzzyTaskOffered() -> $text, $timestamp")
+        Logger.debug(TAG, "onFuzzyTaskOffered() -> $text, $timestamp")
         return true
     }
 
     override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
-        Log.d(TAG, "onNoResultsFound() -> $text, $timestamp")
+        Logger.debug(TAG, "onNoResultsFound() -> $text, $timestamp")
 
         getView().addNewMessage(
             Message.Builder()
@@ -277,13 +268,13 @@ internal class ChatBotPresenter constructor(
     }
 
     override fun onMessage(message: Message) {
-        Log.d(TAG, "onMessage() -> $message")
+        Logger.debug(TAG, "onMessage() -> $message")
 
         getView().addNewMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {
-        Log.d(TAG, "onCategories() -> $categories")
+        Logger.debug(TAG, "onCategories() -> $categories")
     }
 
     /**
@@ -291,7 +282,7 @@ internal class ChatBotPresenter constructor(
      */
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy()")
+        Logger.debug(TAG, "onDestroy()")
 
         socketRepository.unregisterMessageEventListener()
         socketRepository.setChatBotListener(null)

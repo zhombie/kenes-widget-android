@@ -2,9 +2,9 @@ package q19.kenes.widget.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.webrtc.IceServer
+import q19.kenes.widget.core.logging.Logger
 
 class Database private constructor(context: Context) {
 
@@ -21,7 +21,7 @@ class Database private constructor(context: Context) {
     }
 
     init {
-        Log.d(TAG, "created")
+        Logger.debug(TAG, "created")
     }
 
     private object Preferences {

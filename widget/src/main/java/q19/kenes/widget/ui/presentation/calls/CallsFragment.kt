@@ -2,6 +2,8 @@ package q19.kenes.widget.ui.presentation.calls
 
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,6 +41,9 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     private var callsHeaderAdapter: CallsHeaderAdapter? = null
     private var callsAdapter: CallsAdapter? = null
 
+    // onBackPressed() dispatcher for Fragment
+    private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,7 +55,19 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
 
     override fun onResume() {
         super.onResume()
+
         Logger.debug(TAG, "onResume()")
+
+        if (onBackPressedDispatcherCallback == null) {
+            onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
+                if (presenter?.onGoBackButtonClicked() == true) {
+                    isEnabled = false
+                    activity?.onBackPressed()
+                }
+            }
+        } else {
+            onBackPressedDispatcherCallback?.isEnabled = true
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -61,8 +78,19 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
         setupRecyclerView()
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        Logger.debug(TAG, "onPause()")
+
+        onBackPressedDispatcherCallback?.isEnabled = false
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+
+        onBackPressedDispatcherCallback?.remove()
+        onBackPressedDispatcherCallback = null
 
         permissionManager?.removeAllListeners()
         permissionManager = null

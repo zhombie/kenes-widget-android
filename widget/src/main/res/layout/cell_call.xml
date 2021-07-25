@@ -1,39 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:background="#108D8D8D"
     android:clickable="true"
     android:focusable="true"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:paddingBottom="15dp"
     android:paddingLeft="15dp"
     android:paddingRight="15dp"
     android:paddingTop="15dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/iconView"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_folder" />
+        android:orientation="horizontal">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/audioCallIconView"
+            android:layout_width="19dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_headphones" />
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/videoCallIconView"
+            android:layout_width="22dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:src="@drawable/ic_video_camera" />
+
+    </LinearLayout>
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/textView"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_weight="1"
+        android:layout_marginTop="20dp"
         android:ellipsize="end"
-        android:fontFamily="sans-serif"
+        android:fontFamily="sans-serif-medium"
         android:includeFontPadding="false"
         android:gravity="left"
         android:maxLines="3"
         android:singleLine="false"
         android:textColor="@color/kenes_dark_charcoal"
-        android:textSize="14sp"
+        android:textSize="16sp"
         android:textStyle="normal"
         tools:text="СпецЦОН" />
 
@@ -41,6 +55,7 @@
         android:id="@+id/arrowView"
         android:layout_width="12dp"
         android:layout_height="12dp"
-        android:src="@drawable/ic_arrow_right" />
+        android:src="@drawable/ic_arrow_right"
+        android:visibility="gone" />
 
 </LinearLayout>

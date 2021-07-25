@@ -6,7 +6,6 @@ import android.widget.FrameLayout
 import androidx.recyclerview.widget.*
 import com.google.android.material.button.MaterialButton
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
@@ -95,7 +94,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         fun bind(nestable: Nestable) {
-            Logger.debug(TAG, "bind() -> $nestable")
+//            Logger.debug(TAG, "bind() -> $nestable")
 
             when (nestable) {
                 is ResponseGroup -> {
