@@ -31,11 +31,9 @@ internal class CallsPresenter constructor(
     }
 
     fun onCallClicked(call: Call) {
-//        getView().launchVideoCall(call)
-
-        breadcrumb.add(call)
-
         if (call is CallGroup) {
+            breadcrumb.add(call)
+
             getView().showMediaCalls(call.children)
         }
     }
@@ -57,7 +55,12 @@ internal class CallsPresenter constructor(
             if (breadcrumb.isEmpty()) {
                 getView().showMediaCalls(calls)
             } else {
-                getView().showMediaCalls(listOf(breadcrumb.last()))
+                val last = breadcrumb.last()
+                if (last is CallGroup) {
+                    getView().showMediaCalls(last.children)
+                } else {
+                    getView().showMediaCalls(listOf(last))
+                }
             }
 
             false

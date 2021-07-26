@@ -51,7 +51,7 @@ internal open class CallGroup constructor(
     }
 
     override fun toString(): String {
-        return "CallGroup(id=$id, title=$title, children: $children)"
+        return "CallGroup(id=$id, title=$title, children=$children)"
     }
 
 }
