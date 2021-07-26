@@ -129,11 +129,7 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
      */
 
     override fun onCallClicked(call: Call) {
-        permissionManager?.checkPermission(PermissionManager.Permission.VIDEO_CALL) {
-            if (it) {
-                presenter?.onCallClicked(call)
-            }
-        }
+        presenter?.onCallClicked(call)
     }
 
     /**
@@ -145,9 +141,33 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
         callsAdapter?.calls = calls
     }
 
-    override fun launchVideoCall(call: Call) {
-        VideoCallFragment.newInstance()
-            .show(childFragmentManager, null)
+    override fun launchCall(call: Call) {
+        when (call) {
+            is Call.Text -> {
+                permissionManager?.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
+                    if (it) {
+                        // Ignored
+                    }
+                }
+            }
+            is Call.Audio -> {
+                permissionManager?.checkPermission(PermissionManager.Permission.AUDIO_CALL) {
+                    if (it) {
+                        // Ignored
+                    }
+                }
+            }
+            is Call.Video -> {
+                permissionManager?.checkPermission(PermissionManager.Permission.VIDEO_CALL) {
+                    if (it) {
+                        VideoCallFragment.newInstance()
+                            .show(childFragmentManager, null)
+                    }
+                }
+            }
+            else -> {
+            }
+        }
     }
 
 }

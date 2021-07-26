@@ -255,6 +255,15 @@ internal class VideoCallPresenter constructor(
 
     override fun onDestroy() {
         peerConnectionClient.dispose()
+
+        socketRepository.removeAllListeners()
+
+        socketRepository.unregisterSocketConnectEventListener()
+        socketRepository.unregisterMessageEventListener()
+        socketRepository.unregisterUsersQueueEventListener()
+        socketRepository.unregisterCallAgentGreetEventListener()
+        socketRepository.unregisterUserCallFeedbackEventListener()
+        socketRepository.unregisterSocketDisconnectEventListener()
     }
 
 }

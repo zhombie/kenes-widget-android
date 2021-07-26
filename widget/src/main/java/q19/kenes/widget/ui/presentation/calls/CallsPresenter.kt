@@ -35,12 +35,12 @@ internal class CallsPresenter constructor(
             breadcrumb.add(call)
 
             getView().showMediaCalls(call.children)
+        } else {
+            getView().launchCall(call)
         }
     }
 
     override fun onDestroy() {
-        super.onDestroy()
-
         database.setOnUpdateConfigsListener(null)
     }
 

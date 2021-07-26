@@ -5,98 +5,37 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
-    android:background="@drawable/bg_rounded_gray"
+    android:background="@drawable/bg_ripple_rounded_white"
     android:clickable="true"
     android:focusable="true"
-    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
     android:paddingBottom="15dp"
     android:paddingLeft="15dp"
     android:paddingRight="15dp"
     android:paddingTop="15dp">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iconView"
+        android:layout_width="20dp"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif"
-        android:text="Тема звонка"
-        android:textColor="@color/kenes_gray"
-        android:textSize="10sp"
-        android:textStyle="normal" />
+        android:src="@drawable/ic_headphones" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/titleView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginLeft="15dp"
+        android:layout_weight="1"
         android:ellipsize="end"
         android:fontFamily="sans-serif-medium"
         android:includeFontPadding="false"
-        android:gravity="left"
+        android:gravity="center_vertical"
         android:maxLines="3"
         android:singleLine="false"
         android:textColor="@color/kenes_dark_charcoal"
         android:textSize="16sp"
         android:textStyle="normal"
-        tools:text="СпецЦОН" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:fontFamily="sans-serif"
-        android:text="Доступные виды звонков"
-        android:textColor="@color/kenes_gray"
-        android:textSize="10sp"
-        android:textStyle="normal" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:orientation="horizontal">
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/audioCallIconView"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/bg_rounded_alpha_gray"
-            android:src="@drawable/ic_headphones"
-            android:tint="@color/kenes_dark_charcoal"
-            app:contentPadding="10dp"
-            app:shapeAppearance="@style/Kenes.Widget.CircularShapeAppearance" />
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/videoCallIconView"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_marginLeft="7dp"
-            android:background="@drawable/bg_rounded_alpha_gray"
-            android:src="@drawable/ic_video_camera"
-            android:tint="@color/kenes_dark_charcoal"
-            app:contentPadding="9dp"
-            app:shapeAppearance="@style/Kenes.Widget.CircularShapeAppearance" />
-
-    </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/callButton"
-        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:backgroundTint="@color/kenes_blue"
-        android:text="Выбрать"
-        android:textAllCaps="false"
-        android:textColor="@color/kenes_white"
-        android:textSize="13sp"
-        app:cornerRadius="7dp" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/arrowView"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:src="@drawable/ic_arrow_right"
-        android:visibility="gone" />
+        tools:text="Аудизвонок" />
 
 </LinearLayout>

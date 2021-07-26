@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/kenes_white"
+    android:background="#F5F5F7"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -19,6 +19,6 @@
         android:paddingTop="15dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="4"
-        tools:listitem="@layout/cell_call" />
+        tools:listitem="@layout/cell_call_group" />
 
 </LinearLayout>

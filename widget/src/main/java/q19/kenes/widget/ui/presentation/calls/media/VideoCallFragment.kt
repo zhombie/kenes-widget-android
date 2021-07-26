@@ -20,18 +20,20 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
         }
     }
 
-    private lateinit var fullscreenSurfaceViewRenderer: SurfaceViewRenderer
-    private lateinit var floatingSurfaceViewRenderer: SurfaceViewRenderer
-
     private var presenter: VideoCallPresenter? = null
+
+    private var peerConnectionClient: PeerConnectionClient? = null
+
+    private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
+    private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Material_NoActionBar_Fullscreen)
 
-        val peerConnectionClient = PeerConnectionClient(requireContext())
-        presenter = injection?.provideVideoCallPresenter(getCurrentLanguage(), peerConnectionClient)
+        peerConnectionClient = PeerConnectionClient(requireContext())
+        presenter = injection?.provideVideoCallPresenter(getCurrentLanguage(), peerConnectionClient!!)
         presenter?.attachView(this)
     }
 
@@ -41,12 +43,19 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
         floatingSurfaceViewRenderer = view.findViewById(R.id.floatingSurfaceViewRenderer)
 
-        presenter?.setLocalSurfaceViewRenderer(floatingSurfaceViewRenderer)
-        presenter?.setRemoteSurfaceViewRenderer(fullscreenSurfaceViewRenderer)
+        floatingSurfaceViewRenderer?.let {
+            presenter?.setLocalSurfaceViewRenderer(it)
+        }
+
+        fullscreenSurfaceViewRenderer?.let {
+            presenter?.setRemoteSurfaceViewRenderer(it)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+
+        peerConnectionClient = null
 
         presenter?.detachView()
         presenter = null
