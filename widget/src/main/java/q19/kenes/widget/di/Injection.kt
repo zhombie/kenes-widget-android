@@ -12,7 +12,7 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.KenesWidgetPresenter
 import q19.kenes.widget.ui.presentation.calls.CallsPresenter
 import q19.kenes.widget.ui.presentation.calls.media.VideoCallPresenter
-import q19.kenes.widget.ui.presentation.home.ChatBotPresenter
+import q19.kenes.widget.ui.presentation.home.ChatbotPresenter
 
 internal class Injection private constructor(context: Context) {
 
@@ -40,8 +40,8 @@ internal class Injection private constructor(context: Context) {
         return KenesWidgetPresenter(language, database, socketRepository)
     }
 
-    fun provideChatBotPresenter(language: Language): ChatBotPresenter {
-        return ChatBotPresenter(language, database, socketRepository)
+    fun provideChatbotPresenter(language: Language): ChatbotPresenter {
+        return ChatbotPresenter(language, database, socketRepository)
     }
 
     fun provideCallsPresenter(language: Language): CallsPresenter {

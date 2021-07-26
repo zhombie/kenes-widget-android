@@ -43,7 +43,7 @@ internal class OldChatAdapter constructor(
         private val LAYOUT_TYPING = R.layout.kenes_cell_typing
         private val LAYOUT_CATEGORY = R.layout.kenes_cell_category
         private val LAYOUT_CROSS_CHILDREN = R.layout.kenes_cell_cross_children
-        private val LAYOUT_RESPONSE = R.layout.cell_response
+        private val LAYOUT_RESPONSE = R.layout.old_cell_response
 
         private const val KEY_PROGRESS = "progress"
         private const val KEY_FILE_TYPE = "fileType"

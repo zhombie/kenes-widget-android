@@ -33,14 +33,14 @@ import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBotView,
+internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), ChatbotView,
     HomeFragmentDelegate {
 
     companion object {
-        private val TAG = ChatBotFragment::class.java.simpleName
+        private val TAG = ChatbotFragment::class.java.simpleName
 
-        fun newInstance(): ChatBotFragment {
-            val fragment = ChatBotFragment()
+        fun newInstance(): ChatbotFragment {
+            val fragment = ChatbotFragment()
             fragment.arguments = Bundle()
             return fragment
         }
@@ -48,7 +48,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
 
 
     // (MVP) Presenter
-    private var presenter: ChatBotPresenter? = null
+    private var presenter: ChatbotPresenter? = null
 
     // UI Views
     private var responsesView: RecyclerView? = null
@@ -88,7 +88,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        presenter = injection?.provideChatBotPresenter(getCurrentLanguage())
+        presenter = injection?.provideChatbotPresenter(getCurrentLanguage())
         presenter?.attachView(this)
 
         onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback {
@@ -295,7 +295,7 @@ internal class ChatBotFragment : BaseFragment(R.layout.fragment_chatbot), ChatBo
     }
 
     /**
-     * [ChatBotView] implementation
+     * [ChatbotView] implementation
      */
 
     override fun hideLoadingIndicator() {

@@ -20,7 +20,7 @@ import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.calls.CallsFragment
-import q19.kenes.widget.ui.presentation.home.ChatBotFragment
+import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
@@ -28,7 +28,7 @@ import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
-internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFragment.Listener,
+internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatbotFragment.Listener,
     FragmentOnAttachListener {
 
     companion object {
@@ -126,7 +126,7 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFra
 
     private fun setupViewPager() {
         fragments = arrayOf(
-            ChatBotFragment.newInstance(),
+            ChatbotFragment.newInstance(),
             CallsFragment.newInstance()
         )
 
@@ -171,7 +171,7 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFra
      */
 
     override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
-        if (fragment is ChatBotFragment) {
+        if (fragment is ChatbotFragment) {
             fragment.setListener(this)
         }
     }
@@ -191,7 +191,7 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatBotFra
     }
 
     /**
-     * [ChatBotFragment.Listener] implementation
+     * [ChatbotFragment.Listener] implementation
      */
 
     override fun onResponsesViewScrolled(scrollYPosition: Int) {

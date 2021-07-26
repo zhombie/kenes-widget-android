@@ -3,9 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="15dp"
     android:paddingTop="6dp"
-    android:paddingRight="15dp"
     android:paddingBottom="12dp">
 
     <com.google.android.material.textview.MaterialTextView
@@ -23,8 +21,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif-light"
+        android:fontFamily="sans-serif"
         android:text="Выберите одну тему из нижеперечисленного списка для звонка с оператором"
+        android:textColor="@color/kenes_gray"
         android:textSize="10sp"
         android:textStyle="normal" />
 

@@ -1,7 +1,9 @@
 package q19.kenes.widget.ui.presentation.calls
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.EdgeEffect
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.recyclerview.widget.ConcatAdapter
@@ -105,6 +107,14 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
         callsAdapter = CallsAdapter(this)
         concatAdapter = ConcatAdapter(callsHeaderAdapter, callsAdapter)
         recyclerView?.adapter = concatAdapter
+
+        recyclerView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
+            override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
+                return EdgeEffect(view.context).apply {
+                    color = Color.parseColor("#2667E5")
+                }
+            }
+        }
     }
 
     /**

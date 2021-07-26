@@ -30,8 +30,8 @@ internal class ResponseGroupChildrenAdapter constructor(
     private object Layout {
         val EMPTY_RESPONSE_GROUP = R.layout.cell_empty_response_group
         val RESPONSE_GROUP_CHILD = R.layout.cell_response_group_child
-        val RESPONSE_INFO = R.layout.cell_response_info
-        val SHOW_ALL_RESPONSE_GROUP_CHILDREN = R.layout.cell_show_all_response_group_children
+        val RESPONSE = R.layout.cell_response
+        val SHOW_ALL_RESPONSE_GROUP_CHILDREN = R.layout.cell_response_group_children_footer
     }
 
     private object ViewType {
@@ -185,7 +185,7 @@ internal class ResponseGroupChildrenAdapter constructor(
             ViewType.CHILD ->
                 ChildViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
             ViewType.RESPONSE_INFO ->
-                ResponseInfoViewHolder(parent.inflate(Layout.RESPONSE_INFO))
+                ResponseInfoViewHolder(parent.inflate(Layout.RESPONSE))
             ViewType.SHOW_ALL ->
                 ShowAllViewHolder(parent.inflate(Layout.SHOW_ALL_RESPONSE_GROUP_CHILDREN))
             else ->

@@ -39,7 +39,7 @@ internal class CallsAdapter constructor(
     private inner class ViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
         private val audioCallIconView = view.findViewById<ShapeableImageView>(R.id.audioCallIconView)
         private val videoCallIconView = view.findViewById<ShapeableImageView>(R.id.videoCallIconView)
-        private val textView = view.findViewById<MaterialTextView>(R.id.textView)
+        private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
 
         fun bind(call: Call) {
             if (call is CallGroup) {
@@ -62,7 +62,7 @@ internal class CallsAdapter constructor(
                 videoCallIconView.visibility = View.GONE
             }
 
-            textView.text = call.title
+            titleView.text = call.title
 
             itemView.setOnClickListener { callback.onCallClicked(call) }
         }

@@ -20,14 +20,14 @@ import q19.kenes.widget.ui.presentation.model.ChatBot
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
-internal class ChatBotPresenter constructor(
+internal class ChatbotPresenter constructor(
     private val language: Language,
     private val database: Database,
     private val socketRepository: SocketRepository
-) : BasePresenter<ChatBotView>(), ChatBotListener {
+) : BasePresenter<ChatbotView>(), ChatBotListener {
 
     companion object {
-        private val TAG = ChatBotPresenter::class.java.simpleName
+        private val TAG = ChatbotPresenter::class.java.simpleName
     }
 
     private var asyncHttpClient: AsyncHttpClient? = null
