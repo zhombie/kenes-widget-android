@@ -179,7 +179,7 @@ internal class ChatbotPresenter constructor(
         interactor.isBottomSheetExpanded = isExpanded
     }
 
-    fun onCopyText() {
+    fun onCopyResponseText() {
         if (interactor.breadcrumb.isEmpty()) return
 
         val nestable = interactor.breadcrumb.last()
@@ -193,7 +193,7 @@ internal class ChatbotPresenter constructor(
         }
     }
 
-    fun onShare() {
+    fun onShareResponse() {
         if (interactor.breadcrumb.isEmpty()) return
 
         val nestable = interactor.breadcrumb.last()

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Kenes.Widget.TextAppearance" parent="TextAppearance.AppCompat" />
+
+    <style name="Kenes.Widget.TextAppearance.Message.Time" parent="Kenes.Widget.TextAppearance">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">#B4BACD</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+</resources>

@@ -8,7 +8,7 @@ import q19.kenes.widget.di.Injection
 import java.util.*
 
 internal open class BaseDialogFragment constructor(
-    @LayoutRes contentLayoutId: Int
+    @LayoutRes open val contentLayoutId: Int
 ) : DialogFragment(contentLayoutId) {
 
     constructor() : this(0)

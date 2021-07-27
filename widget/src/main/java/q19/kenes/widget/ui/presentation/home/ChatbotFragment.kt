@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.clipboardManager
 import kz.q19.utils.html.HTMLCompat
@@ -30,6 +29,7 @@ import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.ProgressView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
+import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
@@ -175,7 +175,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
             }
 
             override fun onMenuButtonClicked() {
-                MaterialAlertDialogBuilder(requireContext())
+                AlertDialogBuilder(requireContext())
                     .setItems(
                         arrayOf(
                             getString(R.string.copy),
@@ -184,8 +184,8 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
                     ) { dialog, which ->
                         dialog.dismiss()
                         when (which) {
-                            0 -> presenter?.onCopyText()
-                            1 -> presenter?.onShare()
+                            0 -> presenter?.onCopyResponseText()
+                            1 -> presenter?.onShareResponse()
                         }
                     }
                     .show()

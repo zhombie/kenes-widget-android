@@ -9,7 +9,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/homeButton"
-        style="@style/BottomNavigationButton"
+        style="@style/Kenes.Widget.Button.BottomNavigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -19,7 +19,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/servicesButton"
-        style="@style/BottomNavigationButton"
+        style="@style/Kenes.Widget.Button.BottomNavigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -29,7 +29,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/callButton"
-        style="@style/BottomNavigationButton"
+        style="@style/Kenes.Widget.Button.BottomNavigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -39,7 +39,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/infoButton"
-        style="@style/BottomNavigationButton"
+        style="@style/Kenes.Widget.Button.BottomNavigation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"

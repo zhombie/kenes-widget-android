@@ -23,7 +23,7 @@ class MessageTimeView @JvmOverloads constructor(
 
         setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0.0f, resources.displayMetrics), 1.0f)
 
-        TextViewCompat.setTextAppearance(this, R.style.MessageTimeViewTextAppearance)
+        TextViewCompat.setTextAppearance(this, R.style.Kenes_Widget_TextAppearance_Message_Time)
 
         setPadding(
             7.5F.dp2Px().roundToInt(),

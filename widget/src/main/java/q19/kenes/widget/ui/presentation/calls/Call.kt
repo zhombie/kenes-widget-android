@@ -1,30 +1,37 @@
 package q19.kenes.widget.ui.presentation.calls
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 internal open class AnyCall
 
-internal sealed class Call private constructor(
+@Parcelize
+internal open class Call private constructor(
     open val id: Long,
     open val title: String,
     open val topic: String? = null
-) : AnyCall() {
+) : AnyCall(), Parcelable {
 
+    @Parcelize
     internal data class Text constructor(
         override val id: Long,
         override val title: String,
         override val topic: String? = null
-    ) : Call(id, title, topic)
+    ) : Call(id, title, topic), Parcelable
 
+    @Parcelize
     internal data class Audio constructor(
         override val id: Long,
         override val title: String,
         override val topic: String? = null
-    ) : Call(id, title, topic)
+    ) : Call(id, title, topic), Parcelable
 
+    @Parcelize
     internal data class Video constructor(
         override val id: Long,
         override val title: String,
         override val topic: String? = null
-    ) : Call(id, title, topic)
+    ) : Call(id, title, topic), Parcelable
 
 }
 

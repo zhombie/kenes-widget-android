@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Kenes.Widget.ShapeAppearance" parent="ShapeAppearance.MaterialComponents" />
+
+    <style name="Kenes.Widget.ShapeAppearance.Circle" parent="Kenes.Widget.ShapeAppearance">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

@@ -9,4 +9,4 @@
     android:src="@drawable/ic_headphones"
     android:tint="@color/kenes_dark_charcoal"
     app:contentPadding="10dp"
-    app:shapeAppearance="@style/Kenes.Widget.CircularShapeAppearance" />
+    app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />

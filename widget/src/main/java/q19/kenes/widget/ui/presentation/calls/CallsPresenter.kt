@@ -1,10 +1,8 @@
 package q19.kenes.widget.ui.presentation.calls
 
-import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.Message
 import kz.q19.socket.listener.ChatBotListener
-import kz.q19.socket.model.CallInitialization
 import kz.q19.socket.model.Category
 import kz.q19.socket.repository.SocketRepository
 import q19.kenes.widget.core.device.DeviceInfo
@@ -12,7 +10,6 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.buildCallsAsTree
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
-import q19.kenes.widget.util.UrlUtil
 
 internal class CallsPresenter constructor(
     private val language: Language,
@@ -51,65 +48,15 @@ internal class CallsPresenter constructor(
     }
 
     fun onCallClicked(call: Call) {
-        if (interactor.lastCall == null) {
-            getView().tryToResolvePermissions(call)
-        }
+        getView().tryToResolvePermissions(call)
     }
 
     fun onCallPermissionsGranted(call: Call) {
-        interactor.lastCall = call
-
         getView().launchPendingCall(call)
-    }
-
-    fun onBottomSheetStateChanged(isExpanded: Boolean) {
-        interactor.isBottomSheetExpanded = isExpanded
-
-        if (isExpanded) {
-            val lastCall = interactor.lastCall
-            if (lastCall != null) {
-                interactor.lastCall = null
-                onPendingCallLaunched(lastCall)
-            }
-        }
-    }
-
-    private fun onPendingCallLaunched(call: Call) {
-        val callType = when (call) {
-            is Call.Text -> CallType.TEXT
-            is Call.Audio -> CallType.AUDIO
-            is Call.Video -> CallType.VIDEO
-        }
-
-        socketRepository.sendCallInitialization(
-            CallInitialization(
-                callType = callType,
-                domain = UrlUtil.getHostname()?.removePrefix("https://"),
-                topic = call.topic,
-                device = CallInitialization.Device(
-                    os = deviceInfo.os,
-                    osVersion = deviceInfo.osVersion,
-                    appVersion = deviceInfo.versionName,
-                    name = deviceInfo.deviceName,
-                    mobileOperator = deviceInfo.operator,
-                    battery = CallInitialization.Device.Battery(
-                        percentage = deviceInfo.batteryPercent,
-                        isCharging = deviceInfo.isPhoneCharging,
-                        temperature = deviceInfo.batteryTemperature
-                    )
-                ),
-                language = Language.RUSSIAN
-            )
-        )
     }
 
     fun onBackPressed(): Boolean {
         Logger.debug(TAG, "onGoBackButtonClicked()")
-
-        if (interactor.isBottomSheetExpanded) {
-            getView().toggleBottomSheet()
-            return false
-        }
 
         return if (interactor.breadcrumb.isEmpty()) {
             true

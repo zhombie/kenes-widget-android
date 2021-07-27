@@ -10,7 +10,9 @@ import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.KenesWidgetPresenter
+import q19.kenes.widget.ui.presentation.calls.Call
 import q19.kenes.widget.ui.presentation.calls.CallsPresenter
+import q19.kenes.widget.ui.presentation.calls.pending.PendingCallPresenter
 import q19.kenes.widget.ui.presentation.calls.video.VideoCallPresenter
 import q19.kenes.widget.ui.presentation.home.ChatbotPresenter
 
@@ -46,6 +48,10 @@ internal class Injection private constructor(context: Context) {
 
     fun provideCallsPresenter(language: Language): CallsPresenter {
         return CallsPresenter(language, database, deviceInfo, socketRepository)
+    }
+
+    fun providePendingCallPresenter(call: Call, language: Language): PendingCallPresenter {
+        return PendingCallPresenter(call, language, deviceInfo, socketRepository)
     }
 
     fun provideVideoCallPresenter(language: Language, peerConnectionClient: PeerConnectionClient): VideoCallPresenter {

@@ -6,8 +6,4 @@ internal class CallsInteractor {
 
     val breadcrumb = mutableListOf<AnyCall>()
 
-    var lastCall: Call? = null
-
-    var isBottomSheetExpanded: Boolean = false
-
 }
