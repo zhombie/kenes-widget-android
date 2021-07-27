@@ -33,7 +33,7 @@ import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.data.remote.file.DownloadResult
 import q19.kenes.widget.data.remote.file.downloadFile
 import q19.kenes.widget.ui.components.BottomNavigationView
-import q19.kenes.widget.ui.presentation.model.ChatBot
+import q19.kenes.widget.ui.presentation.home.ChatbotInteractor
 import q19.kenes.widget.ui.presentation.model.Dialog
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.util.UrlUtil
@@ -99,7 +99,7 @@ internal class OldKenesWidgetPresenter constructor(
     private var socketClient: SocketClient? = null
 
     private var configs: Configs? = null
-    private var chatBot = ChatBot()
+    private var chatBot = ChatbotInteractor()
     private var dialog = Dialog()
 
     private var activeCall: Configs.Call? = null

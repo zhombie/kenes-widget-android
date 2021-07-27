@@ -23,31 +23,32 @@ internal class CallsAdapter constructor(
         const val CALL = 101
     }
 
-    var calls: List<Call> = emptyList()
+    var anyCalls: List<AnyCall> = emptyList()
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    fun getItem(position: Int): Call {
-        return calls[position]
+    fun getItem(position: Int): AnyCall {
+        return anyCalls[position]
     }
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
+            is Call -> ViewType.CALL
             is CallGroup -> ViewType.CALL_GROUP
-            is Call.Text, is Call.Audio, is Call.Video -> ViewType.CALL
+            else -> super.getItemViewType(position)
         }
     }
 
-    override fun getItemCount(): Int = calls.size
+    override fun getItemCount(): Int = anyCalls.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            ViewType.CALL_GROUP ->
-                CallGroupViewHolder(parent.inflate(R.layout.cell_call_group))
             ViewType.CALL ->
                 CallViewHolder(parent.inflate(R.layout.cell_call))
+            ViewType.CALL_GROUP ->
+                CallGroupViewHolder(parent.inflate(R.layout.cell_call_group))
             else ->
                 throw ViewHolderViewTypeException(viewType)
         }
@@ -60,7 +61,29 @@ internal class CallsAdapter constructor(
                 holder.bind(item)
             }
         } else if (holder is CallViewHolder) {
-            holder.bind(item)
+            if (item is Call) {
+                holder.bind(item)
+            }
+        }
+    }
+
+    private inner class CallViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
+        private val iconView = view.findViewById<ShapeableImageView>(R.id.iconView)
+        private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
+
+        fun bind(call: Call) {
+            when (call) {
+                is Call.Text ->
+                    iconView.setImageResource(R.drawable.ic_chat)
+                is Call.Audio ->
+                    iconView.setImageResource(R.drawable.ic_headphones)
+                is Call.Video ->
+                    iconView.setImageResource(R.drawable.ic_video_camera)
+            }
+
+            titleView.text = call.title
+
+            itemView.setOnClickListener { callback.onCallClicked(call) }
         }
     }
 
@@ -78,52 +101,31 @@ internal class CallsAdapter constructor(
         }
 
         fun bind(callGroup: CallGroup) {
-            if (callGroup.children.all { it is Call.Text || it is Call.Audio || it is Call.Video }) {
-                adapter.calls = callGroup.children
-                callTypesView.visibility = View.VISIBLE
-
-                callTypesHintView.text = "Доступные виды звонков"
-//                callTypesHintView.visibility = View.VISIBLE
-                callTypesHintView.visibility = View.GONE
-            } else {
+            val calls = callGroup.children.filterIsInstance<Call>()
+            if (calls.isEmpty()) {
                 adapter.calls = emptyList()
                 callTypesView.visibility = View.GONE
 
                 callTypesHintView.text = null
                 callTypesHintView.visibility = View.GONE
+            } else {
+                adapter.calls = calls
+                callTypesView.visibility = View.VISIBLE
+
+                callTypesHintView.text = "Доступные виды звонков"
+                callTypesHintView.visibility = View.GONE
             }
 
             titleView.text = callGroup.title
 
-            itemView.setOnClickListener { callback.onCallClicked(callGroup) }
+            itemView.setOnClickListener { callback.onCallGroupClicked(callGroup) }
         }
 
-    }
-
-    private inner class CallViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
-        private val iconView = view.findViewById<ShapeableImageView>(R.id.iconView)
-        private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
-
-        fun bind(call: Call) {
-            when (call) {
-                is Call.Text ->
-                    iconView.setImageResource(R.drawable.ic_chat)
-                is Call.Audio ->
-                    iconView.setImageResource(R.drawable.ic_headphones)
-                is Call.Video ->
-                    iconView.setImageResource(R.drawable.ic_video_camera)
-                else ->
-                    iconView.setImageResource(R.drawable.ic_chat)
-            }
-
-            titleView.text = call.title
-
-            itemView.setOnClickListener { callback.onCallClicked(call) }
-        }
     }
 
     interface Callback {
         fun onCallClicked(call: Call)
+        fun onCallGroupClicked(callGroup: CallGroup)
     }
 
 }

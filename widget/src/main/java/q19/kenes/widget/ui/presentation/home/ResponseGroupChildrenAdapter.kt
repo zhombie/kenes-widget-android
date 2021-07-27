@@ -11,7 +11,7 @@ import kz.q19.utils.html.HTMLCompat
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.ResponseGroup
-import q19.kenes.widget.domain.model.ResponseInfo
+import q19.kenes.widget.domain.model.Response
 import q19.kenes_widget.R
 
 internal class ResponseGroupChildrenAdapter constructor(
@@ -107,7 +107,7 @@ internal class ResponseGroupChildrenAdapter constructor(
                         ViewType.CHILD
                     }
                 }
-                is ResponseInfo -> {
+                is Response -> {
                     ViewType.RESPONSE_INFO
                 }
                 else -> ViewType.EMPTY
@@ -125,7 +125,7 @@ internal class ResponseGroupChildrenAdapter constructor(
                         ViewType.CHILD
                     }
                 }
-                is ResponseInfo ->
+                is Response ->
                     ViewType.RESPONSE_INFO
                 else ->
                     ViewType.CHILD
@@ -204,7 +204,7 @@ internal class ResponseGroupChildrenAdapter constructor(
             }
             is ResponseInfoViewHolder -> {
                 val item = getItem(position)
-                if (item is ResponseInfo) {
+                if (item is Response) {
                     holder.bind(item)
                 }
             }
@@ -268,11 +268,11 @@ internal class ResponseGroupChildrenAdapter constructor(
     private inner class ResponseInfoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val textView = view.findViewById<MaterialTextView>(R.id.textView)
 
-        fun bind(responseInfo: ResponseInfo) {
-            if (responseInfo.text.isNullOrBlank()) {
+        fun bind(response: Response) {
+            if (response.text.isNullOrBlank()) {
                 textView.text = null
             } else {
-                textView.text = HTMLCompat.fromHtml(responseInfo.text)
+                textView.text = HTMLCompat.fromHtml(response.text)
             }
         }
     }

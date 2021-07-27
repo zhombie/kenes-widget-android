@@ -10,45 +10,18 @@ internal fun Configs.Call.getTitle(language: Language): String? {
     return title
 }
 
-internal fun Configs.buildCalls(language: Language): List<OldCall>? {
-    fun buildChildren(call: Configs.Call): List<OldCall> {
-        return calls
-            ?.filter { call.id == it.parentId }
-            ?.mapNotNull {
-                OldCall(
-                    id = it.id,
-                    title = it.getTitle(language) ?: return@mapNotNull null,
-                    isPrimary = false,
-                    children = buildChildren(it)
-                )
-            }
-            ?: emptyList()
-    }
 
-    return calls
-        ?.filter { it.isParent() }
-        ?.mapNotNull { call ->
-            OldCall(
-                id = call.id,
-                title = call.getTitle(language) ?: return@mapNotNull null,
-                isPrimary = true,
-                children = buildChildren(call)
-            )
-        }
-}
-
-
-internal fun Configs.buildCalls2(language: Language): List<Call>? {
-    fun buildChildren(call: Configs.Call): List<Call> {
+internal fun Configs.buildCallsAsTree(language: Language): List<AnyCall>? {
+    fun buildChildren(call: Configs.Call): List<AnyCall> {
         val children = calls?.filter { call.id == it.parentId }
-        val mappedChildren = mutableListOf<Call>()
+        val mappedChildren = mutableListOf<AnyCall>()
         children?.forEach { child ->
             if (child.isFolder()) {
                 mappedChildren.add(
-                    CallGroup(
-                        child.id,
-                        child.getTitle(language) ?: return@forEach,
-                        buildChildren(child)
+                    CallGroup.Secondary(
+                        id = child.id,
+                        title = child.getTitle(language) ?: return@forEach,
+                        children = buildChildren(child)
                     )
                 )
             } else {
@@ -56,15 +29,15 @@ internal fun Configs.buildCalls2(language: Language): List<Call>? {
                     child.isAudioCall() ->
                         mappedChildren.add(
                             Call.Audio(
-                                child.id,
-                                child.getTitle(language) ?: return@forEach
+                                id = child.id,
+                                title = child.getTitle(language) ?: return@forEach
                             )
                         )
                     child.isVideoCall() ->
                         mappedChildren.add(
                             Call.Video(
-                                child.id,
-                                child.getTitle(language) ?: return@forEach
+                                id = child.id,
+                                title = child.getTitle(language) ?: return@forEach
                             )
                         )
                 }
@@ -76,7 +49,7 @@ internal fun Configs.buildCalls2(language: Language): List<Call>? {
     return calls
         ?.filter { it.isParent() }
         ?.mapNotNull { call ->
-            PrimaryCallGroup(
+            CallGroup.Primary(
                 id = call.id,
                 title = call.getTitle(language) ?: return@mapNotNull null,
                 children = buildChildren(call)

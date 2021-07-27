@@ -9,10 +9,10 @@ import kz.q19.utils.json.getJSONObjectOrNull
 import kz.q19.utils.json.getLongOrNull
 import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
-import q19.kenes.widget.domain.model.ResponseInfo
+import q19.kenes.widget.domain.model.Response
 
 internal class ResponseInfoResponseHandler constructor(
-    private val onSuccess: (responseInfo: ResponseInfo) -> Unit,
+    private val onSuccess: (response: Response) -> Unit,
     private val onFailure: (throwable: Throwable?) -> Unit
 ) : JsonHttpResponseHandler() {
 
@@ -50,10 +50,10 @@ internal class ResponseInfoResponseHandler constructor(
                 }
             }
 
-            var form: ResponseInfo.Form? = null
+            var form: Response.Form? = null
             val formJSONObject = responseJSONObject.getJSONObjectOrNull("form")
             if (formJSONObject != null) {
-                form = ResponseInfo.Form(
+                form = Response.Form(
                     id = formJSONObject.getLong("id"),
                     title = formJSONObject.getStringOrNull("title") ?: "",
                     prompt = formJSONObject.getStringOrNull("prompt")
@@ -61,7 +61,7 @@ internal class ResponseInfoResponseHandler constructor(
             }
 
             onSuccess(
-                ResponseInfo(
+                Response(
                     id = responseJSONObject.getLong("id"),
                     messageId = responseJSONObject.getString("message_id"),
                     text = responseJSONObject.getStringOrNull("text") ?: "",

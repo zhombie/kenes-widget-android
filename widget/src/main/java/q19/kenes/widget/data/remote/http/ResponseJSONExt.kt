@@ -8,7 +8,7 @@ import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
-import q19.kenes.widget.domain.model.ResponseInfo
+import q19.kenes.widget.domain.model.Response
 
 fun JSONObject.toResponseGroup(isPrimary: Boolean, children: MutableList<Nestable>): ResponseGroup? {
     return ResponseGroup(
@@ -52,6 +52,6 @@ fun JSONObject.toResponseGroupChild(): ResponseGroup.Child? {
             Language.ID.EN.value.toInt() -> Language.ENGLISH
             else -> return null
         },
-        responses = responses.map { ResponseInfo(id = it) }
+        responses = responses.map { Response(id = it) }
     )
 }

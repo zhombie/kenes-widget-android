@@ -14,9 +14,7 @@ import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ResponseGroupChildrenResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
-import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.ResponseGroup
-import q19.kenes.widget.ui.presentation.model.ChatBot
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
@@ -32,24 +30,28 @@ internal class ChatbotPresenter constructor(
 
     private var asyncHttpClient: AsyncHttpClient? = null
 
-    private var chatBot = ChatBot()
+    private val interactor = ChatbotInteractor()
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
         asyncHttpClient = AsyncHttpClientBuilder().build()
 
-        socketRepository.setChatBotListener(this)
-
-        socketRepository.registerMessageEventListener()
+        initSocket()
 
         loadResponseGroups(true)
     }
 
+    private fun initSocket() {
+        socketRepository.setChatBotListener(this)
+
+        socketRepository.registerMessageEventListener()
+    }
+
     private fun loadResponseGroups(reload: Boolean) {
         if (!reload) {
-            if (chatBot.primaryResponseGroups != null) {
-                getView().showResponses(chatBot.primaryResponseGroups!!)
+            if (interactor.primaryResponseGroups != null) {
+                getView().showResponses(interactor.primaryResponseGroups!!)
                 return
             }
         }
@@ -66,8 +68,8 @@ internal class ChatbotPresenter constructor(
 
                 getView().hideLoadingIndicator()
 
-                chatBot.primaryResponseGroups = responseGroups
-                chatBot.lastResponseGroupsLoadedTime = System.currentTimeMillis()
+                interactor.primaryResponseGroups = responseGroups
+                interactor.lastResponseGroupsLoadedTime = System.currentTimeMillis()
 
                 getView().showResponses(responseGroups)
             },
@@ -82,7 +84,7 @@ internal class ChatbotPresenter constructor(
 
         getView().showLoadingIndicator()
 
-        chatBot.breadcrumb.add(responseGroup)
+        interactor.breadcrumb.add(responseGroup)
 
         val params = RequestParams(
             "parent_id", responseGroup.id,
@@ -97,12 +99,12 @@ internal class ChatbotPresenter constructor(
 
                 getView().hideLoadingIndicator()
 
-                val index = chatBot.breadcrumb.indexOf(responseGroup)
-                chatBot.breadcrumb[index] = responseGroup.copy(children = children)
+                val index = interactor.breadcrumb.indexOf(responseGroup)
+                interactor.breadcrumb[index] = responseGroup.copy(children = children)
 
-                Logger.debug(TAG, "onResponseGroupClicked() -> ${chatBot.breadcrumb}")
+                Logger.debug(TAG, "onResponseGroupClicked() -> ${interactor.breadcrumb}")
 
-                getView().showResponses(listOf(chatBot.breadcrumb[index]))
+                getView().showResponses(listOf(interactor.breadcrumb[index]))
             },
             onFailure = {
                 getView().hideLoadingIndicator()
@@ -114,16 +116,16 @@ internal class ChatbotPresenter constructor(
         Logger.debug(TAG, "onResponseGroupChildClicked() -> $child")
 
         if (child.responses.isEmpty()) {
-            chatBot.breadcrumb.remove(child)
+            interactor.breadcrumb.remove(child)
             getView().showNoResponsesFoundMessage()
             return
         }
 
         getView().showLoadingIndicator()
 
-        chatBot.breadcrumb.add(child)
+        interactor.breadcrumb.add(child)
 
-        Logger.debug(TAG, "onResponseGroupChildClicked() -> ${chatBot.breadcrumb}")
+        Logger.debug(TAG, "onResponseGroupChildClicked() -> ${interactor.breadcrumb}")
 
         val params = RequestParams(
             "response_id", child.responses.first().id
@@ -137,12 +139,12 @@ internal class ChatbotPresenter constructor(
 
                 getView().hideLoadingIndicator()
 
-                val index = chatBot.breadcrumb.indexOf(child)
-                chatBot.breadcrumb[index] = child.copy(responses = listOf(responseInfo))
+                val index = interactor.breadcrumb.indexOf(child)
+                interactor.breadcrumb[index] = child.copy(responses = listOf(responseInfo))
 
-                Logger.debug(TAG, "onResponseGroupChildClicked() -> ${chatBot.breadcrumb}")
+                Logger.debug(TAG, "onResponseGroupChildClicked() -> ${interactor.breadcrumb}")
 
-                getView().showResponses(listOf(chatBot.breadcrumb[index]))
+                getView().showResponses(listOf(interactor.breadcrumb[index]))
             },
             onFailure = {
                 getView().hideLoadingIndicator()
@@ -150,27 +152,23 @@ internal class ChatbotPresenter constructor(
         ))
     }
 
-    fun onGoBackButtonClicked(element: Element) {
-        onGoBackButtonClicked()
-    }
-
-    fun onGoBackButtonClicked(): Boolean {
+    fun onBackPressed(): Boolean {
         Logger.debug(TAG, "onGoBackButtonClicked()")
 
-        if (chatBot.isBottomSheetExpanded) {
+        if (interactor.isBottomSheetExpanded) {
             getView().toggleBottomSheet()
             return false
         }
 
-        return if (chatBot.breadcrumb.isEmpty()) {
+        return if (interactor.breadcrumb.isEmpty()) {
             true
         } else {
-            chatBot.breadcrumb.removeLast()
+            interactor.breadcrumb.removeLast()
 
-            if (chatBot.breadcrumb.isEmpty()) {
+            if (interactor.breadcrumb.isEmpty()) {
                 loadResponseGroups(false)
             } else {
-                getView().showResponses(listOfNotNull(chatBot.breadcrumb.last()))
+                getView().showResponses(listOfNotNull(interactor.breadcrumb.last()))
             }
 
             false
@@ -178,13 +176,13 @@ internal class ChatbotPresenter constructor(
     }
 
     fun onBottomSheetStateChanged(isExpanded: Boolean) {
-        chatBot.isBottomSheetExpanded = isExpanded
+        interactor.isBottomSheetExpanded = isExpanded
     }
 
     fun onCopyText() {
-        if (chatBot.breadcrumb.isEmpty()) return
+        if (interactor.breadcrumb.isEmpty()) return
 
-        val nestable = chatBot.breadcrumb.last()
+        val nestable = interactor.breadcrumb.last()
         if (nestable is ResponseGroup.Child) {
             if (nestable.responses.isEmpty()) return
             val responseInfo = nestable.responses.first()
@@ -196,9 +194,9 @@ internal class ChatbotPresenter constructor(
     }
 
     fun onShare() {
-        if (chatBot.breadcrumb.isEmpty()) return
+        if (interactor.breadcrumb.isEmpty()) return
 
-        val nestable = chatBot.breadcrumb.last()
+        val nestable = interactor.breadcrumb.last()
         if (nestable is ResponseGroup.Child) {
             if (nestable.responses.isEmpty()) return
             val responseInfo = nestable.responses.first()
@@ -210,11 +208,11 @@ internal class ChatbotPresenter constructor(
     }
 
     fun onResetDataRequested() {
-        if (System.currentTimeMillis() - chatBot.lastResponseGroupsLoadedTime > 60 * 1000L) {
+        if (System.currentTimeMillis() - interactor.lastResponseGroupsLoadedTime > 60 * 1000L) {
             loadResponseGroups(true)
         }
 
-        chatBot.breadcrumb.clear()
+        interactor.breadcrumb.clear()
     }
 
     fun onSendTextMessage(message: String?) {
@@ -226,7 +224,7 @@ internal class ChatbotPresenter constructor(
             getView().clearMessageInputViewText()
             socketRepository.sendUserMessage(outgoingMessage)
 
-            if (chatBot.chatMessages.isEmpty()) {
+            if (interactor.chatMessages.isEmpty()) {
                 getView().hideChatMessagesHeaderView()
             }
 
@@ -240,7 +238,7 @@ internal class ChatbotPresenter constructor(
     }
 
     private fun addNewMessage(message: Message) {
-        chatBot.chatMessages.add(message)
+        interactor.chatMessages.add(message)
         getView().addNewMessage(message)
     }
 
@@ -290,11 +288,11 @@ internal class ChatbotPresenter constructor(
         asyncHttpClient?.cancelAllRequests(true)
         asyncHttpClient = null
 
-        chatBot.isBottomSheetExpanded = false
-        chatBot.breadcrumb.clear()
-        chatBot.lastResponseGroupsLoadedTime = -1L
-        chatBot.primaryResponseGroups = null
-        chatBot.chatMessages.clear()
+        interactor.isBottomSheetExpanded = false
+        interactor.breadcrumb.clear()
+        interactor.lastResponseGroupsLoadedTime = -1L
+        interactor.primaryResponseGroups = null
+        interactor.chatMessages.clear()
     }
 
 }

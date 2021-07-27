@@ -1,10 +1,10 @@
-package q19.kenes.widget.ui.presentation.model
+package q19.kenes.widget.ui.presentation.home
 
 import kz.q19.domain.model.message.Message
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 
-internal class ChatBot {
+internal class ChatbotInteractor {
 
     var primaryResponseGroups: List<ResponseGroup>? = null
 

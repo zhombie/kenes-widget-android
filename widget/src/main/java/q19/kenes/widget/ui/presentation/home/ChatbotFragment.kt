@@ -92,7 +92,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
         presenter?.attachView(this)
 
         onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback {
-            if (presenter?.onGoBackButtonClicked() == true) {
+            if (presenter?.onBackPressed() == true) {
                 isEnabled = false
                 activity?.onBackPressed()
             }
@@ -106,7 +106,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
 
         if (onBackPressedDispatcherCallback == null) {
             onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
-                if (presenter?.onGoBackButtonClicked() == true) {
+                if (presenter?.onBackPressed() == true) {
                     isEnabled = false
                     activity?.onBackPressed()
                 }
@@ -170,8 +170,8 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
     private fun setupResponsesView() {
         responseGroupsAdapter = ResponseGroupsAdapter()
         responseGroupsAdapter?.setCallback(object : ResponseGroupsAdapter.Callback {
-            override fun onGoBackButtonClicked(element: Element) {
-                presenter?.onGoBackButtonClicked(element)
+            override fun onBackPressed(element: Element) {
+                presenter?.onBackPressed()
             }
 
             override fun onMenuButtonClicked() {

@@ -124,7 +124,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
                 }
             }
 
-            backButton.setOnClickListener { callback?.onGoBackButtonClicked(nestable) }
+            backButton.setOnClickListener { callback?.onBackPressed(nestable) }
             menuButton.setOnClickListener { callback?.onMenuButtonClicked() }
         }
 
@@ -137,13 +137,13 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
         }
 
         override fun onGoBackButtonClicked(element: Element) {
-            callback?.onGoBackButtonClicked(element)
+            callback?.onBackPressed(element)
         }
 
     }
 
     interface Callback {
-        fun onGoBackButtonClicked(element: Element)
+        fun onBackPressed(element: Element)
         fun onMenuButtonClicked()
 
         fun onResponseGroupClicked(responseGroup: ResponseGroup)

@@ -1,7 +1,10 @@
-package q19.kenes.widget.ui.presentation.calls.media
+package q19.kenes.widget.ui.presentation.calls.video
 
 import android.os.Bundle
 import android.view.View
+import android.widget.FrameLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.button.MaterialButton
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.ui.presentation.platform.BaseDialogFragment
@@ -24,6 +27,8 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
 
     private var peerConnectionClient: PeerConnectionClient? = null
 
+    private var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
+
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
 
@@ -42,6 +47,17 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
 
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
         floatingSurfaceViewRenderer = view.findViewById(R.id.floatingSurfaceViewRenderer)
+
+        view.findViewById<MaterialButton>(R.id.button).setOnClickListener {
+            if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+            } else {
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
+
+        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.videoView))
+        bottomSheetBehavior?.isDraggable = true
 
         floatingSurfaceViewRenderer?.let {
             presenter?.setLocalSurfaceViewRenderer(it)
