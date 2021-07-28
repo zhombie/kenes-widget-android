@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
 import q19.kenes.widget.ui.presentation.calls.Call
 import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
+import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 
 internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragment_pending_call),
@@ -65,7 +66,17 @@ internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragm
         cancelButton = view.findViewById(R.id.cancelButton)
 
         cancelButton?.setOnClickListener {
-            presenter?.onCancelCall()
+            AlertDialogBuilder(requireContext())
+                .setTitle(R.string.kenes_attention)
+                .setMessage(R.string.kenes_cancel_call)
+                .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                    dialog.dismiss()
+                    presenter?.onCancelCall()
+                }
+                .show()
         }
     }
 
@@ -79,7 +90,25 @@ internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragm
      * [PendingCallView] implementation
      */
 
+    override fun showNoOnlineCallAgentsMessage(text: String?) {
+        activity?.runOnUiThread {
+            AlertDialogBuilder(requireContext())
+                .setCancelable(false)
+                .setTitle(R.string.kenes_attention)
+                .setMessage(text ?: "Sorry, no online operators")
+                .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+                    dialog.dismiss()
+                    dismiss()
+                }
+                .show()
+        }
+    }
+
     override fun navigateToHome() {
+        dismiss()
+    }
+
+    override fun navigateToCall(call: Call) {
         dismiss()
     }
 

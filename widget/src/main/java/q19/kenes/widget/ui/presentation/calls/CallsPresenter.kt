@@ -78,6 +78,12 @@ internal class CallsPresenter constructor(
         }
     }
 
+    fun onResetDataRequested() {
+        interactor.breadcrumb.clear()
+
+        getView().showCalls(interactor.anyCalls)
+    }
+
     /**
      * [ChatBotListener] implementation
      */

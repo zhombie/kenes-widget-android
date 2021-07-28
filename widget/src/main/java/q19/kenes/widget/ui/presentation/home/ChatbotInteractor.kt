@@ -6,7 +6,7 @@ import q19.kenes.widget.domain.model.ResponseGroup
 
 internal class ChatbotInteractor {
 
-    var primaryResponseGroups: List<ResponseGroup>? = null
+    var primaryResponseGroups: List<ResponseGroup> = emptyList()
 
     val breadcrumb: MutableList<Nestable> = mutableListOf()
 

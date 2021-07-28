@@ -50,8 +50,8 @@ internal class ChatbotPresenter constructor(
 
     private fun loadResponseGroups(reload: Boolean) {
         if (!reload) {
-            if (interactor.primaryResponseGroups != null) {
-                getView().showResponses(interactor.primaryResponseGroups!!)
+            if (interactor.primaryResponseGroups.isNotEmpty()) {
+                getView().showResponses(interactor.primaryResponseGroups)
                 return
             }
         }
@@ -208,11 +208,15 @@ internal class ChatbotPresenter constructor(
     }
 
     fun onResetDataRequested() {
+        interactor.breadcrumb.clear()
+
         if (System.currentTimeMillis() - interactor.lastResponseGroupsLoadedTime > 60 * 1000L) {
             loadResponseGroups(true)
+        } else {
+            if (interactor.primaryResponseGroups.isNotEmpty()) {
+                getView().showResponses(interactor.primaryResponseGroups)
+            }
         }
-
-        interactor.breadcrumb.clear()
     }
 
     fun onSendTextMessage(message: String?) {
@@ -291,7 +295,7 @@ internal class ChatbotPresenter constructor(
         interactor.isBottomSheetExpanded = false
         interactor.breadcrumb.clear()
         interactor.lastResponseGroupsLoadedTime = -1L
-        interactor.primaryResponseGroups = null
+        interactor.primaryResponseGroups = emptyList()
         interactor.chatMessages.clear()
     }
 

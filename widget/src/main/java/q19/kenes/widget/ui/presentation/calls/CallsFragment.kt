@@ -122,6 +122,15 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
      */
 
     override fun onScreenRenavigate() {
+        with(recyclerView?.layoutManager) {
+            if (this is LinearLayoutManager) {
+                if (findFirstCompletelyVisibleItemPosition() == 0) {
+                    presenter?.onResetDataRequested()
+                } else {
+                    recyclerView?.smoothScrollToPosition(0)
+                }
+            }
+        }
     }
 
     /**
