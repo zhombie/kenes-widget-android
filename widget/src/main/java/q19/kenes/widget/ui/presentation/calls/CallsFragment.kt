@@ -16,7 +16,7 @@ import q19.kenes.widget.ui.presentation.calls.pending.PendingCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
+internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_calls), CallsView,
     HomeFragmentDelegate, CallsAdapter.Callback {
 
     companion object {
@@ -28,9 +28,6 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
             return fragment
         }
     }
-
-    // (MVP) Presenter
-    private var presenter: CallsPresenter? = null
 
     // Android permissions manager
     private var permissionManager: PermissionManager? = null
@@ -49,10 +46,13 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        presenter = injection?.provideCallsPresenter(getCurrentLanguage())
-        presenter?.attachView(this)
+        presenter.attachView(this)
 
         permissionManager = PermissionManager(requireActivity())
+    }
+
+    override fun createPresenter(): CallsPresenter {
+        return injection.provideCallsPresenter(getCurrentLanguage())
     }
 
     override fun onResume() {
@@ -62,7 +62,7 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
 
         if (onBackPressedDispatcherCallback == null) {
             onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
-                if (presenter?.onBackPressed() == true) {
+                if (presenter.onBackPressed()) {
                     isEnabled = false
                     activity?.onBackPressed()
                 }
@@ -96,8 +96,6 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
 
         permissionManager?.removeAllListeners()
         permissionManager = null
-
-        presenter?.detachView()
     }
 
     private fun setupRecyclerView() {
@@ -125,7 +123,7 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
         with(recyclerView?.layoutManager) {
             if (this is LinearLayoutManager) {
                 if (findFirstCompletelyVisibleItemPosition() == 0) {
-                    presenter?.onResetDataRequested()
+                    presenter.onResetDataRequested()
                 } else {
                     recyclerView?.smoothScrollToPosition(0)
                 }
@@ -138,11 +136,11 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
      */
 
     override fun onCallClicked(call: Call) {
-        presenter?.onCallClicked(call)
+        presenter.onCallClicked(call)
     }
 
     override fun onCallGroupClicked(callGroup: CallGroup) {
-        presenter?.onCallGroupClicked(callGroup)
+        presenter.onCallGroupClicked(callGroup)
     }
 
     /**
@@ -159,21 +157,21 @@ internal class CallsFragment : BaseFragment(R.layout.fragment_calls), CallsView,
             is Call.Text -> {
                 permissionManager?.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
                     if (it) {
-                        presenter?.onCallPermissionsGranted(call)
+                        presenter.onCallPermissionsGranted(call)
                     }
                 }
             }
             is Call.Audio -> {
                 permissionManager?.checkPermission(PermissionManager.Permission.AUDIO_CALL) {
                     if (it) {
-                        presenter?.onCallPermissionsGranted(call)
+                        presenter.onCallPermissionsGranted(call)
                     }
                 }
             }
             is Call.Video -> {
                 permissionManager?.checkPermission(PermissionManager.Permission.VIDEO_CALL) {
                     if (it) {
-                        presenter?.onCallPermissionsGranted(call)
+                        presenter.onCallPermissionsGranted(call)
                     }
                 }
             }

@@ -36,28 +36,23 @@ import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.home.ChatbotInteractor
 import q19.kenes.widget.ui.presentation.model.Dialog
 import q19.kenes.widget.ui.presentation.model.ViewState
+import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
 internal class OldKenesWidgetPresenter constructor(
     private val deviceInfo: DeviceInfo,
     private val language: Language,
     private val peerConnectionClient: PeerConnectionClient
-) : ChatBotListener, SocketStateListener, WebRTCListener, CallListener, FormListener,
+) : BasePresenter<OldKenesWidgetView>(), ChatBotListener, SocketStateListener, WebRTCListener, CallListener, FormListener,
     PeerConnectionClient.Listener {
 
     companion object {
         private val TAG = OldKenesWidgetPresenter::class.java.simpleName
     }
 
-    private var view: OldKenesWidgetView? = null
+    override fun onDestroy() {
+        super.onDestroy()
 
-    fun attachView(view: OldKenesWidgetView) {
-        this.view = view
-
-        onFirstViewAttach()
-    }
-
-    fun detachView() {
         viewState = ViewState.ChatBot.Dashboard(false)
 
         chatListViewState = null
@@ -79,7 +74,7 @@ internal class OldKenesWidgetPresenter constructor(
             if (value is ViewState.ChatBot || value is ViewState.Services || value is ViewState.Info || value is ViewState.TextDialog.IDLE || value is ViewState.CallAgentCall) {
                 val callAgent = configs?.callAgent
                 if (callAgent != null) {
-                    view?.showPeerInfo(callAgent)
+                    getView().showPeerInfo(callAgent)
                 }
             }
 
@@ -91,7 +86,7 @@ internal class OldKenesWidgetPresenter constructor(
                 dialog.unreadMessages = 0
             }
 
-            view?.setViewState(value)
+            getView().setViewState(value)
         }
 
     private val httpClient by lazy { AsyncHttpClient() }
@@ -117,22 +112,24 @@ internal class OldKenesWidgetPresenter constructor(
         this.chatListViewState = chatListViewState
     }
 
-    private fun onFirstViewAttach() {
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
+
         listOf(
             BottomNavigationView.NavigationButton.HOME,
             BottomNavigationView.NavigationButton.CALLS,
             BottomNavigationView.NavigationButton.SERVICES
         ).forEach {
-            view?.hideNavButton(it)
+            getView().hideNavButton(it)
         }
-        view?.showNavButton(BottomNavigationView.NavigationButton.INFO)
+        getView().showNavButton(BottomNavigationView.NavigationButton.INFO)
 //        viewState = ViewState.Info
 
-        view?.showDefaultPeerInfo()
+        getView().showDefaultPeerInfo()
 
-        view?.showCurrentLanguage(language)
+        getView().showCurrentLanguage(language)
 
-        view?.hideHangupButton()
+        getView().hideHangupButton()
 
 //        chatBot.callback = ChatBot.Callback { categories ->
 //            debug(TAG, "onBasicCategoriesLoaded() -> categories: $categories")
@@ -146,8 +143,8 @@ internal class OldKenesWidgetPresenter constructor(
 //                        .build()
 //                }
 
-//            view?.clearChatFooterMessages()
-//            view?.setNewMessages(messages)
+//            getView().clearChatFooterMessages()
+//            getView().setNewMessages(messages)
 
 //            viewState = ViewState.ChatBot.Dashboard(false)
 //        }
@@ -155,7 +152,7 @@ internal class OldKenesWidgetPresenter constructor(
         initSocket()
     }
 
-    fun onResume() {
+    override fun onViewResume() {
 //        if (configs?.isChabotEnabled == true && !dialog.isActive && viewState is ViewState.ChatBot) {
 //            socketClient?.getBasicCategories()
 //        }
@@ -198,7 +195,7 @@ internal class OldKenesWidgetPresenter constructor(
         debug(TAG, "fetchWidgetConfigs() -> data: $data")
 
         if (data == null) {
-            view?.showDefaultPeerInfo()
+            getView().showDefaultPeerInfo()
 
             viewState = when {
                 configs?.preferences?.isChatBotEnabled == true ->
@@ -215,24 +212,24 @@ internal class OldKenesWidgetPresenter constructor(
                 configs.contacts?.let { contacts ->
                     val socials = contacts.socials
                     if (!socials.isNullOrEmpty()) {
-                        view?.showSocials(socials)
+                        getView().showSocials(socials)
                     }
 
                     if (configs.preferences.isPhonesListShown) {
                         val phoneNumbers = contacts.phoneNumbers
                         if (!phoneNumbers.isNullOrEmpty()) {
-                            view?.showPhoneNumbers(phoneNumbers)
+                            getView().showPhoneNumbers(phoneNumbers)
                         }
                     }
                 }
 
-                view?.showPeerInfo(configs.callAgent)
+                getView().showPeerInfo(configs.callAgent)
 
                 if (configs.preferences.isChatBotEnabled) {
-                    view?.setDefaultFooterView()
-                    view?.showNavButton(BottomNavigationView.NavigationButton.HOME)
+                    getView().setDefaultFooterView()
+                    getView().showNavButton(BottomNavigationView.NavigationButton.HOME)
                 } else {
-                    view?.hideNavButton(BottomNavigationView.NavigationButton.HOME)
+                    getView().hideNavButton(BottomNavigationView.NavigationButton.HOME)
                 }
 
                 if (configs.preferences.isAudioCallEnabled || configs.preferences.isVideoCallEnabled) {
@@ -240,42 +237,42 @@ internal class OldKenesWidgetPresenter constructor(
                         if (!configs.calls.isNullOrEmpty()) {
                             val parentCalls = configs.calls?.filter { it.isParent() && it.isMediaCall() }
                             if (parentCalls.isNullOrEmpty()) {
-                                view?.showCalls(calls = listOf())
+                                getView().showCalls(calls = listOf())
                             } else {
-                                view?.showCalls(calls = parentCalls)
+                                getView().showCalls(calls = parentCalls)
                             }
 
-                            view?.showNavButton(BottomNavigationView.NavigationButton.CALLS)
+                            getView().showNavButton(BottomNavigationView.NavigationButton.CALLS)
                         }
                     } else {
                         if (configs.preferences.isAudioCallEnabled) {
-                            view?.showOperatorCallButton(CallType.AUDIO)
+                            getView().showOperatorCallButton(CallType.AUDIO)
                         } else {
-                            view?.hideOperatorCallButton(CallType.AUDIO)
+                            getView().hideOperatorCallButton(CallType.AUDIO)
                         }
                         if (configs.preferences.isVideoCallEnabled) {
-                            view?.showOperatorCallButton(CallType.VIDEO)
+                            getView().showOperatorCallButton(CallType.VIDEO)
                         } else {
-                            view?.hideOperatorCallButton(CallType.VIDEO)
+                            getView().hideOperatorCallButton(CallType.VIDEO)
                         }
 
-                        view?.showNavButton(BottomNavigationView.NavigationButton.CALLS)
+                        getView().showNavButton(BottomNavigationView.NavigationButton.CALLS)
                     }
                 } else {
-                    view?.hideNavButton(BottomNavigationView.NavigationButton.CALLS)
+                    getView().hideNavButton(BottomNavigationView.NavigationButton.CALLS)
                 }
 
                 if (configs.preferences.isServicesEnabled) {
                     val parentServices = configs.services?.filter { it.isParent() }
                     debug(TAG, "parentServices: $parentServices")
                     if (parentServices.isNullOrEmpty()) {
-                        view?.showServices(services = listOf())
+                        getView().showServices(services = listOf())
                     } else {
-                        view?.showServices(services = parentServices)
+                        getView().showServices(services = parentServices)
                     }
-                    view?.showNavButton(BottomNavigationView.NavigationButton.SERVICES)
+                    getView().showNavButton(BottomNavigationView.NavigationButton.SERVICES)
                 } else {
-                    view?.hideNavButton(BottomNavigationView.NavigationButton.SERVICES)
+                    getView().hideNavButton(BottomNavigationView.NavigationButton.SERVICES)
                 }
             }
         }
@@ -284,15 +281,15 @@ internal class OldKenesWidgetPresenter constructor(
     fun onMediaClicked(media: Media, file: File, itemPosition: Int) {
         if (file.get().exists()) {
             if (media.type == Media.Type.AUDIO) {
-                view?.playAudio(file.absolutePath, itemPosition)
+                getView().playAudio(file.absolutePath, itemPosition)
             } else if (media.type == Media.Type.FILE) {
-                view?.openFile(file)
+                getView().openFile(file)
             }
         } else {
             try {
                 if (media.type == Media.Type.AUDIO) {
                     file.downloadFile(media.urlPath, "media", itemPosition) {
-                        view?.playAudio(file.absolutePath, itemPosition)
+                        getView().playAudio(file.absolutePath, itemPosition)
                     }
                 } else if (media.type == Media.Type.FILE) {
                     file.downloadFile(media.urlPath, "media", itemPosition) {}
@@ -314,26 +311,26 @@ internal class OldKenesWidgetPresenter constructor(
             when (downloadResult) {
                 is DownloadResult.Success -> {
                     callback()
-                    view?.showFileDownloadStatus(
+                    getView().showFileDownloadStatus(
                         File.DownloadStatus.COMPLETED,
                         itemPosition
                     )
                 }
                 is DownloadResult.Error ->
-                    view?.showFileDownloadStatus(File.DownloadStatus.ERROR, itemPosition)
+                    getView().showFileDownloadStatus(File.DownloadStatus.ERROR, itemPosition)
                 is DownloadResult.Progress ->
-                    view?.showFileDownloadProgress(downloadResult.progress, fileType, itemPosition)
+                    getView().showFileDownloadProgress(downloadResult.progress, fileType, itemPosition)
             }
         }
     }
 
     fun onAttachmentClicked(attachment: Media, file: File, itemPosition: Int) {
         if (file.get().exists()) {
-            view?.openFile(file)
+            getView().openFile(file)
         } else {
             try {
                 file.downloadFile(attachment.urlPath, "attachment", itemPosition) {
-                    view?.openFile(file)
+                    getView().openFile(file)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -342,15 +339,15 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     fun onAttachmentClicked(file: File) {
-        view?.openFile(file)
+        getView().openFile(file)
     }
 
     fun onBottomNavigationButtonClicked(navigationButton: BottomNavigationView.NavigationButton) {
         fun clear() {
 //            chatBot.clear()
 
-            view?.clearChatMessages()
-            view?.clearChatFooterMessages()
+            getView().clearChatMessages()
+            getView().clearChatFooterMessages()
 
             if (activeServiceSession != null) {
                 socketClient?.sendCancel()
@@ -363,7 +360,7 @@ internal class OldKenesWidgetPresenter constructor(
                 if (configs?.preferences?.isChatBotEnabled == false) return
 
                 if (dialog.isInitiator) {
-                    view?.showAlreadyCallingAlert(navigationButton)
+                    getView().showAlreadyCallingAlert(navigationButton)
                     return
                 }
 
@@ -374,7 +371,7 @@ internal class OldKenesWidgetPresenter constructor(
             }
             BottomNavigationView.NavigationButton.CALLS -> {
                 if (dialog.isInitiator) {
-                    view?.showAlreadyCallingAlert(navigationButton)
+                    getView().showAlreadyCallingAlert(navigationButton)
                     return
                 }
 
@@ -382,16 +379,16 @@ internal class OldKenesWidgetPresenter constructor(
 
                 val parentCalls = configs?.calls?.filter { it.isParent() && it.isMediaCall() }
                 if (parentCalls.isNullOrEmpty()) {
-                    view?.showCalls(calls = listOf())
+                    getView().showCalls(calls = listOf())
                 } else {
-                    view?.showCalls(calls = parentCalls)
+                    getView().showCalls(calls = parentCalls)
                 }
 
                 viewState = ViewState.CallAgentCall
             }
             BottomNavigationView.NavigationButton.SERVICES -> {
                 if (dialog.isInitiator) {
-                    view?.showAlreadyCallingAlert(navigationButton)
+                    getView().showAlreadyCallingAlert(navigationButton)
                     return
                 }
 
@@ -405,7 +402,7 @@ internal class OldKenesWidgetPresenter constructor(
             }
             BottomNavigationView.NavigationButton.INFO -> {
                 if (dialog.isInitiator) {
-                    view?.showAlreadyCallingAlert(navigationButton)
+                    getView().showAlreadyCallingAlert(navigationButton)
                     return
                 }
 
@@ -445,8 +442,8 @@ internal class OldKenesWidgetPresenter constructor(
         viewState = when (navigationButton) {
             BottomNavigationView.NavigationButton.HOME -> {
 //                chatBot.clear()
-                view?.clearChatMessages()
-                view?.clearChatFooterMessages()
+                getView().clearChatMessages()
+                getView().clearChatFooterMessages()
 
 //                socketClient?.requestParentCategories()
 
@@ -466,11 +463,11 @@ internal class OldKenesWidgetPresenter constructor(
         if (callType == CallType.AUDIO) {
             if (configs?.preferences?.isAudioCallEnabled == false) return
 
-            view?.resolvePermissions(callType, scope)
+            getView().resolvePermissions(callType, scope)
         } else if (callType == CallType.VIDEO) {
             if (configs?.preferences?.isVideoCallEnabled == false) return
 
-            view?.resolvePermissions(callType, scope)
+            getView().resolvePermissions(callType, scope)
         }
     }
 
@@ -478,13 +475,13 @@ internal class OldKenesWidgetPresenter constructor(
         debug(TAG, "onCallOperator() -> viewState: $viewState")
 
         if (dialog.isInitiator) {
-            view?.showAlreadyCallingAlert(callType)
+            getView().showAlreadyCallingAlert(callType)
             return
         }
 
         dialog.isInitiator = true
 
-//        view?.clearChatMessages()
+//        getView().clearChatMessages()
 
         viewState = when (callType) {
             CallType.TEXT -> ViewState.TextDialog.Pending
@@ -511,11 +508,11 @@ internal class OldKenesWidgetPresenter constructor(
             if (calls.isNullOrEmpty()) {
                 activeCall = call
 
-                view?.showCalls(parentCall = call, calls = listOf())
+                getView().showCalls(parentCall = call, calls = listOf())
             } else {
                 activeCall = call
 
-                view?.showCalls(parentCall = call, calls = calls)
+                getView().showCalls(parentCall = call, calls = calls)
             }
         } else if (call.type == Configs.Nestable.Type.LINK) {
             if (call.callType == CallType.AUDIO) {
@@ -535,12 +532,12 @@ internal class OldKenesWidgetPresenter constructor(
             if (calls.isNullOrEmpty()) {
                 val parentCalls = configs?.calls?.filter { it.isParent() && it.isMediaCall() }
                 if (parentCalls.isNullOrEmpty()) {
-                    view?.showCalls(calls = listOf())
+                    getView().showCalls(calls = listOf())
                 } else {
-                    view?.showCalls(calls = parentCalls)
+                    getView().showCalls(calls = parentCalls)
                 }
             } else {
-                view?.showCalls(parentCall = activeCall, calls = calls)
+                getView().showCalls(parentCall = activeCall, calls = calls)
             }
         }
     }
@@ -555,14 +552,14 @@ internal class OldKenesWidgetPresenter constructor(
             if (services.isNullOrEmpty()) {
                 activeService = service
 
-                view?.showServices(
+                getView().showServices(
                     parentService = service,
                     services = listOf()
                 )
             } else {
                 activeService = service
 
-                view?.showServices(parentService = service, services = services)
+                getView().showServices(parentService = service, services = services)
             }
         } else if (service.type == Configs.Nestable.Type.LINK) {
             activeServiceSession = service
@@ -571,7 +568,7 @@ internal class OldKenesWidgetPresenter constructor(
 
             socketClient?.sendUserMessage(text ?: "")
 
-            view?.addNewMessage(
+            getView().addNewMessage(
                 Message.Builder()
                     .setType(Message.Type.OUTGOING)
                     .setText(text)
@@ -591,12 +588,12 @@ internal class OldKenesWidgetPresenter constructor(
             if (services.isNullOrEmpty()) {
                 val parentServices = configs?.services?.filter { it.isParent() }
                 if (parentServices.isNullOrEmpty()) {
-                    view?.showServices(services = listOf())
+                    getView().showServices(services = listOf())
                 } else {
-                    view?.showServices(services = parentServices)
+                    getView().showServices(services = parentServices)
                 }
             } else {
-                view?.showServices(parentService = activeService, services = services)
+                getView().showServices(parentService = activeService, services = services)
             }
         }
     }
@@ -619,10 +616,10 @@ internal class OldKenesWidgetPresenter constructor(
         socketClient?.sendUserMessage(cleanMessage)
 
         if (isInputClearText) {
-            view?.clearMessageInputViewText()
+            getView().clearMessageInputViewText()
         }
 
-        view?.addNewMessage(Message.Builder()
+        getView().addNewMessage(Message.Builder()
             .setType(Message.Type.OUTGOING)
             .setText(cleanMessage)
             .build()
@@ -654,14 +651,14 @@ internal class OldKenesWidgetPresenter constructor(
 //    fun onShowAllCategoryChildClicked(category: Category) {
 //        chatBot.activeCategory = category
 //
-//        view?.setNewMessages(
+//        getView().setNewMessages(
 //            Message(
 //                type = Message.Type.CROSS_CHILDREN,
 //                category = chatBot.activeCategory
 //            )
 //        )
 //
-//        view?.showGoToHomeButton()
+//        getView().showGoToHomeButton()
 //    }
 
     fun onCategoryChildClicked(category: Category) {
@@ -680,7 +677,7 @@ internal class OldKenesWidgetPresenter constructor(
 //        val categories = chatBot.allCategories.filter { it.id == category.parentId }
 
 //        val messages = if (categories.all { it.parentId == Category.NO_PARENT_ID }) {
-//            view?.clearChatFooterMessages()
+//            getView().clearChatFooterMessages()
 //
 //            chatBot.dashboardCategories.map {
 //                Message.Builder()
@@ -699,9 +696,9 @@ internal class OldKenesWidgetPresenter constructor(
 
 //        chatBot.activeCategory = null
 
-//        view?.setNewMessages(messages)
+//        getView().setNewMessages(messages)
 
-        chatListViewState?.let { view?.restoreChatListViewState(it) }
+        chatListViewState?.let { getView().restoreChatListViewState(it) }
     }
 
     fun onUrlInTextClicked(url: String) {
@@ -715,9 +712,9 @@ internal class OldKenesWidgetPresenter constructor(
             val text = url.removePrefix("#")
             sendUserMessage(text, false)
 
-            view?.showGoToHomeButton()
+            getView().showGoToHomeButton()
         } else {
-            view?.showOpenLinkConfirmAlert(url)
+            getView().showOpenLinkConfirmAlert(url)
         }
 
     }
@@ -727,8 +724,8 @@ internal class OldKenesWidgetPresenter constructor(
 
         when (viewState) {
             is ViewState.AudioDialog, is ViewState.VideoDialog -> {
-                view?.clearChatMessages()
-                view?.clearChatFooterMessages()
+                getView().clearChatMessages()
+                getView().clearChatFooterMessages()
 
                 viewState = ViewState.CallAgentCall
             }
@@ -742,22 +739,22 @@ internal class OldKenesWidgetPresenter constructor(
                     activeServiceSession = null
                 }
 
-                view?.clearChatMessages()
-                view?.clearChatFooterMessages()
+                getView().clearChatMessages()
+                getView().clearChatFooterMessages()
 
                 viewState = ViewState.Services.IDLE
             }
             is ViewState.DynamicForm -> {
                 activeForm = null
 
-                view?.clearDynamicForm()
+                getView().clearDynamicForm()
 
-                view?.clearChatFooterMessages()
+                getView().clearChatFooterMessages()
 
                 if (activeServiceSession != null) {
                     activeServiceSession = null
 
-                    view?.clearChatMessages()
+                    getView().clearChatMessages()
 
                     viewState = ViewState.Services.IDLE
                 } else {
@@ -768,10 +765,10 @@ internal class OldKenesWidgetPresenter constructor(
                 if (activeServiceSession != null) {
                     activeServiceSession = null
 
-                    view?.clearDynamicForm()
+                    getView().clearDynamicForm()
 
-                    view?.clearChatMessages()
-                    view?.clearChatFooterMessages()
+                    getView().clearChatMessages()
+                    getView().clearChatFooterMessages()
 
                     viewState = ViewState.Services.IDLE
                 } else {
@@ -782,16 +779,16 @@ internal class OldKenesWidgetPresenter constructor(
 //                            .build()
 //                    }
 
-                    view?.clearChatFooterMessages()
+                    getView().clearChatFooterMessages()
 
 //                    viewState = if (messages.isEmpty()) {
 ////                        socketClient?.requestParentCategories()
 //
 //                        ViewState.ChatBot.Dashboard(true)
 //                    } else {
-////                        view?.setNewMessages(messages)
+////                        getView().setNewMessages(messages)
 //
-//                        chatListViewState?.let { view?.restoreChatListViewState(it) }
+//                        chatListViewState?.let { getView().restoreChatListViewState(it) }
 //
 //                        ViewState.ChatBot.Dashboard(false)
 //                    }
@@ -828,7 +825,7 @@ internal class OldKenesWidgetPresenter constructor(
 //            val fullUrl = UrlUtil.buildUrl(path)
 //
 //            if (activeForm != null) {
-//                view?.showAttachmentThumbnail(
+//                getView().showAttachmentThumbnail(
 //                    Attachment(
 //                        title = hash,
 //                        ext = hash.split(".").last(),
@@ -855,7 +852,7 @@ internal class OldKenesWidgetPresenter constructor(
 //                    )
 //                }
 //
-//                view?.addNewMessage(Message(type = Message.Type.OUTGOING, media = media))
+//                getView().addNewMessage(Message(type = Message.Type.OUTGOING, media = media))
 //            }
 //        }
     }
@@ -901,9 +898,9 @@ internal class OldKenesWidgetPresenter constructor(
 
         dialog.clear()
 
-        view?.releaseMediaPlayer()
+        getView().releaseMediaPlayer()
 
-        view?.releaseVideoDialog()
+        getView().releaseVideoDialog()
 
         peerConnectionClient.dispose()
 
@@ -932,9 +929,9 @@ internal class OldKenesWidgetPresenter constructor(
     fun onHangupLiveCall() {
         dialog.clear()
 
-        view?.releaseMediaPlayer()
+        getView().releaseMediaPlayer()
 
-        view?.showUserDisconnectedMessage()
+        getView().showUserDisconnectedMessage()
 
         peerConnectionClient.dispose()
 
@@ -948,7 +945,7 @@ internal class OldKenesWidgetPresenter constructor(
             is ViewState.TextDialog -> ViewState.TextDialog.UserDisconnected
             is ViewState.AudioDialog -> ViewState.AudioDialog.UserDisconnected
             is ViewState.VideoDialog -> {
-                view?.releaseVideoDialog()
+                getView().releaseVideoDialog()
 
                 ViewState.VideoDialog.UserDisconnected
             }
@@ -965,7 +962,7 @@ internal class OldKenesWidgetPresenter constructor(
 
         socketClient?.sendFuzzyTaskConfirmation(name, email, phone)
 
-        view?.showFormSentSuccessAlert()
+        getView().showFormSentSuccessAlert()
     }
 
     fun onFormSendButtonClicked(form: Form) {
@@ -975,7 +972,7 @@ internal class OldKenesWidgetPresenter constructor(
 
         activeForm = null
 
-        view?.clearDynamicForm()
+        getView().clearDynamicForm()
 
         debug(TAG, "onSendClicked() -> viewState: $viewState")
 
@@ -995,7 +992,7 @@ internal class OldKenesWidgetPresenter constructor(
 
         activeForm = null
 
-        view?.clearDynamicForm()
+        getView().clearDynamicForm()
 
         viewState = if (activeServiceSession == null) {
             if (viewState is ViewState.Services) {
@@ -1004,13 +1001,13 @@ internal class OldKenesWidgetPresenter constructor(
                 ViewState.ChatBot.UserPrompt(false)
             }
         } else {
-            view?.showGoToHomeButton()
+            getView().showGoToHomeButton()
             ViewState.Services.Cancelled
         }
     }
 
     fun onRegisterAppealButtonClicked() {
-        view?.showGoToHomeButton()
+        getView().showGoToHomeButton()
 
         viewState = ViewState.Form
     }
@@ -1022,22 +1019,22 @@ internal class OldKenesWidgetPresenter constructor(
     fun onNewChatMessagesInserted() {
         if (viewState is ViewState.ChatBot.Dashboard) return
 
-        view?.scrollToBottom()
+        getView().scrollToBottom()
     }
 
     fun onHangupButtonClicked() {
-        view?.showHangupConfirmationAlert()
+        getView().showHangupConfirmationAlert()
     }
 
     fun onAddAttachmentButtonClicked() {
-        view?.showAttachmentPicker(forced = false)
+        getView().showAttachmentPicker(forced = false)
     }
 
     fun onReplyMarkupButtonClicked(button: Button) {
         if (button is UrlButton) {
-            view?.openLink(button.url)
+            getView().openLink(button.url)
         } else if (button is CallbackButton) {
-            view?.addNewMessage(
+            getView().addNewMessage(
                 Message.Builder()
                     .setType(Message.Type.OUTGOING)
                     .setText(button.text)
@@ -1050,7 +1047,7 @@ internal class OldKenesWidgetPresenter constructor(
 
     fun onSelectAttachmentButtonClicked(field: Form.Field) {
         debug(TAG, "field: $field")
-        view?.showAttachmentPicker(forced = true)
+        getView().showAttachmentPicker(forced = true)
     }
 
     /**
@@ -1086,14 +1083,14 @@ internal class OldKenesWidgetPresenter constructor(
     override fun onFuzzyTaskOffered(text: String, timestamp: Long): Boolean {
         debug(TAG, "onFuzzyTaskOffered -> viewState: $viewState")
 
-        view?.addNewMessage(
+        getView().addNewMessage(
             Message.Builder()
                 .setType(Message.Type.INCOMING)
                 .setText(text)
                 .setCreatedAt(timestamp)
                 .build()
         )
-        view?.showFuzzyQuestionButtons()
+        getView().showFuzzyQuestionButtons()
 
         viewState = ViewState.ChatBot.UserPrompt(false)
 
@@ -1103,7 +1100,7 @@ internal class OldKenesWidgetPresenter constructor(
     override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
         debug(TAG, "onNoResultsFound -> viewState: $viewState")
 
-        view?.addNewMessage(
+        getView().addNewMessage(
             Message.Builder()
                 .setType(Message.Type.INCOMING)
                 .setText(text)
@@ -1112,7 +1109,7 @@ internal class OldKenesWidgetPresenter constructor(
         )
 
         if (viewState is ViewState.ChatBot.UserPrompt && !dialog.isInitiator) {
-            view?.showSwitchToCallAgentButton()
+            getView().showSwitchToCallAgentButton()
         }
 
         if (viewState is ViewState.ChatBot.UserPrompt) {
@@ -1127,7 +1124,7 @@ internal class OldKenesWidgetPresenter constructor(
 
         // onMediaMessage()
 //        if (media.type == Media.Type.IMAGE || media.type == Media.Type.AUDIO || media.type == Media.Type.FILE) {
-//            view?.addNewMessage(
+//            getView().addNewMessage(
 //                Message(
 //                    type = Message.Type.INCOMING,
 //                    media = media,
@@ -1140,9 +1137,9 @@ internal class OldKenesWidgetPresenter constructor(
 //        if (chatBot.activeCategory != null) {
 //            val newMessage = message.copy(category = chatBot.activeCategory)
 
-//            view?.setNewMessages(newMessage)
-//            view?.scrollToTop()
-//            view?.showGoToHomeButton()
+//            getView().setNewMessages(newMessage)
+//            getView().scrollToTop()
+//            getView().showGoToHomeButton()
 
 //            viewState = ViewState.ChatBot.Dashboard(false)
 //
@@ -1150,18 +1147,18 @@ internal class OldKenesWidgetPresenter constructor(
 //        }
 
         if (viewState is ViewState.AudioDialog.Live || viewState is ViewState.VideoDialog.Live) {
-            view?.showFooterView()
+            getView().showFooterView()
         }
 
         if (viewState is ViewState.AudioDialog.Live && (viewState as ViewState.AudioDialog.Live).isDialogScreenShown) {
             dialog.unreadMessages += 1
             if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
-                view?.setUnreadMessagesCountOnCall(
+                getView().setUnreadMessagesCountOnCall(
                     CallType.AUDIO,
                     "${dialog.unreadMessages}+"
                 )
             } else {
-                view?.setUnreadMessagesCountOnCall(
+                getView().setUnreadMessagesCountOnCall(
                     CallType.AUDIO,
                     "${dialog.unreadMessages}"
                 )
@@ -1169,19 +1166,19 @@ internal class OldKenesWidgetPresenter constructor(
         } else if (viewState is ViewState.VideoDialog.Live && (viewState as ViewState.VideoDialog.Live).isDialogScreenShown) {
             dialog.unreadMessages += 1
             if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
-                view?.setUnreadMessagesCountOnCall(
+                getView().setUnreadMessagesCountOnCall(
                     CallType.VIDEO,
                     "${dialog.unreadMessages}+"
                 )
             } else {
-                view?.setUnreadMessagesCountOnCall(
+                getView().setUnreadMessagesCountOnCall(
                     CallType.VIDEO,
                     "${dialog.unreadMessages}"
                 )
             }
         }
 
-        view?.addNewMessage(message)
+        getView().addNewMessage(message)
 
 //        if (form != null) {
 //            socketClient?.sendFormInitialize(formId = form.id)
@@ -1190,11 +1187,11 @@ internal class OldKenesWidgetPresenter constructor(
         if (viewState is ViewState.ChatBot) {
 //                    debug(TAG, "onTextMessage: chatFooterAdapter?.showGoToHomeButton()")
 
-            view?.showGoToHomeButton()
+            getView().showGoToHomeButton()
 
             viewState = ViewState.ChatBot.UserPrompt(false)
         } else if (viewState is ViewState.Services) {
-            view?.showGoToHomeButton()
+            getView().showGoToHomeButton()
         }
     }
 
@@ -1223,7 +1220,7 @@ internal class OldKenesWidgetPresenter constructor(
 //                chatBot.activeCategory?.children?.addAll(categories)
 //            }
 //            }
-//            view?.setNewMessages(
+//            getView().setNewMessages(
 //                Message.Builder()
 //                    .setType(Message.Type.CROSS_CHILDREN)
 //                    .apply {
@@ -1233,8 +1230,8 @@ internal class OldKenesWidgetPresenter constructor(
 //                    }
 //                    .build()
 //            )
-//            view?.scrollToTop()
-//            view?.showGoToHomeButton()
+//            getView().scrollToTop()
+//            getView().showGoToHomeButton()
 //        }
 
 //        if (viewState is ViewState.ChatBot.Dashboard && (viewState as ViewState.ChatBot.Dashboard).isLoading) {
@@ -1249,10 +1246,10 @@ internal class OldKenesWidgetPresenter constructor(
     override fun onPendingUsersQueueCount(text: String?, count: Int) {
         if (viewState is ViewState.AudioDialog || viewState is ViewState.VideoDialog) {
             if (!text.isNullOrBlank()) {
-                view?.setOperatorCallInfoText(text)
+                getView().setOperatorCallInfoText(text)
             }
             if (count > 1) {
-                view?.setOperatorCallPendingQueueCount(count)
+                getView().setOperatorCallPendingQueueCount(count)
             }
         }
     }
@@ -1262,13 +1259,13 @@ internal class OldKenesWidgetPresenter constructor(
 
         dialog.isInitiator = false
 
-//        view?.addNewMessage(Messag(type = Messag.Type.INCOMING, text = text))
+//        getView().addNewMessage(Messag(type = Messag.Type.INCOMING, text = text))
 
-        view?.showNoOnlineCallAgentsAlert(text ?: "")
+        getView().showNoOnlineCallAgentsAlert(text ?: "")
 
         when (viewState) {
             is ViewState.TextDialog -> {
-                view?.showGoToHomeButton()
+                getView().showGoToHomeButton()
                 viewState = ViewState.ChatBot.UserPrompt(false)
             }
             is ViewState.AudioDialog, is ViewState.VideoDialog ->
@@ -1290,19 +1287,19 @@ internal class OldKenesWidgetPresenter constructor(
 
         val newText = text.replace("{}", fullName)
 
-        view?.showPeerInfo(fullName, photoUrl)
+        getView().showPeerInfo(fullName, photoUrl)
 
         if (viewState is ViewState.AudioDialog) {
-            view?.showAudioCallerInformation(fullName, photoUrl)
+            getView().showAudioCallerInformation(fullName, photoUrl)
         }
 
-//        view?.addNewMessage(Messag(type = Messag.Type.INCOMING, text = newText))
+//        getView().addNewMessage(Messag(type = Messag.Type.INCOMING, text = newText))
     }
 
     override fun onCallFeedback(text: String, rateButtons: List<RateButton>?) {
         debug(TAG, "onFeedback() -> viewState: $viewState")
 
-        view?.showFeedback(text, rateButtons)
+        getView().showFeedback(text, rateButtons)
 
         when (viewState) {
             is ViewState.TextDialog ->
@@ -1329,9 +1326,9 @@ internal class OldKenesWidgetPresenter constructor(
 
         dialog.clear()
 
-        view?.releaseMediaPlayer()
+        getView().releaseMediaPlayer()
 
-        view?.releaseVideoDialog()
+        getView().releaseVideoDialog()
 
         peerConnectionClient.dispose()
 
@@ -1355,7 +1352,7 @@ internal class OldKenesWidgetPresenter constructor(
                 viewState = ViewState.ChatBot.UserPrompt(false)
         }
 
-//        view?.addNewMessage(
+//        getView().addNewMessage(
 //            Messag(
 //                type = Messag.Type.NOTIFICATION,
 //                text = text,
@@ -1377,14 +1374,14 @@ internal class OldKenesWidgetPresenter constructor(
     private fun disconnectFromCall(text: String, timestamp: Long) {
         onCloseLiveCall()
 
-//        view?.addNewMessage(
+//        getView().addNewMessage(
 //            Messag(
 //                type = Messag.Type.NOTIFICATION,
 //                text = text,
 //                timestamp = timestamp
 //            )
 //        )
-        view?.showGoToHomeButton()
+        getView().showGoToHomeButton()
     }
 
     /**
@@ -1394,7 +1391,7 @@ internal class OldKenesWidgetPresenter constructor(
     override fun onFormInit(form: Form) {
         activeForm = form
 
-        view?.showForm(form)
+        getView().showForm(form)
 
         viewState = ViewState.DynamicForm
     }
@@ -1404,13 +1401,13 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     override fun onFormFinal(trackId: String?, taskId: Long?, message: String?, success: Boolean) {
-//        view?.addNewMessage(Messag(type = Messag.Type.INCOMING, text = message))
+//        getView().addNewMessage(Messag(type = Messag.Type.INCOMING, text = message))
 
         activeForm = null
 
-        view?.clearDynamicForm()
+        getView().clearDynamicForm()
 
-        view?.showGoToHomeButton()
+        getView().showGoToHomeButton()
 
         debug(TAG, "onFormFinal() -> viewState: $viewState")
 

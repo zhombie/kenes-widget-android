@@ -25,8 +25,13 @@ internal class PendingCallPresenter constructor(
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        initSocket()
         initCall()
+    }
+
+    override fun onViewResume() {
+        super.onViewResume()
+
+        initSocket()
     }
 
     private fun initSocket() {
@@ -48,7 +53,7 @@ internal class PendingCallPresenter constructor(
             CallInitialization(
                 callType = callType,
                 domain = UrlUtil.getHostname()?.removePrefix("https://"),
-                topic = call.topic,
+                topic = "zhombie",  // TODO: Change to 'call.topic' on production
                 device = CallInitialization.Device(
                     os = deviceInfo.os,
                     osVersion = deviceInfo.osVersion,
@@ -142,6 +147,9 @@ internal class PendingCallPresenter constructor(
 
     override fun onDestroy() {
         socketRepository.setCallListener(null)
+        socketRepository.setWebRTCListener(null)
+
+        socketRepository.unregisterMessageEventListener()
     }
 
 }

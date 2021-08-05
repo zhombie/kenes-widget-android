@@ -37,9 +37,13 @@ internal class ChatbotPresenter constructor(
 
         asyncHttpClient = AsyncHttpClientBuilder().build()
 
-        initSocket()
-
         loadResponseGroups(true)
+    }
+
+    override fun onViewResume() {
+        super.onViewResume()
+
+        initSocket()
     }
 
     private fun initSocket() {

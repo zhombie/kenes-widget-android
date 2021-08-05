@@ -1,5 +1,6 @@
 package q19.kenes.widget.ui.presentation.platform
 
+import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +13,7 @@ import kz.q19.domain.model.language.Language
 import q19.kenes.widget.di.Injection
 import java.util.*
 
-internal open class BaseActivity : AppCompatActivity() {
+internal abstract class BaseActivity<Presenter : BasePresenter<*>> : AppCompatActivity() {
 
     companion object {
         private val TAG = BaseActivity::class.java.simpleName
@@ -20,19 +21,32 @@ internal open class BaseActivity : AppCompatActivity() {
 
     internal val injection: Injection
         get() = Injection.getInstance(this)
-    
+
+    protected lateinit var presenter: Presenter
+
+    protected abstract fun createPresenter(): Presenter
+
     private var localeManagerAppCompatDelegate: LocaleManagerAppCompatDelegate? = null
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        presenter = createPresenter()
+    }
+
     override fun getDelegate(): AppCompatDelegate {
-        if (localeManagerAppCompatDelegate == null) {
-            localeManagerAppCompatDelegate = LocaleManagerAppCompatDelegate(super.getDelegate())
-        }
-        return requireNotNull(localeManagerAppCompatDelegate)
+        return localeManagerAppCompatDelegate
+            ?: LocaleManagerAppCompatDelegate(super.getDelegate()).also {
+                localeManagerAppCompatDelegate = it
+            }
     }
 
     override fun onResume() {
         super.onResume()
+
         ActivityRecreationHelper.onResume(this)
+
+        presenter.onViewResumed()
     }
 
     fun getCurrentLocale(): Locale? {
@@ -53,6 +67,8 @@ internal open class BaseActivity : AppCompatActivity() {
         super.onDestroy()
 
         ActivityRecreationHelper.onDestroy(this)
+
+        presenter.detachView()
     }
 
     fun toast(text: CharSequence, duration: Int = Toast.LENGTH_SHORT) {

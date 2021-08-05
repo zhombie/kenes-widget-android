@@ -1,5 +1,6 @@
 package q19.kenes.widget.ui.presentation.platform
 
+import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -10,12 +11,36 @@ import kz.q19.domain.model.language.Language
 import q19.kenes.widget.di.Injection
 import java.util.*
 
-internal open class BaseFragment constructor(@LayoutRes contentLayoutId: Int) : Fragment(contentLayoutId) {
+internal abstract class BaseFragment<Presenter : BasePresenter<*>> constructor(
+    @LayoutRes contentLayoutId: Int
+) : Fragment(contentLayoutId) {
 
     constructor() : this(0)
 
-    protected val injection: Injection?
-        get() = if (context == null) null else Injection.getInstance(requireContext())
+    protected val injection: Injection
+        get() = Injection.getInstance(requireContext())
+
+    protected lateinit var presenter: Presenter
+
+    protected abstract fun createPresenter(): Presenter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        presenter = createPresenter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        presenter.onViewResumed()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        presenter.detachView()
+    }
 
     fun getCurrentLocale(): Locale? {
         return LocaleManager.getLocale()

@@ -11,8 +11,9 @@ import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.model.ViewState
+import q19.kenes.widget.ui.presentation.platform.BaseView
 
-internal interface OldKenesWidgetView {
+internal interface OldKenesWidgetView : BaseView {
     fun showCurrentLanguage(language: Language)
     fun showSocials(contacts: List<Configs.Contacts.Social>)
     fun showPhoneNumbers(phones: List<Configs.Contacts.PhoneNumber>)

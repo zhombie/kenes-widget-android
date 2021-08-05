@@ -27,12 +27,16 @@ internal class CallsPresenter constructor(
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        initSocket()
-
         database.setOnUpdateConfigsListener { configs ->
             interactor.anyCalls = configs.buildCallsAsTree(language) ?: emptyList()
             getView().showCalls(interactor.anyCalls)
         }
+    }
+
+    override fun onViewResume() {
+        super.onViewResume()
+
+        initSocket()
     }
 
     private fun initSocket() {

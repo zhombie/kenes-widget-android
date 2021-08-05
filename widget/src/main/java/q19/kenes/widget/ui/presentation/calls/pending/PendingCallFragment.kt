@@ -5,11 +5,13 @@ import android.view.View
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
 import q19.kenes.widget.ui.presentation.calls.Call
+import q19.kenes.widget.ui.presentation.calls.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 
-internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragment_pending_call),
+internal class PendingCallFragment :
+    BaseFullscreenDialogFragment<PendingCallPresenter>(R.layout.fragment_pending_call),
     PendingCallView {
 
     companion object {
@@ -38,20 +40,20 @@ internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragm
         isCancelable = false
     }
 
-    // (MVP) Presenter
-    private var presenter: PendingCallPresenter? = null
-
     // UI Views
     private var cancelButton: MaterialButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        presenter.attachView(this)
+    }
+
+    override fun createPresenter(): PendingCallPresenter {
         val call = arguments?.getParcelable<Call>("call")
             ?: throw IllegalStateException("Where is call?")
 
-        presenter = injection?.providePendingCallPresenter(call, getCurrentLanguage())
-        presenter?.attachView(this)
+        return injection.providePendingCallPresenter(call, getCurrentLanguage())
     }
 
     override fun onStart() {
@@ -74,16 +76,10 @@ internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragm
                 }
                 .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
                     dialog.dismiss()
-                    presenter?.onCancelCall()
+                    presenter.onCancelCall()
                 }
                 .show()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-        presenter?.detachView()
     }
 
     /**
@@ -110,6 +106,12 @@ internal class PendingCallFragment : BaseFullscreenDialogFragment(R.layout.fragm
 
     override fun navigateToCall(call: Call) {
         dismiss()
+
+        val fragment = VideoCallFragment.newInstance()
+        fragment.arguments = Bundle().apply {
+            putParcelable("call", call)
+        }
+        fragment.show(parentFragmentManager, TAG)
     }
 
 }

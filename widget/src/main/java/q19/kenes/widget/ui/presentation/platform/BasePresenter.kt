@@ -11,16 +11,28 @@ internal abstract class BasePresenter<View: BaseView> {
     fun getView(): View = requireNotNull(view?.get())
 
     fun attachView(view: View) {
-        this.view = WeakReference(view)
-
         if (isFirstLaunch) {
             isFirstLaunch = false
 
+            this.view = WeakReference(view)
+
             onFirstViewAttach()
         }
+
+        onAttachView()
     }
 
     protected open fun onFirstViewAttach() {
+    }
+
+    protected open fun onAttachView() {
+    }
+
+    fun onViewResumed() {
+        onViewResume()
+    }
+
+    protected open fun onViewResume() {
     }
 
     fun isViewAttached(): Boolean {
@@ -28,12 +40,14 @@ internal abstract class BasePresenter<View: BaseView> {
     }
 
     fun detachView() {
-        onDestroy()
+        if (isViewAttached()) {
+            onDestroy()
 
-        isFirstLaunch = false
+            isFirstLaunch = false
 
-        view?.clear()
-        view = null
+            view?.clear()
+            view = null
+        }
     }
 
     protected open fun onDestroy() {

@@ -3,9 +3,9 @@ package q19.kenes.widget.ui.presentation.platform
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 
-internal open class BaseFullscreenDialogFragment constructor(
+internal abstract class BaseFullscreenDialogFragment<Presenter : BasePresenter<*>> constructor(
     @LayoutRes override val contentLayoutId: Int
-) : BaseDialogFragment(contentLayoutId) {
+) : BaseDialogFragment<Presenter>(contentLayoutId) {
 
     constructor() : this(0)
 

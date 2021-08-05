@@ -28,7 +28,7 @@ import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
-internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatbotFragment.Listener,
+internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), KenesWidgetView, ChatbotFragment.Listener,
     FragmentOnAttachListener {
 
     companion object {
@@ -55,9 +55,6 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatbotFra
         const val USER = "user"
     }
 
-    // (MVP) Presenter
-    private var presenter: KenesWidgetPresenter? = null
-
     // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
     private val toolbar by bind<LinearLayout>(R.id.toolbar)
@@ -81,11 +78,24 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatbotFra
         val hostname: String? = intent.getStringExtra(IntentKey.HOSTNAME)
         if (hostname.isNullOrBlank() || !hostname.startsWith("https://")) {
             toast("hostname is blank or null, provide with hostname at first!")
-            super.finish()
+            finish()
         } else {
             UrlUtil.setHostname(hostname)
         }
 
+        presenter.attachView(this)
+
+        // FragmentManager Listener
+        supportFragmentManager.addFragmentOnAttachListener(this)
+
+        // ViewPager + Fragments
+        setupViewPager()
+
+        // Keyboard
+        setupKeyboard()
+    }
+
+    override fun createPresenter(): KenesWidgetPresenter {
         // Language
         var language = intent.getParcelableExtra<Language>(IntentKey.LANGUAGE)
         if (language == null) {
@@ -101,25 +111,13 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatbotFra
         }
 
         // Presenter
-        presenter = injection.provideKenesWidgetPresenter(language)
-        presenter?.attachView(this)
-
-        supportFragmentManager.addFragmentOnAttachListener(this)
-
-        // Fragments
-        setupViewPager()
-
-        // Keyboard
-        setupKeyboard()
+        return injection.provideKenesWidgetPresenter(language)
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         supportFragmentManager.removeFragmentOnAttachListener(this)
-
-        presenter?.detachView()
-        presenter = null
 
         injection.destroy()
     }
@@ -138,7 +136,7 @@ internal class KenesWidgetActivity : BaseActivity(), KenesWidgetView, ChatbotFra
         bottomNavigationView.callback = object : BottomNavigationView.Callback {
             override fun onBottomNavigationButtonSelected(navigationButton: BottomNavigationView.NavigationButton) {
                 Logger.debug(TAG, "onBottomNavigationButtonSelected() -> $navigationButton")
-                presenter?.onBottomNavigationButtonSelected(navigationButton.index)
+                presenter.onBottomNavigationButtonSelected(navigationButton.index)
             }
 
             override fun onBottomNavigationButtonReselected(navigationButton: BottomNavigationView.NavigationButton) {

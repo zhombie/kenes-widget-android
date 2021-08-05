@@ -7,10 +7,11 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
-import q19.kenes.widget.ui.presentation.platform.BaseDialogFragment
+import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
 import q19.kenes_widget.R
 
-internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_call),
+internal class VideoCallFragment :
+    BaseFullscreenDialogFragment<VideoCallPresenter>(R.layout.fragment_video_call),
     VideoCallView {
 
     companion object {
@@ -23,21 +24,25 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
         }
     }
 
-    private var presenter: VideoCallPresenter? = null
+    // UI Views
+    private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
+    private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
 
     private var peerConnectionClient: PeerConnectionClient? = null
 
     private var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
 
-    private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
-    private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        peerConnectionClient = PeerConnectionClient(requireContext())
-        presenter = injection?.provideVideoCallPresenter(getCurrentLanguage(), peerConnectionClient!!)
-        presenter?.attachView(this)
+        presenter.attachView(this)
+    }
+
+    override fun createPresenter(): VideoCallPresenter {
+        return injection.provideVideoCallPresenter(
+            getCurrentLanguage(),
+            PeerConnectionClient(requireContext()).also { peerConnectionClient = it }
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,6 +50,14 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
 
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
         floatingSurfaceViewRenderer = view.findViewById(R.id.floatingSurfaceViewRenderer)
+
+        floatingSurfaceViewRenderer?.let {
+            presenter.setLocalSurfaceViewRenderer(it)
+        }
+
+        fullscreenSurfaceViewRenderer?.let {
+            presenter.setRemoteSurfaceViewRenderer(it)
+        }
 
         view.findViewById<MaterialButton>(R.id.button).setOnClickListener {
             if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
@@ -56,23 +69,12 @@ internal class VideoCallFragment : BaseDialogFragment(R.layout.fragment_video_ca
 
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.videoView))
         bottomSheetBehavior?.isDraggable = true
-
-        floatingSurfaceViewRenderer?.let {
-            presenter?.setLocalSurfaceViewRenderer(it)
-        }
-
-        fullscreenSurfaceViewRenderer?.let {
-            presenter?.setRemoteSurfaceViewRenderer(it)
-        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
 
         peerConnectionClient = null
-
-        presenter?.detachView()
-        presenter = null
     }
 
 }

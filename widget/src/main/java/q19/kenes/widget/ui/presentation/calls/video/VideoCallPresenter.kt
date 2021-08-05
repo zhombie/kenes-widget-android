@@ -1,6 +1,5 @@
 package q19.kenes.widget.ui.presentation.calls.video
 
-import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.CallAction
@@ -13,7 +12,6 @@ import kz.q19.socket.listener.CallListener
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.listener.SocketStateListener
 import kz.q19.socket.listener.WebRTCListener
-import kz.q19.socket.model.CallInitialization
 import kz.q19.socket.model.Category
 import kz.q19.socket.repository.SocketRepository
 import kz.q19.webrtc.Options
@@ -24,7 +22,6 @@ import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
-import q19.kenes.widget.util.UrlUtil
 
 internal class VideoCallPresenter constructor(
     private val language: Language,
@@ -39,30 +36,16 @@ internal class VideoCallPresenter constructor(
         private val TAG = VideoCallPresenter::class.java.simpleName
     }
 
-    init {
-        initSocket()
-        initPeerConnection()
+    override fun onFirstViewAttach() {
+        super.onFirstViewAttach()
 
-        socketRepository.sendCallInitialization(
-            CallInitialization(
-                callType = CallType.VIDEO,
-                domain = UrlUtil.getHostname()?.removePrefix("https://"),
-                topic = "sos",
-                device = CallInitialization.Device(
-                    os = deviceInfo.os,
-                    osVersion = deviceInfo.osVersion,
-                    appVersion = deviceInfo.versionName,
-                    name = deviceInfo.deviceName,
-                    mobileOperator = deviceInfo.operator,
-                    battery = CallInitialization.Device.Battery(
-                        percentage = deviceInfo.batteryPercent,
-                        isCharging = deviceInfo.isPhoneCharging,
-                        temperature = deviceInfo.batteryTemperature
-                    )
-                ),
-                language = Language.RUSSIAN
-            )
-        )
+        initPeerConnection()
+    }
+
+    override fun onViewResume() {
+        super.onViewResume()
+
+        initSocket()
     }
 
     private fun initSocket() {
@@ -136,9 +119,11 @@ internal class VideoCallPresenter constructor(
     }
 
     override fun onLocalVideoCapturerCreateError(e: Exception) {
+        e.printStackTrace()
     }
 
     override fun onPeerConnectionError(errorMessage: String) {
+        Logger.error(TAG, errorMessage)
     }
 
     /**
@@ -252,6 +237,10 @@ internal class VideoCallPresenter constructor(
         Logger.debug(TAG, "onCallAgentDisconnected() -> text: $text, timestamp: $timestamp")
         return true
     }
+
+    /**
+     * [BasePresenter] implementation
+     */
 
     override fun onDestroy() {
         peerConnectionClient.dispose()

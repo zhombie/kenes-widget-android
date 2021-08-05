@@ -15,4 +15,13 @@ internal object Logger {
         }
     }
 
+    fun error(tag: String, message: String) {
+        if (message.length > LIMIT) {
+            Log.e(tag, message.substring(0, LIMIT))
+            debug(tag, message.substring(LIMIT))
+        } else {
+            Log.e(tag, message)
+        }
+    }
+
 }

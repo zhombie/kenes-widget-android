@@ -33,7 +33,7 @@ import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), ChatbotView,
+internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragment_chatbot), ChatbotView,
     HomeFragmentDelegate {
 
     companion object {
@@ -45,10 +45,6 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
             return fragment
         }
     }
-
-
-    // (MVP) Presenter
-    private var presenter: ChatbotPresenter? = null
 
     // UI Views
     private var responsesView: RecyclerView? = null
@@ -88,15 +84,18 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        presenter = injection?.provideChatbotPresenter(getCurrentLanguage())
-        presenter?.attachView(this)
+        presenter.attachView(this)
 
         onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback {
-            if (presenter?.onBackPressed() == true) {
+            if (presenter.onBackPressed()) {
                 isEnabled = false
                 activity?.onBackPressed()
             }
         }
+    }
+
+    override fun createPresenter(): ChatbotPresenter {
+        return injection.provideChatbotPresenter(getCurrentLanguage())
     }
 
     override fun onResume() {
@@ -106,7 +105,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
 
         if (onBackPressedDispatcherCallback == null) {
             onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
-                if (presenter?.onBackPressed() == true) {
+                if (presenter.onBackPressed()) {
                     isEnabled = false
                     activity?.onBackPressed()
                 }
@@ -162,16 +161,13 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
 
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
-
-        presenter?.detachView()
-        presenter = null
     }
 
     private fun setupResponsesView() {
         responseGroupsAdapter = ResponseGroupsAdapter()
         responseGroupsAdapter?.setCallback(object : ResponseGroupsAdapter.Callback {
             override fun onBackPressed(element: Element) {
-                presenter?.onBackPressed()
+                presenter.onBackPressed()
             }
 
             override fun onMenuButtonClicked() {
@@ -184,19 +180,19 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
                     ) { dialog, which ->
                         dialog.dismiss()
                         when (which) {
-                            0 -> presenter?.onCopyResponseText()
-                            1 -> presenter?.onShareResponse()
+                            0 -> presenter.onCopyResponseText()
+                            1 -> presenter.onShareResponse()
                         }
                     }
                     .show()
             }
 
             override fun onResponseGroupClicked(responseGroup: ResponseGroup) {
-                presenter?.onResponseGroupClicked(responseGroup)
+                presenter.onResponseGroupClicked(responseGroup)
             }
 
             override fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
-                presenter?.onResponseGroupChildClicked(child)
+                presenter.onResponseGroupChildClicked(child)
             }
         })
         responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
@@ -252,7 +248,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
                         activity?.hideKeyboard()
                     }
 
-                    presenter?.onBottomSheetStateChanged(newState == BottomSheetBehavior.STATE_EXPANDED)
+                    presenter.onBottomSheetStateChanged(newState == BottomSheetBehavior.STATE_EXPANDED)
                 }
             })
         }
@@ -289,7 +285,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
             }
 
             override fun onSendTextMessage(message: String?) {
-                presenter?.onSendTextMessage(message)
+                presenter.onSendTextMessage(message)
             }
         })
     }
@@ -380,7 +376,7 @@ internal class ChatbotFragment : BaseFragment(R.layout.fragment_chatbot), Chatbo
         with(responsesView?.layoutManager) {
             if (this is LinearLayoutManager) {
                 if (findFirstCompletelyVisibleItemPosition() == 0) {
-                    presenter?.onResetDataRequested()
+                    presenter.onResetDataRequested()
                 } else {
                     responsesView?.smoothScrollToPosition(0)
                 }

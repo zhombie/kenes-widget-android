@@ -52,7 +52,7 @@ import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.*
 import q19.kenes_widget.R
 
-internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
+internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(), OldKenesWidgetView {
 
     companion object {
         private val TAG = OldKenesWidgetActivity::class.java.simpleName
@@ -196,7 +196,18 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
     @Volatile
     private var isAudioPaused: Boolean = false
 
-    private lateinit var presenter: OldKenesWidgetPresenter
+    override fun createPresenter(): OldKenesWidgetPresenter {
+        return OldKenesWidgetPresenter(
+            deviceInfo = DeviceInfo(this),
+            language = Language.DEFAULT,
+            peerConnectionClient = PeerConnectionClient(
+                context = this,
+                options = Options(),
+                localSurfaceViewRenderer = videoDialogView.localSurfaceView,
+                remoteSurfaceViewRenderer = videoDialogView.remoteSurfaceView
+            )
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -217,16 +228,6 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
         // ------------------------------------------------------------------------
 
-        presenter = OldKenesWidgetPresenter(
-            deviceInfo = DeviceInfo(this),
-            language = Language.DEFAULT,
-            peerConnectionClient = PeerConnectionClient(
-                context = this,
-                options = Options(),
-                localSurfaceViewRenderer = videoDialogView.localSurfaceView,
-                remoteSurfaceViewRenderer = videoDialogView.remoteSurfaceView
-            )
-        )
         presenter.attachView(this)
 
         // ------------------------------------------------------------------------
@@ -575,11 +576,6 @@ internal class OldKenesWidgetActivity : BaseActivity(), OldKenesWidgetView {
 
 //            presenter.onUploadFile(filePath)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        presenter.onResume()
     }
 
     override fun onPause() {

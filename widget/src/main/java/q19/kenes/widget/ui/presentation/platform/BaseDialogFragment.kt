@@ -1,5 +1,6 @@
 package q19.kenes.widget.ui.presentation.platform
 
+import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.DialogFragment
 import kz.q19.common.locale.LocaleManager
@@ -7,14 +8,36 @@ import kz.q19.domain.model.language.Language
 import q19.kenes.widget.di.Injection
 import java.util.*
 
-internal open class BaseDialogFragment constructor(
+internal abstract class BaseDialogFragment<Presenter : BasePresenter<*>> constructor(
     @LayoutRes open val contentLayoutId: Int
 ) : DialogFragment(contentLayoutId) {
 
     constructor() : this(0)
 
-    internal val injection: Injection?
-        get() = if (context == null) null else Injection.getInstance(requireContext())
+    internal val injection: Injection
+        get() = Injection.getInstance(requireContext())
+
+    protected lateinit var presenter: Presenter
+
+    protected abstract fun createPresenter(): Presenter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        presenter = createPresenter()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        presenter.onViewResumed()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        presenter.detachView()
+    }
 
     fun getCurrentLocale(): Locale? {
         return LocaleManager.getLocale()
