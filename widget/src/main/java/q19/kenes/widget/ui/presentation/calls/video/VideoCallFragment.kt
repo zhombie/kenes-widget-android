@@ -28,9 +28,11 @@ internal class VideoCallFragment :
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
 
-    private var peerConnectionClient: PeerConnectionClient? = null
-
+    // CoordinatorLayout + BottomSheet
     private var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
+
+    // WebRTC Wrapper
+    private var peerConnectionClient: PeerConnectionClient? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +71,10 @@ internal class VideoCallFragment :
 
         bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.videoView))
         bottomSheetBehavior?.isDraggable = true
+
+        if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+        }
     }
 
     override fun onDestroy() {

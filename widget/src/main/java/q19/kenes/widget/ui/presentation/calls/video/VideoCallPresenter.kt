@@ -82,12 +82,16 @@ internal class VideoCallPresenter constructor(
     }
 
     fun setLocalSurfaceViewRenderer(surfaceViewRenderer: SurfaceViewRenderer) {
+        Logger.debug(TAG, "setLocalSurfaceViewRenderer()")
+
         peerConnectionClient.localSurfaceViewRenderer = surfaceViewRenderer
         peerConnectionClient.initLocalCameraStream()
         peerConnectionClient.addLocalStreamToPeer()
     }
 
     fun setRemoteSurfaceViewRenderer(surfaceViewRenderer: SurfaceViewRenderer) {
+        Logger.debug(TAG, "setRemoteSurfaceViewRenderer()")
+
         peerConnectionClient.remoteSurfaceViewRenderer = surfaceViewRenderer
         peerConnectionClient.initRemoteCameraStream()
     }
@@ -97,24 +101,36 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onLocalSessionDescription(sessionDescription: SessionDescription) {
+        Logger.debug(TAG, "onLocalSessionDescription(): ${sessionDescription.type}")
+
         socketRepository.sendLocalSessionDescription(sessionDescription)
     }
 
     override fun onLocalIceCandidate(iceCandidate: IceCandidate) {
+        Logger.debug(TAG, "onLocalIceCandidate(): $iceCandidate")
+
         socketRepository.sendLocalIceCandidate(iceCandidate)
     }
 
     override fun onIceConnectionChange(iceConnectionState: IceConnectionState) {
+        Logger.debug(TAG, "onIceConnectionChange(): $iceConnectionState")
     }
 
     override fun onRenegotiationNeeded() {
+        Logger.debug(TAG, "onRenegotiationNeeded()")
+
+        peerConnectionClient.createOffer()
     }
 
     override fun onAddRemoteStream(mediaStream: MediaStream) {
+        Logger.debug(TAG, "onAddRemoteStream(): $mediaStream")
+
         peerConnectionClient.addRemoteStreamToPeer(mediaStream)
     }
 
     override fun onRemoveStream(mediaStream: MediaStream) {
+        Logger.debug(TAG, "onRemoveStream(): $mediaStream")
+
         peerConnectionClient.removeStream(mediaStream)
     }
 
@@ -131,10 +147,13 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onSocketConnect() {
+        Logger.debug(TAG, "onSocketConnect()")
+
         socketRepository.sendUserLanguage(Language.RUSSIAN)
     }
 
     override fun onSocketDisconnect() {
+        Logger.debug(TAG, "onSocketDisconnect()")
     }
 
     /**
@@ -150,10 +169,10 @@ internal class VideoCallPresenter constructor(
     }
 
     override fun onMessage(message: Message) {
+        Logger.debug(TAG, "onMessage(): $message")
     }
 
     override fun onCategories(categories: List<Category>) {
-
     }
 
     /**
@@ -161,10 +180,14 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onCallAccept() {
+        Logger.debug(TAG, "onCallAccept()")
+
         socketRepository.sendQRTCAction(QRTCAction.PREPARE)
     }
 
     override fun onCallRedirect() {
+        Logger.debug(TAG, "onCallRedirect()")
+
         initPeerConnection()
 
         peerConnectionClient.initLocalCameraStream()
@@ -174,30 +197,43 @@ internal class VideoCallPresenter constructor(
     }
 
     override fun onCallRedial() {
+        Logger.debug(TAG, "onCallRedial()")
     }
 
     override fun onCallPrepare() {
+        Logger.debug(TAG, "onCallPrepare()")
+
         socketRepository.sendQRTCAction(QRTCAction.READY)
     }
 
     override fun onCallReady() {
+        Logger.debug(TAG, "onCallReady()")
+
         peerConnectionClient.createOffer()
     }
 
     override fun onCallAnswer(sessionDescription: SessionDescription) {
+        Logger.debug(TAG, "onCallAnswer(): ${sessionDescription.type}")
+
         peerConnectionClient.setRemoteDescription(sessionDescription)
     }
 
     override fun onCallOffer(sessionDescription: SessionDescription) {
+        Logger.debug(TAG, "onCallOffer(): ${sessionDescription.type}")
+
         peerConnectionClient.setRemoteDescription(sessionDescription)
         peerConnectionClient.createAnswer()
     }
 
     override fun onRemoteIceCandidate(iceCandidate: IceCandidate) {
+        Logger.debug(TAG, "onRemoteIceCandidate(): $iceCandidate")
+
         peerConnectionClient.addRemoteIceCandidate(iceCandidate)
     }
 
     override fun onPeerHangupCall() {
+        Logger.debug(TAG, "onPeerHangupCall()")
+
         socketRepository.sendPendingCallCancellation()
         socketRepository.sendCallAction(CallAction.FINISH)
         peerConnectionClient.dispose()

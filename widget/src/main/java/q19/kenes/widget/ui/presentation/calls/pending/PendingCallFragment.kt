@@ -36,10 +36,6 @@ internal class PendingCallFragment :
         }
     }
 
-    init {
-        isCancelable = false
-    }
-
     // UI Views
     private var cancelButton: MaterialButton? = null
 

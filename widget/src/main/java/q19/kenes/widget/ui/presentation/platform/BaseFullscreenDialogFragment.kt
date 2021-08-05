@@ -13,6 +13,8 @@ internal abstract class BaseFullscreenDialogFragment<Presenter : BasePresenter<*
         super.onCreate(savedInstanceState)
 
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Material_NoActionBar_Fullscreen)
+
+        isCancelable = false
     }
 
 }
