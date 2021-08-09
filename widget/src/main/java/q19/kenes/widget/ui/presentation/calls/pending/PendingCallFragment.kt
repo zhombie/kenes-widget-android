@@ -5,7 +5,6 @@ import android.view.View
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.button.MaterialButton
 import q19.kenes.widget.ui.presentation.calls.Call
-import q19.kenes.widget.ui.presentation.calls.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
@@ -18,8 +17,10 @@ internal class PendingCallFragment :
         private val TAG = PendingCallFragment::class.java.simpleName
     }
 
-    class Builder {
-        private var call: Call? = null
+    class Builder constructor(
+        private var call: Call,
+        private val onCallStarted: (call: Call) -> Unit
+    ) {
 
         fun setCall(call: Call): Builder {
             this.call = call
@@ -31,6 +32,7 @@ internal class PendingCallFragment :
             fragment.arguments = Bundle().apply {
                 putParcelable("call", call)
             }
+            fragment.setOnCallStarted(onCallStarted)
             fragment.show(fragmentManager, TAG)
             return fragment
         }
@@ -38,6 +40,12 @@ internal class PendingCallFragment :
 
     // UI Views
     private var cancelButton: MaterialButton? = null
+
+    private var onCallStarted: ((call: Call) -> Unit)? = null
+
+    private fun setOnCallStarted(onCallStarted: (call: Call) -> Unit) {
+        this.onCallStarted = onCallStarted
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,11 +111,7 @@ internal class PendingCallFragment :
     override fun navigateToCall(call: Call) {
         dismiss()
 
-        val fragment = VideoCallFragment.newInstance()
-        fragment.arguments = Bundle().apply {
-            putParcelable("call", call)
-        }
-        fragment.show(parentFragmentManager, TAG)
+        onCallStarted?.invoke(call)
     }
 
 }

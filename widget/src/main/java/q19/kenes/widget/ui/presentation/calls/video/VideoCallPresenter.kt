@@ -81,19 +81,35 @@ internal class VideoCallPresenter constructor(
         )
     }
 
-    fun setLocalSurfaceViewRenderer(surfaceViewRenderer: SurfaceViewRenderer) {
+    fun initLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
         Logger.debug(TAG, "setLocalSurfaceViewRenderer()")
 
-        peerConnectionClient.localSurfaceViewRenderer = surfaceViewRenderer
-        peerConnectionClient.initLocalCameraStream()
+        peerConnectionClient.setLocalSurfaceView(surfaceViewRenderer)
+        peerConnectionClient.initLocalCameraStream(isMirrored = false, isZOrderMediaOverlay = true)
         peerConnectionClient.addLocalStreamToPeer()
     }
 
-    fun setRemoteSurfaceViewRenderer(surfaceViewRenderer: SurfaceViewRenderer) {
+    fun initRemoteVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
         Logger.debug(TAG, "setRemoteSurfaceViewRenderer()")
 
-        peerConnectionClient.remoteSurfaceViewRenderer = surfaceViewRenderer
-        peerConnectionClient.initRemoteCameraStream()
+        peerConnectionClient.setRemoteSurfaceView(surfaceViewRenderer)
+        peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
+    }
+
+    fun setLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer, isZOrderMediaOverlay: Boolean) {
+        peerConnectionClient.setLocalVideoSink(
+            surfaceViewRenderer = surfaceViewRenderer,
+            isMirrored = false,
+            isZOrderMediaOverlay = isZOrderMediaOverlay
+        )
+    }
+
+    fun setRemoteVideostream(surfaceViewRenderer: SurfaceViewRenderer, isZOrderMediaOverlay: Boolean) {
+        peerConnectionClient.setRemoteVideoSink(
+            surfaceViewRenderer = surfaceViewRenderer,
+            isMirrored = false,
+            isZOrderMediaOverlay = isZOrderMediaOverlay
+        )
     }
 
     /**
@@ -236,6 +252,7 @@ internal class VideoCallPresenter constructor(
 
         socketRepository.sendPendingCallCancellation()
         socketRepository.sendCallAction(CallAction.FINISH)
+
         peerConnectionClient.dispose()
     }
 

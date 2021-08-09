@@ -11,6 +11,7 @@ import kz.q19.socket.listener.WebRTCListener
 import kz.q19.socket.model.CallInitialization
 import kz.q19.socket.repository.SocketRepository
 import q19.kenes.widget.core.device.DeviceInfo
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.presentation.calls.Call
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
@@ -21,6 +22,10 @@ internal class PendingCallPresenter constructor(
     private val deviceInfo: DeviceInfo,
     private val socketRepository: SocketRepository
 ) : BasePresenter<PendingCallView>(), CallListener, WebRTCListener {
+
+    companion object {
+        private val TAG = PendingCallPresenter::class.java.simpleName
+    }
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -112,33 +117,45 @@ internal class PendingCallPresenter constructor(
      */
 
     override fun onCallAccept() {
+        Logger.debug(TAG, "onCallAccept()")
+
         socketRepository.sendQRTCAction(action = QRTCAction.PREPARE)
     }
 
     override fun onCallRedirect() {
+        Logger.debug(TAG, "onCallRedirect()")
     }
 
     override fun onCallRedial() {
+        Logger.debug(TAG, "onCallRedial()")
     }
 
     override fun onCallPrepare() {
+        Logger.debug(TAG, "onCallPrepare()")
+
         socketRepository.sendQRTCAction(action = QRTCAction.READY)
     }
 
     override fun onCallReady() {
+        Logger.debug(TAG, "onCallReady()")
+
         getView().navigateToCall(call)
     }
 
     override fun onCallAnswer(sessionDescription: SessionDescription) {
+        Logger.debug(TAG, "onCallAnswer()")
     }
 
     override fun onCallOffer(sessionDescription: SessionDescription) {
+        Logger.debug(TAG, "onCallOffer()")
     }
 
     override fun onRemoteIceCandidate(iceCandidate: IceCandidate) {
+        Logger.debug(TAG, "onRemoteIceCandidate()")
     }
 
     override fun onPeerHangupCall() {
+        Logger.debug(TAG, "onPeerHangupCall()")
     }
 
     /**

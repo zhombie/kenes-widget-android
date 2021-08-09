@@ -13,6 +13,7 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.calls.pending.PendingCallFragment
+import q19.kenes.widget.ui.presentation.calls.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
@@ -179,9 +180,15 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     }
 
     override fun launchPendingCall(call: Call) {
-        PendingCallFragment.Builder()
-            .setCall(call)
-            .show(childFragmentManager)
+        PendingCallFragment.Builder(call) {
+            if (call is Call.Video) {
+                val fragment = VideoCallFragment.newInstance()
+                fragment.arguments = Bundle().apply {
+                    putParcelable("call", it)
+                }
+                fragment.show(parentFragmentManager, "video_call")
+            }
+        }.show(childFragmentManager)
     }
 
 }

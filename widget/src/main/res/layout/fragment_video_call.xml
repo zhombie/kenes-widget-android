@@ -19,13 +19,18 @@
 
     </FrameLayout>
 
+    <kz.q19.webrtc.core.ui.SurfaceViewRenderer
+        android:id="@+id/floatingSurfaceViewRenderer"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_gravity="bottom|center_vertical"
+        android:layout_margin="15dp"
+        android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/videoView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_hideable="true"
-        app:behavior_peekHeight="0dp">
+        android:layout_height="match_parent">
 
         <kz.q19.webrtc.core.ui.SurfaceViewRenderer
             android:id="@+id/fullscreenSurfaceViewRenderer"
@@ -33,11 +38,18 @@
             android:layout_height="match_parent" />
 
         <kz.q19.webrtc.core.ui.SurfaceViewRenderer
-            android:id="@+id/floatingSurfaceViewRenderer"
+            android:id="@+id/miniSurfaceViewRenderer"
             android:layout_width="150dp"
             android:layout_height="200dp"
             android:layout_gravity="bottom|right"
             android:layout_margin="15dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:text="show/hide" />
 
     </FrameLayout>
 

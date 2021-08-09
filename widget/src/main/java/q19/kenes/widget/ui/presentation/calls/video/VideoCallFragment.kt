@@ -3,7 +3,6 @@ package q19.kenes.widget.ui.presentation.calls.video
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
@@ -25,11 +24,10 @@ internal class VideoCallFragment :
     }
 
     // UI Views
+    private var videoView: FrameLayout? = null
+    private var miniSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
-
-    // CoordinatorLayout + BottomSheet
-    private var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
 
     // WebRTC Wrapper
     private var peerConnectionClient: PeerConnectionClient? = null
@@ -50,30 +48,53 @@ internal class VideoCallFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        videoView = view.findViewById(R.id.videoView)
+        miniSurfaceViewRenderer = view.findViewById(R.id.miniSurfaceViewRenderer)
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
         floatingSurfaceViewRenderer = view.findViewById(R.id.floatingSurfaceViewRenderer)
 
-        floatingSurfaceViewRenderer?.let {
-            presenter.setLocalSurfaceViewRenderer(it)
+        miniSurfaceViewRenderer?.let {
+            presenter.initLocalVideostream(it)
         }
 
         fullscreenSurfaceViewRenderer?.let {
-            presenter.setRemoteSurfaceViewRenderer(it)
+            presenter.initRemoteVideostream(it)
         }
 
         view.findViewById<MaterialButton>(R.id.button).setOnClickListener {
-            if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (videoView?.visibility == View.VISIBLE) {
+                floatingSurfaceViewRenderer?.let {
+                    presenter.setRemoteVideostream(it, true)
+                }
+
+                videoView?.visibility = View.GONE
+                floatingSurfaceViewRenderer?.visibility = View.VISIBLE
             } else {
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                fullscreenSurfaceViewRenderer?.let {
+                    presenter.setRemoteVideostream(it, false)
+                }
+
+                floatingSurfaceViewRenderer?.visibility = View.GONE
+                videoView?.visibility = View.VISIBLE
             }
         }
 
-        bottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.videoView))
-        bottomSheetBehavior?.isDraggable = true
+        view.findViewById<MaterialButton>(R.id.button2).setOnClickListener {
+            if (videoView?.visibility == View.VISIBLE) {
+                floatingSurfaceViewRenderer?.let {
+                    presenter.setRemoteVideostream(it, true)
+                }
 
-        if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+                videoView?.visibility = View.GONE
+                floatingSurfaceViewRenderer?.visibility = View.VISIBLE
+            } else {
+                fullscreenSurfaceViewRenderer?.let {
+                    presenter.setRemoteVideostream(it, false)
+                }
+
+                floatingSurfaceViewRenderer?.visibility = View.GONE
+                videoView?.visibility = View.VISIBLE
+            }
         }
     }
 
