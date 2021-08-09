@@ -112,6 +112,22 @@ internal class VideoCallPresenter constructor(
         )
     }
 
+    fun setLocalVideostreamPaused() {
+        peerConnectionClient.localSurfaceViewRenderer?.setFpsReduction(0F)
+    }
+
+    fun setRemoteVideostreamPaused() {
+        peerConnectionClient.remoteSurfaceViewRenderer?.setFpsReduction(0F)
+    }
+
+    fun setLocalVideostreamResumed() {
+        peerConnectionClient.localSurfaceViewRenderer?.setFpsReduction(30F)
+    }
+
+    fun setRemoteVideostreamResumed() {
+        peerConnectionClient.remoteSurfaceViewRenderer?.setFpsReduction(30F)
+    }
+
     /**
      * [PeerConnectionClient.Listener] implementation
      */
@@ -296,6 +312,8 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onDestroy() {
+        socketRepository.sendCallAction(action = CallAction.FINISH)
+
         peerConnectionClient.dispose()
 
         socketRepository.removeAllListeners()

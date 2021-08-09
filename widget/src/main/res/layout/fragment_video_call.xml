@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layoutDescription="@xml/video_call_motion_scene"
+    app:motionDebug="SHOW_ALL"
+    tools:showPaths="true">
 
     <FrameLayout
         android:id="@+id/chatView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/kenes_gray">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/kenes_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button"
@@ -19,18 +28,33 @@
 
     </FrameLayout>
 
-    <kz.q19.webrtc.core.ui.SurfaceViewRenderer
-        android:id="@+id/floatingSurfaceViewRenderer"
+    <q19.kenes.widget.ui.components.FloatingLayout
+        android:id="@+id/floatingLayout"
         android:layout_width="150dp"
         android:layout_height="200dp"
-        android:layout_gravity="bottom|center_vertical"
-        android:layout_margin="15dp"
-        android:visibility="gone" />
+        android:layout_margin="10dp"
+        android:visibility="gone"
+        app:cardCornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <kz.q19.webrtc.core.ui.SurfaceViewRenderer
+            android:id="@+id/floatingSurfaceViewRenderer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </q19.kenes.widget.ui.components.FloatingLayout>
 
     <FrameLayout
         android:id="@+id/videoView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/kenes_black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <kz.q19.webrtc.core.ui.SurfaceViewRenderer
             android:id="@+id/fullscreenSurfaceViewRenderer"
@@ -53,4 +77,4 @@
 
     </FrameLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>

@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.annotation.LayoutRes
 
 internal abstract class BaseFullscreenDialogFragment<Presenter : BasePresenter<*>> constructor(
-    @LayoutRes override val contentLayoutId: Int
+    @LayoutRes override val contentLayoutId: Int,
+    private val isDialogCancelable: Boolean = false
 ) : BaseDialogFragment<Presenter>(contentLayoutId) {
 
     constructor() : this(0)
@@ -14,7 +15,7 @@ internal abstract class BaseFullscreenDialogFragment<Presenter : BasePresenter<*
 
         setStyle(STYLE_NO_FRAME, android.R.style.Theme_Material_NoActionBar_Fullscreen)
 
-        isCancelable = false
+        isCancelable = isDialogCancelable
     }
 
 }
