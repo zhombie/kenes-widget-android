@@ -9,7 +9,6 @@ import android.view.ViewConfiguration
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.google.android.material.card.MaterialCardView
 import kz.q19.utils.android.dp2Px
-import q19.kenes.widget.core.logging.Logger
 import q19.kenes_widget.R
 
 internal class FloatingLayout @JvmOverloads constructor(
@@ -22,27 +21,22 @@ internal class FloatingLayout @JvmOverloads constructor(
         private val TAG = FloatingLayout::class.java.simpleName
     }
 
+    class Padding constructor(
+        var bottom: Float = 0F,
+        var left: Float = 0F,
+        var right: Float = 0F,
+        var top: Float = 0F
+    )
+
     private val touchSlop: Float = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
 
-    var leftPadding: Float = 0F
-        private set
-
-    var rightPadding: Float = 0F
-        private set
-
-    var topPadding: Float = 0F
-        private set
-
-    var bottomPadding: Float = 0F
-        private set
-
-    private var bottomOffset: Int = 0
+    private var padding: Padding = Padding()
 
     init {
-        leftPadding = 16F.dp2Px()
-        rightPadding = 16F.dp2Px()
-        topPadding = 16F.dp2Px()
-        bottomPadding = 16F.dp2Px() + bottomOffset
+        padding.bottom = 16F.dp2Px()
+        padding.left = 16F.dp2Px()
+        padding.right = 16F.dp2Px()
+        padding.top = 16F.dp2Px()
     }
 
     var startX: Float = 0F
@@ -124,15 +118,10 @@ internal class FloatingLayout @JvmOverloads constructor(
                     val parentWidth = parent.measuredWidth
                     val parentHeight = parent.measuredHeight
 
-                    val maxLeft = leftPadding
-                    val maxRight = rightPadding
-                    val maxTop = topPadding
-                    val maxBottom = bottomPadding
-
-                    Logger.debug(TAG, "x: $x, y: $y")
-                    Logger.debug(TAG, "maxLeft: $maxLeft, maxRight: $maxRight")
-                    Logger.debug(TAG, "maxTop: $maxTop, maxBottom: $maxBottom")
-                    Logger.debug(TAG, "parentWidth: $parentWidth, parentHeight: $parentHeight")
+                    val maxLeft = padding.left
+                    val maxRight = padding.right
+                    val maxTop = padding.top
+                    val maxBottom = padding.bottom
 
                     if (x < maxLeft) {
                         animator.x(maxLeft)
@@ -150,23 +139,15 @@ internal class FloatingLayout @JvmOverloads constructor(
                         .setInterpolator(AccelerateDecelerateInterpolator())
                         .start()
                 }
+
                 isMoving = false
             }
         }
         return true
     }
 
-    fun getBottomOffset(): Int {
-        return bottomOffset
-    }
-
-    fun setBottomOffset(bottomOffset: Int, isAnimated: Boolean) {
-        val parent = parent
-        if (parent == null || !isAnimated) {
-            this.bottomOffset = bottomOffset
-            return
-        }
-        this.bottomOffset = bottomOffset
+    fun setPadding(padding: Padding) {
+        this.padding = padding
     }
 
 }

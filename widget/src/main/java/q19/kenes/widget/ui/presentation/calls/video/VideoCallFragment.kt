@@ -68,7 +68,7 @@ internal class VideoCallFragment :
             presenter.initRemoteVideostream(it)
         }
 
-        rootView?.addTransitionListener(this)
+        setupMotionLayout()
 
         view.findViewById<MaterialButton>(R.id.button).setOnClickListener {
             if (rootView?.currentState == R.id.start) {
@@ -94,6 +94,12 @@ internal class VideoCallFragment :
 
         rootView?.removeTransitionListener(this)
         rootView = null
+    }
+
+    private fun setupMotionLayout() {
+        rootView?.isInteractionEnabled = true
+
+        rootView?.addTransitionListener(this)
     }
 
     /**
@@ -127,6 +133,8 @@ internal class VideoCallFragment :
                 presenter.setRemoteVideostream(it, false)
             }
 
+            rootView?.isInteractionEnabled = true
+
             floatingSurfaceViewRenderer?.visibility = View.GONE
             floatingLayout?.visibility = View.GONE
             miniSurfaceViewRenderer?.visibility = View.VISIBLE
@@ -138,6 +146,8 @@ internal class VideoCallFragment :
             floatingSurfaceViewRenderer?.let {
                 presenter.setRemoteVideostream(it, true)
             }
+
+            rootView?.isInteractionEnabled = false
 
             miniSurfaceViewRenderer?.visibility = View.GONE
             videoView?.visibility = View.GONE
