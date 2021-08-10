@@ -2,7 +2,7 @@ package q19.kenes.widget.domain.model
 
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
-import q19.kenes.widget.ui.presentation.calls.*
+import q19.kenes.widget.ui.presentation.call.*
 
 internal fun Configs.Call.getTitle(language: Language): String? {
     val title = title.get(language) ?: title.get(Language.DEFAULT)

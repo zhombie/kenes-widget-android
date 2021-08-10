@@ -6,27 +6,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layoutDescription="@xml/video_call_motion_scene"
-    app:motionDebug="SHOW_ALL"
-    tools:showPaths="true">
+    app:motionDebug="NO_DEBUG"
+    tools:showPaths="false">
 
-    <FrameLayout
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/chatView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/kenes_gray"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="show/hide" />
-
-    </FrameLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <q19.kenes.widget.ui.components.FloatingLayout
         android:id="@+id/floatingLayout"
@@ -51,7 +41,6 @@
         android:id="@+id/videoView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/kenes_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -73,7 +62,7 @@
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="top|right"
+            android:layout_gravity="top|center_horizontal"
             android:text="show/hide" />
 
     </com.google.android.material.card.MaterialCardView>

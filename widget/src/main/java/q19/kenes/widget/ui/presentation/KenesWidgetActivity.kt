@@ -19,7 +19,7 @@ import kz.q19.utils.view.binding.bind
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
-import q19.kenes.widget.ui.presentation.calls.CallsFragment
+import q19.kenes.widget.ui.presentation.call.CallsFragment
 import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil

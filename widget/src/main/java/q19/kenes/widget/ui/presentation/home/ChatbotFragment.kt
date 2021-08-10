@@ -28,6 +28,8 @@ import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.ProgressView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
+import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
+import q19.kenes.widget.ui.presentation.chat.ChatMessagesHeaderAdapter
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R

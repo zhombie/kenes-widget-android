@@ -44,9 +44,9 @@ import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.ProgressView
 import q19.kenes.widget.ui.components.deprecated.*
-import q19.kenes.widget.ui.presentation.adapter.OldChatAdapter
-import q19.kenes.widget.ui.presentation.adapter.ChatAdapterItemDecoration
-import q19.kenes.widget.ui.presentation.adapter.ChatFooterAdapter
+import q19.kenes.widget.ui.presentation.deprecated.adapter.OldChatAdapter
+import q19.kenes.widget.ui.presentation.deprecated.adapter.ChatAdapterItemDecoration
+import q19.kenes.widget.ui.presentation.deprecated.adapter.ChatFooterAdapter
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.*

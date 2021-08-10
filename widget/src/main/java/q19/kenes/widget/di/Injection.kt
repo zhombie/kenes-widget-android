@@ -10,10 +10,10 @@ import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.ui.presentation.KenesWidgetPresenter
-import q19.kenes.widget.ui.presentation.calls.Call
-import q19.kenes.widget.ui.presentation.calls.CallsPresenter
-import q19.kenes.widget.ui.presentation.calls.pending.PendingCallPresenter
-import q19.kenes.widget.ui.presentation.calls.video.VideoCallPresenter
+import q19.kenes.widget.ui.presentation.call.Call
+import q19.kenes.widget.ui.presentation.call.CallsPresenter
+import q19.kenes.widget.ui.presentation.call.pending.PendingCallPresenter
+import q19.kenes.widget.ui.presentation.call.video.VideoCallPresenter
 import q19.kenes.widget.ui.presentation.home.ChatbotPresenter
 
 internal class Injection private constructor(context: Context) {
