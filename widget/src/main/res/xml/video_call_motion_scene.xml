@@ -22,6 +22,7 @@
             android:id="@+id/videoView"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:alpha="1.0"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -29,14 +30,13 @@
 
         <Constraint
             android:id="@+id/floatingLayout"
-            android:layout_width="125dp"
-            android:layout_height="175dp"
-            android:layout_marginRight="25dp"
-            android:alpha="0.5"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0.0"
+            app:layout_constraintBottom_toBottomOf="@id/videoView"
+            app:layout_constraintLeft_toLeftOf="@id/videoView"
+            app:layout_constraintRight_toRightOf="@id/videoView"
+            app:layout_constraintTop_toTopOf="@id/videoView" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -44,22 +44,23 @@
             android:id="@+id/videoView"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintWidth_percent="0.8" />
+            android:alpha="0.0"
+            app:layout_constraintBottom_toBottomOf="@id/floatingLayout"
+            app:layout_constraintLeft_toLeftOf="@id/floatingLayout"
+            app:layout_constraintRight_toRightOf="@id/floatingLayout"
+            app:layout_constraintTop_toTopOf="@id/floatingLayout" />
 
         <Constraint
             android:id="@+id/floatingLayout"
             android:layout_width="150dp"
             android:layout_height="200dp"
-            android:layout_marginRight="10dp"
             android:alpha="1.0"
-            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.9"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.9" />
     </ConstraintSet>
 
 </MotionScene>

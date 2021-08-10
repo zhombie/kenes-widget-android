@@ -14,7 +14,7 @@ import q19.kenes_widget.R
 
 internal class VideoCallFragment :
     BaseFullscreenDialogFragment<VideoCallPresenter>(R.layout.fragment_video_call, true),
-    VideoCallView {
+    VideoCallView, MotionLayout.TransitionListener {
 
     companion object {
         private val TAG = VideoCallFragment::class.java.simpleName
@@ -68,47 +68,7 @@ internal class VideoCallFragment :
             presenter.initRemoteVideostream(it)
         }
 
-        rootView?.addTransitionListener(object : MotionLayout.TransitionListener {
-            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-                Logger.debug(TAG, "onTransitionStarted(): $p1, $p2")
-
-                if (p1 == R.id.start) {
-                    presenter.setLocalVideostreamPaused()
-                    presenter.setRemoteVideostreamPaused()
-                } else if (p1 == R.id.end) {
-                    presenter.setLocalVideostreamPaused()
-                    presenter.setRemoteVideostreamPaused()
-                }
-            }
-
-            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-                Logger.debug(TAG, "onTransitionChange(): $p1, $p2, $p3")
-            }
-
-            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                Logger.debug(TAG, "onTransitionCompleted(): $p1")
-
-                if (p1 == R.id.start) {
-                    presenter.setLocalVideostreamResumed()
-                    presenter.setRemoteVideostreamResumed()
-
-                    fullscreenSurfaceViewRenderer?.let {
-                        presenter.setRemoteVideostream(it, false)
-                    }
-                } else if (p1 == R.id.end) {
-                    presenter.setLocalVideostreamResumed()
-                    presenter.setRemoteVideostreamResumed()
-
-                    floatingSurfaceViewRenderer?.let {
-                        presenter.setRemoteVideostream(it, true)
-                    }
-                }
-            }
-
-            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
-                Logger.debug(TAG, "onTransitionTrigger(): $p1, $p2, $p3")
-            }
-        })
+        rootView?.addTransitionListener(this)
 
         view.findViewById<MaterialButton>(R.id.button).setOnClickListener {
             if (rootView?.currentState == R.id.start) {
@@ -131,6 +91,63 @@ internal class VideoCallFragment :
         super.onDestroy()
 
         peerConnectionClient = null
+
+        rootView?.removeTransitionListener(this)
+        rootView = null
+    }
+
+    /**
+     * [MotionLayout.TransitionListener] implementation
+     */
+
+    override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
+        Logger.debug(TAG, "onTransitionStarted(): $p1, $p2")
+
+        if (p1 == R.id.start) {
+            presenter.setLocalVideostreamPaused()
+            presenter.setRemoteVideostreamPaused()
+        } else if (p1 == R.id.end) {
+            presenter.setLocalVideostreamPaused()
+            presenter.setRemoteVideostreamPaused()
+        }
+    }
+
+    override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
+        Logger.debug(TAG, "onTransitionChange(): $p1, $p2, $p3")
+    }
+
+    override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+        Logger.debug(TAG, "onTransitionCompleted(): $p1")
+
+        if (p1 == R.id.start) {
+            presenter.setLocalVideostreamResumed()
+            presenter.setRemoteVideostreamResumed()
+
+            fullscreenSurfaceViewRenderer?.let {
+                presenter.setRemoteVideostream(it, false)
+            }
+
+            floatingSurfaceViewRenderer?.visibility = View.GONE
+            floatingLayout?.visibility = View.GONE
+            miniSurfaceViewRenderer?.visibility = View.VISIBLE
+            videoView?.visibility = View.VISIBLE
+        } else if (p1 == R.id.end) {
+            presenter.setLocalVideostreamResumed()
+            presenter.setRemoteVideostreamResumed()
+
+            floatingSurfaceViewRenderer?.let {
+                presenter.setRemoteVideostream(it, true)
+            }
+
+            miniSurfaceViewRenderer?.visibility = View.GONE
+            videoView?.visibility = View.GONE
+            floatingSurfaceViewRenderer?.visibility = View.VISIBLE
+            floatingLayout?.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
+        Logger.debug(TAG, "onTransitionTrigger(): $p1, $p2, $p3")
     }
 
 }

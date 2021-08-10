@@ -30,14 +30,15 @@
 
     <q19.kenes.widget.ui.components.FloatingLayout
         android:id="@+id/floatingLayout"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
-        android:layout_margin="10dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:alpha="1.0"
         android:visibility="gone"
         app:cardCornerRadius="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintBottom_toBottomOf="@id/videoView"
+        app:layout_constraintLeft_toLeftOf="@id/videoView"
+        app:layout_constraintRight_toRightOf="@id/videoView"
+        app:layout_constraintTop_toTopOf="@id/videoView">
 
         <kz.q19.webrtc.core.ui.SurfaceViewRenderer
             android:id="@+id/floatingSurfaceViewRenderer"
@@ -46,7 +47,7 @@
 
     </q19.kenes.widget.ui.components.FloatingLayout>
 
-    <FrameLayout
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/videoView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -75,6 +76,6 @@
             android:layout_gravity="top|right"
             android:text="show/hide" />
 
-    </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.motion.widget.MotionLayout>
