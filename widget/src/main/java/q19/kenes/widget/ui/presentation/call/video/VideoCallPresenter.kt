@@ -202,6 +202,8 @@ internal class VideoCallPresenter constructor(
 
     override fun onMessage(message: Message) {
         Logger.debug(TAG, "onMessage(): $message")
+
+        getView().showNewMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {
@@ -285,7 +287,16 @@ internal class VideoCallPresenter constructor(
     }
 
     override fun onCallAgentGreet(fullName: String, photoUrl: String?, text: String) {
-        Logger.debug(TAG, "onCallAgentGreet() -> fullName: $fullName, photoUrl: $photoUrl, text: $text")
+        Logger.debug(TAG, "onCallAgentGreet() -> " +
+            "fullName: $fullName, photoUrl: $photoUrl, text: $text")
+
+        getView().showCallAgentInfo(fullName, photoUrl)
+
+        getView().showNewMessage(
+            Message.Builder()
+                .setText(text)
+                .build()
+        )
     }
 
     override fun onCallFeedback(text: String, rateButtons: List<RateButton>?) {

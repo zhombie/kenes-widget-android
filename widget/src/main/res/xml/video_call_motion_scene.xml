@@ -8,13 +8,7 @@
         app:duration="200"
         app:motionInterpolator="linear"
         app:staggered="0.1">
-        <OnSwipe
-            app:dragDirection="dragDown"
-            app:maxAcceleration="5"
-            app:maxVelocity="5"
-            app:onTouchUp="autoComplete"
-            app:touchAnchorId="@+id/videoView"
-            app:touchAnchorSide="top" />
+        <KeyFrameSet />
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

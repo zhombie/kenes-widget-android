@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import com.google.android.material.button.MaterialButton
+import kz.q19.domain.model.message.Message
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
@@ -114,6 +115,14 @@ internal class VideoCallFragment :
         textChatFragment?.setListener(null)
         textChatFragment = null
 
+        try {
+            floatingSurfaceViewRenderer?.release()
+            miniSurfaceViewRenderer?.release()
+            fullscreenSurfaceViewRenderer?.release()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         peerConnectionClient = null
 
         rootView?.removeTransitionListener(this)
@@ -139,7 +148,7 @@ internal class VideoCallFragment :
     }
 
     private fun setupMotionLayout() {
-        rootView?.isInteractionEnabled = true
+        rootView?.isInteractionEnabled = false
 
         rootView?.addTransitionListener(this)
     }
@@ -191,21 +200,17 @@ internal class VideoCallFragment :
                 presenter.setRemoteVideostream(it, false)
             }
 
-            rootView?.isInteractionEnabled = true
-
             floatingSurfaceViewRenderer?.visibility = View.GONE
             floatingLayout?.visibility = View.GONE
             miniSurfaceViewRenderer?.visibility = View.VISIBLE
             videoView?.visibility = View.VISIBLE
         } else if (p1 == R.id.end) {
-            presenter.setLocalVideostreamResumed()
+            presenter.setLocalVideostreamPaused()
             presenter.setRemoteVideostreamResumed()
 
             floatingSurfaceViewRenderer?.let {
                 presenter.setRemoteVideostream(it, true)
             }
-
-            rootView?.isInteractionEnabled = false
 
             miniSurfaceViewRenderer?.visibility = View.GONE
             videoView?.visibility = View.GONE
@@ -216,6 +221,18 @@ internal class VideoCallFragment :
 
     override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
         Logger.debug(TAG, "onTransitionTrigger(): $p1, $p2, $p3")
+    }
+
+    /**
+     * [VideoCallView] implementation
+     */
+
+    override fun showCallAgentInfo(fullName: String, photoUrl: String?) {
+        textChatFragment?.showCallAgentInfo(fullName, photoUrl)
+    }
+
+    override fun showNewMessage(message: Message) {
+        textChatFragment?.onNewMessage(message)
     }
 
 }

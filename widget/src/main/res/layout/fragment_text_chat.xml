@@ -7,18 +7,27 @@
     android:background="#F2F9F9F9"
     android:orientation="vertical">
 
+    <include layout="@layout/view_toolbar" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/videoCallButton"
         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:backgroundTint="@color/kenes_black"
         android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
         android:letterSpacing="0.0"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:text="Video Call"
         android:textAllCaps="false"
         android:textColor="@color/kenes_white"
-        android:textSize="13sp" />
+        android:textSize="13sp"
+        app:cornerRadius="0dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messagesView"

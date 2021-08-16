@@ -308,7 +308,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         responseGroupsAdapter?.submitList(nestables)
     }
 
-    override fun addNewMessage(message: Message) {
+    override fun showNewMessage(message: Message) {
         activity?.runOnUiThread {
             chatMessagesAdapter?.addNewMessage(message)
         }
@@ -355,11 +355,11 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         }
     }
 
-    override fun clearMessageInputViewText() {
+    override fun clearMessageInput() {
         messageInputView?.clearInputViewText()
     }
 
-    override fun hideChatMessagesHeaderView() {
+    override fun hideChatMessagesHeader() {
         chatMessagesHeaderAdapter?.let { concatAdapter?.removeAdapter(it) }
         chatMessagesHeaderAdapter = null
     }

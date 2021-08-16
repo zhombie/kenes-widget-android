@@ -229,11 +229,11 @@ internal class ChatbotPresenter constructor(
         } else {
             val outgoingMessage = message.trim()
 
-            getView().clearMessageInputViewText()
+            getView().clearMessageInput()
             socketRepository.sendUserMessage(outgoingMessage)
 
             if (interactor.chatMessages.isEmpty()) {
-                getView().hideChatMessagesHeaderView()
+                getView().hideChatMessagesHeader()
             }
 
             addNewMessage(
@@ -247,7 +247,7 @@ internal class ChatbotPresenter constructor(
 
     private fun addNewMessage(message: Message) {
         interactor.chatMessages.add(message)
-        getView().addNewMessage(message)
+        getView().showNewMessage(message)
     }
 
     /**
@@ -262,7 +262,7 @@ internal class ChatbotPresenter constructor(
     override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
         Logger.debug(TAG, "onNoResultsFound() -> $text, $timestamp")
 
-        getView().addNewMessage(
+        getView().showNewMessage(
             Message.Builder()
                 .setType(Message.Type.INCOMING)
                 .setText(text)
@@ -276,7 +276,7 @@ internal class ChatbotPresenter constructor(
     override fun onMessage(message: Message) {
         Logger.debug(TAG, "onMessage() -> $message")
 
-        getView().addNewMessage(message)
+        getView().showNewMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {

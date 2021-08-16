@@ -13,6 +13,7 @@ import q19.kenes.widget.ui.presentation.KenesWidgetPresenter
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallsPresenter
 import q19.kenes.widget.ui.presentation.call.pending.PendingCallPresenter
+import q19.kenes.widget.ui.presentation.call.text.TextChatPresenter
 import q19.kenes.widget.ui.presentation.call.video.VideoCallPresenter
 import q19.kenes.widget.ui.presentation.home.ChatbotPresenter
 
@@ -54,8 +55,21 @@ internal class Injection private constructor(context: Context) {
         return PendingCallPresenter(call, language, deviceInfo, socketRepository)
     }
 
-    fun provideVideoCallPresenter(language: Language, peerConnectionClient: PeerConnectionClient): VideoCallPresenter {
-        return VideoCallPresenter(language, database, deviceInfo, peerConnectionClient, socketRepository)
+    fun provideVideoCallPresenter(
+        language: Language,
+        peerConnectionClient: PeerConnectionClient
+    ): VideoCallPresenter {
+        return VideoCallPresenter(
+            language,
+            database,
+            deviceInfo,
+            peerConnectionClient,
+            socketRepository
+        )
+    }
+
+    fun provideTextChatPresenter(language: Language): TextChatPresenter {
+        return TextChatPresenter(language, socketRepository)
     }
 
     fun destroy() {
