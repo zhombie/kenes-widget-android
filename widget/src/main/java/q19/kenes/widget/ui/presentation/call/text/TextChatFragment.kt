@@ -4,18 +4,14 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EdgeEffect
-import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.message.Message
 import q19.kenes.widget.ui.components.MessageInputView
+import q19.kenes.widget.ui.components.Toolbar
 import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
-import q19.kenes.widget.util.loadImage
-import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
 internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragment_text_chat),
@@ -30,10 +26,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     // UI Views
-    private var toolbar: LinearLayout? = null
-    private var imageView: ShapeableImageView? = null
-    private var titleView: MaterialTextView? = null
-    private var subtitleView: MaterialTextView? = null
+    private var toolbar: Toolbar? = null
     private var videoCallButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
     private var messageInputView: MessageInputView? = null
@@ -58,9 +51,6 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         super.onViewCreated(view, savedInstanceState)
 
         toolbar = view.findViewById(R.id.toolbar)
-        imageView = view.findViewById(R.id.imageView)
-        titleView = view.findViewById(R.id.titleView)
-        subtitleView = view.findViewById(R.id.subtitleView)
         videoCallButton = view.findViewById(R.id.videoCallButton)
         messagesView = view.findViewById(R.id.messagesView)
         messageInputView = view.findViewById(R.id.messageInputView)
@@ -112,9 +102,9 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     fun showCallAgentInfo(fullName: String, photoUrl: String?) {
-        imageView?.loadImage(photoUrl, transformation = CircleTransformation())
-        titleView?.text = fullName
-        subtitleView?.text = "Оператор"
+        toolbar?.showImage(photoUrl)
+        toolbar?.setTitle(fullName)
+        toolbar?.setSubtitle("Оператор")
     }
 
     fun onNewMessage(message: Message) {

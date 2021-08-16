@@ -10,8 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.imageview.ShapeableImageView
-import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.android.dp2Px
@@ -19,13 +17,12 @@ import kz.q19.utils.view.binding.bind
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
+import q19.kenes.widget.ui.components.Toolbar
 import q19.kenes.widget.ui.presentation.call.CallsFragment
 import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
-import q19.kenes.widget.util.loadImage
-import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 
 internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), KenesWidgetView, ChatbotFragment.Listener,
@@ -57,10 +54,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
 
     // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
-    private val toolbar by bind<LinearLayout>(R.id.toolbar)
-    private val imageView by bind<ShapeableImageView>(R.id.imageView)
-    private val titleView by bind<MaterialTextView>(R.id.titleView)
-    private val subtitleView by bind<MaterialTextView>(R.id.subtitleView)
+    private val toolbar by bind<Toolbar>(R.id.toolbar)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
 
@@ -83,6 +77,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
             UrlUtil.setHostname(hostname)
         }
 
+        // Attach view to MVP presenter
         presenter.attachView(this)
 
         // FragmentManager Listener
@@ -179,9 +174,9 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
      */
 
     override fun showBotInfo(bot: Configs.Bot) {
-        imageView.loadImage(bot.image, transformation = CircleTransformation())
-        titleView.text = bot.title
-        subtitleView.text = "Smart Bot"
+        toolbar.showImage(bot.image)
+        toolbar.setTitle(bot.title)
+        toolbar.setSubtitle("Smart Bot")
     }
 
     override fun navigateTo(index: Int) {

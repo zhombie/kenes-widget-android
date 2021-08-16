@@ -8,7 +8,10 @@
     android:orientation="vertical"
     tools:context="q19.kenes.widget.ui.presentation.KenesWidgetActivity">
 
-    <include layout="@layout/view_toolbar" />
+    <q19.kenes.widget.ui.components.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="60dp" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
