@@ -1,10 +1,10 @@
 package q19.kenes.widget.ui.presentation
 
-import android.util.Log
 import com.loopj.android.http.AsyncHttpClient
 import kz.q19.domain.model.language.Language
 import kz.q19.socket.listener.SocketStateListener
 import kz.q19.socket.repository.SocketRepository
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ConfigsResponseHandler
@@ -41,7 +41,7 @@ internal class KenesWidgetPresenter constructor(
                 getView().showBotInfo(configs.bot)
             },
             onFailure = { throwable ->
-                Log.d(TAG, "throwable: $throwable")
+                Logger.error(TAG, "throwable: $throwable")
             }
         ))
     }
@@ -52,13 +52,13 @@ internal class KenesWidgetPresenter constructor(
                 database.setIceServers(iceServers)
             },
             onFailure = { throwable ->
-                Log.d(TAG, "throwable: $throwable")
+                Logger.error(TAG, "throwable: $throwable")
             }
         ))
     }
 
     private fun initSocket() {
-        Log.d(TAG, "initSocket()")
+        Logger.debug(TAG, "initSocket()")
 
         socketRepository.setSocketStateListener(this)
 
@@ -85,12 +85,13 @@ internal class KenesWidgetPresenter constructor(
      */
 
     override fun onSocketConnect() {
-        Log.d(TAG, "onSocketConnect()")
+        Logger.debug(TAG, "onSocketConnect()")
+
         socketRepository.sendUserLanguage(language)
     }
 
     override fun onSocketDisconnect() {
-        Log.d(TAG, "onSocketDisconnect()")
+        Logger.debug(TAG, "onSocketDisconnect()")
     }
 
 
@@ -99,7 +100,7 @@ internal class KenesWidgetPresenter constructor(
      */
 
     override fun onDestroy() {
-        Log.d(TAG, "onDestroy()")
+        Logger.debug(TAG, "onDestroy()")
 
         socketRepository.removeAllListeners()
         socketRepository.release()

@@ -99,8 +99,12 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
             when (nestable) {
                 is ResponseGroup -> {
                     if (nestable.isPrimary) {
+                        childrenAdapter.fixedSize = ResponseGroupChildrenAdapter.DEFAULT_SIZE_THRESHOLD
+
                         toolbar.visibility = View.GONE
                     } else {
+                        childrenAdapter.fixedSize = nestable.children.size
+
                         menuButton.visibility = View.GONE
                         toolbar.visibility = View.VISIBLE
                     }
@@ -115,12 +119,15 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
 
                     headerAdapter.title = nestable.title
 
+                    childrenAdapter.fixedSize = nestable.responses.size
                     childrenAdapter.children = nestable.responses
                 }
                 else -> {
                     toolbar.visibility = View.GONE
 
                     headerAdapter.title = null
+
+                    childrenAdapter.fixedSize = ResponseGroupChildrenAdapter.DEFAULT_EMPTY_SIZE
                 }
             }
 

@@ -9,22 +9,22 @@ import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.utils.html.HTMLCompat
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.domain.model.Response
+import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
 internal class ResponseGroupChildrenAdapter constructor(
-    private val isExpandable: Boolean,
-    size: Int = DEFAULT_SIZE_THRESHOLD,
+    var isExpandable: Boolean,
     private val callback: Callback
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val TAG = ResponseGroupChildrenAdapter::class.java.simpleName
 
-        private const val DEFAULT_EMPTY_SIZE = 0
-        private const val DEFAULT_SIZE_THRESHOLD = 2
+        const val DEFAULT_EMPTY_SIZE = 0
+        const val DEFAULT_SIZE_THRESHOLD = 2
     }
 
     private object Layout {
@@ -41,27 +41,40 @@ internal class ResponseGroupChildrenAdapter constructor(
         const val SHOW_ALL = 102
     }
 
+    var fixedSize: Int = DEFAULT_SIZE_THRESHOLD
+        set(value) {
+            if (isExpandable) {
+                if (value < 0 || value > 10) {
+                    Logger.error(TAG, "Impossible size value")
+                } else {
+                    field = value
+                    size = field
+                }
+            }
+        }
+
     var children: List<Element>? = null
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    private var size: Int = size
+    private var size: Int = fixedSize
         set(value) {
             if (isExpandable) {
                 field = value
-                notifyDataSetChanged()
             }
         }
-
-    private var isFooterEnabled: Boolean = false
 
     private fun getItem(position: Int): Element? {
         return if (children.isNullOrEmpty()) {
             null
         } else {
-            children?.get(position)
+            if (position > (children?.size ?: 0) - 1) {
+                null
+            } else {
+                children?.get(position)
+            }
         }
     }
 
@@ -71,7 +84,7 @@ internal class ResponseGroupChildrenAdapter constructor(
 
     private fun isCollapsed(): Boolean {
         return if (isExpandable) {
-            size == DEFAULT_SIZE_THRESHOLD
+            size == fixedSize
         } else {
             false
         }
@@ -82,8 +95,9 @@ internal class ResponseGroupChildrenAdapter constructor(
             size = if (isCollapsed()) {
                 getActualSize()
             } else {
-                DEFAULT_SIZE_THRESHOLD
+                fixedSize
             }
+            notifyDataSetChanged()
             size
         } else {
             0
@@ -133,7 +147,7 @@ internal class ResponseGroupChildrenAdapter constructor(
         }
 
         return if (isExpandable) {
-            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
+            if (fixedSize >= getActualSize()) {
                 any()
             } else {
                 if (position == itemCount - 1) {
@@ -148,8 +162,6 @@ internal class ResponseGroupChildrenAdapter constructor(
     }
 
     override fun getItemCount(): Int {
-        isFooterEnabled = false
-
         val actualSize = getActualSize()
 
         if (actualSize == 0) {
@@ -159,16 +171,15 @@ internal class ResponseGroupChildrenAdapter constructor(
         return if (isExpandable) {
             var itemCount = size
 
-            if (size < 0) {
-                itemCount = DEFAULT_SIZE_THRESHOLD
+            if (itemCount < 0) {
+                itemCount = fixedSize
             }
 
-            if (!children.isNullOrEmpty() && size >= actualSize) {
+            if (itemCount >= actualSize) {
                 itemCount = actualSize
             }
 
-            if (actualSize > DEFAULT_SIZE_THRESHOLD) {
-                isFooterEnabled = true
+            if (actualSize > fixedSize) {
                 itemCount += 1
             }
 
