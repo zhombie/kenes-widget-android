@@ -16,6 +16,7 @@ import q19.kenes.widget.domain.model.Response
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
+// TODO: Control expanded/collapsed state in more proper way
 internal class ResponseGroupChildrenAdapter constructor(
     var isExpandable: Boolean,
     private val callback: Callback
