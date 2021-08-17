@@ -11,7 +11,6 @@ import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.utils.html.HTMLCompat
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Response
 import q19.kenes.widget.domain.model.ResponseGroup
@@ -43,25 +42,13 @@ internal class ResponseGroupChildrenAdapter constructor(
         const val SHOW_ALL = 102
     }
 
-    var fixedSize: Int = DEFAULT_SIZE_THRESHOLD
-        set(value) {
-            if (isExpandable) {
-                if (value < 0 || value > 10) {
-                    Logger.error(TAG, "Impossible size value")
-                } else {
-                    field = value
-                    size = field
-                }
-            }
-        }
-
     var children: List<Element>? = null
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    private var size: Int = fixedSize
+    private var size: Int = DEFAULT_SIZE_THRESHOLD
         set(value) {
             if (isExpandable) {
                 field = value
@@ -86,7 +73,7 @@ internal class ResponseGroupChildrenAdapter constructor(
 
     private fun isCollapsed(): Boolean {
         return if (isExpandable) {
-            size == fixedSize
+            size == DEFAULT_SIZE_THRESHOLD
         } else {
             false
         }
@@ -97,7 +84,7 @@ internal class ResponseGroupChildrenAdapter constructor(
             size = if (isCollapsed()) {
                 getActualSize()
             } else {
-                fixedSize
+                DEFAULT_SIZE_THRESHOLD
             }
             notifyDataSetChanged()
             size
@@ -149,7 +136,7 @@ internal class ResponseGroupChildrenAdapter constructor(
         }
 
         return if (isExpandable) {
-            if (fixedSize >= getActualSize()) {
+            if (DEFAULT_SIZE_THRESHOLD >= getActualSize()) {
                 any()
             } else {
                 if (position == itemCount - 1) {
@@ -174,14 +161,14 @@ internal class ResponseGroupChildrenAdapter constructor(
             var itemCount = size
 
             if (itemCount < 0) {
-                itemCount = fixedSize
+                itemCount = DEFAULT_SIZE_THRESHOLD
             }
 
             if (itemCount >= actualSize) {
                 itemCount = actualSize
             }
 
-            if (actualSize > fixedSize) {
+            if (actualSize > DEFAULT_SIZE_THRESHOLD) {
                 itemCount += 1
             }
 
