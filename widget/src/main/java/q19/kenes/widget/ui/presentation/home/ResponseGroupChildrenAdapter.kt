@@ -1,5 +1,7 @@
 package q19.kenes.widget.ui.presentation.home
 
+import android.transition.TransitionInflater
+import android.transition.TransitionManager
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
@@ -295,25 +297,25 @@ internal class ResponseGroupChildrenAdapter constructor(
         fun bind() {
             if (isCollapsed()) {
                 imageView.setImageDrawable(
-                    AppCompatResources.getDrawable(
-                        itemView.context,
-                        R.drawable.ic_arrow_down
-                    )
+                    AppCompatResources.getDrawable(itemView.context, R.drawable.ic_arrow_down)
                 )
 
                 textView.setText(R.string.show_all)
             } else {
                 imageView.setImageDrawable(
-                    AppCompatResources.getDrawable(
-                        itemView.context,
-                        R.drawable.ic_arrow_up
-                    )
+                    AppCompatResources.getDrawable(itemView.context, R.drawable.ic_arrow_up)
                 )
 
                 textView.setText(R.string.collapse_list)
             }
 
-            itemView.setOnClickListener { toggle() }
+            itemView.setOnClickListener {
+                val parent = itemView.parent as? ViewGroup ?: return@setOnClickListener
+                val transition = TransitionInflater.from(itemView.context)
+                    .inflateTransition(R.transition.toggle)
+                TransitionManager.beginDelayedTransition(parent, transition)
+                toggle()
+            }
         }
     }
 

@@ -184,6 +184,12 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
         toolbar.showImage(bot.image)
         toolbar.setTitle(bot.title)
         toolbar.setSubtitle("Smart Bot")
+
+        toolbar.alpha = 0F
+        toolbar.animate()
+            .alpha(1F)
+            .setDuration(300L)
+            .start()
     }
 
     override fun navigateTo(index: Int) {

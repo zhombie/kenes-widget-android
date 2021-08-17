@@ -284,6 +284,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
 
         messageInputView?.setCallback(object : MessageInputView.Callback {
             override fun onNewMediaSelection() {
+                // TODO: Implement media selection with certain permissions
             }
 
             override fun onSendTextMessage(message: String?) {
