@@ -74,7 +74,7 @@ internal class Toolbar @JvmOverloads constructor(
         val layout = LinearLayout(context)
         layout.id = View.generateViewId()
         layout.layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F).apply {
-            setMargins(0, 0, 0, 0)
+            setMargins(5F.dp2Px().roundToInt(), 0, 0, 0)
         }
         layout.orientation = VERTICAL
 
