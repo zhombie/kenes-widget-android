@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EdgeEffect
+import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -55,6 +56,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         messagesView = view.findViewById(R.id.messagesView)
         messageInputView = view.findViewById(R.id.messageInputView)
 
+        setupToolbar()
         setupVideoCallButton()
         setupMessagesView()
     }
@@ -65,6 +67,18 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         chatMessagesAdapter = null
 
         listener = null
+    }
+
+    private fun setupToolbar() {
+        toolbar?.setRightButtonEnabled(true)
+        toolbar?.setRightButtonBackgroundTint(R.color.kenes_soft_red)
+        toolbar?.setRightButtonIcon(R.drawable.ic_phone)
+        toolbar?.setRightButtonIconTint(R.color.kenes_white)
+        toolbar?.setRightButtonOnClickListener {
+            if (parentFragment is DialogFragment) {
+                (parentFragment as DialogFragment).dialog?.onBackPressed()
+            }
+        }
     }
 
     private fun setupVideoCallButton() {

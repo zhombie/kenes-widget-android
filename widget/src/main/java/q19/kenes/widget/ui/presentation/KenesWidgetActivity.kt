@@ -83,6 +83,9 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
         // FragmentManager Listener
         supportFragmentManager.addFragmentOnAttachListener(this)
 
+        // Toolbar
+        setupToolbar()
+
         // ViewPager + Fragments
         setupViewPager()
 
@@ -115,6 +118,10 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
         supportFragmentManager.removeFragmentOnAttachListener(this)
 
         injection.destroy()
+    }
+
+    private fun setupToolbar() {
+        toolbar.setLeftButtonEnabled(false)
     }
 
     private fun setupViewPager() {
