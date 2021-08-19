@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentOnAttachListener
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
+import kz.q19.utils.keyboard.hideKeyboard
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
@@ -63,7 +64,11 @@ internal class VideoCallFragment :
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return object : Dialog(requireContext(), theme) {
             override fun onBackPressed() {
-                presenter.onBackPressed()
+                if (rootView?.currentState == R.id.end) {
+                    presenter.onBackPressed()
+                } else {
+                    rootView?.transitionToEnd()
+                }
             }
         }
     }
@@ -100,6 +105,12 @@ internal class VideoCallFragment :
                 rootView?.transitionToStart()
             }
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        activity?.hideKeyboard(view)
     }
 
     override fun onDestroy() {
@@ -188,24 +199,23 @@ internal class VideoCallFragment :
         Logger.debug(TAG, "onTransitionCompleted(): $p1")
 
         if (p1 == R.id.start) {
-            presenter.setLocalVideostreamResumed()
-            presenter.setRemoteVideostreamResumed()
-
             fullscreenSurfaceViewRenderer?.let {
                 presenter.setRemoteVideostream(it, false)
             }
+
+            presenter.setLocalVideostreamResumed()
+            presenter.setRemoteVideostreamResumed()
 
             floatingSurfaceViewRenderer?.visibility = View.GONE
             floatingLayout?.visibility = View.GONE
             miniSurfaceViewRenderer?.visibility = View.VISIBLE
             videoView?.visibility = View.VISIBLE
         } else if (p1 == R.id.end) {
-            presenter.setLocalVideostreamPaused()
-            presenter.setRemoteVideostreamResumed()
-
             floatingSurfaceViewRenderer?.let {
                 presenter.setRemoteVideostream(it, true)
             }
+
+            presenter.setRemoteVideostreamResumed()
 
             miniSurfaceViewRenderer?.visibility = View.GONE
             videoView?.visibility = View.GONE
@@ -244,11 +254,7 @@ internal class VideoCallFragment :
             .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
                 dialog.dismiss()
 
-                if (rootView?.currentState == R.id.start) {
-                    rootView?.transitionToEnd()
-                } else {
-                    presenter.onCancelPendingCall()
-                }
+                presenter.onCancelPendingCall()
             }
             .show()
     }
@@ -263,11 +269,7 @@ internal class VideoCallFragment :
             .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
                 dialog.dismiss()
 
-                if (rootView?.currentState == R.id.start) {
-                    rootView?.transitionToEnd()
-                } else {
-                    presenter.onCancelLiveCall()
-                }
+                presenter.onCancelLiveCall()
             }
             .show()
     }
