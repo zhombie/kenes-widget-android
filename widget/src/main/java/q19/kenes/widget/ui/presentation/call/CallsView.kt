@@ -7,5 +7,5 @@ internal interface CallsView : BaseView {
 
     fun tryToResolvePermissions(call: Call)
 
-    fun launchPendingCall(call: Call)
+    fun launchCall(call: Call)
 }

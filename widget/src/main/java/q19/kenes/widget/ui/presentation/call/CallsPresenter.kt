@@ -56,7 +56,7 @@ internal class CallsPresenter constructor(
     }
 
     fun onCallPermissionsGranted(call: Call) {
-        getView().launchPendingCall(call)
+        getView().launchCall(call)
     }
 
     fun onBackPressed(): Boolean {

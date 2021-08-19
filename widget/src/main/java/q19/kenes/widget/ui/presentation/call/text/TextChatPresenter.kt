@@ -17,8 +17,8 @@ internal class TextChatPresenter constructor(
         super.onFirstViewAttach()
     }
 
-    fun onNewMessage(message: Message) {
-        addNewMessage(message)
+    fun onNewChatMessage(message: Message) {
+        addNewChatMessage(message)
     }
 
     fun onSendTextMessage(message: String?) {
@@ -30,7 +30,7 @@ internal class TextChatPresenter constructor(
             getView().clearMessageInput()
             socketRepository.sendUserMessage(outgoingMessage)
 
-            addNewMessage(
+            addNewChatMessage(
                 Message.Builder()
                     .setType(Message.Type.OUTGOING)
                     .setText(outgoingMessage)
@@ -39,7 +39,7 @@ internal class TextChatPresenter constructor(
         }
     }
 
-    private fun addNewMessage(message: Message) {
+    private fun addNewChatMessage(message: Message) {
         interactor.chatMessages.add(message)
         getView().showNewMessage(message)
     }

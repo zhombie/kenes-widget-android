@@ -12,7 +12,7 @@ internal interface ChatbotView : BaseView {
     // UI bind data
     fun showResponses(nestables: List<Nestable>)
 
-    fun showNewMessage(message: Message)
+    fun showNewChatMessage(message: Message)
 
     // Interactions
     fun copyHTMLText(label: String, text: CharSequence?, htmlText: String)

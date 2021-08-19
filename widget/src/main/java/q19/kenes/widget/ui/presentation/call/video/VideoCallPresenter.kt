@@ -1,5 +1,6 @@
 package q19.kenes.widget.ui.presentation.call.video
 
+import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.CallAction
@@ -12,6 +13,7 @@ import kz.q19.socket.listener.CallListener
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.listener.SocketStateListener
 import kz.q19.socket.listener.WebRTCListener
+import kz.q19.socket.model.CallInitialization
 import kz.q19.socket.model.Category
 import kz.q19.socket.repository.SocketRepository
 import kz.q19.webrtc.Options
@@ -21,10 +23,14 @@ import org.webrtc.MediaStream
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
+import q19.kenes.widget.ui.presentation.call.Call
+import q19.kenes.widget.ui.presentation.call.CallInteractor
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
+import q19.kenes.widget.util.UrlUtil
 
 internal class VideoCallPresenter constructor(
     private val language: Language,
+    private val call: Call,
     private val database: Database,
     private val deviceInfo: DeviceInfo,
     private val peerConnectionClient: PeerConnectionClient,
@@ -36,19 +42,26 @@ internal class VideoCallPresenter constructor(
         private val TAG = VideoCallPresenter::class.java.simpleName
     }
 
+    private val interactor = CallInteractor()
+
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
         initPeerConnection()
+        initCall()
     }
 
     override fun onViewResume() {
         super.onViewResume()
 
+        Logger.debug(TAG, "onViewResume()")
+
         initSocket()
     }
 
     private fun initSocket() {
+        Logger.debug(TAG, "initSocket()")
+
         socketRepository.setSocketStateListener(this)
         socketRepository.setChatBotListener(this)
         socketRepository.setWebRTCListener(this)
@@ -64,6 +77,38 @@ internal class VideoCallPresenter constructor(
         if (!socketRepository.isConnected()) {
             socketRepository.connect()
         }
+    }
+
+    private fun initCall() {
+        val callType = when (call) {
+            is Call.Text -> CallType.TEXT
+            is Call.Audio -> CallType.AUDIO
+            is Call.Video -> CallType.VIDEO
+            else -> throw UnsupportedOperationException("Call: $call")
+        }
+
+        interactor.callState = CallInteractor.CallState.Pending
+
+        socketRepository.sendCallInitialization(
+            CallInitialization(
+                callType = callType,
+                domain = UrlUtil.getHostname()?.removePrefix("https://"),
+                topic = "zhombie",  // TODO: Change to 'call.topic' on production
+                device = CallInitialization.Device(
+                    os = deviceInfo.os,
+                    osVersion = deviceInfo.osVersion,
+                    appVersion = deviceInfo.versionName,
+                    name = deviceInfo.deviceName,
+                    mobileOperator = deviceInfo.operator,
+                    battery = CallInitialization.Device.Battery(
+                        percentage = deviceInfo.batteryPercent,
+                        isCharging = deviceInfo.isPhoneCharging,
+                        temperature = deviceInfo.batteryTemperature
+                    )
+                ),
+                language = Language.RUSSIAN
+            )
+        )
     }
 
     private fun initPeerConnection() {
@@ -94,6 +139,29 @@ internal class VideoCallPresenter constructor(
 
         peerConnectionClient.setRemoteSurfaceView(surfaceViewRenderer)
         peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
+    }
+
+    fun onBackPressed() {
+        when (interactor.callState) {
+            CallInteractor.CallState.Pending ->
+                getView().showCancelPendingConfirmationMessage()
+            CallInteractor.CallState.Live ->
+                getView().showCancelLiveCallConfirmationMessage()
+            else ->
+                getView().navigateToHome()
+        }
+    }
+
+    fun onCancelPendingCall() {
+        socketRepository.sendPendingCallCancellation()
+
+        getView().navigateToHome()
+    }
+
+    fun onCancelLiveCall() {
+        socketRepository.sendCallAction(action = CallAction.FINISH)
+
+        getView().navigateToHome()
     }
 
     fun setLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer, isZOrderMediaOverlay: Boolean) {
@@ -151,7 +219,7 @@ internal class VideoCallPresenter constructor(
     override fun onRenegotiationNeeded() {
         Logger.debug(TAG, "onRenegotiationNeeded()")
 
-        peerConnectionClient.createOffer()
+//        peerConnectionClient.createOffer()
     }
 
     override fun onAddRemoteStream(mediaStream: MediaStream) {
@@ -203,7 +271,7 @@ internal class VideoCallPresenter constructor(
     override fun onMessage(message: Message) {
         Logger.debug(TAG, "onMessage(): $message")
 
-        getView().showNewMessage(message)
+        getView().showNewChatMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {
@@ -221,13 +289,6 @@ internal class VideoCallPresenter constructor(
 
     override fun onCallRedirect() {
         Logger.debug(TAG, "onCallRedirect()")
-
-        initPeerConnection()
-
-        peerConnectionClient.initLocalCameraStream()
-        peerConnectionClient.addLocalStreamToPeer()
-
-        socketRepository.sendQRTCAction(QRTCAction.PREPARE)
     }
 
     override fun onCallRedial() {
@@ -268,10 +329,20 @@ internal class VideoCallPresenter constructor(
     override fun onPeerHangupCall() {
         Logger.debug(TAG, "onPeerHangupCall()")
 
-        socketRepository.sendPendingCallCancellation()
-        socketRepository.sendCallAction(CallAction.FINISH)
+        if (interactor.callState == CallInteractor.CallState.Pending) {
+            socketRepository.sendPendingCallCancellation()
+        } else if (interactor.callState == CallInteractor.CallState.Live) {
+            socketRepository.sendCallAction(CallAction.FINISH)
+        }
 
         peerConnectionClient.dispose()
+
+        getView().showNewChatMessage(
+            Message.Builder()
+                .setType(Message.Type.NOTIFICATION)
+                .setText("Оператор отключился")
+                .build()
+        )
     }
 
     /**
@@ -290,10 +361,13 @@ internal class VideoCallPresenter constructor(
         Logger.debug(TAG, "onCallAgentGreet() -> " +
             "fullName: $fullName, photoUrl: $photoUrl, text: $text")
 
+        interactor.callState = CallInteractor.CallState.Live
+
         getView().showCallAgentInfo(fullName, photoUrl)
 
-        getView().showNewMessage(
+        getView().showNewChatMessage(
             Message.Builder()
+                .setType(Message.Type.INCOMING)
                 .setText(text)
                 .build()
         )
@@ -323,8 +397,6 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onDestroy() {
-        socketRepository.sendCallAction(action = CallAction.FINISH)
-
         peerConnectionClient.dispose()
 
         socketRepository.removeAllListeners()

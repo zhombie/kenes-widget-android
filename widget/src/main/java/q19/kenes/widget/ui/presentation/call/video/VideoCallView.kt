@@ -5,5 +5,10 @@ import q19.kenes.widget.ui.presentation.platform.BaseView
 
 internal interface VideoCallView : BaseView {
     fun showCallAgentInfo(fullName: String, photoUrl: String?)
-    fun showNewMessage(message: Message)
+    fun showNewChatMessage(message: Message)
+
+    fun navigateToHome()
+
+    fun showCancelPendingConfirmationMessage()
+    fun showCancelLiveCallConfirmationMessage()
 }

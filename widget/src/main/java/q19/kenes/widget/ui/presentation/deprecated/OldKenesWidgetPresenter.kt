@@ -34,7 +34,6 @@ import q19.kenes.widget.data.remote.file.DownloadResult
 import q19.kenes.widget.data.remote.file.downloadFile
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.presentation.home.ChatbotInteractor
-import q19.kenes.widget.ui.presentation.model.Dialog
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
@@ -61,7 +60,7 @@ internal class OldKenesWidgetPresenter constructor(
 
 //        chatBot.clear()
 
-        dialog.clear()
+//        dialog.clear()
 
         socketClient?.release()
         socketClient = null
@@ -82,9 +81,9 @@ internal class OldKenesWidgetPresenter constructor(
 //                chatBot.activeCategory = null
             }
 
-            if (value is ViewState.AudioDialog.Live || value is ViewState.VideoDialog.Live) {
-                dialog.unreadMessages = 0
-            }
+//            if (value is ViewState.AudioDialog.Live || value is ViewState.VideoDialog.Live) {
+//                dialog.unreadMessages = 0
+//            }
 
             getView().setViewState(value)
         }
@@ -95,7 +94,7 @@ internal class OldKenesWidgetPresenter constructor(
 
     private var configs: Configs? = null
     private var chatBot = ChatbotInteractor()
-    private var dialog = Dialog()
+//    private var dialog = Dialog()
 
     private var activeCall: Configs.Call? = null
     private var activeService: Configs.Service? = null
@@ -359,10 +358,10 @@ internal class OldKenesWidgetPresenter constructor(
             BottomNavigationView.NavigationButton.HOME -> {
                 if (configs?.preferences?.isChatBotEnabled == false) return
 
-                if (dialog.isInitiator) {
-                    getView().showAlreadyCallingAlert(navigationButton)
-                    return
-                }
+//                if (dialog.isInitiator) {
+//                    getView().showAlreadyCallingAlert(navigationButton)
+//                    return
+//                }
 
                 clear()
 
@@ -370,10 +369,10 @@ internal class OldKenesWidgetPresenter constructor(
                 viewState = ViewState.ChatBot.Dashboard(true)
             }
             BottomNavigationView.NavigationButton.CALLS -> {
-                if (dialog.isInitiator) {
-                    getView().showAlreadyCallingAlert(navigationButton)
-                    return
-                }
+//                if (dialog.isInitiator) {
+//                    getView().showAlreadyCallingAlert(navigationButton)
+//                    return
+//                }
 
                 clear()
 
@@ -387,10 +386,10 @@ internal class OldKenesWidgetPresenter constructor(
                 viewState = ViewState.CallAgentCall
             }
             BottomNavigationView.NavigationButton.SERVICES -> {
-                if (dialog.isInitiator) {
-                    getView().showAlreadyCallingAlert(navigationButton)
-                    return
-                }
+//                if (dialog.isInitiator) {
+//                    getView().showAlreadyCallingAlert(navigationButton)
+//                    return
+//                }
 
                 viewState = if (activeServiceSession != null) {
                     ViewState.Services.Process
@@ -401,10 +400,10 @@ internal class OldKenesWidgetPresenter constructor(
                 }
             }
             BottomNavigationView.NavigationButton.INFO -> {
-                if (dialog.isInitiator) {
-                    getView().showAlreadyCallingAlert(navigationButton)
-                    return
-                }
+//                if (dialog.isInitiator) {
+//                    getView().showAlreadyCallingAlert(navigationButton)
+//                    return
+//                }
 
                 clear()
 
@@ -433,7 +432,7 @@ internal class OldKenesWidgetPresenter constructor(
     private fun cancelPendingCall() {
         socketClient?.sendPendingCallCancellation()
 
-        dialog.isInitiator = false
+//        dialog.isInitiator = false
     }
 
     fun onCancelPendingCallClicked(navigationButton: BottomNavigationView.NavigationButton) {
@@ -473,13 +472,13 @@ internal class OldKenesWidgetPresenter constructor(
 
     fun onCallOperator(callType: CallType, scope: String? = null) {
         debug(TAG, "onCallOperator() -> viewState: $viewState")
-
-        if (dialog.isInitiator) {
-            getView().showAlreadyCallingAlert(callType)
-            return
-        }
-
-        dialog.isInitiator = true
+//
+//        if (dialog.isInitiator) {
+//            getView().showAlreadyCallingAlert(callType)
+//            return
+//        }
+//
+//        dialog.isInitiator = true
 
 //        getView().clearChatMessages()
 
@@ -896,7 +895,7 @@ internal class OldKenesWidgetPresenter constructor(
     fun onCloseLiveCall() {
         debug(TAG, "closeLiveCall -> viewState: $viewState")
 
-        dialog.clear()
+//        dialog.clear()
 
         getView().releaseMediaPlayer()
 
@@ -927,7 +926,7 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     fun onHangupLiveCall() {
-        dialog.clear()
+//        dialog.clear()
 
         getView().releaseMediaPlayer()
 
@@ -1108,9 +1107,9 @@ internal class OldKenesWidgetPresenter constructor(
                 .build()
         )
 
-        if (viewState is ViewState.ChatBot.UserPrompt && !dialog.isInitiator) {
-            getView().showSwitchToCallAgentButton()
-        }
+//        if (viewState is ViewState.ChatBot.UserPrompt && !dialog.isInitiator) {
+//            getView().showSwitchToCallAgentButton()
+//        }
 
         if (viewState is ViewState.ChatBot.UserPrompt) {
             viewState = ViewState.ChatBot.UserPrompt(false)
@@ -1151,31 +1150,31 @@ internal class OldKenesWidgetPresenter constructor(
         }
 
         if (viewState is ViewState.AudioDialog.Live && (viewState as ViewState.AudioDialog.Live).isDialogScreenShown) {
-            dialog.unreadMessages += 1
-            if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
-                getView().setUnreadMessagesCountOnCall(
-                    CallType.AUDIO,
-                    "${dialog.unreadMessages}+"
-                )
-            } else {
-                getView().setUnreadMessagesCountOnCall(
-                    CallType.AUDIO,
-                    "${dialog.unreadMessages}"
-                )
-            }
+//            dialog.unreadMessages += 1
+//            if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
+//                getView().setUnreadMessagesCountOnCall(
+//                    CallType.AUDIO,
+//                    "${dialog.unreadMessages}+"
+//                )
+//            } else {
+//                getView().setUnreadMessagesCountOnCall(
+//                    CallType.AUDIO,
+//                    "${dialog.unreadMessages}"
+//                )
+//            }
         } else if (viewState is ViewState.VideoDialog.Live && (viewState as ViewState.VideoDialog.Live).isDialogScreenShown) {
-            dialog.unreadMessages += 1
-            if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
-                getView().setUnreadMessagesCountOnCall(
-                    CallType.VIDEO,
-                    "${dialog.unreadMessages}+"
-                )
-            } else {
-                getView().setUnreadMessagesCountOnCall(
-                    CallType.VIDEO,
-                    "${dialog.unreadMessages}"
-                )
-            }
+//            dialog.unreadMessages += 1
+//            if (dialog.unreadMessages >= Dialog.MAX_UNREAD_MESSAGES_COUNT) {
+//                getView().setUnreadMessagesCountOnCall(
+//                    CallType.VIDEO,
+//                    "${dialog.unreadMessages}+"
+//                )
+//            } else {
+//                getView().setUnreadMessagesCountOnCall(
+//                    CallType.VIDEO,
+//                    "${dialog.unreadMessages}"
+//                )
+//            }
         }
 
         getView().addNewMessage(message)
@@ -1257,7 +1256,7 @@ internal class OldKenesWidgetPresenter constructor(
     override fun onNoOnlineCallAgents(text: String?): Boolean {
         debug(TAG, "onNoOnlineCallAgents -> viewState: $viewState")
 
-        dialog.isInitiator = false
+//        dialog.isInitiator = false
 
 //        getView().addNewMessage(Messag(type = Messag.Type.INCOMING, text = text))
 
@@ -1281,7 +1280,7 @@ internal class OldKenesWidgetPresenter constructor(
         debug(TAG, "onCallAgentGreet() -> viewState: $viewState")
 
         if (viewState is ViewState.TextDialog) {
-            dialog.isActive = true
+//            dialog.isActive = true
             viewState = ViewState.TextDialog.Live
         }
 
@@ -1324,7 +1323,7 @@ internal class OldKenesWidgetPresenter constructor(
     override fun onUserRedirected(text: String?, timestamp: Long): Boolean {
         debug(TAG, "onUserRedirected() -> viewState: $viewState")
 
-        dialog.clear()
+//        dialog.clear()
 
         getView().releaseMediaPlayer()
 
@@ -1426,7 +1425,7 @@ internal class OldKenesWidgetPresenter constructor(
         debug(TAG, "onCallAccept -> viewState: $viewState")
 
         if (viewState is ViewState.AudioDialog) {
-            dialog.isActive = true
+//            dialog.isActive = true
 
             viewState = ViewState.AudioDialog.Start
 
@@ -1443,7 +1442,7 @@ internal class OldKenesWidgetPresenter constructor(
 
             socketClient?.sendQRTCAction(QRTCAction.PREPARE)
         } else if (viewState is ViewState.VideoDialog) {
-            dialog.isActive = true
+//            dialog.isActive = true
 
             viewState = ViewState.VideoDialog.Start
 

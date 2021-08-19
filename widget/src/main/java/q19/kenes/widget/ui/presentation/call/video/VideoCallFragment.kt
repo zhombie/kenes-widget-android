@@ -15,6 +15,7 @@ import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.FloatingLayout
+import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
 import q19.kenes.widget.util.AlertDialogBuilder
@@ -29,9 +30,11 @@ internal class VideoCallFragment :
     companion object {
         private val TAG = VideoCallFragment::class.java.simpleName
 
-        fun newInstance(): VideoCallFragment {
+        fun newInstance(call: Call): VideoCallFragment {
             val fragment = VideoCallFragment()
-            fragment.arguments = Bundle()
+            fragment.arguments = Bundle().apply {
+                putParcelable("call", call)
+            }
             return fragment
         }
     }
@@ -60,25 +63,17 @@ internal class VideoCallFragment :
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return object : Dialog(requireContext(), theme) {
             override fun onBackPressed() {
-                AlertDialogBuilder(requireContext())
-                    .setTitle(R.string.kenes_cancel_call)
-                    .setMessage(R.string.kenes_cancel_call)
-                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-                        dialog.dismiss()
-
-                        super.onBackPressed()
-                    }
-                    .show()
+                presenter.onBackPressed()
             }
         }
     }
 
     override fun createPresenter(): VideoCallPresenter {
+        val call = arguments?.getParcelable<Call>("call")
+            ?: throw IllegalStateException("Where is Call?")
         return injection.provideVideoCallPresenter(
             getCurrentLanguage(),
+            call,
             PeerConnectionClient(requireContext()).also { peerConnectionClient = it }
         )
     }
@@ -228,11 +223,57 @@ internal class VideoCallFragment :
      */
 
     override fun showCallAgentInfo(fullName: String, photoUrl: String?) {
+        Logger.debug(TAG, "showCallAgentInfo() -> $fullName, $photoUrl")
+
         textChatFragment?.showCallAgentInfo(fullName, photoUrl)
     }
 
-    override fun showNewMessage(message: Message) {
-        textChatFragment?.onNewMessage(message)
+    override fun showNewChatMessage(message: Message) {
+        Logger.debug(TAG, "showNewMessage() -> $message")
+
+        textChatFragment?.onNewChatMessage(message)
+    }
+
+    override fun showCancelPendingConfirmationMessage() {
+        AlertDialogBuilder(requireContext())
+            .setTitle(R.string.kenes_cancel_call)
+            .setMessage(R.string.kenes_cancel_call)
+            .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                dialog.dismiss()
+
+                if (rootView?.currentState == R.id.start) {
+                    rootView?.transitionToEnd()
+                } else {
+                    presenter.onCancelPendingCall()
+                }
+            }
+            .show()
+    }
+
+    override fun showCancelLiveCallConfirmationMessage() {
+        AlertDialogBuilder(requireContext())
+            .setTitle(R.string.kenes_cancel_call)
+            .setMessage(R.string.kenes_cancel_call)
+            .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+                dialog.dismiss()
+
+                if (rootView?.currentState == R.id.start) {
+                    rootView?.transitionToEnd()
+                } else {
+                    presenter.onCancelLiveCall()
+                }
+            }
+            .show()
+    }
+
+    override fun navigateToHome() {
+        dismiss()
     }
 
 }

@@ -309,7 +309,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         responseGroupsAdapter?.submitList(nestables)
     }
 
-    override fun showNewMessage(message: Message) {
+    override fun showNewChatMessage(message: Message) {
         activity?.runOnUiThread {
             chatMessagesAdapter?.addNewMessage(message)
         }

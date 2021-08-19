@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.Toolbar
 import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
@@ -116,13 +117,18 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     fun showCallAgentInfo(fullName: String, photoUrl: String?) {
-        toolbar?.showImage(photoUrl)
-        toolbar?.setTitle(fullName)
-        toolbar?.setSubtitle("Оператор")
+        activity?.runOnUiThread {
+            toolbar?.showImage(photoUrl)
+            toolbar?.setTitle(fullName)
+            toolbar?.setSubtitle("Оператор")
+            toolbar?.reveal()
+        }
     }
 
-    fun onNewMessage(message: Message) {
-        presenter.onNewMessage(message)
+    fun onNewChatMessage(message: Message) {
+        activity?.runOnUiThread {
+            presenter.onNewChatMessage(message)
+        }
     }
 
     /**
@@ -130,13 +136,17 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
      */
 
     override fun showNewMessage(message: Message) {
+        Logger.debug(TAG, "showNewMessage() -> $message")
+
         activity?.runOnUiThread {
             chatMessagesAdapter?.addNewMessage(message)
         }
     }
 
     override fun clearMessageInput() {
-        messageInputView?.clearInputViewText()
+        activity?.runOnUiThread {
+            messageInputView?.clearInputViewText()
+        }
     }
 
 }

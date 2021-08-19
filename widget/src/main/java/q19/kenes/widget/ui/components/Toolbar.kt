@@ -260,6 +260,14 @@ internal class Toolbar @JvmOverloads constructor(
         rightButton?.setIconTintResource(iconTintResourceId)
     }
 
+    fun reveal() {
+        alpha = 0F
+        animate()
+            .alpha(1F)
+            .setDuration(300L)
+            .start()
+    }
+
     fun setLeftButtonOnClickListener(listener: OnClickListener?) {
         leftButton?.setOnClickListener(listener)
     }

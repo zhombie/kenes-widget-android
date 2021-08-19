@@ -78,6 +78,8 @@ internal class ChatbotPresenter constructor(
                 getView().showResponses(responseGroups)
             },
             onFailure = {
+                Logger.debug(TAG, "onFailure(): $it")
+
                 getView().hideLoadingIndicator()
             }
         ))
@@ -111,7 +113,12 @@ internal class ChatbotPresenter constructor(
                 getView().showResponses(listOf(interactor.breadcrumb[index]))
             },
             onFailure = {
+                Logger.debug(TAG, "onFailure(): $it")
+
                 getView().hideLoadingIndicator()
+
+                val index = interactor.breadcrumb.indexOf(responseGroup)
+                getView().showResponses(listOf(interactor.breadcrumb[index]))
             }
         ))
     }
@@ -151,7 +158,12 @@ internal class ChatbotPresenter constructor(
                 getView().showResponses(listOf(interactor.breadcrumb[index]))
             },
             onFailure = {
+                Logger.debug(TAG, "onFailure(): $it")
+
                 getView().hideLoadingIndicator()
+
+                val index = interactor.breadcrumb.indexOf(child)
+                getView().showResponses(listOf(interactor.breadcrumb[index]))
             }
         ))
     }
@@ -236,7 +248,7 @@ internal class ChatbotPresenter constructor(
                 getView().hideChatMessagesHeader()
             }
 
-            addNewMessage(
+            addNewChatMessage(
                 Message.Builder()
                     .setType(Message.Type.OUTGOING)
                     .setText(outgoingMessage)
@@ -245,9 +257,9 @@ internal class ChatbotPresenter constructor(
         }
     }
 
-    private fun addNewMessage(message: Message) {
+    private fun addNewChatMessage(message: Message) {
         interactor.chatMessages.add(message)
-        getView().showNewMessage(message)
+        getView().showNewChatMessage(message)
     }
 
     /**
@@ -262,7 +274,7 @@ internal class ChatbotPresenter constructor(
     override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
         Logger.debug(TAG, "onNoResultsFound() -> $text, $timestamp")
 
-        getView().showNewMessage(
+        getView().showNewChatMessage(
             Message.Builder()
                 .setType(Message.Type.INCOMING)
                 .setText(text)
@@ -276,7 +288,7 @@ internal class ChatbotPresenter constructor(
     override fun onMessage(message: Message) {
         Logger.debug(TAG, "onMessage() -> $message")
 
-        getView().showNewMessage(message)
+        getView().showNewChatMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {

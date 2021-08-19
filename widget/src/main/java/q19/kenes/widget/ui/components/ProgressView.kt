@@ -89,10 +89,21 @@ internal class ProgressView @JvmOverloads constructor(
 
     fun show() {
         visibility = View.VISIBLE
+        alpha = 0F
+        animate()
+            .alpha(1F)
+            .setDuration(200L)
+            .start()
     }
 
     fun hide() {
-        visibility = View.GONE
+        visibility = View.VISIBLE
+        alpha = 1F
+        animate()
+            .alpha(0F)
+            .withEndAction { visibility = View.GONE }
+            .setDuration(200L)
+            .start()
     }
 
     fun isProgressShown(): Boolean = visibility == View.VISIBLE
