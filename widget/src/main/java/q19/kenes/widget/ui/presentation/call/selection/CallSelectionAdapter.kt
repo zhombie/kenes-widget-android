@@ -1,17 +1,20 @@
-package q19.kenes.widget.ui.presentation.call
+package q19.kenes.widget.ui.presentation.call.selection
 
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
-import kz.q19.utils.view.binding.bind
+import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes_widget.R
 
-internal class CallTypesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class CallSelectionAdapter constructor(
+    private val callback: (call: Call) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
-        private val TAG = CallTypesAdapter::class.java.simpleName
+        private val TAG = CallSelectionAdapter::class.java.simpleName
     }
 
     var calls: List<Call> = emptyList()
@@ -27,7 +30,7 @@ internal class CallTypesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
     override fun getItemCount(): Int = calls.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_call_type))
+        return ViewHolder(parent.inflate(R.layout.cell_call_selection))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -37,7 +40,8 @@ internal class CallTypesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
     }
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val iconView by bind<ShapeableImageView>(R.id.iconView)
+        private val iconView = view.findViewById<ShapeableImageView>(R.id.iconView)
+        private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
 
         fun bind(call: Call) {
             when (call) {
@@ -48,6 +52,10 @@ internal class CallTypesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
                 is Call.Video ->
                     iconView.setImageResource(R.drawable.ic_video_camera)
             }
+
+            titleView.text = call.title
+
+            itemView.setOnClickListener { callback(call) }
         }
     }
 

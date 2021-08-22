@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
+import q19.kenes.widget.ui.presentation.call.selection.CallSelection
+import q19.kenes.widget.ui.presentation.call.selection.CallSelectionFragment
 import q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
@@ -136,7 +138,7 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
      */
 
     override fun onCallClicked(call: Call) {
-        presenter.onCallClicked(call)
+        presenter.onCallSelected(call)
     }
 
     override fun onCallGroupClicked(callGroup: CallGroup) {
@@ -148,33 +150,40 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
      */
 
     override fun showCalls(anyCalls: List<AnyCall>) {
-        Logger.debug(TAG, "anyCalls: $anyCalls")
+        Logger.debug(TAG, "showCalls() -> anyCalls: $anyCalls")
         callsAdapter?.anyCalls = anyCalls
+    }
+
+    override fun showCallSelection(callSelection: CallSelection) {
+        Logger.debug(TAG, "showCallSelection() -> callSelection: $callSelection")
+
+        CallSelectionFragment.newInstance(callSelection)
+            .setListener {
+                presenter.onCallSelected(it)
+            }
+            .show(childFragmentManager, "call_selection")
     }
 
     override fun tryToResolvePermissions(call: Call) {
         when (call) {
-            is Call.Text -> {
+            is Call.Text ->
                 permissionManager?.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
                     if (it) {
                         presenter.onCallPermissionsGranted(call)
                     }
                 }
-            }
-            is Call.Audio -> {
+            is Call.Audio ->
                 permissionManager?.checkPermission(PermissionManager.Permission.AUDIO_CALL) {
                     if (it) {
                         presenter.onCallPermissionsGranted(call)
                     }
                 }
-            }
-            is Call.Video -> {
+            is Call.Video ->
                 permissionManager?.checkPermission(PermissionManager.Permission.VIDEO_CALL) {
                     if (it) {
                         presenter.onCallPermissionsGranted(call)
                     }
                 }
-            }
         }
     }
 

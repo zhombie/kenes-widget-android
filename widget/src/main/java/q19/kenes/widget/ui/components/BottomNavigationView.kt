@@ -199,19 +199,32 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
     private fun updateActiveNavigationButtonTint(index: Int) {
         if (index >= 0 && index < navigationButtons.size) {
-            navigationButtons.forEach {
-                setInactiveNavigationButtonTint(it)
+            navigationButtons.forEachIndexed { eachIndex, appCompatButton ->
+                if (index == eachIndex) {
+                    setActiveNavigationButtonTint(navigationButtons[index])
+                } else {
+                    setInactiveNavigationButtonTint(appCompatButton)
+                }
             }
-            setActiveNavigationButtonTint(navigationButtons[index])
         }
     }
 
-    private fun setActiveNavigationButtonTint(button: AppCompatButton?): Boolean {
-        return button?.setTint(R.color.kenes_blue) == true
+    private fun setActiveNavigationButtonTint(button: AppCompatButton?) {
+        button.setTint(R.color.kenes_blue)
+        button?.animate()
+            ?.setDuration(125L)
+            ?.scaleX(0.95F)
+            ?.scaleY(0.95F)
+            ?.start()
     }
 
-    private fun setInactiveNavigationButtonTint(button: AppCompatButton?): Boolean {
-        return button?.setTint(R.color.kenes_black_with_opacity_80) == true
+    private fun setInactiveNavigationButtonTint(button: AppCompatButton?) {
+        button.setTint(R.color.kenes_black_with_opacity_80)
+        button?.animate()
+            ?.setDuration(125L)
+            ?.scaleX(1.0F)
+            ?.scaleY(1.0F)
+            ?.start()
     }
 
     private fun AppCompatButton?.setTint(@ColorRes colorResId: Int): Boolean {

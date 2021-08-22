@@ -113,7 +113,7 @@ internal class CallsAdapter constructor(
                 callTypesView.visibility = View.VISIBLE
 
                 callTypesHintView.text = "Доступные виды звонков"
-                callTypesHintView.visibility = View.GONE
+                callTypesHintView.visibility = View.VISIBLE
             }
 
             titleView.text = callGroup.title

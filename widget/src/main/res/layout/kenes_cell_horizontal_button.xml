@@ -22,7 +22,7 @@
         android:textSize="15sp"
         android:textStyle="normal"
         app:fontFamily="sans-serif"
-        tools:text="СпецЦОН" />
+        tools:text="Тема звонка" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/imageView"

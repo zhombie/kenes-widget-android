@@ -9,6 +9,7 @@ import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.domain.model.buildCallsAsTree
+import q19.kenes.widget.ui.presentation.call.selection.CallSelection
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 
 internal class CallsPresenter constructor(
@@ -46,12 +47,22 @@ internal class CallsPresenter constructor(
     }
 
     fun onCallGroupClicked(callGroup: CallGroup) {
-        interactor.breadcrumb.add(callGroup)
+        if (callGroup.children.all { it is Call }) {
+            getView().showCallSelection(
+                CallSelection(
+                    callGroup.id,
+                    callGroup.title,
+                    callGroup.children.filterIsInstance<Call>()
+                )
+            )
+        } else {
+            interactor.breadcrumb.add(callGroup)
 
-        getView().showCalls(callGroup.children)
+            getView().showCalls(callGroup.children)
+        }
     }
 
-    fun onCallClicked(call: Call) {
+    fun onCallSelected(call: Call) {
         getView().tryToResolvePermissions(call)
     }
 

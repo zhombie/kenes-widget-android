@@ -3,44 +3,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
     android:background="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
+    android:paddingBottom="15dp"
     android:paddingLeft="15dp"
-    android:paddingTop="15dp"
     android:paddingRight="15dp"
-    android:paddingBottom="15dp">
+    android:paddingTop="15dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iconView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_folder" />
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        tools:src="@drawable/ic_phone" />
 
     <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/textView"
+        android:id="@+id/titleView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15dp"
         android:layout_weight="1"
         android:ellipsize="end"
         android:fontFamily="sans-serif"
-        android:gravity="left"
         android:includeFontPadding="false"
+        android:gravity="center_vertical"
         android:maxLines="3"
         android:singleLine="false"
         android:textColor="@color/kenes_dark_charcoal"
-        android:textSize="14sp"
+        android:textSize="15sp"
         android:textStyle="normal"
-        tools:text="Тема звонка" />
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/arrowView"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:layout_marginLeft="15dp"
-        tools:src="@drawable/ic_arrow_right" />
+        tools:text="Аудизвонок" />
 
 </LinearLayout>
