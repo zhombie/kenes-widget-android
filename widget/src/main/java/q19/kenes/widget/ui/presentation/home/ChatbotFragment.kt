@@ -174,6 +174,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
 
             override fun onMenuButtonClicked() {
                 AlertDialogBuilder(requireContext())
+                    .setTitle(R.string.menu)
                     .setItems(
                         arrayOf(
                             getString(R.string.copy),

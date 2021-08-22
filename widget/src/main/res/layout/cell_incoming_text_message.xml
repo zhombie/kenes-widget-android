@@ -13,6 +13,7 @@
         android:id="@+id/cardView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minWidth="50dp"
         app:cardBackgroundColor="#E4E6EB"
         app:cardCornerRadius="15dp"
         app:cardElevation="0dp">
@@ -30,7 +31,7 @@
             android:textColor="@color/kenes_dark_charcoal"
             android:textSize="@dimen/chat_message_text_size"
             android:textStyle="normal"
-            tools:text="Outgoing message" />
+            tools:text="Incoming message" />
 
     </com.google.android.material.card.MaterialCardView>
 

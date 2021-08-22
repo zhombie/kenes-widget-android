@@ -14,7 +14,9 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import q19.kenes_widget.R
 
-internal class AlertDialogBuilder constructor(context: Context) : MaterialAlertDialogBuilder(context, R.style.Kenes_Widget_Dialog_Alert)
+internal class AlertDialogBuilder constructor(
+    context: Context
+) : MaterialAlertDialogBuilder(context, R.style.Kenes_Widget_Dialog_Alert)
 
 internal val Context.AlertDialogBuilder
     get() = MaterialAlertDialogBuilder(this, R.style.Kenes_Widget_Dialog_Alert)

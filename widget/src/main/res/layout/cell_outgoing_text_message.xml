@@ -17,6 +17,7 @@
             android:id="@+id/cardView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="50dp"
             app:cardBackgroundColor="#2667E5"
             app:cardCornerRadius="15dp"
             app:cardElevation="0dp">

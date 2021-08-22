@@ -13,6 +13,7 @@
     <string name="kenes_cancel">Cancel</string>
     <string name="kenes_ok" translatable="false">OK</string>
     <string name="kenes_back">Back</string>
+    <string name="menu">Menu</string>
     <string name="copy">Copy</string>
     <string name="share">Share</string>
 
