@@ -114,6 +114,14 @@ internal class Toolbar @JvmOverloads constructor(
         imageView?.loadImage(imageUrl, transformation = CircleTransformation())
     }
 
+    fun showImage(@DrawableRes resId: Int) {
+        imageView?.setImageResource(resId)
+    }
+
+    fun showImage(drawable: Drawable?) {
+        imageView?.setImageDrawable(drawable)
+    }
+
     fun setTitle(title: String?) {
         titleView?.text = title
     }

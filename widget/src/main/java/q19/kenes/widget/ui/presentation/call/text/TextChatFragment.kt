@@ -80,6 +80,11 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
                 (parentFragment as DialogFragment).dialog?.onBackPressed()
             }
         }
+
+        toolbar?.showImage(R.drawable.ic_user)
+        toolbar?.setTitle("Имя оператора")
+        toolbar?.setSubtitle("Ожидание...")
+        toolbar?.reveal()
     }
 
     private fun setupVideoCallButton() {
