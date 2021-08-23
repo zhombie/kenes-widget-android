@@ -92,9 +92,13 @@ internal class VideoCallFragment :
 
         if (onBackPressedDispatcherCallback == null) {
             onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
-                if (presenter.onBackPressed()) {
-                    isEnabled = false
-                    activity?.onBackPressed()
+                if (rootView?.currentState == R.id.start) {
+                    rootView?.transitionToEnd()
+                } else {
+                    if (presenter.onBackPressed()) {
+                        isEnabled = false
+                        activity?.onBackPressed()
+                    }
                 }
             }
         } else {
@@ -191,11 +195,7 @@ internal class VideoCallFragment :
     fun onHangupCall() {
         Logger.debug(TAG, "onHangupCall()")
 
-        if (rootView?.currentState == R.id.end) {
-            presenter.onHangupCall()
-        } else {
-            rootView?.transitionToEnd()
-        }
+        presenter.onHangupCall()
     }
 
     /**

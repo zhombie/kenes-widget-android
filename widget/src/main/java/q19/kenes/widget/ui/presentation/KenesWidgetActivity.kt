@@ -120,10 +120,15 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun onBackPressed() {
         Logger.debug(TAG, "onBackPressed()")
 
-        if (viewPager.currentItem > 0) {
-            bottomNavigationView.setFirstNavigationButtonActive()
-        } else {
+        val fragment = supportFragmentManager.findFragmentByTag("video_call")
+        if (fragment is VideoCallFragment) {
             super.onBackPressed()
+        } else {
+            if (viewPager.currentItem > 0) {
+                bottomNavigationView.setFirstNavigationButtonActive()
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
@@ -270,8 +275,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      */
 
     override fun onCallFinished() {
-        toolbar.setImageContentPadding(0)
-
         supportFragmentManager.commit {
             val fragment = supportFragmentManager.findFragmentByTag("video_call")
             if (fragment != null) {

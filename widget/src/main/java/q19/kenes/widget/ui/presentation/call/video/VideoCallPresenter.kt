@@ -142,10 +142,14 @@ internal class VideoCallPresenter constructor(
     }
 
     fun onBackPressed(): Boolean {
+        Logger.debug(TAG, "onBackPressed()")
+
         return onHangupCall()
     }
 
     fun onHangupCall(): Boolean {
+        Logger.debug(TAG, "onHangupCall()")
+
         return when (interactor.callState) {
             CallInteractor.CallState.Pending -> {
                 getView().showCancelPendingConfirmationMessage()
