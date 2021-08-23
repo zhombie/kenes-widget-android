@@ -23,6 +23,7 @@ import org.webrtc.MediaStream
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
+import q19.kenes.widget.ui.presentation.call.BottomSheetState
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallInteractor
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
@@ -35,14 +36,21 @@ internal class VideoCallPresenter constructor(
     private val deviceInfo: DeviceInfo,
     private val peerConnectionClient: PeerConnectionClient,
     private val socketRepository: SocketRepository
-) : BasePresenter<VideoCallView>(), WebRTCListener, CallListener, PeerConnectionClient.Listener,
-    ChatBotListener, SocketStateListener {
+) : BasePresenter<VideoCallView>(),
+    CallInteractor.CallStateListener,
+    PeerConnectionClient.Listener,
+    SocketStateListener,
+    ChatBotListener,
+    CallListener,
+    WebRTCListener {
 
     companion object {
         private val TAG = VideoCallPresenter::class.java.simpleName
     }
 
-    private val interactor = CallInteractor()
+    private val interactor = CallInteractor().apply {
+        listener = this@VideoCallPresenter
+    }
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -141,8 +149,34 @@ internal class VideoCallPresenter constructor(
         peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
     }
 
+    fun onBottomSheetStateChanged(state: BottomSheetState) {
+        Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
+
+        interactor.bottomSheetState = state
+
+        when (interactor.bottomSheetState) {
+            BottomSheetState.DRAGGING, BottomSheetState.SETTLING -> {
+                setLocalVideostreamPaused()
+                setRemoteVideostreamPaused()
+            }
+            BottomSheetState.COLLAPSED -> {
+                getView().enterFloatingVideostream()
+            }
+            BottomSheetState.EXPANDED -> {
+                getView().exitFloatingVideostream()
+            }
+            else -> {
+            }
+        }
+    }
+
     fun onBackPressed(): Boolean {
         Logger.debug(TAG, "onBackPressed()")
+
+        if (interactor.bottomSheetState == BottomSheetState.EXPANDED) {
+            getView().collapseBottomSheet()
+            return false
+        }
 
         return onHangupCall()
     }
@@ -195,19 +229,33 @@ internal class VideoCallPresenter constructor(
     }
 
     fun setLocalVideostreamPaused() {
+        Logger.debug(TAG, "setLocalVideostreamPaused()")
         peerConnectionClient.localSurfaceViewRenderer?.setFpsReduction(0F)
     }
 
     fun setRemoteVideostreamPaused() {
+        Logger.debug(TAG, "setRemoteVideostreamPaused()")
         peerConnectionClient.remoteSurfaceViewRenderer?.setFpsReduction(0F)
     }
 
     fun setLocalVideostreamResumed() {
+        Logger.debug(TAG, "setLocalVideostreamResumed()")
         peerConnectionClient.localSurfaceViewRenderer?.setFpsReduction(30F)
     }
 
     fun setRemoteVideostreamResumed() {
+        Logger.debug(TAG, "setRemoteVideostreamResumed()")
         peerConnectionClient.remoteSurfaceViewRenderer?.setFpsReduction(30F)
+    }
+
+    /**
+     * [CallInteractor.CallStateListener] implementation
+     */
+
+    override fun onNewBottomSheetState(state: BottomSheetState) {
+    }
+
+    override fun onNewCallState(state: CallInteractor.CallState) {
     }
 
     /**
@@ -343,11 +391,9 @@ internal class VideoCallPresenter constructor(
     override fun onPeerHangupCall() {
         Logger.debug(TAG, "onPeerHangupCall()")
 
-        if (interactor.callState == CallInteractor.CallState.Pending) {
-            socketRepository.sendPendingCallCancellation()
-        } else if (interactor.callState == CallInteractor.CallState.Live) {
-            socketRepository.sendCallAction(CallAction.FINISH)
-        }
+        interactor.callState = CallInteractor.CallState.Disconnected.CallAgent
+
+        getView().collapseBottomSheet()
 
         peerConnectionClient.dispose()
 
@@ -379,6 +425,8 @@ internal class VideoCallPresenter constructor(
 
         val fullUrl = UrlUtil.buildUrl(photoUrl)
 
+        getView().expandBottomSheet()
+
         getView().showCallAgentInfo(fullName, fullUrl)
 
         getView().showNewChatMessage(
@@ -395,6 +443,11 @@ internal class VideoCallPresenter constructor(
 
     override fun onLiveChatTimeout(text: String?, timestamp: Long): Boolean {
         Logger.debug(TAG, "onCallFeedback() -> text: $text, timestamp: $timestamp")
+
+        interactor.callState = CallInteractor.CallState.Disconnected.Timeout
+
+        getView().collapseBottomSheet()
+
         return true
     }
 
@@ -405,6 +458,11 @@ internal class VideoCallPresenter constructor(
 
     override fun onCallAgentDisconnected(text: String?, timestamp: Long): Boolean {
         Logger.debug(TAG, "onCallAgentDisconnected() -> text: $text, timestamp: $timestamp")
+
+        interactor.callState = CallInteractor.CallState.Disconnected.CallAgent
+
+        getView().collapseBottomSheet()
+
         return true
     }
 
@@ -413,6 +471,9 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onDestroy() {
+        interactor.chatMessages.clear()
+        interactor.listener = null
+
         peerConnectionClient.dispose()
 
         socketRepository.removeAllListeners()

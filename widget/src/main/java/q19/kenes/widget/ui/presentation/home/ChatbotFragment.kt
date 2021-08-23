@@ -36,7 +36,8 @@ import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragment_chatbot), ChatbotView,
+internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragment_chatbot),
+    ChatbotView,
     HomeFragmentDelegate {
 
     companion object {
@@ -69,6 +70,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
 
     // CoordinatorLayout + BottomSheet
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
+    private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
 
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
@@ -157,6 +159,10 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     override fun onDestroy() {
         super.onDestroy()
 
+        bottomSheetBehaviorCallback?.let { bottomSheetBehavior?.removeBottomSheetCallback(it) }
+        bottomSheetBehaviorCallback = null
+        bottomSheetBehavior = null
+
         responseGroupsAdapter?.setCallback(null)
         responseGroupsAdapter = null
 
@@ -231,15 +237,16 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     private fun setupBottomSheet() {
         closeButton?.alpha = 0F
 
-        chatView?.let {
-            bottomSheetBehavior = BottomSheetBehavior.from(it)
+        chatView?.let { view ->
+            bottomSheetBehavior = BottomSheetBehavior.from(view)
             bottomSheetBehavior?.isDraggable = false
-            bottomSheetBehavior?.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+
+            bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
                 private val peekHeight =
                     requireContext().resources.getDimensionPixelOffset(R.dimen.bottom_sheet_peek_height)
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    Logger.debug(TAG, "onStateChanged() -> $slideOffset")
+//                    Logger.debug(TAG, "onStateChanged() -> $slideOffset")
 
                     val reverseOffset = 1F - slideOffset
 
@@ -263,7 +270,11 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
 
                     presenter.onBottomSheetStateChanged(newState == BottomSheetBehavior.STATE_EXPANDED)
                 }
-            })
+            }
+
+            bottomSheetBehaviorCallback?.let {
+                bottomSheetBehavior?.addBottomSheetCallback(it)
+            }
         }
 
         toggleButton?.setOnClickListener {

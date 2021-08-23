@@ -6,9 +6,10 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.keyboard.hideKeyboard
@@ -16,6 +17,7 @@ import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.FloatingLayout
+import q19.kenes.widget.ui.presentation.call.BottomSheetState
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
@@ -24,8 +26,7 @@ import q19.kenes_widget.R
 
 internal class VideoCallFragment :
     BaseFragment<VideoCallPresenter>(R.layout.fragment_video_call),
-    VideoCallView,
-    MotionLayout.TransitionListener {
+    VideoCallView {
 
     companion object {
         private val TAG = VideoCallFragment::class.java.simpleName
@@ -40,7 +41,7 @@ internal class VideoCallFragment :
     }
 
     // UI Views
-    private var rootView: MotionLayout? = null
+    private var rootView: CoordinatorLayout? = null
     private var chatView: FragmentContainerView? = null
     private var videoView: FrameLayout? = null
     private var floatingLayout: FloatingLayout? = null
@@ -50,6 +51,10 @@ internal class VideoCallFragment :
 
     // WebRTC Wrapper
     private var peerConnectionClient: PeerConnectionClient? = null
+
+    // CoordinatorLayout + BottomSheet
+    private var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>? = null
+    private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
 
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
@@ -92,8 +97,8 @@ internal class VideoCallFragment :
 
         if (onBackPressedDispatcherCallback == null) {
             onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
-                if (rootView?.currentState == R.id.start) {
-                    rootView?.transitionToEnd()
+                if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
+                    bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
                 } else {
                     if (presenter.onBackPressed()) {
                         isEnabled = false
@@ -118,14 +123,14 @@ internal class VideoCallFragment :
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
 
         setupTextChat()
+        setupBottomSheet()
         setupVideostreams()
-        setupMotionLayout()
 
         view.findViewById<MaterialButton>(R.id.button2).setOnClickListener {
-            if (rootView?.currentState == R.id.start) {
-                rootView?.transitionToEnd()
+            if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
             } else {
-                rootView?.transitionToStart()
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
     }
@@ -139,6 +144,10 @@ internal class VideoCallFragment :
     override fun onDestroy() {
         super.onDestroy()
 
+        bottomSheetBehaviorCallback?.let { bottomSheetBehavior?.removeBottomSheetCallback(it) }
+        bottomSheetBehaviorCallback = null
+        bottomSheetBehavior = null
+
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
 
@@ -151,9 +160,6 @@ internal class VideoCallFragment :
         }
 
         peerConnectionClient = null
-
-        rootView?.removeTransitionListener(this)
-        rootView = null
     }
 
     private fun setupTextChat() {
@@ -163,6 +169,27 @@ internal class VideoCallFragment :
                 TextChatFragment.newInstance(),
                 "text_chat"
             )
+        }
+    }
+
+    private fun setupBottomSheet() {
+        videoView?.let { view ->
+            bottomSheetBehavior = BottomSheetBehavior.from(view)
+            bottomSheetBehavior?.isDraggable = true
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+
+            bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    presenter.onBottomSheetStateChanged(BottomSheetState.from(newState) ?: return)
+                }
+            }
+
+            bottomSheetBehaviorCallback?.let {
+                bottomSheetBehavior?.addBottomSheetCallback(it)
+            }
         }
     }
 
@@ -176,19 +203,13 @@ internal class VideoCallFragment :
         }
     }
 
-    private fun setupMotionLayout() {
-        rootView?.isInteractionEnabled = false
-
-        rootView?.addTransitionListener(this)
-    }
-
     fun onShowVideoCallScreen() {
         Logger.debug(TAG, "onShowVideoCallScreen()")
 
-        if (rootView?.currentState == R.id.start) {
-            rootView?.transitionToEnd()
+        if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
         } else {
-            rootView?.transitionToStart()
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
@@ -196,59 +217,6 @@ internal class VideoCallFragment :
         Logger.debug(TAG, "onHangupCall()")
 
         presenter.onHangupCall()
-    }
-
-    /**
-     * [MotionLayout.TransitionListener] implementation
-     */
-
-    override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) {
-        Logger.debug(TAG, "onTransitionStarted(): $p1, $p2")
-
-        if (p1 == R.id.start) {
-            presenter.setLocalVideostreamPaused()
-            presenter.setRemoteVideostreamPaused()
-        } else if (p1 == R.id.end) {
-            presenter.setLocalVideostreamPaused()
-            presenter.setRemoteVideostreamPaused()
-        }
-    }
-
-    override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) {
-        Logger.debug(TAG, "onTransitionChange(): $p1, $p2, $p3")
-    }
-
-    override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-        Logger.debug(TAG, "onTransitionCompleted(): $p1")
-
-        if (p1 == R.id.start) {
-            fullscreenSurfaceViewRenderer?.let {
-                presenter.setRemoteVideostream(it, false)
-            }
-
-            presenter.setLocalVideostreamResumed()
-            presenter.setRemoteVideostreamResumed()
-
-            floatingSurfaceViewRenderer?.visibility = View.GONE
-            floatingLayout?.visibility = View.GONE
-            miniSurfaceViewRenderer?.visibility = View.VISIBLE
-            videoView?.visibility = View.VISIBLE
-        } else if (p1 == R.id.end) {
-            floatingSurfaceViewRenderer?.let {
-                presenter.setRemoteVideostream(it, true)
-            }
-
-            presenter.setRemoteVideostreamResumed()
-
-            miniSurfaceViewRenderer?.visibility = View.GONE
-            videoView?.visibility = View.GONE
-            floatingSurfaceViewRenderer?.visibility = View.VISIBLE
-            floatingLayout?.visibility = View.VISIBLE
-        }
-    }
-
-    override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
-        Logger.debug(TAG, "onTransitionTrigger(): $p1, $p2, $p3")
     }
 
     /**
@@ -270,6 +238,67 @@ internal class VideoCallFragment :
         val fragment = childFragmentManager.findFragmentByTag("text_chat")
         if (fragment is TextChatFragment) {
             fragment.onNewChatMessage(message)
+        }
+    }
+
+    override fun enterFloatingVideostream() {
+        activity?.runOnUiThread {
+            floatingSurfaceViewRenderer?.let {
+                presenter.setRemoteVideostream(it, true)
+            }
+
+            presenter.setRemoteVideostreamResumed()
+
+            floatingLayout?.visibility = View.VISIBLE
+            floatingLayout?.alpha = 0.25F
+            floatingLayout?.scaleX = 0.5F
+            floatingLayout?.scaleY = 0.5F
+            floatingLayout?.animate()
+                ?.setDuration(150L)
+                ?.alpha(1F)
+                ?.scaleX(1F)
+                ?.scaleY(1F)
+                ?.withEndAction {
+                    floatingSurfaceViewRenderer?.visibility = View.VISIBLE
+                }
+                ?.start()
+        }
+    }
+
+    override fun exitFloatingVideostream() {
+        activity?.runOnUiThread {
+            floatingLayout?.visibility = View.GONE
+            floatingLayout?.alpha = 0.75F
+            floatingLayout?.scaleX = 1F
+            floatingLayout?.scaleY = 1F
+            floatingLayout?.animate()
+                ?.setDuration(100L)
+                ?.alpha(0F)
+                ?.scaleX(0.35F)
+                ?.scaleY(0.35F)
+                ?.withEndAction {
+                    floatingSurfaceViewRenderer?.visibility = View.GONE
+
+                    fullscreenSurfaceViewRenderer?.let {
+                        presenter.setRemoteVideostream(it, false)
+                    }
+
+                    presenter.setLocalVideostreamResumed()
+                    presenter.setRemoteVideostreamResumed()
+                }
+                ?.start()
+        }
+    }
+
+    override fun collapseBottomSheet() {
+        if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_COLLAPSED) {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
+
+    override fun expandBottomSheet() {
+        if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
+            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 

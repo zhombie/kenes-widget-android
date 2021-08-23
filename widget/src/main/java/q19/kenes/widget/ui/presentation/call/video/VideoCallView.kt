@@ -7,8 +7,14 @@ internal interface VideoCallView : BaseView {
     fun showCallAgentInfo(fullName: String, photoUrl: String?)
     fun showNewChatMessage(message: Message)
 
-    fun navigateToHome()
+    fun enterFloatingVideostream()
+    fun exitFloatingVideostream()
+
+    fun collapseBottomSheet()
+    fun expandBottomSheet()
 
     fun showCancelPendingConfirmationMessage()
     fun showCancelLiveCallConfirmationMessage()
+
+    fun navigateToHome()
 }

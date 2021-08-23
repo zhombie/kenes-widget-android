@@ -2,8 +2,11 @@
 <resources>
     <color name="kenes_transparent">#00000000</color>
     <color name="kenes_white">#FFFFFF</color>
+    <color name="kenes_lime_green">#85D089</color>
+    <color name="kenes_soft_green">#74BE8D</color>
     <color name="kenes_blue">#008FFF</color>
     <color name="kenes_gray">#BDBDBD</color>
+    <color name="kenes_dark_gray">#8D8D8D</color>
     <color name="kenes_dark_charcoal">#333333</color>
     <color name="kenes_black_with_opacity_80">#80000000</color>
     <color name="kenes_black_with_opacity_BB">#BB000000</color>
@@ -23,7 +26,6 @@
     <color name="kenes_light_grayish_blue">#DCDFE6</color>
     <color name="kenes_grayish_blue">#B2B4B9</color>
     <color name="kenes_dark_grayish_blue">#909399</color>
-    <color name="kenes_dark_gray">#8D8D8D</color>
     <color name="kenes_dark_grayish_pink">#7B797A</color>
     <color name="kenes_very_dark_grayish_blue">#606266</color>
     <color name="kenes_very_dark_gray">#474747</color>
