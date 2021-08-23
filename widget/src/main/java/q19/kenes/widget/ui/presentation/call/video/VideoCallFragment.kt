@@ -1,14 +1,12 @@
 package q19.kenes.widget.ui.presentation.call.video
 
-import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
 import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentOnAttachListener
+import androidx.fragment.app.commit
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.keyboard.hideKeyboard
@@ -18,15 +16,14 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.FloatingLayout
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
-import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
+import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 
 internal class VideoCallFragment :
-    BaseFullscreenDialogFragment<VideoCallPresenter>(R.layout.fragment_video_call, true),
+    BaseFragment<VideoCallPresenter>(R.layout.fragment_video_call),
     VideoCallView,
-    MotionLayout.TransitionListener,
-    FragmentOnAttachListener {
+    MotionLayout.TransitionListener {
 
     companion object {
         private val TAG = VideoCallFragment::class.java.simpleName
@@ -49,28 +46,28 @@ internal class VideoCallFragment :
     private var miniSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
 
-    // Fragment
-    private var textChatFragment: TextChatFragment? = null
-
     // WebRTC Wrapper
     private var peerConnectionClient: PeerConnectionClient? = null
+
+    // Activity + Fragment communication
+    private var listener: Listener? = null
+
+    interface Listener {
+        fun onCallFinished()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (context is Listener) {
+            this.listener = context
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         presenter.attachView(this)
-    }
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return object : Dialog(requireContext(), theme) {
-            override fun onBackPressed() {
-                if (rootView?.currentState == R.id.end) {
-                    presenter.onBackPressed()
-                } else {
-                    rootView?.transitionToEnd()
-                }
-            }
-        }
     }
 
     override fun createPresenter(): VideoCallPresenter {
@@ -116,11 +113,6 @@ internal class VideoCallFragment :
     override fun onDestroy() {
         super.onDestroy()
 
-        childFragmentManager.removeFragmentOnAttachListener(this)
-
-        textChatFragment?.setListener(null)
-        textChatFragment = null
-
         try {
             floatingSurfaceViewRenderer?.release()
             miniSurfaceViewRenderer?.release()
@@ -136,11 +128,13 @@ internal class VideoCallFragment :
     }
 
     private fun setupTextChat() {
-        childFragmentManager.addFragmentOnAttachListener(this)
-
-        childFragmentManager.beginTransaction()
-            .replace(R.id.chatView, TextChatFragment.newInstance().also { textChatFragment = it })
-            .commit()
+        childFragmentManager.commit(false) {
+            add(
+                R.id.chatView,
+                TextChatFragment.newInstance(),
+                "text_chat"
+            )
+        }
     }
 
     private fun setupVideostreams() {
@@ -159,19 +153,23 @@ internal class VideoCallFragment :
         rootView?.addTransitionListener(this)
     }
 
-    /**
-     * [FragmentOnAttachListener] implementation
-     */
+    fun onShowVideoCallScreen() {
+        Logger.debug(TAG, "onShowVideoCallScreen()")
 
-    override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
-        if (fragment is TextChatFragment) {
-            fragment.setListener {
-                if (rootView?.currentState == R.id.start) {
-                    rootView?.transitionToEnd()
-                } else {
-                    rootView?.transitionToStart()
-                }
-            }
+        if (rootView?.currentState == R.id.start) {
+            rootView?.transitionToEnd()
+        } else {
+            rootView?.transitionToStart()
+        }
+    }
+
+    fun onHangupCall() {
+        Logger.debug(TAG, "onHangupCall()")
+
+        if (rootView?.currentState == R.id.end) {
+            presenter.onHangupCall()
+        } else {
+            rootView?.transitionToEnd()
         }
     }
 
@@ -235,13 +233,19 @@ internal class VideoCallFragment :
     override fun showCallAgentInfo(fullName: String, photoUrl: String?) {
         Logger.debug(TAG, "showCallAgentInfo() -> $fullName, $photoUrl")
 
-        textChatFragment?.showCallAgentInfo(fullName, photoUrl)
+        val fragment = childFragmentManager.findFragmentByTag("text_chat")
+        if (fragment is TextChatFragment) {
+            fragment.showCallAgentInfo(fullName, photoUrl)
+        }
     }
 
     override fun showNewChatMessage(message: Message) {
         Logger.debug(TAG, "showNewMessage() -> $message")
 
-        textChatFragment?.onNewChatMessage(message)
+        val fragment = childFragmentManager.findFragmentByTag("text_chat")
+        if (fragment is TextChatFragment) {
+            fragment.onNewChatMessage(message)
+        }
     }
 
     override fun showCancelPendingConfirmationMessage() {
@@ -275,7 +279,7 @@ internal class VideoCallFragment :
     }
 
     override fun navigateToHome() {
-        dismiss()
+        listener?.onCallFinished()
     }
 
 }

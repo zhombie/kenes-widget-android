@@ -11,6 +11,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import androidx.annotation.ColorRes
+import androidx.annotation.Dimension
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
@@ -95,7 +96,7 @@ internal class Toolbar @JvmOverloads constructor(
         subtitleView?.id = View.generateViewId()
         subtitleView?.layoutParams =
             MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
-                setMargins(0, 2F.dp2Px().roundToInt(), 0, 0)
+                setMargins(0, 1F.dp2Px().roundToInt(), 0, 0)
             }
         subtitleView?.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
         subtitleView?.includeFontPadding = false
@@ -104,7 +105,7 @@ internal class Toolbar @JvmOverloads constructor(
         subtitleView?.isSingleLine = true
         subtitleView?.isAllCaps = false
         subtitleView?.setTextColor(Color.parseColor("#8D8D8D"))
-        subtitleView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11F)
+        subtitleView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10F)
         layout.addView(subtitleView)
 
         addView(layout)
@@ -130,6 +131,10 @@ internal class Toolbar @JvmOverloads constructor(
         subtitleView?.text = subtitle
     }
 
+    fun setImageContentPadding(@Dimension padding: Int) {
+        imageView?.setContentPadding(padding, padding, padding, padding)
+    }
+
     fun setLeftButtonEnabled(isEnabled: Boolean) {
         if (isEnabled) {
             if (getChildAt(childCount) is MaterialButton || rightButton != null) {
@@ -153,7 +158,7 @@ internal class Toolbar @JvmOverloads constructor(
                 leftButton?.setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_transparent))
                 leftButton?.iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
                 leftButton?.iconPadding = 0
-                leftButton?.iconSize = 18F.dp2Px().roundToInt()
+                leftButton?.iconSize = 22F.dp2Px().roundToInt()
                 leftButton?.iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
                 leftButton?.isAllCaps = false
                 leftButton?.setPadding(0, 0, 0, 0)
@@ -198,7 +203,7 @@ internal class Toolbar @JvmOverloads constructor(
                 rightButton?.setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_transparent))
                 rightButton?.iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
                 rightButton?.iconPadding = 0
-                rightButton?.iconSize = 18F.dp2Px().roundToInt()
+                rightButton?.iconSize = 22F.dp2Px().roundToInt()
                 rightButton?.iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
                 rightButton?.isAllCaps = false
                 rightButton?.setPadding(0, 0, 0, 0)

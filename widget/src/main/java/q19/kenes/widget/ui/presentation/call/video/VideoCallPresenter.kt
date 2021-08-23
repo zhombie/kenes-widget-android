@@ -141,7 +141,7 @@ internal class VideoCallPresenter constructor(
         peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
     }
 
-    fun onBackPressed() {
+    fun onHangupCall() {
         when (interactor.callState) {
             CallInteractor.CallState.Pending ->
                 getView().showCancelPendingConfirmationMessage()
@@ -363,7 +363,9 @@ internal class VideoCallPresenter constructor(
 
         interactor.callState = CallInteractor.CallState.Live
 
-        getView().showCallAgentInfo(fullName, photoUrl)
+        val fullUrl = UrlUtil.buildUrl(photoUrl)
+
+        getView().showCallAgentInfo(fullName, fullUrl)
 
         getView().showNewChatMessage(
             Message.Builder()

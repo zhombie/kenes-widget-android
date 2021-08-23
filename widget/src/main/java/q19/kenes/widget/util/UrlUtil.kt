@@ -173,8 +173,8 @@ internal object UrlUtil {
         }
     }
 
-    fun buildUrl(path: String): String? {
-        if (path.isBlank()) return null
+    fun buildUrl(path: String?): String? {
+        if (path.isNullOrBlank()) return null
         var hostname = getHostname()
         if (hostname.isNullOrBlank()) return null
         if (path.startsWith(hostname)) return path

@@ -1,10 +1,10 @@
 package q19.kenes.widget.ui.presentation.call.text
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EdgeEffect
-import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -29,15 +29,28 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
 
     // UI Views
     private var toolbar: Toolbar? = null
-    private var videoCallButton: MaterialButton? = null
+    private var showVideoCallButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
     private var messageInputView: MessageInputView? = null
 
     // RecyclerView adapter
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
-    // Fragment communication
-    private var listener: (() -> Unit)? = null
+    // Activity + Fragment communication
+    private var listener: Listener? = null
+
+    interface Listener {
+        fun onShowVideoCallScreen()
+        fun onHangupCall()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (context is Listener) {
+            this.listener = context
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +66,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         super.onViewCreated(view, savedInstanceState)
 
         toolbar = view.findViewById(R.id.toolbar)
-        videoCallButton = view.findViewById(R.id.videoCallButton)
+        showVideoCallButton = view.findViewById(R.id.showVideoCallButton)
         messagesView = view.findViewById(R.id.messagesView)
         messageInputView = view.findViewById(R.id.messageInputView)
 
@@ -62,12 +75,16 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         setupMessagesView()
     }
 
+    override fun onDetach() {
+        super.onDetach()
+
+        listener = null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
         chatMessagesAdapter = null
-
-        listener = null
     }
 
     private fun setupToolbar() {
@@ -76,9 +93,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         toolbar?.setRightButtonIcon(R.drawable.ic_phone)
         toolbar?.setRightButtonIconTint(R.color.kenes_white)
         toolbar?.setRightButtonOnClickListener {
-            if (parentFragment is DialogFragment) {
-                (parentFragment as DialogFragment).dialog?.onBackPressed()
-            }
+            listener?.onHangupCall()
         }
 
         toolbar?.showImage(R.drawable.ic_user)
@@ -88,8 +103,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     private fun setupVideoCallButton() {
-        videoCallButton?.setOnClickListener {
-            listener?.invoke()
+        showVideoCallButton?.setOnClickListener {
+            listener?.onShowVideoCallScreen()
         }
     }
 
@@ -117,15 +132,14 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         })
     }
 
-    fun setListener(listener: (() -> Unit)?) {
-        this.listener = listener
-    }
-
     fun showCallAgentInfo(fullName: String, photoUrl: String?) {
         activity?.runOnUiThread {
+            toolbar?.setImageContentPadding(0)
             toolbar?.showImage(photoUrl)
+
             toolbar?.setTitle(fullName)
             toolbar?.setSubtitle("Оператор")
+
             toolbar?.reveal()
         }
     }

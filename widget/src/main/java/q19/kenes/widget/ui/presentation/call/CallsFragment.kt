@@ -1,5 +1,6 @@
 package q19.kenes.widget.ui.presentation.call
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -14,7 +15,6 @@ import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.call.selection.CallSelection
 import q19.kenes.widget.ui.presentation.call.selection.CallSelectionFragment
-import q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
@@ -44,6 +44,21 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
 
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+
+    // Activity + Fragment communication
+    private var listener: Listener? = null
+
+    interface Listener {
+        fun onLaunchCall(call: Call)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        if (context is Listener) {
+            this.listener = context
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +103,12 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
         Logger.debug(TAG, "onPause()")
 
         onBackPressedDispatcherCallback?.isEnabled = false
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+
+        listener = null
     }
 
     override fun onDestroy() {
@@ -188,10 +209,7 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     }
 
     override fun launchCall(call: Call) {
-        if (call is Call.Video) {
-            VideoCallFragment.newInstance(call)
-                .show(parentFragmentManager, "video_call")
-        }
+        listener?.onLaunchCall(call)
     }
 
 }

@@ -7,8 +7,8 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentOnAttachListener
+import androidx.fragment.app.FragmentContainerView
+import androidx.fragment.app.commit
 import androidx.viewpager2.widget.ViewPager2
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
@@ -18,15 +18,22 @@ import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.components.Toolbar
+import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallsFragment
+import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
+import q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
 import q19.kenes_widget.R
 
-internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), KenesWidgetView, ChatbotFragment.Listener,
-    FragmentOnAttachListener {
+internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
+    KenesWidgetView,
+    ChatbotFragment.Listener,
+    CallsFragment.Listener,
+    VideoCallFragment.Listener,
+    TextChatFragment.Listener {
 
     companion object {
         private val TAG = KenesWidgetActivity::class.java.simpleName
@@ -56,6 +63,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
     private val rootView by bind<LinearLayout>(R.id.rootView)
     private val toolbar by bind<Toolbar>(R.id.toolbar)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
+    private val fragmentContainerView by bind<FragmentContainerView>(R.id.fragmentContainerView)
     private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
 
     // BottomNavigationView + ViewPager2 adapter
@@ -79,9 +87,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
 
         // Attach view to MVP presenter
         presenter.attachView(this)
-
-        // FragmentManager Listener
-        supportFragmentManager.addFragmentOnAttachListener(this)
 
         // Toolbar
         setupToolbar()
@@ -114,8 +119,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
 
     override fun onDestroy() {
         super.onDestroy()
-
-        supportFragmentManager.removeFragmentOnAttachListener(this)
 
         injection.destroy()
     }
@@ -167,16 +170,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
     }
 
     /**
-     * [FragmentOnAttachListener] implementation
-     */
-
-    override fun onAttachFragment(fragmentManager: FragmentManager, fragment: Fragment) {
-        if (fragment is ChatbotFragment) {
-            fragment.setListener(this)
-        }
-    }
-
-    /**
      * [KenesWidgetView] implementation
      */
 
@@ -197,15 +190,17 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
 
     override fun onResponsesViewScrolled(scrollYPosition: Int) {
         Logger.debug(TAG, "onResponsesViewScrolled() -> $scrollYPosition")
-        if (toolbar.elevation > MAX_TOOLBAR_ELEVATION) return
-        var elevation: Float = scrollYPosition.toFloat()
-        if (elevation < 0F) {
-            elevation = 0F
+
+        if (toolbar.elevation < MAX_TOOLBAR_ELEVATION) {
+            var elevation: Float = scrollYPosition.toFloat()
+            if (elevation < 0F) {
+                elevation = 0F
+            }
+            if (elevation > MAX_TOOLBAR_ELEVATION) {
+                elevation = MAX_TOOLBAR_ELEVATION
+            }
+            toolbar.elevation = elevation
         }
-        if (elevation > MAX_TOOLBAR_ELEVATION) {
-            elevation = MAX_TOOLBAR_ELEVATION
-        }
-        toolbar.elevation = elevation
     }
 
     override fun onBottomSheetSlide(slideOffset: Float) {
@@ -234,6 +229,72 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(), Kenes
 //                slideOffset
 //            )
 //        )
+    }
+
+    /**
+     * [CallsFragment.Listener] implementation
+     */
+
+    override fun onLaunchCall(call: Call) {
+        Logger.debug(TAG, "onLaunchCall() -> $call")
+
+        if (call is Call.Video) {
+            supportFragmentManager.commit(false) {
+                add(
+                    fragmentContainerView.id,
+                    VideoCallFragment.newInstance(call),
+                    "video_call"
+                )
+            }
+
+            fragmentContainerView.alpha = 0F
+            fragmentContainerView.visibility = View.VISIBLE
+            fragmentContainerView.animate()
+                .setDuration(200L)
+                .alpha(1F)
+                .start()
+        }
+    }
+
+    /**
+     * [VideoCallFragment.Listener] implementation
+     */
+
+    override fun onCallFinished() {
+        toolbar.setImageContentPadding(0)
+
+        supportFragmentManager.commit {
+            val fragment = supportFragmentManager.findFragmentByTag("video_call")
+            if (fragment != null) {
+                remove(fragment)
+            }
+        }
+
+        fragmentContainerView.alpha = 1F
+        fragmentContainerView.visibility = View.VISIBLE
+        fragmentContainerView.animate()
+            .setDuration(200L)
+            .alpha(0F)
+            .withEndAction { fragmentContainerView.visibility = View.GONE }
+            .start()
+    }
+
+    /**
+     * [TextChatFragment.Listener] implementation
+     */
+
+    override fun onShowVideoCallScreen() {
+        val fragment = supportFragmentManager.findFragmentByTag("video_call")
+        if (fragment is VideoCallFragment) {
+            fragment.onShowVideoCallScreen()
+        }
+    }
+
+    override fun onHangupCall() {
+        val fragment = supportFragmentManager.findFragmentByTag("video_call")
+        if (fragment is VideoCallFragment) {
+            fragment.onHangupCall()
+        }
     }
 
 }

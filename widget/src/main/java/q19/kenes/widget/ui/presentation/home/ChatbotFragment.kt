@@ -2,6 +2,7 @@ package q19.kenes.widget.ui.presentation.home
 
 import android.content.ActivityNotFoundException
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -72,15 +73,20 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
 
+    // Activity + Fragment communication
+    private var listener: Listener? = null
+
     interface Listener {
         fun onResponsesViewScrolled(scrollYPosition: Int)
         fun onBottomSheetSlide(slideOffset: Float)
     }
 
-    private var listener: Listener? = null
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
-    fun setListener(listener: Listener?) {
-        this.listener = listener
+        if (context is Listener) {
+            this.listener = context
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -142,10 +148,14 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         onBackPressedDispatcherCallback?.isEnabled = false
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDetach() {
+        super.onDetach()
 
         listener = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
 
         responseGroupsAdapter?.setCallback(null)
         responseGroupsAdapter = null
