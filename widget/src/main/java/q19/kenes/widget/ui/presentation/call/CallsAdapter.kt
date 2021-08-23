@@ -115,7 +115,6 @@ internal class CallsAdapter constructor(
 
     }
 
-    // TODO: Add 'back to' navigation
     private inner class SecondaryCallGroupViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
         private val titleView = view.findViewById<MaterialTextView>(R.id.titleView)
         private val callTypesHintView = view.findViewById<MaterialTextView>(R.id.callTypesHintView)

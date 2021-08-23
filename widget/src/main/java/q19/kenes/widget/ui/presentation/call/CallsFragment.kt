@@ -18,8 +18,11 @@ import q19.kenes.widget.ui.presentation.call.selection.CallSelectionBottomSheetD
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_calls), CallsView,
-    HomeFragmentDelegate, CallsAdapter.Callback {
+internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_calls),
+    CallsView,
+    HomeFragmentDelegate,
+    CallsHeaderAdapter.Callback,
+    CallsAdapter.Callback {
 
     companion object {
         private val TAG = CallsFragment::class.java.simpleName
@@ -126,7 +129,7 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     private fun setupRecyclerView() {
         recyclerView?.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        callsHeaderAdapter = CallsHeaderAdapter()
+        callsHeaderAdapter = CallsHeaderAdapter(this)
         callsAdapter = CallsAdapter(this)
         concatAdapter = ConcatAdapter(callsHeaderAdapter, callsAdapter)
         recyclerView?.adapter = concatAdapter
@@ -157,6 +160,14 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     }
 
     /**
+     * [CallsHeaderAdapter.Callback] implementation
+     */
+
+    override fun onBackPressed() {
+        presenter.onBackPressed()
+    }
+
+    /**
      * [CallsAdapter.Callback] implementation
      */
 
@@ -174,6 +185,9 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
 
     override fun showCalls(anyCalls: List<AnyCall>) {
         Logger.debug(TAG, "showCalls() -> anyCalls: $anyCalls")
+
+        callsHeaderAdapter?.isToolbarVisible = anyCalls.all { it is CallGroup.Secondary }
+
         callsAdapter?.anyCalls = anyCalls
     }
 

@@ -2,7 +2,7 @@ package q19.kenes.widget.ui.presentation.home
 
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.*
 import com.google.android.material.button.MaterialButton
 import kz.q19.utils.view.inflate
@@ -73,13 +73,13 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
 
     private inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view),
         ResponseGroupChildrenAdapter.Callback {
-        private val toolbar = view.findViewById<FrameLayout>(R.id.toolbar)
+        private val toolbar = view.findViewById<LinearLayout>(R.id.toolbar)
         private val backButton = view.findViewById<MaterialButton>(R.id.backButton)
         private val menuButton = view.findViewById<MaterialButton>(R.id.menuButton)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
 
         private val headerAdapter = ResponseGroupChildrenHeaderAdapter()
-        private val childrenAdapter =
+        private val responseGroupChildrenAdapter =
             ResponseGroupChildrenAdapter(isExpandable = true, callback = this)
         private var concatAdapter: ConcatAdapter? = null
 
@@ -89,7 +89,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
         init {
             recyclerView.layoutManager = layoutManager
 
-            concatAdapter = ConcatAdapter(headerAdapter, childrenAdapter)
+            concatAdapter = ConcatAdapter(headerAdapter, responseGroupChildrenAdapter)
             recyclerView.adapter = concatAdapter
         }
 
@@ -107,7 +107,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
 
                     headerAdapter.title = nestable.title
 
-                    childrenAdapter.children = nestable.children
+                    responseGroupChildrenAdapter.children = nestable.children
                 }
                 is ResponseGroup.Child -> {
                     menuButton.visibility = View.VISIBLE
@@ -115,7 +115,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
 
                     headerAdapter.title = nestable.title
 
-                    childrenAdapter.children = nestable.responses
+                    responseGroupChildrenAdapter.children = nestable.responses
                 }
                 else -> {
                     toolbar.visibility = View.GONE

@@ -117,20 +117,20 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         return injection.provideKenesWidgetPresenter(language)
     }
 
-    override fun onBackPressed() {
-        Logger.debug(TAG, "onBackPressed()")
-
-        val fragment = supportFragmentManager.findFragmentByTag("video_call")
-        if (fragment is VideoCallFragment) {
-            super.onBackPressed()
-        } else {
-            if (viewPager.currentItem > 0) {
-                bottomNavigationView.setFirstNavigationButtonActive()
-            } else {
-                super.onBackPressed()
-            }
-        }
-    }
+//    override fun onBackPressed() {
+//        Logger.debug(TAG, "onBackPressed()")
+//
+//        val fragment = supportFragmentManager.findFragmentByTag("video_call")
+//        if (fragment is VideoCallFragment) {
+//            super.onBackPressed()
+//        } else {
+//            if (viewPager.currentItem > 0) {
+//                bottomNavigationView.setFirstNavigationButtonActive()
+//            } else {
+//                super.onBackPressed()
+//            }
+//        }
+//    }
 
     override fun onDestroy() {
         super.onDestroy()

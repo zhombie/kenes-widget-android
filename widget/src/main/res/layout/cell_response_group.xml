@@ -10,11 +10,13 @@
     android:layout_marginBottom="10dp"
     android:orientation="vertical">
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp">
+        android:layout_marginBottom="15dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/backButton"
@@ -46,12 +48,16 @@
             app:iconTint="#888888"
             app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />
 
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/menuButton"
             style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-            android:layout_width="36dp"
+            android:layout_width="35dp"
             android:layout_height="34dp"
-            android:layout_gravity="right"
             android:backgroundTint="@color/kenes_white"
             android:insetLeft="0dp"
             android:insetTop="0dp"
@@ -68,7 +74,7 @@
             app:iconTint="@color/kenes_dark_charcoal"
             app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />
 
-    </FrameLayout>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
