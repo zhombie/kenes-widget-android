@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,8 +20,8 @@ import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
-import q19.kenes_widget.R
 import q19.kenes.widget.util.hideKeyboardCompat
+import q19.kenes_widget.R
 
 internal class VideoCallFragment :
     BaseFragment<VideoCallPresenter>(R.layout.fragment_video_call),
@@ -41,7 +40,6 @@ internal class VideoCallFragment :
     }
 
     // UI Views
-    private var rootView: CoordinatorLayout? = null
     private var chatView: FragmentContainerView? = null
     private var videoView: FrameLayout? = null
     private var floatingLayout: FloatingLayout? = null
@@ -114,7 +112,6 @@ internal class VideoCallFragment :
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rootView = view.findViewById(R.id.rootView)
         chatView = view.findViewById(R.id.chatView)
         videoView = view.findViewById(R.id.videoView)
         floatingLayout = view.findViewById(R.id.floatingLayout)
@@ -141,23 +138,37 @@ internal class VideoCallFragment :
         view?.hideKeyboardCompat()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
 
         bottomSheetBehaviorCallback?.let { bottomSheetBehavior?.removeBottomSheetCallback(it) }
         bottomSheetBehaviorCallback = null
         bottomSheetBehavior = null
 
-        onBackPressedDispatcherCallback?.remove()
-        onBackPressedDispatcherCallback = null
-
         try {
             floatingSurfaceViewRenderer?.release()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        try {
             miniSurfaceViewRenderer?.release()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        try {
             fullscreenSurfaceViewRenderer?.release()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        onBackPressedDispatcherCallback?.remove()
+        onBackPressedDispatcherCallback = null
 
         peerConnectionClient = null
     }
