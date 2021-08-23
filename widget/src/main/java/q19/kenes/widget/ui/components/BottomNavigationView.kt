@@ -135,11 +135,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
             setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
             setOnClickListener(object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
-                    if (navigationButton.index == activeNavigationButtonIndex) {
-                        callback?.onBottomNavigationButtonReselected(navigationButton)
-                    } else {
-                        callback?.onBottomNavigationButtonSelected(navigationButton)
-                    }
+                    dispatchSelection(navigationButton)
 
                     setNavigationButtonActive(navigationButton)
                 }
@@ -148,7 +144,16 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    fun getFirstNavigationButton(): NavigationButton? {
+    fun setFirstNavigationButtonActive() {
+        val firstNavigationButton = getFirstNavigationButton()
+        if (firstNavigationButton != null) {
+            dispatchSelection(firstNavigationButton)
+
+            setNavigationButtonActive(firstNavigationButton)
+        }
+    }
+
+    private fun getFirstNavigationButton(): NavigationButton? {
         return when {
             isNavigationButtonFirst(homeButton) -> NavigationButton.HOME
             isNavigationButtonFirst(callsButton) -> NavigationButton.CALLS
@@ -259,11 +264,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
             index = navigationButton.index,
             listener = object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
-                    if (navigationButton.index == activeNavigationButtonIndex) {
-                        callback?.onBottomNavigationButtonReselected(navigationButton)
-                    } else {
-                        callback?.onBottomNavigationButtonSelected(navigationButton)
-                    }
+                    dispatchSelection(navigationButton)
 
                     setNavigationButtonActive(navigationButton)
                 }
@@ -310,6 +311,14 @@ internal class BottomNavigationView @JvmOverloads constructor(
             true
         )
         setBackgroundResource(outValue.resourceId)
+    }
+
+    private fun dispatchSelection(navigationButton: NavigationButton) {
+        if (navigationButton.index == activeNavigationButtonIndex) {
+            callback?.onBottomNavigationButtonReselected(navigationButton)
+        } else {
+            callback?.onBottomNavigationButtonSelected(navigationButton)
+        }
     }
 
     interface Callback {

@@ -117,6 +117,16 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         return injection.provideKenesWidgetPresenter(language)
     }
 
+    override fun onBackPressed() {
+        Logger.debug(TAG, "onBackPressed()")
+
+        if (viewPager.currentItem > 0) {
+            bottomNavigationView.setFirstNavigationButtonActive()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
