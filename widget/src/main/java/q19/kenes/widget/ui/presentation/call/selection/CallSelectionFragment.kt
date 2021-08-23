@@ -32,13 +32,6 @@ internal class CallSelectionFragment : BaseBottomSheetDialogFragment() {
 
     private var callSelectionAdapter: CallSelectionAdapter? = null
 
-    private var listener: ((call: Call) -> Unit)? = null
-
-    fun setListener(listener: ((call: Call) -> Unit)?): CallSelectionFragment {
-        this.listener = listener
-        return this
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,11 +54,15 @@ internal class CallSelectionFragment : BaseBottomSheetDialogFragment() {
 
         titleView?.text = callSelection?.title
 
-        callSelectionAdapter = CallSelectionAdapter {
-            dismiss()
+        setupRecyclerView()
+    }
 
-            setFragmentResult("request_key.call_selection", bundleOf("call" to it))
+    private fun setupRecyclerView() {
+        callSelectionAdapter = CallSelectionAdapter { call: Call ->
+            setFragmentResult("request_key.call_selection", bundleOf("call" to call))
+            dismiss()
         }
+
         callsView?.adapter = callSelectionAdapter
         callsView?.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)

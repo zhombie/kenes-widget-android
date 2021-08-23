@@ -180,7 +180,12 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     override fun showCallSelection(callSelection: CallSelection) {
         Logger.debug(TAG, "showCallSelection() -> callSelection: $callSelection")
 
-        childFragmentManager.setFragmentResultListener("request_key.call_selection", this) { key, bundle ->
+        val fragment = childFragmentManager.findFragmentByTag("call_selection")
+        if (fragment is CallSelectionFragment) {
+            fragment.dismiss()
+        }
+
+        childFragmentManager.setFragmentResultListener("request_key.call_selection", this) { _, bundle ->
             val call = bundle.getParcelable<Call>("call")
             if (call != null) {
                 childFragmentManager.clearFragmentResultListener("request_key.call_selection")
