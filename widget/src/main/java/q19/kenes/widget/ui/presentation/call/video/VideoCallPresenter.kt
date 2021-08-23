@@ -141,14 +141,24 @@ internal class VideoCallPresenter constructor(
         peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
     }
 
-    fun onHangupCall() {
-        when (interactor.callState) {
-            CallInteractor.CallState.Pending ->
+    fun onBackPressed(): Boolean {
+        return onHangupCall()
+    }
+
+    fun onHangupCall(): Boolean {
+        return when (interactor.callState) {
+            CallInteractor.CallState.Pending -> {
                 getView().showCancelPendingConfirmationMessage()
-            CallInteractor.CallState.Live ->
+                false
+            }
+            CallInteractor.CallState.Live -> {
                 getView().showCancelLiveCallConfirmationMessage()
-            else ->
+                false
+            }
+            else -> {
                 getView().navigateToHome()
+                true
+            }
         }
     }
 

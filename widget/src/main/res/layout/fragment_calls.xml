@@ -20,6 +20,6 @@
         android:paddingTop="15dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="4"
-        tools:listitem="@layout/cell_call_group" />
+        tools:listitem="@layout/cell_call_primary_group" />
 
 </FrameLayout>

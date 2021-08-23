@@ -1,8 +1,8 @@
 package q19.kenes.widget
 
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 
 class MainKtActivity : AppCompatActivity() {
 
@@ -10,7 +10,7 @@ class MainKtActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val openWidgetButton = findViewById<Button>(R.id.openWidgetButton)
+        val openWidgetButton = findViewById<ExtendedFloatingActionButton>(R.id.openWidgetButton)
 
         openWidgetButton?.setOnClickListener { openWidget() }
     }

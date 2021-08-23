@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
@@ -49,6 +51,9 @@ internal class VideoCallFragment :
     // WebRTC Wrapper
     private var peerConnectionClient: PeerConnectionClient? = null
 
+    // onBackPressed() dispatcher for Fragment
+    private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+
     // Activity + Fragment communication
     private var listener: Listener? = null
 
@@ -78,6 +83,23 @@ internal class VideoCallFragment :
             call,
             PeerConnectionClient(requireContext()).also { peerConnectionClient = it }
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        Logger.debug(TAG, "onResume()")
+
+        if (onBackPressedDispatcherCallback == null) {
+            onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
+                if (presenter.onBackPressed()) {
+                    isEnabled = false
+                    activity?.onBackPressed()
+                }
+            }
+        } else {
+            onBackPressedDispatcherCallback?.isEnabled = true
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -112,6 +134,9 @@ internal class VideoCallFragment :
 
     override fun onDestroy() {
         super.onDestroy()
+
+        onBackPressedDispatcherCallback?.remove()
+        onBackPressedDispatcherCallback = null
 
         try {
             floatingSurfaceViewRenderer?.release()

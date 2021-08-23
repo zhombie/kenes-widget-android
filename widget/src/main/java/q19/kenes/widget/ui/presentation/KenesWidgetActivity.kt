@@ -191,16 +191,15 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun onResponsesViewScrolled(scrollYPosition: Int) {
         Logger.debug(TAG, "onResponsesViewScrolled() -> $scrollYPosition")
 
-        if (toolbar.elevation < MAX_TOOLBAR_ELEVATION) {
-            var elevation: Float = scrollYPosition.toFloat()
-            if (elevation < 0F) {
-                elevation = 0F
-            }
-            if (elevation > MAX_TOOLBAR_ELEVATION) {
-                elevation = MAX_TOOLBAR_ELEVATION
-            }
-            toolbar.elevation = elevation
+        if (toolbar.elevation > MAX_TOOLBAR_ELEVATION) return
+        var elevation: Float = scrollYPosition.toFloat()
+        if (elevation < 0F) {
+            elevation = 0F
         }
+        if (elevation > MAX_TOOLBAR_ELEVATION) {
+            elevation = MAX_TOOLBAR_ELEVATION
+        }
+        toolbar.elevation = elevation
     }
 
     override fun onBottomSheetSlide(slideOffset: Float) {

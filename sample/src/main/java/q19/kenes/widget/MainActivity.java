@@ -2,10 +2,11 @@ package q19.kenes.widget;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 class MainActivity extends AppCompatActivity {
 
@@ -14,7 +15,7 @@ class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button openWidgetButton = findViewById(R.id.openWidgetButton);
+        ExtendedFloatingActionButton openWidgetButton = findViewById(R.id.openWidgetButton);
 
         openWidgetButton.setOnClickListener(v -> openWidget());
     }

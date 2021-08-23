@@ -14,7 +14,7 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.call.selection.CallSelection
-import q19.kenes.widget.ui.presentation.call.selection.CallSelectionFragment
+import q19.kenes.widget.ui.presentation.call.selection.CallSelectionBottomSheetDialogFragment
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
@@ -181,7 +181,7 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
         Logger.debug(TAG, "showCallSelection() -> callSelection: $callSelection")
 
         val fragment = childFragmentManager.findFragmentByTag("call_selection")
-        if (fragment is CallSelectionFragment) {
+        if (fragment is CallSelectionBottomSheetDialogFragment) {
             fragment.dismiss()
         }
 
@@ -194,7 +194,7 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
             }
         }
 
-        CallSelectionFragment.newInstance(callSelection)
+        CallSelectionBottomSheetDialogFragment.newInstance(callSelection)
             .show(childFragmentManager, "call_selection")
     }
 

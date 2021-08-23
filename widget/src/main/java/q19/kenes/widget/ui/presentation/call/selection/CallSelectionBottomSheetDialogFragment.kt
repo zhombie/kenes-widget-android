@@ -13,11 +13,11 @@ import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.platform.BaseBottomSheetDialogFragment
 import q19.kenes_widget.R
 
-internal class CallSelectionFragment : BaseBottomSheetDialogFragment() {
+internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFragment() {
 
     companion object {
-        fun newInstance(callSelection: CallSelection): CallSelectionFragment {
-            val fragment = CallSelectionFragment()
+        fun newInstance(callSelection: CallSelection): CallSelectionBottomSheetDialogFragment {
+            val fragment = CallSelectionBottomSheetDialogFragment()
             fragment.arguments = Bundle().apply {
                 putParcelable("call_selection", callSelection)
             }
@@ -25,6 +25,7 @@ internal class CallSelectionFragment : BaseBottomSheetDialogFragment() {
         }
     }
 
+    // UI Views
     private var titleView: MaterialTextView? = null
     private var callsView: RecyclerView? = null
 
