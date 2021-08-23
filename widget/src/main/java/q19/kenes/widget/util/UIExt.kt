@@ -35,3 +35,8 @@ internal fun View.isKeyboardVisible(): Boolean {
         WindowInsetsCompat.toWindowInsetsCompat(rootWindowInsets)
             .isVisible(WindowInsetsCompat.Type.ime())
 }
+
+internal fun View.hideKeyboardCompat() {
+    ViewCompat.getWindowInsetsController(this)
+        ?.hide(WindowInsetsCompat.Type.ime())
+}
