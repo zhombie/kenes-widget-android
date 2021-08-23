@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
@@ -40,7 +42,7 @@ internal class CallSelectionFragment : BaseBottomSheetDialogFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        callSelection = arguments?.getParcelable("call_selection")
+        callSelection = requireArguments().getParcelable("call_selection")
     }
 
     override fun onCreateView(
@@ -62,7 +64,7 @@ internal class CallSelectionFragment : BaseBottomSheetDialogFragment() {
         callSelectionAdapter = CallSelectionAdapter {
             dismiss()
 
-            listener?.invoke(it)
+            setFragmentResult("request_key.call_selection", bundleOf("call" to it))
         }
         callsView?.adapter = callSelectionAdapter
         callsView?.layoutManager =

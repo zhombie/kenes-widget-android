@@ -71,7 +71,7 @@ internal class VideoCallFragment :
     }
 
     override fun createPresenter(): VideoCallPresenter {
-        val call = arguments?.getParcelable<Call>("call")
+        val call = requireArguments().getParcelable<Call>("call")
             ?: throw IllegalStateException("Where is Call?")
         return injection.provideVideoCallPresenter(
             getCurrentLanguage(),

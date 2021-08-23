@@ -114,6 +114,8 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     override fun onDestroy() {
         super.onDestroy()
 
+        childFragmentManager.clearFragmentResultListener("request_key.call_selection")
+
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
 
@@ -178,10 +180,16 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     override fun showCallSelection(callSelection: CallSelection) {
         Logger.debug(TAG, "showCallSelection() -> callSelection: $callSelection")
 
-        CallSelectionFragment.newInstance(callSelection)
-            .setListener {
-                presenter.onCallSelected(it)
+        childFragmentManager.setFragmentResultListener("request_key.call_selection", this) { key, bundle ->
+            val call = bundle.getParcelable<Call>("call")
+            if (call != null) {
+                childFragmentManager.clearFragmentResultListener("request_key.call_selection")
+
+                presenter.onCallSelected(call)
             }
+        }
+
+        CallSelectionFragment.newInstance(callSelection)
             .show(childFragmentManager, "call_selection")
     }
 
