@@ -149,18 +149,24 @@ internal class VideoCallFragment :
             floatingSurfaceViewRenderer?.release()
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            floatingSurfaceViewRenderer = null
         }
 
         try {
             miniSurfaceViewRenderer?.release()
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            miniSurfaceViewRenderer = null
         }
 
         try {
             fullscreenSurfaceViewRenderer?.release()
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            fullscreenSurfaceViewRenderer = null
         }
     }
 
