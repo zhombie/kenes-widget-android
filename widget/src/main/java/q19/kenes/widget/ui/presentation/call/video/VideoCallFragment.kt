@@ -130,6 +130,8 @@ internal class VideoCallFragment :
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
+
+        presenter.onViewReady()
     }
 
     override fun onPause() {

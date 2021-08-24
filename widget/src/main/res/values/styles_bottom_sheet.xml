@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Kenes.Widget.BottomSheetDialog"
+        parent="Theme.MaterialComponents.Light.BottomSheetDialog" />
+
+    <style name="Kenes.Widget.BottomSheetDialog.Rounded" parent="Kenes.Widget.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Kenes.Widget.BottomSheet.Modal</item>
+    </style>
+
+    <style name="Kenes.Widget.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
+        <item name="shapeAppearance">@style/Kenes.Widget.ShapeAppearance.Rounded.Top</item>
+    </style>
+</resources>

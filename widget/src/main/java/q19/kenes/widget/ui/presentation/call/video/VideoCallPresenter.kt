@@ -134,12 +134,15 @@ internal class VideoCallPresenter constructor(
         )
     }
 
+    fun onViewReady() {
+        getView().expandBottomSheet()
+    }
+
     fun initLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
         Logger.debug(TAG, "setLocalSurfaceViewRenderer()")
 
         peerConnectionClient.setLocalSurfaceView(surfaceViewRenderer)
         peerConnectionClient.initLocalCameraStream(isMirrored = false, isZOrderMediaOverlay = true)
-        peerConnectionClient.addLocalStreamToPeer()
     }
 
     fun initRemoteVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
@@ -422,6 +425,8 @@ internal class VideoCallPresenter constructor(
             "fullName: $fullName, photoUrl: $photoUrl, text: $text")
 
         interactor.callState = CallInteractor.CallState.Live
+
+        peerConnectionClient.addLocalStreamToPeer()
 
         val fullUrl = UrlUtil.buildUrl(photoUrl)
 

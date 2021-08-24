@@ -33,6 +33,10 @@ internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFra
 
     private var callSelectionAdapter: CallSelectionAdapter? = null
 
+    override fun getTheme(): Int {
+        return R.style.Kenes_Widget_BottomSheetDialog_Rounded
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
