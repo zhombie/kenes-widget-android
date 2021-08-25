@@ -27,7 +27,7 @@ import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.MessageInputView
-import q19.kenes.widget.ui.components.ProgressView
+import q19.kenes.widget.ui.components.KenesProgressView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
 import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.chat.ChatMessagesHeaderAdapter
@@ -52,7 +52,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
 
     // UI Views
     private var responsesView: RecyclerView? = null
-    private var progressView: ProgressView? = null
+    private var progressView: KenesProgressView? = null
     private var chatView: LinearLayout? = null
     private var peekView: LinearLayout? = null
     private var toggleButton: MaterialButton? = null

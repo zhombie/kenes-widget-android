@@ -7,10 +7,11 @@
     android:background="#F2F9F9F9"
     android:orientation="vertical">
 
-    <q19.kenes.widget.ui.components.Toolbar
+    <q19.kenes.widget.ui.components.KenesToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp" />
+        android:layout_height="60dp"
+        android:background="@color/kenes_white" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/showVideoCallButton"

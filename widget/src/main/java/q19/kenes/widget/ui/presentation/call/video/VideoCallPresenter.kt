@@ -152,6 +152,14 @@ internal class VideoCallPresenter constructor(
         peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
     }
 
+    fun onMinimizeClicked() {
+        getView().collapseBottomSheet()
+    }
+
+    fun onShowVideoCallScreen() {
+        getView().expandBottomSheet()
+    }
+
     fun onBottomSheetStateChanged(state: BottomSheetState) {
         Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
 

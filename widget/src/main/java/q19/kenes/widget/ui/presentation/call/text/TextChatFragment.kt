@@ -11,7 +11,7 @@ import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.MessageInputView
-import q19.kenes.widget.ui.components.Toolbar
+import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
@@ -28,7 +28,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     // UI Views
-    private var toolbar: Toolbar? = null
+    private var toolbar: KenesToolbar? = null
     private var showVideoCallButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
     private var messageInputView: MessageInputView? = null

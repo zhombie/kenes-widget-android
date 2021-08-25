@@ -10,6 +10,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.Dimension
 import androidx.annotation.DrawableRes
@@ -26,7 +27,7 @@ import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class Toolbar @JvmOverloads constructor(
+internal class KenesToolbar @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -34,7 +35,7 @@ internal class Toolbar @JvmOverloads constructor(
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     companion object {
-        private val TAG = Toolbar::class.java.simpleName
+        private val TAG = KenesToolbar::class.java.simpleName
     }
 
     private var leftButton: MaterialButton? = null
@@ -44,13 +45,31 @@ internal class Toolbar @JvmOverloads constructor(
     private var rightButton: MaterialButton? = null
 
     init {
-        setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_white))
         gravity = Gravity.CENTER_VERTICAL
         orientation = HORIZONTAL
         setPadding(16F.dp2Px().roundToInt(), 0, 16F.dp2Px().roundToInt(), 0)
 
         addImageView()
-        addLinearLayout()
+
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesToolbar)
+
+        try {
+            val titleTextColor = typedArray.getColor(
+                R.styleable.KenesToolbar_kenesTitleTextColor,
+                ContextCompat.getColor(context, R.color.kenes_dark_charcoal)
+            )
+
+            val subtitleTextColor = typedArray.getColor(
+                R.styleable.KenesToolbar_kenesSubtitleTextColor,
+                ContextCompat.getColor(context, R.color.kenes_dark_gray)
+            )
+
+            addLinearLayout(titleTextColor, subtitleTextColor)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            typedArray.recycle()
+        }
     }
 
     private fun addImageView() {
@@ -71,7 +90,7 @@ internal class Toolbar @JvmOverloads constructor(
         addView(imageView)
     }
 
-    private fun addLinearLayout() {
+    private fun addLinearLayout(@ColorInt titleTextColor: Int, @ColorInt subtitleTextColor: Int) {
         val layout = LinearLayout(context)
         layout.id = View.generateViewId()
         layout.layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F).apply {
@@ -88,7 +107,7 @@ internal class Toolbar @JvmOverloads constructor(
         titleView?.maxLines = 1
         titleView?.isSingleLine = true
         titleView?.isAllCaps = false
-        titleView?.setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_charcoal))
+        titleView?.setTextColor(titleTextColor)
         titleView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14F)
         layout.addView(titleView)
 
@@ -104,7 +123,7 @@ internal class Toolbar @JvmOverloads constructor(
         subtitleView?.maxLines = 1
         subtitleView?.isSingleLine = true
         subtitleView?.isAllCaps = false
-        subtitleView?.setTextColor(Color.parseColor("#8D8D8D"))
+        subtitleView?.setTextColor(subtitleTextColor)
         subtitleView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10F)
         layout.addView(subtitleView)
 

@@ -20,13 +20,13 @@
         tools:itemCount="2"
         tools:listitem="@layout/cell_response_group" />
 
-    <q19.kenes.widget.ui.components.ProgressView
+    <q19.kenes.widget.ui.components.KenesProgressView
         android:id="@+id/progressView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:backgroundColor="#BBFFFFFF"
-        app:isCancelable="true"
-        app:type="indeterminate" />
+        app:kenesBackgroundColor="#BBFFFFFF"
+        app:kenesIsCancelable="true"
+        app:kenesType="indeterminate" />
 
     <include
         android:id="@+id/chatView"

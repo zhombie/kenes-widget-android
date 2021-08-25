@@ -51,7 +51,7 @@
             android:layout_weight="1"
             android:visibility="gone" />
 
-        <q19.kenes.widget.ui.components.ProgressView
+        <q19.kenes.widget.ui.components.KenesProgressView
             android:id="@+id/progressView"
             android:layout_width="match_parent"
             android:layout_height="0dp"

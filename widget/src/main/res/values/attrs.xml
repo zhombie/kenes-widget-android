@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="ProgressView">
-        <attr name="backgroundColor" />
-        <attr name="type" format="enum">
+    <declare-styleable name="KenesToolbar">
+        <attr name="kenesTitleTextColor" format="color" />
+        <attr name="kenesSubtitleTextColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="KenesProgressView">
+        <attr name="kenesBackgroundColor" format="color" />
+        <attr name="kenesType" format="enum">
             <enum name="indeterminate" value="0" />
             <enum name="determinate" value="1" />
         </attr>
-        <attr name="isCancelable" format="boolean" />
+        <attr name="kenesIsCancelable" format="boolean" />
     </declare-styleable>
 </resources>

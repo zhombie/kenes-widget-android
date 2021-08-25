@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true">
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/chatView"
@@ -29,7 +31,7 @@
 
     </q19.kenes.widget.ui.components.FloatingLayout>
 
-    <com.google.android.material.card.MaterialCardView
+    <FrameLayout
         android:id="@+id/videoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -42,6 +44,36 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <LinearLayout
+            android:id="@+id/headerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/minimizeButton"
+                style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                app:icon="@drawable/ic_arrow_down"
+                app:iconSize="18dp"
+                app:iconTint="@color/kenes_white" />
+
+            <q19.kenes.widget.ui.components.KenesToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                app:kenesTitleTextColor="@color/kenes_white"
+                app:kenesSubtitleTextColor="@color/kenes_white" />
+
+        </LinearLayout>
+
         <kz.q19.webrtc.core.ui.SurfaceViewRenderer
             android:id="@+id/miniSurfaceViewRenderer"
             android:layout_width="150dp"
@@ -49,13 +81,6 @@
             android:layout_gravity="bottom|right"
             android:layout_margin="15dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/button2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:text="show/hide" />
-
-    </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

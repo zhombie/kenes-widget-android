@@ -42,7 +42,7 @@ import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.components.BottomNavigationView
 import q19.kenes.widget.ui.components.MessageInputView
-import q19.kenes.widget.ui.components.ProgressView
+import q19.kenes.widget.ui.components.KenesProgressView
 import q19.kenes.widget.ui.components.deprecated.*
 import q19.kenes.widget.ui.presentation.deprecated.adapter.OldChatAdapter
 import q19.kenes.widget.ui.presentation.deprecated.adapter.ChatAdapterItemDecoration
@@ -128,7 +128,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     private val dynamicFormView by bind<DynamicFormView>(R.id.dynamicFormView)
 
-    private val progressView by bind<ProgressView>(R.id.progressView)
+    private val progressView by bind<KenesProgressView>(R.id.progressView)
 
     /**
      * Bottom navigation view variables: [bottomNavigationView]

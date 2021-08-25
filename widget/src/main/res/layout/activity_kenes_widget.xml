@@ -12,10 +12,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <q19.kenes.widget.ui.components.Toolbar
+        <q19.kenes.widget.ui.components.KenesToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="60dp" />
+            android:layout_height="60dp"
+            android:background="@color/kenes_white" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"

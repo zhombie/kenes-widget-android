@@ -17,7 +17,7 @@ import kz.q19.utils.view.binding.bind
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
-import q19.kenes.widget.ui.components.Toolbar
+import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallsFragment
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
@@ -61,7 +61,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
     // UI Views
     private val rootView by bind<LinearLayout>(R.id.rootView)
-    private val toolbar by bind<Toolbar>(R.id.toolbar)
+    private val toolbar by bind<KenesToolbar>(R.id.toolbar)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val fragmentContainerView by bind<FragmentContainerView>(R.id.fragmentContainerView)
     private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)

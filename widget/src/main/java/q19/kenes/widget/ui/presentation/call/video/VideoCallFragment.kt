@@ -15,6 +15,7 @@ import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.FloatingLayout
+import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.call.BottomSheetState
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
@@ -41,11 +42,13 @@ internal class VideoCallFragment :
 
     // UI Views
     private var chatView: FragmentContainerView? = null
-    private var videoView: FrameLayout? = null
     private var floatingLayout: FloatingLayout? = null
     private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
-    private var miniSurfaceViewRenderer: SurfaceViewRenderer? = null
+    private var videoView: FrameLayout? = null
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
+    private var minimizeButton: MaterialButton? = null
+    private var toolbar: KenesToolbar? = null
+    private var miniSurfaceViewRenderer: SurfaceViewRenderer? = null
 
     // WebRTC Wrapper
     private var peerConnectionClient: PeerConnectionClient? = null
@@ -113,23 +116,18 @@ internal class VideoCallFragment :
         super.onViewCreated(view, savedInstanceState)
 
         chatView = view.findViewById(R.id.chatView)
-        videoView = view.findViewById(R.id.videoView)
         floatingLayout = view.findViewById(R.id.floatingLayout)
         floatingSurfaceViewRenderer = view.findViewById(R.id.floatingSurfaceViewRenderer)
-        miniSurfaceViewRenderer = view.findViewById(R.id.miniSurfaceViewRenderer)
+        videoView = view.findViewById(R.id.videoView)
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
+        minimizeButton = view.findViewById(R.id.minimizeButton)
+        toolbar = view.findViewById(R.id.toolbar)
+        miniSurfaceViewRenderer = view.findViewById(R.id.miniSurfaceViewRenderer)
 
         setupTextChat()
         setupBottomSheet()
+        setupVideostreamControlButtons()
         setupVideostreams()
-
-        view.findViewById<MaterialButton>(R.id.button2).setOnClickListener {
-            if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
-            } else {
-                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-            }
-        }
 
         presenter.onViewReady()
     }
@@ -195,7 +193,6 @@ internal class VideoCallFragment :
         videoView?.let { view ->
             bottomSheetBehavior = BottomSheetBehavior.from(view)
             bottomSheetBehavior?.isDraggable = true
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
 
             bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
@@ -212,6 +209,12 @@ internal class VideoCallFragment :
         }
     }
 
+    private fun setupVideostreamControlButtons() {
+        minimizeButton?.setOnClickListener {
+            presenter.onMinimizeClicked()
+        }
+    }
+
     private fun setupVideostreams() {
         miniSurfaceViewRenderer?.let {
             presenter.initLocalVideostream(it)
@@ -225,13 +228,7 @@ internal class VideoCallFragment :
     fun onShowVideoCallScreen() {
         Logger.debug(TAG, "onShowVideoCallScreen()")
 
-        view?.hideKeyboardCompat()
-
-        if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
-        } else {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-        }
+        presenter.onShowVideoCallScreen()
     }
 
     fun onHangupCall() {
@@ -246,6 +243,16 @@ internal class VideoCallFragment :
 
     override fun showCallAgentInfo(fullName: String, photoUrl: String?) {
         Logger.debug(TAG, "showCallAgentInfo() -> $fullName, $photoUrl")
+
+        activity?.runOnUiThread {
+            toolbar?.setImageContentPadding(0)
+            toolbar?.showImage(photoUrl)
+
+            toolbar?.setTitle(fullName)
+            toolbar?.setSubtitle("Оператор")
+
+            toolbar?.reveal()
+        }
 
         val fragment = childFragmentManager.findFragmentByTag("text_chat")
         if (fragment is TextChatFragment) {
@@ -264,6 +271,9 @@ internal class VideoCallFragment :
 
     override fun enterFloatingVideostream() {
         activity?.runOnUiThread {
+            presenter.setLocalVideostreamPaused()
+            presenter.setRemoteVideostreamPaused()
+
             floatingSurfaceViewRenderer?.let {
                 presenter.setRemoteVideostream(it, true)
             }
@@ -288,6 +298,9 @@ internal class VideoCallFragment :
 
     override fun exitFloatingVideostream() {
         activity?.runOnUiThread {
+            presenter.setLocalVideostreamPaused()
+            presenter.setRemoteVideostreamPaused()
+
             floatingLayout?.visibility = View.GONE
             floatingLayout?.alpha = 0.75F
             floatingLayout?.scaleX = 1F
@@ -312,15 +325,17 @@ internal class VideoCallFragment :
     }
 
     override fun collapseBottomSheet() {
-        if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_COLLAPSED) {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
+        Logger.debug(TAG, "collapseBottomSheet() -> ${bottomSheetBehavior?.state}")
+
+        bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
     }
 
     override fun expandBottomSheet() {
-        if (bottomSheetBehavior?.state != BottomSheetBehavior.STATE_EXPANDED) {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-        }
+        Logger.debug(TAG, "expandBottomSheet() -> ${bottomSheetBehavior?.state}")
+
+        view?.hideKeyboardCompat()
+
+        bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     override fun showCancelPendingConfirmationMessage() {

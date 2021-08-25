@@ -12,14 +12,14 @@ import com.google.android.material.progressindicator.CircularProgressIndicator
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class ProgressView @JvmOverloads constructor(
+internal class KenesProgressView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
     companion object {
-        private val TAG = ProgressView::class.java.simpleName
+        private val TAG = KenesProgressView::class.java.simpleName
     }
 
     private val rootView: LinearLayout
@@ -57,11 +57,11 @@ internal class ProgressView @JvmOverloads constructor(
         centerView = view.findViewById(R.id.centerView)
         cancelButton = view.findViewById(R.id.cancelButton)
 
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ProgressView)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesProgressView)
 
         try {
             val backgroundColor = typedArray.getColor(
-                R.styleable.ProgressView_backgroundColor,
+                R.styleable.KenesProgressView_kenesBackgroundColor,
                 ContextCompat.getColor(context, R.color.kenes_black_with_opacity_BB)
             )
 
@@ -70,14 +70,14 @@ internal class ProgressView @JvmOverloads constructor(
             progressIndicator =
                 createProgressIndicator(R.style.Widget_MaterialComponents_CircularProgressIndicator)
 
-            when (typedArray.getInt(R.styleable.ProgressView_type, Type.INDETERMINATE)) {
+            when (typedArray.getInt(R.styleable.KenesProgressView_kenesType, Type.INDETERMINATE)) {
                 Type.INDETERMINATE -> setIndeterminate()
                 Type.DETERMINATE -> setDeterminate()
             }
 
             centerView.addView(progressIndicator)
 
-            isCancelable = typedArray.getBoolean(R.styleable.ProgressView_isCancelable, false)
+            isCancelable = typedArray.getBoolean(R.styleable.KenesProgressView_kenesIsCancelable, false)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
