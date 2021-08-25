@@ -74,12 +74,34 @@
 
         </LinearLayout>
 
-        <kz.q19.webrtc.core.ui.SurfaceViewRenderer
-            android:id="@+id/miniSurfaceViewRenderer"
+        <FrameLayout
             android:layout_width="150dp"
             android:layout_height="200dp"
             android:layout_gravity="bottom|right"
-            android:layout_margin="15dp" />
+            android:layout_margin="15dp">
+
+            <kz.q19.webrtc.core.ui.SurfaceViewRenderer
+                android:id="@+id/miniSurfaceViewRenderer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_videostream_reference_hint"
+                android:fontFamily="sans-serif"
+                android:paddingBottom="2dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="2dp"
+                android:text="Вы"
+                android:textColor="#AAFFFFFF"
+                android:textSize="9sp"
+                android:textStyle="normal" />
+
+        </FrameLayout>
 
     </FrameLayout>
 
