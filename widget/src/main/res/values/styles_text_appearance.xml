@@ -4,9 +4,9 @@
 
     <style name="Kenes.Widget.TextAppearance.Message.Time" parent="Kenes.Widget.TextAppearance">
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textColor">#B4BACD</item>
-        <item name="android:textSize">10sp</item>
-        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">#8A8D91</item>
+        <item name="android:textSize">8sp</item>
+        <item name="android:textStyle">italic</item>
         <item name="fontFamily">sans-serif</item>
     </style>
 </resources>

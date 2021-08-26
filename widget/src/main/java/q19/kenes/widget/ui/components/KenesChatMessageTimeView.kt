@@ -11,7 +11,7 @@ import kz.q19.utils.android.dp2Px
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-class MessageTimeView @JvmOverloads constructor(
+internal class KenesChatMessageTimeView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -21,7 +21,14 @@ class MessageTimeView @JvmOverloads constructor(
     init {
         includeFontPadding = false
 
-        setLineSpacing(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0.0f, resources.displayMetrics), 1.0f)
+        setLineSpacing(
+            TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                0.0F,
+                resources.displayMetrics
+            ),
+            1.0F
+        )
 
         TextViewCompat.setTextAppearance(this, R.style.Kenes_Widget_TextAppearance_Message_Time)
 

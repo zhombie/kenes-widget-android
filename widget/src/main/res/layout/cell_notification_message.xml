@@ -16,7 +16,7 @@
         app:cardCornerRadius="15dp"
         app:cardElevation="0dp">
 
-        <q19.kenes.widget.ui.components.HTMLTextView
+        <q19.kenes.widget.ui.components.KenesTextView
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -33,7 +33,7 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <q19.kenes.widget.ui.components.MessageTimeView
+    <q19.kenes.widget.ui.components.KenesChatMessageTimeView
         android:id="@id/timeView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

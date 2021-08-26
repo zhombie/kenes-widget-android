@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.presentation.chat
+package q19.kenes.widget.ui.presentation.common.chat
 
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -13,10 +13,11 @@ import q19.kenes.widget.domain.model.hasOnlyAudioAndTextMessage
 import q19.kenes.widget.domain.model.hasOnlyImageAndTextMessage
 import q19.kenes.widget.domain.model.hasOnlyTextMessage
 import q19.kenes.widget.domain.model.hasOnlyVideoAndTextMessage
-import q19.kenes.widget.ui.presentation.chat.viewholder.*
+import q19.kenes.widget.ui.components.KenesTextView
+import q19.kenes.widget.ui.presentation.common.chat.viewholder.*
 
-class ChatMessagesAdapter constructor(
-    private val callback: Callback? = null
+internal class ChatMessagesAdapter constructor(
+    var callback: Callback? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -197,7 +198,8 @@ class ChatMessagesAdapter constructor(
         // Seek bar
         fun setOnSeekBarChangeListener(media: Media, progress: Int): Boolean = false
 
-        // Long click
+        // Whole view
+        fun onMessageClicked(textView: KenesTextView, message: Message) {}
         fun onMessageLongClicked(text: String) {}
     }
 }

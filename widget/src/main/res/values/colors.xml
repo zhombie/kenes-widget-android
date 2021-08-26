@@ -5,6 +5,7 @@
     <color name="kenes_lime_green">#85D089</color>
     <color name="kenes_soft_green">#74BE8D</color>
     <color name="kenes_blue">#008FFF</color>
+    <color name="kenes_blue_with_opacity_30">#30008FFF</color>
     <color name="kenes_gray">#BDBDBD</color>
     <color name="kenes_dark_gray">#8D8D8D</color>
     <color name="kenes_dark_charcoal">#333333</color>

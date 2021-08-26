@@ -24,7 +24,7 @@ import kz.q19.domain.model.message.Message
 import kz.q19.socket.model.Category
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger.debug
-import q19.kenes.widget.ui.components.HTMLTextView
+import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.util.loadRoundedImage
 import q19.kenes_widget.R
 import java.util.concurrent.TimeUnit
@@ -279,7 +279,7 @@ internal class OldChatAdapter constructor(
         private val mediaView = view.findViewById<LinearLayout>(R.id.mediaView)
         private val iconView = view.findViewById<ImageView>(R.id.iconView)
         private val mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
-        private val textView = view.findViewById<HTMLTextView>(R.id.textView)
+        private val textView = view.findViewById<KenesTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
 
         init {
@@ -399,7 +399,7 @@ internal class OldChatAdapter constructor(
         private val mediaNameView = view.findViewById<TextView>(R.id.mediaNameView)
         private val mediaPlaySeekBar = view.findViewById<SeekBar>(R.id.mediaPlaySeekBar)
         private val mediaPlayTimeView = view.findViewById<TextView>(R.id.mediaPlayTimeView)
-        private val textView = view.findViewById<HTMLTextView>(R.id.textView)
+        private val textView = view.findViewById<KenesTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
         private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
 
@@ -710,7 +710,7 @@ internal class OldChatAdapter constructor(
     }
 
     private inner class MessageKeyboardViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view.findViewById<HTMLTextView>(R.id.textView)
+        private val textView = view.findViewById<KenesTextView>(R.id.textView)
         private val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
 
@@ -799,7 +799,7 @@ internal class OldChatAdapter constructor(
 
     private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val titleView = view.findViewById<TextView>(R.id.titleView)
-        private val textView = view.findViewById<HTMLTextView>(R.id.textView)
+        private val textView = view.findViewById<KenesTextView>(R.id.textView)
         private val timeView = view.findViewById<TextView>(R.id.timeView)
         private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
         private val backButtonView = view.findViewById<RelativeLayout>(R.id.backButtonView)

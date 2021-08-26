@@ -9,15 +9,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
+import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.ui.components.MessageInputView
+import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.ui.components.KenesToolbar
-import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
+import q19.kenes.widget.ui.components.MessageInputView
+import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
+import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
 internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragment_text_chat),
-    TextChatView {
+    TextChatView,
+    ChatMessagesAdapter.Callback {
 
     companion object {
         private val TAG = TextChatFragment::class.java.simpleName
@@ -84,6 +88,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     override fun onDestroy() {
         super.onDestroy()
 
+        chatMessagesAdapter?.callback = null
         chatMessagesAdapter = null
     }
 
@@ -111,7 +116,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     private fun setupMessagesView() {
         messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
 
-        chatMessagesAdapter = ChatMessagesAdapter()
+        chatMessagesAdapter = ChatMessagesAdapter(this)
+        messagesView?.addItemDecoration(SpacingItemDecoration(5F.dp2Px()))
         messagesView?.adapter = chatMessagesAdapter
 
         messagesView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
@@ -148,6 +154,18 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         activity?.runOnUiThread {
             presenter.onNewChatMessage(message)
         }
+    }
+
+    /**
+     * [ChatMessagesAdapter.Callback] implementation
+     */
+
+    override fun onUrlInTextClicked(url: String) {
+        toast("url: $url")
+    }
+
+    override fun onMessageLongClicked(text: String) {
+        toast("copy: $text")
     }
 
     /**

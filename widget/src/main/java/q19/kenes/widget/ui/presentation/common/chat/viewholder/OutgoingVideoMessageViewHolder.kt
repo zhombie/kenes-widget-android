@@ -1,30 +1,27 @@
-package q19.kenes.widget.ui.presentation.chat.viewholder
+package q19.kenes.widget.ui.presentation.common.chat.viewholder
 
 import android.view.View
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.RecyclerView
 import kz.q19.domain.model.message.Message
-import q19.kenes.widget.ui.components.HTMLTextView
-import q19.kenes.widget.ui.components.MessageTimeView
-import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
+import q19.kenes.widget.ui.components.KenesChatMessageTimeView
+import q19.kenes.widget.ui.components.KenesTextView
+import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes_widget.R
 
-internal class OutgoingRichContentMessageViewHolder constructor(
+internal class OutgoingVideoMessageViewHolder constructor(
     view: View,
     private val callback: ChatMessagesAdapter.Callback? = null
-) : RecyclerView.ViewHolder(view) {
+) : MessageViewHolder(view) {
 
     companion object {
-        private val TAG = OutgoingRichContentMessageViewHolder::class.java.simpleName
+        private val TAG = OutgoingVideoMessageViewHolder::class.java.simpleName
 
         val LAYOUT = R.layout.cell_outgoing_text_message
     }
 
-    private val contentView = view.findViewById<ConstraintLayout>(R.id.contentView)
-    private val textView = view.findViewById<HTMLTextView>(R.id.textView)
-    private val timeView = view.findViewById<MessageTimeView>(R.id.timeView)
+    private val textView = view.findViewById<KenesTextView>(R.id.textView)
+    private val timeView = view.findViewById<KenesChatMessageTimeView>(R.id.timeView)
 
-    fun bind(message: Message) {
+    override fun bind(message: Message) {
         if (message.htmlText.isNullOrBlank()) {
             textView.visibility = View.GONE
         } else {

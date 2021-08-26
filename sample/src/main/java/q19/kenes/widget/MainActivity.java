@@ -30,7 +30,7 @@ class MainActivity extends AppCompatActivity {
          */
         Intent intent = new KenesWidget.Builder()
             .setHostname(BuildConfig.HOSTNAME)
-            .setLanguage(KenesWidget.Builder.Language.KAZAKH)
+            .setLanguage(KenesWidget.Builder.Language.RUSSIAN)
             .build(this);
         startActivity(intent);
     }

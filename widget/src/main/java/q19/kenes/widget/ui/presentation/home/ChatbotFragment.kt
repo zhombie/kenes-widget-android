@@ -20,17 +20,19 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.clipboardManager
+import kz.q19.utils.android.dp2Px
 import kz.q19.utils.html.HTMLCompat
 import kz.q19.utils.keyboard.hideKeyboard
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
-import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView
+import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
-import q19.kenes.widget.ui.presentation.chat.ChatMessagesAdapter
-import q19.kenes.widget.ui.presentation.chat.ChatMessagesHeaderAdapter
+import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
+import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesHeaderAdapter
+import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
@@ -38,7 +40,8 @@ import kotlin.math.roundToInt
 
 internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragment_chatbot),
     ChatbotView,
-    HomeFragmentDelegate {
+    HomeFragmentDelegate,
+    ChatMessagesAdapter.Callback {
 
     companion object {
         private val TAG = ChatbotFragment::class.java.simpleName
@@ -170,6 +173,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         messageInputView = null
 
         chatMessagesAdapter?.let { concatAdapter?.removeAdapter(it) }
+        chatMessagesAdapter?.callback = null
         chatMessagesAdapter = null
 
         chatMessagesHeaderAdapter?.let { concatAdapter?.removeAdapter(it) }
@@ -292,7 +296,8 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
 
         chatMessagesHeaderAdapter = ChatMessagesHeaderAdapter()
-        chatMessagesAdapter = ChatMessagesAdapter()
+        chatMessagesAdapter = ChatMessagesAdapter(this)
+        messagesView?.addItemDecoration(SpacingItemDecoration(5F.dp2Px()))
         concatAdapter = ConcatAdapter(chatMessagesAdapter, chatMessagesHeaderAdapter)
         messagesView?.adapter = concatAdapter
 
@@ -313,6 +318,18 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
                 presenter.onSendTextMessage(message)
             }
         })
+    }
+
+    /**
+     * [ChatMessagesAdapter.Callback] implementation
+     */
+
+    override fun onUrlInTextClicked(url: String) {
+        toast("url: $url")
+    }
+
+    override fun onMessageLongClicked(text: String) {
+        toast("copy: $text")
     }
 
     /**
