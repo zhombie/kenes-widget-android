@@ -22,7 +22,6 @@ import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.clipboardManager
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.html.HTMLCompat
-import kz.q19.utils.keyboard.hideKeyboard
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
@@ -30,11 +29,13 @@ import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.KenesProgressView
 import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
+import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesHeaderAdapter
 import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
+import q19.kenes.widget.util.hideKeyboardCompat
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
@@ -82,8 +83,9 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     private var listener: Listener? = null
 
     interface Listener {
-        fun onResponsesViewScrolled(scrollYPosition: Int)
-        fun onBottomSheetSlide(slideOffset: Float)
+        fun onResponsesViewScrolled(scrollYPosition: Int) {}
+        fun onBottomSheetSlide(slideOffset: Float) {}
+        fun onBottomSheetStateChanged(state: BottomSheetState) {}
     }
 
     override fun onAttach(context: Context) {
@@ -98,13 +100,6 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         super.onCreate(savedInstanceState)
 
         presenter.attachView(this)
-
-        onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback {
-            if (presenter.onBackPressed()) {
-                isEnabled = false
-                activity?.onBackPressed()
-            }
-        }
     }
 
     override fun createPresenter(): ChatbotPresenter {
@@ -269,10 +264,16 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
                     Logger.debug(TAG, "onStateChanged() -> $newState")
 
                     if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
-                        activity?.hideKeyboard()
+                        this@ChatbotFragment.view?.hideKeyboardCompat()
                     }
 
-                    presenter.onBottomSheetStateChanged(newState == BottomSheetBehavior.STATE_EXPANDED)
+                    with(BottomSheetState.from(newState)) {
+                        if (this == null) return@with
+
+                        presenter.onBottomSheetStateChanged(this)
+
+                        listener?.onBottomSheetStateChanged(this)
+                    }
                 }
             }
 
@@ -387,12 +388,12 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         }
     }
 
-    override fun toggleBottomSheet() {
-        if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_COLLAPSED) {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
-        } else {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
-        }
+    override fun collapseBottomSheet() {
+        bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    override fun expandBottomSheet() {
+        bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
     }
 
     override fun clearMessageInput() {

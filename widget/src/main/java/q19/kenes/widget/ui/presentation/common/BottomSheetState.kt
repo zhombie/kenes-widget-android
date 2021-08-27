@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.presentation.call
+package q19.kenes.widget.ui.presentation.common
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 

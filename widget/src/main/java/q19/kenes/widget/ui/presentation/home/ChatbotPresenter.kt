@@ -15,6 +15,7 @@ import q19.kenes.widget.data.remote.http.ResponseGroupChildrenResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
 import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
@@ -171,8 +172,8 @@ internal class ChatbotPresenter constructor(
     fun onBackPressed(): Boolean {
         Logger.debug(TAG, "onGoBackButtonClicked()")
 
-        if (interactor.isBottomSheetExpanded) {
-            getView().toggleBottomSheet()
+        if (interactor.bottomSheetState == BottomSheetState.EXPANDED) {
+            getView().collapseBottomSheet()
             return false
         }
 
@@ -191,8 +192,8 @@ internal class ChatbotPresenter constructor(
         }
     }
 
-    fun onBottomSheetStateChanged(isExpanded: Boolean) {
-        interactor.isBottomSheetExpanded = isExpanded
+    fun onBottomSheetStateChanged(state: BottomSheetState) {
+        interactor.bottomSheetState = state
     }
 
     fun onCopyResponseText() {
@@ -308,7 +309,6 @@ internal class ChatbotPresenter constructor(
         asyncHttpClient?.cancelAllRequests(true)
         asyncHttpClient = null
 
-        interactor.isBottomSheetExpanded = false
         interactor.breadcrumb.clear()
         interactor.lastResponseGroupsLoadedTime = -1L
         interactor.primaryResponseGroups = emptyList()

@@ -16,9 +16,9 @@ import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.FloatingLayout
 import q19.kenes.widget.ui.components.KenesToolbar
-import q19.kenes.widget.ui.presentation.call.BottomSheetState
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
+import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes.widget.util.hideKeyboardCompat

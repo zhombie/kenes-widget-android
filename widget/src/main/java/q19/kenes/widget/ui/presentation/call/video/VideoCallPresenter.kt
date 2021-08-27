@@ -23,9 +23,9 @@ import org.webrtc.MediaStream
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
-import q19.kenes.widget.ui.presentation.call.BottomSheetState
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallInteractor
+import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
