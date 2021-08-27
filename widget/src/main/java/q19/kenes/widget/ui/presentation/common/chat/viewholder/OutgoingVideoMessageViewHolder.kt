@@ -2,8 +2,8 @@ package q19.kenes.widget.ui.presentation.common.chat.viewholder
 
 import android.view.View
 import kz.q19.domain.model.message.Message
+import q19.kenes.widget.ui.components.KenesChatMessageTextView
 import q19.kenes.widget.ui.components.KenesChatMessageTimeView
-import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes_widget.R
 
@@ -18,7 +18,7 @@ internal class OutgoingVideoMessageViewHolder constructor(
         val LAYOUT = R.layout.cell_outgoing_text_message
     }
 
-    private val textView = view.findViewById<KenesTextView>(R.id.textView)
+    private val textView = view.findViewById<KenesChatMessageTextView>(R.id.textView)
     private val timeView = view.findViewById<KenesChatMessageTimeView>(R.id.timeView)
 
     override fun bind(message: Message) {
@@ -33,9 +33,6 @@ internal class OutgoingVideoMessageViewHolder constructor(
                 callback?.onMessageLongClicked(message.htmlText.toString())
                 true
             }
-
-            textView.enableAutoLinkMask()
-            textView.enableLinkMovementMethod()
 
             textView.visibility = View.VISIBLE
         }

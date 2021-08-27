@@ -8,6 +8,6 @@
     </style>
 
     <style name="Kenes.Widget.BottomSheet.Modal" parent="Widget.MaterialComponents.BottomSheet.Modal">
-        <item name="shapeAppearance">@style/Kenes.Widget.ShapeAppearance.Rounded.Top</item>
+        <item name="shapeAppearance">@style/Kenes.Widget.ShapeAppearance.Rounded.Top.16dp</item>
     </style>
 </resources>

@@ -7,7 +7,15 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="Kenes.Widget.ShapeAppearance.Rounded.Top" parent="Kenes.Widget.ShapeAppearance">
+    <style name="Kenes.Widget.ShapeAppearance.Rounded.All.15dp" parent="Kenes.Widget.ShapeAppearance">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomLeft">15dp</item>
+        <item name="cornerSizeBottomRight">15dp</item>
+        <item name="cornerSizeTopLeft">15dp</item>
+        <item name="cornerSizeTopRight">15dp</item>
+    </style>
+
+    <style name="Kenes.Widget.ShapeAppearance.Rounded.Top.16dp" parent="Kenes.Widget.ShapeAppearance">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>

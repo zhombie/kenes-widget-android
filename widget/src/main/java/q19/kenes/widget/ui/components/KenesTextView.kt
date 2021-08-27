@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.textview.MaterialTextView
 import q19.kenes_widget.R
 
-internal class KenesTextView @JvmOverloads constructor(
+internal open class KenesTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = android.R.attr.textViewStyle,

@@ -9,10 +9,7 @@ import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.domain.model.hasOnlyAudioAndTextMessage
-import q19.kenes.widget.domain.model.hasOnlyImageAndTextMessage
-import q19.kenes.widget.domain.model.hasOnlyTextMessage
-import q19.kenes.widget.domain.model.hasOnlyVideoAndTextMessage
+import q19.kenes.widget.domain.model.*
 import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.ui.presentation.common.chat.viewholder.*
 
@@ -27,15 +24,17 @@ internal class ChatMessagesAdapter constructor(
     object ViewType {
         const val OUTGOING_TEXT_MESSAGE: Int = 100
         const val OUTGOING_IMAGE_MESSAGE: Int = 101
-        const val OUTGOING_VIDEO_MESSAGE: Int = 102
-        const val OUTGOING_AUDIO_MESSAGE: Int = 103
-        const val OUTGOING_RICH_CONTENT_MESSAGE: Int = 104
+        const val OUTGOING_IMAGE_ALBUM_MESSAGE: Int = 102
+        const val OUTGOING_VIDEO_MESSAGE: Int = 103
+        const val OUTGOING_AUDIO_MESSAGE: Int = 104
+        const val OUTGOING_RICH_CONTENT_MESSAGE: Int = 105
 
         const val INCOMING_TEXT_MESSAGE: Int = 110
         const val INCOMING_IMAGE_MESSAGE: Int = 111
-        const val INCOMING_VIDEO_MESSAGE: Int = 112
-        const val INCOMING_AUDIO_MESSAGE: Int = 113
-        const val INCOMING_RICH_CONTENT_MESSAGE: Int = 114
+        const val INCOMING_IMAGE_ALBUM_MESSAGE: Int = 112
+        const val INCOMING_VIDEO_MESSAGE: Int = 113
+        const val INCOMING_AUDIO_MESSAGE: Int = 114
+        const val INCOMING_RICH_CONTENT_MESSAGE: Int = 115
 
         const val NOTIFICATION: Int = 120
     }
@@ -63,11 +62,13 @@ internal class ChatMessagesAdapter constructor(
                     when {
                         message.hasOnlyTextMessage() ->
                             ViewType.OUTGOING_TEXT_MESSAGE
-                        message.hasOnlyImageAndTextMessage() ->
+                        message.hasOnlyImageAlbumMessage() ->
+                            ViewType.OUTGOING_IMAGE_ALBUM_MESSAGE
+                        message.hasOnlyImageMessage() ->
                             ViewType.OUTGOING_IMAGE_MESSAGE
-                        message.hasOnlyVideoAndTextMessage() ->
+                        message.hasOnlyVideoMessage() ->
                             ViewType.OUTGOING_VIDEO_MESSAGE
-                        message.hasOnlyAudioAndTextMessage() ->
+                        message.hasOnlyAudioMessage() ->
                             ViewType.OUTGOING_AUDIO_MESSAGE
                         else ->
                             ViewType.OUTGOING_RICH_CONTENT_MESSAGE
@@ -77,11 +78,13 @@ internal class ChatMessagesAdapter constructor(
                     when {
                         message.hasOnlyTextMessage() ->
                             ViewType.INCOMING_TEXT_MESSAGE
-                        message.hasOnlyImageAndTextMessage() ->
+                        message.hasOnlyImageAlbumMessage() ->
+                            ViewType.INCOMING_IMAGE_ALBUM_MESSAGE
+                        message.hasOnlyImageMessage() ->
                             ViewType.INCOMING_IMAGE_MESSAGE
-                        message.hasOnlyVideoAndTextMessage() ->
+                        message.hasOnlyVideoMessage() ->
                             ViewType.INCOMING_VIDEO_MESSAGE
-                        message.hasOnlyAudioAndTextMessage() ->
+                        message.hasOnlyAudioMessage() ->
                             ViewType.INCOMING_AUDIO_MESSAGE
                         else ->
                             ViewType.INCOMING_RICH_CONTENT_MESSAGE
@@ -100,6 +103,11 @@ internal class ChatMessagesAdapter constructor(
             ViewType.OUTGOING_TEXT_MESSAGE ->
                 OutgoingTextMessageViewHolder(
                     parent.inflate(OutgoingTextMessageViewHolder.LAYOUT),
+                    callback
+                )
+            ViewType.OUTGOING_IMAGE_ALBUM_MESSAGE ->
+                OutgoingImageAlbumMessageViewHolder(
+                    parent.inflate(OutgoingImageAlbumMessageViewHolder.LAYOUT),
                     callback
                 )
             ViewType.OUTGOING_IMAGE_MESSAGE ->
@@ -126,6 +134,11 @@ internal class ChatMessagesAdapter constructor(
             ViewType.INCOMING_TEXT_MESSAGE ->
                 IncomingTextMessageViewHolder(
                     parent.inflate(IncomingTextMessageViewHolder.LAYOUT),
+                    callback
+                )
+            ViewType.INCOMING_IMAGE_ALBUM_MESSAGE ->
+                IncomingImageAlbumMessageViewHolder(
+                    parent.inflate(IncomingImageAlbumMessageViewHolder.LAYOUT),
                     callback
                 )
             ViewType.INCOMING_IMAGE_MESSAGE ->
@@ -164,12 +177,14 @@ internal class ChatMessagesAdapter constructor(
 
         when (holder) {
             is OutgoingTextMessageViewHolder -> holder.bind(message)
+            is OutgoingImageAlbumMessageViewHolder -> holder.bind(message)
             is OutgoingImageMessageViewHolder -> holder.bind(message)
             is OutgoingVideoMessageViewHolder -> holder.bind(message)
             is OutgoingAudioMessageViewHolder -> holder.bind(message)
             is OutgoingRichContentMessageViewHolder -> holder.bind(message)
 
             is IncomingTextMessageViewHolder -> holder.bind(message)
+            is IncomingImageAlbumMessageViewHolder -> holder.bind(message)
             is IncomingImageMessageViewHolder -> holder.bind(message)
             is IncomingVideoMessageViewHolder -> holder.bind(message)
             is IncomingAudioMessageViewHolder -> holder.bind(message)

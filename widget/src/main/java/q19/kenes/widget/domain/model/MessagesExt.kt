@@ -2,29 +2,8 @@ package q19.kenes.widget.domain.model
 
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
-import java.time.format.DateTimeFormatter
 
-fun Message.hasOnlyTextMessage(): Boolean {
-    return !text.isNullOrBlank() &&
-        keyboard == null &&
-        (media == null || media?.urlPath.isNullOrBlank()) &&
-        attachments.isNullOrEmpty() &&
-        location == null
-}
-
-fun Message.hasOnlyImageAndTextMessage(): Boolean {
-    return hasOnlyMediaAndText(Media.Type.IMAGE)
-}
-
-fun Message.hasOnlyVideoAndTextMessage(): Boolean {
-    return hasOnlyMediaAndText(Media.Type.VIDEO)
-}
-
-fun Message.hasOnlyAudioAndTextMessage(): Boolean {
-    return hasOnlyMediaAndText(Media.Type.AUDIO)
-}
-
-fun Message.isEmpty(): Boolean {
+internal fun Message.isEmpty(): Boolean {
     return title.isNullOrBlank() &&
         text.isNullOrBlank() &&
         keyboard == null &&
@@ -33,17 +12,66 @@ fun Message.isEmpty(): Boolean {
         location == null
 }
 
-fun Message.hasUrlPath(type: Media.Type): Boolean {
-    return media != null && !media?.urlPath.isNullOrBlank() && media?.type == type
-}
-
-fun Message.hasLocalFile(type: Media.Type): Boolean {
-    return media != null && media?.file?.exists == true && media?.type == type
-}
-
-fun Message.hasOnlyMediaAndText(type: Media.Type): Boolean {
-    return keyboard == null &&
-        (hasUrlPath(type) || hasLocalFile(type)) &&
+internal fun Message.hasOnlyTextMessage(): Boolean {
+    return !text.isNullOrBlank() &&
+        keyboard == null &&
+        (media == null || media?.urlPath.isNullOrBlank()) &&
         attachments.isNullOrEmpty() &&
         location == null
+}
+
+internal fun Message.hasOnlyImageMessage(): Boolean {
+    return hasOnlyMediaOrAttachments(Media.Type.IMAGE)
+}
+
+internal fun Message.hasOnlyImageAlbumMessage(): Boolean {
+    return hasOnlyAttachments(Media.Type.IMAGE, 2)
+}
+
+internal fun Message.hasOnlyVideoMessage(): Boolean {
+    return hasOnlyMediaOrAttachments(Media.Type.VIDEO)
+}
+
+internal fun Message.hasOnlyAudioMessage(): Boolean {
+    return hasOnlyMediaOrAttachments(Media.Type.AUDIO)
+}
+
+internal fun Media.hasRemoteUrlOrLocalFile(): Boolean {
+    return hasRemoteUrl() || hasLocalFile()
+}
+
+internal fun Media.hasRemoteUrl(): Boolean {
+    return !urlPath.isNullOrBlank()
+}
+
+internal fun Message.hasMedia(type: Media.Type): Boolean {
+    return media?.type == type && media?.hasRemoteUrlOrLocalFile() == true
+}
+
+internal fun Message.hasAttachments(type: Media.Type, atLeast: Int = -1): Boolean {
+    if (attachments?.all { it.type == type && it.hasRemoteUrlOrLocalFile() } == true) {
+        if (atLeast == -1) {
+            return true
+        } else {
+            if ((attachments?.size ?: 0) >= atLeast) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
+internal fun Message.hasOnlyMediaOrAttachments(type: Media.Type): Boolean {
+    if (keyboard == null && location == null) {
+        if (hasMedia(type)) return true
+        if (hasAttachments(type)) return true
+    }
+    return false
+}
+
+internal fun Message.hasOnlyAttachments(type: Media.Type, atLeast: Int = -1): Boolean {
+    if (keyboard == null && location == null) {
+        if (hasAttachments(type, atLeast)) return true
+    }
+    return false
 }
