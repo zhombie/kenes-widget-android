@@ -97,7 +97,7 @@ internal class KenesWidgetPresenter constructor(
 
         if (state == BottomSheetState.COLLAPSED) {
             getView().hideBottomSheetCloseButton()
-        } else if (state == BottomSheetState.EXPANDED) {
+        } else {
             getView().showBottomSheetCloseButton()
         }
     }
