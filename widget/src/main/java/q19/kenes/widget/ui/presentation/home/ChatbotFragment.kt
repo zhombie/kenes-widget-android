@@ -28,20 +28,20 @@ import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.KenesProgressView
 import q19.kenes.widget.ui.components.MessageInputView
-import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
+import q19.kenes.widget.ui.presentation.HomeScreenDelegate
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
+import q19.kenes.widget.ui.presentation.common.HomeFragment
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesHeaderAdapter
 import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
-import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes.widget.util.hideKeyboardCompat
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragment_chatbot),
+internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragment_chatbot),
     ChatbotView,
-    HomeFragmentDelegate,
+    HomeScreenDelegate,
     ChatMessagesAdapter.Callback {
 
     companion object {
@@ -60,7 +60,6 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     private var chatView: LinearLayout? = null
     private var peekView: LinearLayout? = null
     private var toggleButton: MaterialButton? = null
-    private var closeButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
     private var messageInputView: MessageInputView? = null
 
@@ -131,7 +130,6 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
         chatView = view.findViewById(R.id.chatView)
         peekView = view.findViewById(R.id.peekView)
         toggleButton = view.findViewById(R.id.toggleButton)
-        closeButton = view.findViewById(R.id.closeButton)
         messagesView = view.findViewById(R.id.messagesView)
         messageInputView = view.findViewById(R.id.messageInputView)
 
@@ -234,8 +232,6 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     }
 
     private fun setupBottomSheet() {
-        closeButton?.alpha = 0F
-
         chatView?.let { view ->
             bottomSheetBehavior = BottomSheetBehavior.from(view)
             bottomSheetBehavior?.isDraggable = false
@@ -248,8 +244,6 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
 //                    Logger.debug(TAG, "onStateChanged() -> $slideOffset")
 
                     val reverseOffset = 1F - slideOffset
-
-                    closeButton?.alpha = slideOffset
 
                     peekView?.alpha = reverseOffset
 
@@ -286,10 +280,6 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
             if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_COLLAPSED) {
                 bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
             }
-        }
-
-        closeButton?.setOnClickListener {
-            bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
         }
     }
 
@@ -410,7 +400,7 @@ internal class ChatbotFragment : BaseFragment<ChatbotPresenter>(R.layout.fragmen
     }
 
     /**
-     * [HomeFragmentDelegate] implementation
+     * [HomeScreenDelegate] implementation
      */
 
     override fun onScreenRenavigate() {

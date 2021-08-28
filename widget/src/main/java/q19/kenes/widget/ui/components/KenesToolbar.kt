@@ -21,7 +21,6 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.android.dp2Px
-import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
@@ -154,12 +153,18 @@ internal class KenesToolbar @JvmOverloads constructor(
         imageView?.setContentPadding(padding, padding, padding, padding)
     }
 
+    fun setTitleTextColor(@ColorInt color: Int) {
+        titleView?.setTextColor(color)
+    }
+
+    fun setSubtitleTextColor(@ColorInt color: Int) {
+        subtitleView?.setTextColor(color)
+    }
+
     fun setLeftButtonEnabled(isEnabled: Boolean) {
         if (isEnabled) {
-            if (getChildAt(childCount) is MaterialButton || rightButton != null) {
-                Logger.error(TAG, "Right button is already enabled, choose only one of them")
-                return
-            }
+            removeView(leftButton)
+            leftButton = null
 
             if (leftButton == null) {
                 leftButton = MaterialButton(context, null, R.style.Widget_MaterialComponents_Button_Icon)
@@ -187,24 +192,17 @@ internal class KenesToolbar @JvmOverloads constructor(
                     .build()
             }
 
-            if (getChildAt(0) !is MaterialButton) {
-                addView(leftButton, 0)
-            }
+            addView(leftButton, 0)
         } else {
-            if (getChildAt(0) is MaterialButton) {
-                if (leftButton != null) {
-                    removeView(leftButton)
-                }
-            }
+            removeView(leftButton)
+            leftButton = null
         }
     }
 
     fun setRightButtonEnabled(isEnabled: Boolean) {
         if (isEnabled) {
-            if (getChildAt(0) is MaterialButton || leftButton != null) {
-                Logger.error(TAG, "Left button is already enabled, choose only one of them")
-                return
-            }
+            removeView(rightButton)
+            rightButton = null
 
             if (rightButton == null) {
                 rightButton = MaterialButton(context, null, R.style.Widget_MaterialComponents_Button_Icon)
@@ -232,15 +230,10 @@ internal class KenesToolbar @JvmOverloads constructor(
                     .build()
             }
 
-            if (getChildAt(childCount) !is MaterialButton) {
-                addView(rightButton, childCount)
-            }
+            addView(rightButton, childCount)
         } else {
-            if (getChildAt(childCount) is MaterialButton) {
-                if (rightButton != null) {
-                    removeView(rightButton)
-                }
-            }
+            removeView(rightButton)
+            rightButton = null
         }
     }
 

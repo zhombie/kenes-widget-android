@@ -15,6 +15,7 @@ import androidx.core.view.ViewCompat
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.textview.showCompoundDrawableOnTop
 import q19.kenes.widget.core.logging.Logger
+import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.util.DebouncedOnClickListener
 import q19.kenes.widget.util.getCompoundDrawableOnTop
 import q19.kenes.widget.util.withTint
@@ -31,14 +32,7 @@ internal class BottomNavigationView @JvmOverloads constructor(
     companion object {
         private val TAG = BottomNavigationView::class.java.simpleName
 
-        private val DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX: Int = NavigationButton.HOME.index
-    }
-
-    enum class NavigationButton(val index: Int) {
-        HOME(0),
-        CALLS(1),
-        SERVICES(2),
-        INFO(3)
+        private val DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX: Int = Screen.HOME.index
     }
 
     private var homeButton: AppCompatButton? = null
@@ -69,49 +63,49 @@ internal class BottomNavigationView @JvmOverloads constructor(
 
         // Home
         homeButton = buildNavigationButton(
-            navigationButton = NavigationButton.HOME,
+            screen = Screen.HOME,
             compoundDrawable = R.drawable.kenes_ic_home_gray,
             title = R.string.kenes_home
         ).also {
             addView(it)
-            navigationButtons.add(NavigationButton.HOME.index, it)
+            navigationButtons.add(Screen.HOME.index, it)
         }
 
         // Calls
         callsButton = buildNavigationButton(
-            navigationButton = NavigationButton.CALLS,
+            screen = Screen.CALLS,
             compoundDrawable = R.drawable.kenes_ic_headphones_gray,
             title = R.string.kenes_calls
         ).also {
             addView(it)
-            navigationButtons.add(NavigationButton.CALLS.index, it)
+            navigationButtons.add(Screen.CALLS.index, it)
         }
 
         // Services
         servicesButton = buildNavigationButton(
-            navigationButton = NavigationButton.SERVICES,
+            screen = Screen.SERVICES,
             compoundDrawable = R.drawable.kenes_ic_service_gray,
             title = R.string.kenes_services
         ).also {
             addView(it)
-            navigationButtons.add(NavigationButton.SERVICES.index, it)
+            navigationButtons.add(Screen.SERVICES.index, it)
         }
 
         // Info
         infoButton = buildNavigationButton(
-            navigationButton = NavigationButton.INFO,
+            screen = Screen.INFO,
             compoundDrawable = R.drawable.kenes_ic_list_gray,
             title = R.string.kenes_info
         ).also {
             addView(it)
-            navigationButtons.add(NavigationButton.INFO.index, it)
+            navigationButtons.add(Screen.INFO.index, it)
         }
 
         activeNavigationButtonIndex = DEFAULT_ACTIVE_NAVIGATION_BUTTON_INDEX
     }
 
     private fun buildNavigationButton(
-        navigationButton: NavigationButton,
+        screen: Screen,
         @DrawableRes compoundDrawable: Int,
         @StringRes title: Int
     ): AppCompatButton {
@@ -135,9 +129,9 @@ internal class BottomNavigationView @JvmOverloads constructor(
             setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
             setOnClickListener(object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
-                    dispatchSelection(navigationButton)
+                    dispatchSelection(screen)
 
-                    setNavigationButtonActive(navigationButton)
+                    setNavigationButtonActive(screen)
                 }
             })
             return@with this
@@ -153,12 +147,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
         }
     }
 
-    private fun getFirstNavigationButton(): NavigationButton? {
+    private fun getFirstNavigationButton(): Screen? {
         return when {
-            isNavigationButtonFirst(homeButton) -> NavigationButton.HOME
-            isNavigationButtonFirst(callsButton) -> NavigationButton.CALLS
-            isNavigationButtonFirst(servicesButton) -> NavigationButton.SERVICES
-            isNavigationButtonFirst(infoButton) -> NavigationButton.INFO
+            isNavigationButtonFirst(homeButton) -> Screen.HOME
+            isNavigationButtonFirst(callsButton) -> Screen.CALLS
+            isNavigationButtonFirst(servicesButton) -> Screen.SERVICES
+            isNavigationButtonFirst(infoButton) -> Screen.INFO
             else -> null
         }
     }
@@ -168,12 +162,12 @@ internal class BottomNavigationView @JvmOverloads constructor(
         return navigationButtons.isNotEmpty() && navigationButtons.first() == button
     }
 
-    private fun setNavigationButtonActive(navigationButton: NavigationButton): Boolean {
-        return when (navigationButton) {
-            NavigationButton.HOME -> setActiveNavigationButton(homeButton)
-            NavigationButton.CALLS -> setActiveNavigationButton(callsButton)
-            NavigationButton.SERVICES -> setActiveNavigationButton(servicesButton)
-            NavigationButton.INFO -> setActiveNavigationButton(infoButton)
+    private fun setNavigationButtonActive(screen: Screen): Boolean {
+        return when (screen) {
+            Screen.HOME -> setActiveNavigationButton(homeButton)
+            Screen.CALLS -> setActiveNavigationButton(callsButton)
+            Screen.SERVICES -> setActiveNavigationButton(servicesButton)
+            Screen.INFO -> setActiveNavigationButton(infoButton)
         }
     }
 
@@ -252,33 +246,33 @@ internal class BottomNavigationView @JvmOverloads constructor(
         visibility = View.GONE
     }
 
-    fun showNavigationButton(navigationButton: NavigationButton) {
-        val appCompatButton = when (navigationButton) {
-            NavigationButton.HOME -> homeButton
-            NavigationButton.CALLS -> callsButton
-            NavigationButton.SERVICES -> servicesButton
-            NavigationButton.INFO -> infoButton
+    fun showNavigationButton(screen: Screen) {
+        val appCompatButton = when (screen) {
+            Screen.HOME -> homeButton
+            Screen.CALLS -> callsButton
+            Screen.SERVICES -> servicesButton
+            Screen.INFO -> infoButton
         }
 
         appCompatButton.showNavigationButton(
-            index = navigationButton.index,
+            index = screen.index,
             listener = object : DebouncedOnClickListener() {
                 override fun onDebouncedClick(v: View) {
-                    dispatchSelection(navigationButton)
+                    dispatchSelection(screen)
 
-                    setNavigationButtonActive(navigationButton)
+                    setNavigationButtonActive(screen)
                 }
             }
         )
     }
 
-    fun hideNavigationButton(navigationButton: NavigationButton) {
-        Logger.debug(TAG, "hideNavButton() -> navigationButton: $navigationButton")
-        when (navigationButton) {
-            NavigationButton.HOME -> homeButton.hideNavigationButton()
-            NavigationButton.CALLS -> callsButton.hideNavigationButton()
-            NavigationButton.SERVICES -> servicesButton.hideNavigationButton()
-            NavigationButton.INFO -> infoButton.hideNavigationButton()
+    fun hideNavigationButton(screen: Screen) {
+        Logger.debug(TAG, "hideNavButton() -> screen: $screen")
+        when (screen) {
+            Screen.HOME -> homeButton.hideNavigationButton()
+            Screen.CALLS -> callsButton.hideNavigationButton()
+            Screen.SERVICES -> servicesButton.hideNavigationButton()
+            Screen.INFO -> infoButton.hideNavigationButton()
         }
     }
 
@@ -313,17 +307,17 @@ internal class BottomNavigationView @JvmOverloads constructor(
         setBackgroundResource(outValue.resourceId)
     }
 
-    private fun dispatchSelection(navigationButton: NavigationButton) {
-        if (navigationButton.index == activeNavigationButtonIndex) {
-            callback?.onBottomNavigationButtonReselected(navigationButton)
+    private fun dispatchSelection(screen: Screen) {
+        if (screen.index == activeNavigationButtonIndex) {
+            callback?.onBottomNavigationReselected(screen)
         } else {
-            callback?.onBottomNavigationButtonSelected(navigationButton)
+            callback?.onBottomNavigationSelected(screen)
         }
     }
 
     interface Callback {
-        fun onBottomNavigationButtonSelected(navigationButton: NavigationButton)
-        fun onBottomNavigationButtonReselected(navigationButton: NavigationButton)
+        fun onBottomNavigationSelected(screen: Screen)
+        fun onBottomNavigationReselected(screen: Screen)
     }
 
 }

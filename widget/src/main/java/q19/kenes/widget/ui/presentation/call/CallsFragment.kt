@@ -12,15 +12,15 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.core.permission.PermissionManager
-import q19.kenes.widget.ui.presentation.HomeFragmentDelegate
+import q19.kenes.widget.ui.presentation.HomeScreenDelegate
 import q19.kenes.widget.ui.presentation.call.selection.CallSelection
 import q19.kenes.widget.ui.presentation.call.selection.CallSelectionBottomSheetDialogFragment
-import q19.kenes.widget.ui.presentation.platform.BaseFragment
+import q19.kenes.widget.ui.presentation.common.HomeFragment
 import q19.kenes_widget.R
 
-internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_calls),
+internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_calls),
     CallsView,
-    HomeFragmentDelegate,
+    HomeScreenDelegate,
     CallsHeaderAdapter.Callback,
     CallsAdapter.Callback {
 
@@ -144,7 +144,7 @@ internal class CallsFragment : BaseFragment<CallsPresenter>(R.layout.fragment_ca
     }
 
     /**
-     * [HomeFragmentDelegate] implementation
+     * [HomeScreenDelegate] implementation
      */
 
     override fun onScreenRenavigate() {

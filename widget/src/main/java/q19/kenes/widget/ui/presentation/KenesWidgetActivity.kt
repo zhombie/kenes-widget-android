@@ -22,6 +22,8 @@ import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallsFragment
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
+import q19.kenes.widget.ui.presentation.common.BottomSheetState
+import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil
@@ -154,17 +156,17 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         viewPager.offscreenPageLimit = fragments.size
 
         bottomNavigationView.callback = object : BottomNavigationView.Callback {
-            override fun onBottomNavigationButtonSelected(navigationButton: BottomNavigationView.NavigationButton) {
-                Logger.debug(TAG, "onBottomNavigationButtonSelected() -> $navigationButton")
-                presenter.onBottomNavigationButtonSelected(navigationButton.index)
+            override fun onBottomNavigationSelected(screen: Screen) {
+                Logger.debug(TAG, "onBottomNavigationSelected() -> $screen")
+                presenter.onBottomNavigationButtonSelected(screen)
             }
 
-            override fun onBottomNavigationButtonReselected(navigationButton: BottomNavigationView.NavigationButton) {
-                Logger.debug(TAG, "onBottomNavigationButtonReselected() -> $navigationButton")
+            override fun onBottomNavigationReselected(screen: Screen) {
+                Logger.debug(TAG, "onBottomNavigationReselected() -> $screen")
 
                 val fragment = viewPagerAdapter?.getFragment(viewPager.currentItem)
-                Logger.debug(TAG, "onBottomNavigationButtonReselected() -> $fragment")
-                if (fragment is HomeFragmentDelegate) {
+                Logger.debug(TAG, "onBottomNavigationReselected() -> $fragment")
+                if (fragment is HomeScreenDelegate) {
                     fragment.onScreenRenavigate()
                 }
             }
@@ -195,6 +197,24 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         toolbar.reveal()
     }
 
+    override fun showBottomSheetCloseButton() {
+        toolbar.setRightButtonEnabled(true)
+        toolbar.setRightButtonIcon(R.drawable.ic_cancel)
+        toolbar.setRightButtonIconTint(R.color.kenes_gray)
+        toolbar.setRightButtonOnClickListener {
+            supportFragmentManager.fragments.forEach {
+                if (it is ChatbotFragment) {
+                    it.collapseBottomSheet()
+                }
+            }
+        }
+    }
+
+    override fun hideBottomSheetCloseButton() {
+        toolbar.setRightButtonEnabled(false)
+        toolbar.setRightButtonOnClickListener(null)
+    }
+
     override fun navigateTo(index: Int) {
         viewPager.setCurrentItem(index, false)
     }
@@ -218,8 +238,8 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     }
 
     override fun onBottomSheetSlide(slideOffset: Float) {
-//        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
-//
+        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
+
 //        toolbar.setBackgroundColor(
 //            ColorUtils.blendARGB(
 //                Color.parseColor("#FFFFFF"),
@@ -228,7 +248,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 //            )
 //        )
 //
-//        titleView.setTextColor(
+//        toolbar.setTitleTextColor(
 //            ColorUtils.blendARGB(
 //                ContextCompat.getColor(this, R.color.kenes_dark_charcoal),
 //                Color.parseColor("#FFFFFF"),
@@ -236,13 +256,19 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 //            )
 //        )
 //
-//        subtitleView.setTextColor(
+//        toolbar.setSubtitleTextColor(
 //            ColorUtils.blendARGB(
 //                ContextCompat.getColor(this, R.color.kenes_dark_charcoal),
-//                Color.parseColor("#FFFFFF"),
+//                Color.parseColor("#75FFFFFF"),
 //                slideOffset
 //            )
 //        )
+    }
+
+    override fun onBottomSheetStateChanged(state: BottomSheetState) {
+        Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
+
+        presenter.onBottomSheetStateChanged(state)
     }
 
     /**

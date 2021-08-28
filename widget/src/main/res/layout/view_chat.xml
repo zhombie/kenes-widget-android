@@ -9,65 +9,47 @@
     android:focusable="true"
     android:orientation="vertical">
 
-    <FrameLayout
+    <LinearLayout
+        android:id="@+id/peekView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="@dimen/bottom_sheet_peek_height"
+        android:background="@drawable/bg_bottom_sheet_peek_height"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <View
+            android:id="@+id/swipeableView"
+            android:layout_width="35dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/ic_swipeable" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/closeButton"
-            style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+            android:id="@+id/toggleButton"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="@color/kenes_white"
+            android:fontFamily="sans-serif-medium"
+            android:letterSpacing="0.01"
+            android:text="Написать свой вопрос"
+            android:textAllCaps="false"
+            android:textColor="@color/kenes_dark_charcoal"
+            android:textSize="15sp"
+            app:cornerRadius="5dp" />
+
+        <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_gravity="right"
-            android:padding="10dp"
-            app:icon="@drawable/ic_cancel"
-            app:iconSize="25dp"
-            app:iconTint="@color/kenes_gray" />
+            android:fontFamily="sans-serif-light"
+            android:text="👋 Привет! Не можешь найти ответ?"
+            android:textColor="@color/kenes_white"
+            android:textSize="11sp" />
 
-        <LinearLayout
-            android:id="@+id/peekView"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/bottom_sheet_peek_height"
-            android:background="@drawable/bg_bottom_sheet_peek_height"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <View
-                android:id="@+id/swipeableView"
-                android:layout_width="35dp"
-                android:layout_height="3dp"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/ic_swipeable" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/toggleButton"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="4dp"
-                android:backgroundTint="@color/kenes_white"
-                android:fontFamily="sans-serif-medium"
-                android:letterSpacing="0.01"
-                android:text="Написать свой вопрос"
-                android:textAllCaps="false"
-                android:textColor="@color/kenes_dark_charcoal"
-                android:textSize="15sp"
-                app:cornerRadius="5dp" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                android:text="👋 Привет! Не можешь найти ответ?"
-                android:textColor="@color/kenes_white"
-                android:textSize="11sp" />
-
-        </LinearLayout>
-
-    </FrameLayout>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messagesView"

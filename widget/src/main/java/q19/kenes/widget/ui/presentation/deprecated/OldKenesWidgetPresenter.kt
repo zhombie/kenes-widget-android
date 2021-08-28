@@ -32,7 +32,7 @@ import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.data.remote.file.DownloadResult
 import q19.kenes.widget.data.remote.file.downloadFile
-import q19.kenes.widget.ui.components.BottomNavigationView
+import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.home.ChatbotInteractor
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
@@ -115,13 +115,13 @@ internal class OldKenesWidgetPresenter constructor(
         super.onFirstViewAttach()
 
         listOf(
-            BottomNavigationView.NavigationButton.HOME,
-            BottomNavigationView.NavigationButton.CALLS,
-            BottomNavigationView.NavigationButton.SERVICES
+            Screen.HOME,
+            Screen.CALLS,
+            Screen.SERVICES
         ).forEach {
-            getView().hideNavButton(it)
+            getView().hideScreen(it)
         }
-        getView().showNavButton(BottomNavigationView.NavigationButton.INFO)
+        getView().showScreen(Screen.INFO)
 //        viewState = ViewState.Info
 
         getView().showDefaultPeerInfo()
@@ -226,9 +226,9 @@ internal class OldKenesWidgetPresenter constructor(
 
                 if (configs.preferences.isChatBotEnabled) {
                     getView().setDefaultFooterView()
-                    getView().showNavButton(BottomNavigationView.NavigationButton.HOME)
+                    getView().showScreen(Screen.HOME)
                 } else {
-                    getView().hideNavButton(BottomNavigationView.NavigationButton.HOME)
+                    getView().hideScreen(Screen.HOME)
                 }
 
                 if (configs.preferences.isAudioCallEnabled || configs.preferences.isVideoCallEnabled) {
@@ -241,7 +241,7 @@ internal class OldKenesWidgetPresenter constructor(
                                 getView().showCalls(calls = parentCalls)
                             }
 
-                            getView().showNavButton(BottomNavigationView.NavigationButton.CALLS)
+                            getView().showScreen(Screen.CALLS)
                         }
                     } else {
                         if (configs.preferences.isAudioCallEnabled) {
@@ -255,10 +255,10 @@ internal class OldKenesWidgetPresenter constructor(
                             getView().hideOperatorCallButton(CallType.VIDEO)
                         }
 
-                        getView().showNavButton(BottomNavigationView.NavigationButton.CALLS)
+                        getView().showScreen(Screen.CALLS)
                     }
                 } else {
-                    getView().hideNavButton(BottomNavigationView.NavigationButton.CALLS)
+                    getView().hideScreen(Screen.CALLS)
                 }
 
                 if (configs.preferences.isServicesEnabled) {
@@ -269,9 +269,9 @@ internal class OldKenesWidgetPresenter constructor(
                     } else {
                         getView().showServices(services = parentServices)
                     }
-                    getView().showNavButton(BottomNavigationView.NavigationButton.SERVICES)
+                    getView().showScreen(Screen.SERVICES)
                 } else {
-                    getView().hideNavButton(BottomNavigationView.NavigationButton.SERVICES)
+                    getView().hideScreen(Screen.SERVICES)
                 }
             }
         }
@@ -341,7 +341,7 @@ internal class OldKenesWidgetPresenter constructor(
         getView().openFile(file)
     }
 
-    fun onBottomNavigationButtonClicked(navigationButton: BottomNavigationView.NavigationButton) {
+    fun onBottomNavigationButtonClicked(screen: Screen) {
         fun clear() {
 //            chatBot.clear()
 
@@ -354,8 +354,8 @@ internal class OldKenesWidgetPresenter constructor(
             }
         }
 
-        when (navigationButton) {
-            BottomNavigationView.NavigationButton.HOME -> {
+        when (screen) {
+            Screen.HOME -> {
                 if (configs?.preferences?.isChatBotEnabled == false) return
 
 //                if (dialog.isInitiator) {
@@ -368,7 +368,7 @@ internal class OldKenesWidgetPresenter constructor(
 //                socketClient?.requestParentCategories()
                 viewState = ViewState.ChatBot.Dashboard(true)
             }
-            BottomNavigationView.NavigationButton.CALLS -> {
+            Screen.CALLS -> {
 //                if (dialog.isInitiator) {
 //                    getView().showAlreadyCallingAlert(navigationButton)
 //                    return
@@ -385,7 +385,7 @@ internal class OldKenesWidgetPresenter constructor(
 
                 viewState = ViewState.CallAgentCall
             }
-            BottomNavigationView.NavigationButton.SERVICES -> {
+            Screen.SERVICES -> {
 //                if (dialog.isInitiator) {
 //                    getView().showAlreadyCallingAlert(navigationButton)
 //                    return
@@ -399,7 +399,7 @@ internal class OldKenesWidgetPresenter constructor(
                     ViewState.Services.IDLE
                 }
             }
-            BottomNavigationView.NavigationButton.INFO -> {
+            Screen.INFO -> {
 //                if (dialog.isInitiator) {
 //                    getView().showAlreadyCallingAlert(navigationButton)
 //                    return
@@ -435,11 +435,11 @@ internal class OldKenesWidgetPresenter constructor(
 //        dialog.isInitiator = false
     }
 
-    fun onCancelPendingCallClicked(navigationButton: BottomNavigationView.NavigationButton) {
+    fun onCancelPendingCallClicked(screen: Screen) {
         cancelPendingCall()
 
-        viewState = when (navigationButton) {
-            BottomNavigationView.NavigationButton.HOME -> {
+        viewState = when (screen) {
+            Screen.HOME -> {
 //                chatBot.clear()
                 getView().clearChatMessages()
                 getView().clearChatFooterMessages()
@@ -448,9 +448,9 @@ internal class OldKenesWidgetPresenter constructor(
 
                 ViewState.ChatBot.Dashboard(true)
             }
-            BottomNavigationView.NavigationButton.CALLS -> ViewState.CallAgentCall
-            BottomNavigationView.NavigationButton.SERVICES -> ViewState.Services.IDLE
-            BottomNavigationView.NavigationButton.INFO -> ViewState.Info
+            Screen.CALLS -> ViewState.CallAgentCall
+            Screen.SERVICES -> ViewState.Services.IDLE
+            Screen.INFO -> ViewState.Info
         }
     }
 

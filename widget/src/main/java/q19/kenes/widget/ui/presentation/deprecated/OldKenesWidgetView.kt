@@ -9,7 +9,7 @@ import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
-import q19.kenes.widget.ui.components.BottomNavigationView
+import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.ui.presentation.platform.BaseView
 
@@ -30,8 +30,8 @@ internal interface OldKenesWidgetView : BaseView {
     fun showCalls(parentCall: Configs.Call? = null, calls: List<Configs.Call>)
     fun showServices(parentService: Configs.Service? = null, services: List<Configs.Service>)
 
-    fun showNavButton(navigationButton: BottomNavigationView.NavigationButton)
-    fun hideNavButton(navigationButton: BottomNavigationView.NavigationButton)
+    fun showScreen(screen: Screen)
+    fun hideScreen(screen: Screen)
 
     fun hideHangupButton()
 
@@ -78,7 +78,7 @@ internal interface OldKenesWidgetView : BaseView {
     fun releaseMediaPlayer()
     fun releaseVideoDialog()
 
-    fun showAlreadyCallingAlert(navigationButton: BottomNavigationView.NavigationButton)
+    fun showAlreadyCallingAlert(screen: Screen)
     fun showAlreadyCallingAlert(callType: CallType)
     fun showNoOnlineCallAgentsAlert(text: String)
     fun showOpenLinkConfirmAlert(url: String)

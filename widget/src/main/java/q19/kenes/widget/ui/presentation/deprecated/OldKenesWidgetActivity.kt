@@ -41,12 +41,13 @@ import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.components.BottomNavigationView
-import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView
+import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.components.deprecated.*
-import q19.kenes.widget.ui.presentation.deprecated.adapter.OldChatAdapter
+import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.deprecated.adapter.ChatAdapterItemDecoration
 import q19.kenes.widget.ui.presentation.deprecated.adapter.ChatFooterAdapter
+import q19.kenes.widget.ui.presentation.deprecated.adapter.OldChatAdapter
 import q19.kenes.widget.ui.presentation.model.ViewState
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.*
@@ -243,12 +244,12 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
         bottomNavigationView.callback = object : BottomNavigationView.Callback {
-            override fun onBottomNavigationButtonSelected(navigationButton: BottomNavigationView.NavigationButton) {
-                presenter.onBottomNavigationButtonClicked(navigationButton)
+            override fun onBottomNavigationSelected(screen: Screen) {
+                presenter.onBottomNavigationButtonClicked(screen)
             }
 
-            override fun onBottomNavigationButtonReselected(navigationButton: BottomNavigationView.NavigationButton) {
-                presenter.onBottomNavigationButtonClicked(navigationButton)
+            override fun onBottomNavigationReselected(screen: Screen) {
+                presenter.onBottomNavigationButtonClicked(screen)
             }
         }
 
@@ -638,15 +639,15 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
         }
     }
 
-    override fun showNavButton(navigationButton: BottomNavigationView.NavigationButton) {
+    override fun showScreen(screen: Screen) {
         runOnUiThread {
-            bottomNavigationView.showNavigationButton(navigationButton)
+            bottomNavigationView.showNavigationButton(screen)
         }
     }
 
-    override fun hideNavButton(navigationButton: BottomNavigationView.NavigationButton) {
+    override fun hideScreen(screen: Screen) {
         runOnUiThread {
-            bottomNavigationView.hideNavigationButton(navigationButton)
+            bottomNavigationView.hideNavigationButton(screen)
         }
     }
 
@@ -823,10 +824,10 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
         }
     }
 
-    override fun showAlreadyCallingAlert(navigationButton: BottomNavigationView.NavigationButton) {
+    override fun showAlreadyCallingAlert(screen: Screen) {
         runOnUiThread {
             showAlreadyCallingAlert {
-                presenter.onCancelPendingCallClicked(navigationButton)
+                presenter.onCancelPendingCallClicked(screen)
             }
         }
     }

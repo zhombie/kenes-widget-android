@@ -9,6 +9,8 @@ import q19.kenes.widget.data.local.Database
 import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ConfigsResponseHandler
 import q19.kenes.widget.data.remote.http.IceServersResponseHandler
+import q19.kenes.widget.ui.presentation.common.BottomSheetState
+import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil
 
@@ -23,6 +25,8 @@ internal class KenesWidgetPresenter constructor(
     }
 
     private var asyncHttpClient: AsyncHttpClient? = null
+
+    private var bottomSheetState: BottomSheetState? = null
 
     override fun onFirstViewAttach() {
         asyncHttpClient = AsyncHttpClientBuilder().build()
@@ -76,8 +80,26 @@ internal class KenesWidgetPresenter constructor(
         }
     }
 
-    fun onBottomNavigationButtonSelected(index: Int) {
-        getView().navigateTo(index)
+    fun onBottomNavigationButtonSelected(screen: Screen) {
+        if (bottomSheetState == BottomSheetState.EXPANDED) {
+            if (screen == Screen.HOME) {
+                getView().showBottomSheetCloseButton()
+            } else {
+                getView().hideBottomSheetCloseButton()
+            }
+        }
+
+        getView().navigateTo(screen.index)
+    }
+
+    fun onBottomSheetStateChanged(state: BottomSheetState) {
+        bottomSheetState = state
+
+        if (state == BottomSheetState.COLLAPSED) {
+            getView().hideBottomSheetCloseButton()
+        } else if (state == BottomSheetState.EXPANDED) {
+            getView().showBottomSheetCloseButton()
+        }
     }
 
     /**
@@ -101,6 +123,8 @@ internal class KenesWidgetPresenter constructor(
 
     override fun onDestroy() {
         Logger.debug(TAG, "onDestroy()")
+
+        bottomSheetState = null
 
         socketRepository.removeAllListeners()
         socketRepository.release()
