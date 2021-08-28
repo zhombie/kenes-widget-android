@@ -65,6 +65,7 @@
             app:iconPadding="6dp"
             app:iconSize="10dp"
             app:iconTint="#888888"
+            app:rippleColor="?colorControlHighlight"
             app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />
 
     </LinearLayout>

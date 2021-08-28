@@ -10,12 +10,14 @@ import androidx.activity.addCallback
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.core.permission.PermissionManager
 import q19.kenes.widget.ui.presentation.HomeScreenDelegate
 import q19.kenes.widget.ui.presentation.call.selection.CallSelection
 import q19.kenes.widget.ui.presentation.call.selection.CallSelectionBottomSheetDialogFragment
 import q19.kenes.widget.ui.presentation.common.HomeFragment
+import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes_widget.R
 
 internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_calls),
@@ -135,6 +137,8 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_ca
         callsAdapter = CallsAdapter(this)
         concatAdapter = ConcatAdapter(callsHeaderAdapter, callsAdapter)
         recyclerView?.adapter = concatAdapter
+
+        recyclerView?.addItemDecoration(SpacingItemDecoration(10F.dp2Px()))
 
         recyclerView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
             override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {

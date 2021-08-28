@@ -46,6 +46,7 @@
             app:iconPadding="6dp"
             app:iconSize="10dp"
             app:iconTint="#888888"
+            app:rippleColor="?colorControlHighlight"
             app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />
 
         <Space
@@ -72,6 +73,7 @@
             app:iconPadding="0dp"
             app:iconSize="12dp"
             app:iconTint="@color/kenes_dark_charcoal"
+            app:rippleColor="?colorControlHighlight"
             app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />
 
     </LinearLayout>

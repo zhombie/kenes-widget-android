@@ -9,7 +9,9 @@ import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
+import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.ui.presentation.call.Call
+import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseBottomSheetDialogFragment
 import q19.kenes_widget.R
 
@@ -27,6 +29,7 @@ internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFra
 
     // UI Views
     private var titleView: MaterialTextView? = null
+    private var questionView: MaterialTextView? = null
     private var callsView: RecyclerView? = null
 
     private var callSelection: CallSelection? = null
@@ -55,11 +58,29 @@ internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFra
         super.onViewCreated(view, savedInstanceState)
 
         titleView = view.findViewById(R.id.titleView)
+        questionView = view.findViewById(R.id.questionView)
         callsView = view.findViewById(R.id.callsView)
 
-        titleView?.text = callSelection?.title
+        bindData()
 
+        setupQuestionView()
         setupRecyclerView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        callSelectionAdapter = null
+
+        callSelection = null
+    }
+
+    private fun bindData() {
+        titleView?.text = callSelection?.title
+    }
+
+    private fun setupQuestionView() {
+        questionView?.paint?.isUnderlineText = true
     }
 
     private fun setupRecyclerView() {
@@ -72,6 +93,8 @@ internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFra
         callsView?.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         callSelectionAdapter?.calls = callSelection?.calls ?: emptyList()
+
+        callsView?.addItemDecoration(SpacingItemDecoration(5F.dp2Px()))
     }
 
 }
