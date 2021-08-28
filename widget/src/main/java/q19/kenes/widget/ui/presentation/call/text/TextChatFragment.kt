@@ -11,9 +11,8 @@ import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.ui.components.KenesTextView
+import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
-import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
@@ -35,7 +34,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     private var toolbar: KenesToolbar? = null
     private var showVideoCallButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
-    private var messageInputView: MessageInputView? = null
+    private var messageInputView: KenesMessageInputView? = null
 
     // RecyclerView adapter
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
@@ -128,7 +127,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
             }
         }
 
-        messageInputView?.setCallback(object : MessageInputView.Callback {
+        messageInputView?.setCallback(object : KenesMessageInputView.Callback {
             override fun onNewMediaSelection() {
             }
 

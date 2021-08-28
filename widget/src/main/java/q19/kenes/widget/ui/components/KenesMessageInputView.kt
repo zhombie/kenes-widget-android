@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.KeyEvent
+import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.annotation.AttrRes
@@ -13,7 +14,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.AppCompatImageButton
 import q19.kenes_widget.R
 
-internal class MessageInputView @JvmOverloads constructor(
+internal class KenesMessageInputView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     @AttrRes defStyleAttr: Int = 0,
@@ -51,28 +52,20 @@ internal class MessageInputView @JvmOverloads constructor(
         inputView.text?.clear()
     }
 
-    fun enableSendMessageButton() {
-        setSendMessageButtonEnabled(true)
+    fun setAttachmentButtonVisible(isVisible: Boolean) {
+        if (isVisible) {
+            attachmentButton.visibility = View.VISIBLE
+        } else {
+            attachmentButton.visibility = View.GONE
+        }
     }
 
-    fun disableSendMessageButton() {
-        setSendMessageButtonEnabled(false)
-    }
-
-    private fun setSendMessageButtonEnabled(isEnabled: Boolean) {
-        sendMessageButton.isEnabled = isEnabled
-    }
-
-    fun enableAttachmentButton() {
-        setAttachmentButtonEnabled(true)
-    }
-
-    fun disableAttachmentButton() {
-        setAttachmentButtonEnabled(false)
-    }
-
-    private fun setAttachmentButtonEnabled(isEnabled: Boolean) {
+    fun setAttachmentButtonEnabled(isEnabled: Boolean) {
         isAttachmentButtonEnabled = isEnabled
+    }
+
+    fun setSendMessageButtonEnabled(isEnabled: Boolean) {
+        sendMessageButton.isEnabled = isEnabled
     }
 
     fun setOnInputViewFocusChangeListener(
@@ -98,8 +91,8 @@ internal class MessageInputView @JvmOverloads constructor(
     }
 
     interface Callback {
-        fun onNewMediaSelection()
-        fun onSendTextMessage(message: String?)
+        fun onNewMediaSelection() {}
+        fun onSendTextMessage(message: String?) {}
     }
 
 }

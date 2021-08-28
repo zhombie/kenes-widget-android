@@ -258,11 +258,6 @@ internal class ChatbotPresenter constructor(
         }
     }
 
-    private fun addNewChatMessage(message: Message) {
-        interactor.chatMessages.add(message)
-        getView().showNewChatMessage(message)
-    }
-
     /**
      * [ChatBotListener] implementation
      */
@@ -275,7 +270,7 @@ internal class ChatbotPresenter constructor(
     override fun onNoResultsFound(text: String, timestamp: Long): Boolean {
         Logger.debug(TAG, "onNoResultsFound() -> $text, $timestamp")
 
-        getView().showNewChatMessage(
+        addNewChatMessage(
             Message.Builder()
                 .setType(Message.Type.INCOMING)
                 .setText(text)
@@ -289,11 +284,18 @@ internal class ChatbotPresenter constructor(
     override fun onMessage(message: Message) {
         Logger.debug(TAG, "onMessage() -> $message")
 
-        getView().showNewChatMessage(message)
+        addNewChatMessage(message)
     }
 
     override fun onCategories(categories: List<Category>) {
         Logger.debug(TAG, "onCategories() -> $categories")
+    }
+
+    private fun addNewChatMessage(message: Message) {
+        interactor.chatMessages.add(message)
+        getView().showNewChatMessage(message)
+
+        getView().scrollToBottom()
     }
 
     /**

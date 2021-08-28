@@ -26,8 +26,8 @@ import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView
-import q19.kenes.widget.ui.components.MessageInputView
 import q19.kenes.widget.ui.presentation.HomeScreenDelegate
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.common.HomeFragment
@@ -61,7 +61,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     private var peekView: LinearLayout? = null
     private var toggleButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
-    private var messageInputView: MessageInputView? = null
+    private var messageInputView: KenesMessageInputView? = null
 
     // RecyclerView adapter
     private var concatAdapter: ConcatAdapter? = null
@@ -299,7 +299,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
             }
         }
 
-        messageInputView?.setCallback(object : MessageInputView.Callback {
+        messageInputView?.setCallback(object : KenesMessageInputView.Callback {
             override fun onNewMediaSelection() {
                 // TODO: Implement media selection with certain permissions
             }
@@ -308,6 +308,14 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
                 presenter.onSendTextMessage(message)
             }
         })
+
+        messageInputView?.setOnTextChangedListener { s, _, _, _ ->
+            if (s.isNullOrBlank()) {
+                messageInputView?.setSendMessageButtonEnabled(false)
+            } else {
+                messageInputView?.setSendMessageButtonEnabled(true)
+            }
+        }
     }
 
     /**
@@ -375,6 +383,10 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
         }
+    }
+
+    override fun scrollToBottom() {
+        messagesView?.smoothScrollToPosition(0)
     }
 
     override fun collapseBottomSheet() {

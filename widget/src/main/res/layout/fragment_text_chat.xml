@@ -50,7 +50,7 @@
         tools:itemCount="2"
         tools:listitem="@layout/cell_incoming_text_message" />
 
-    <q19.kenes.widget.ui.components.MessageInputView
+    <q19.kenes.widget.ui.components.KenesMessageInputView
         android:id="@+id/messageInputView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

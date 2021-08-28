@@ -179,7 +179,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         window.decorView.addKeyboardInsetListener { isKeyboardVisible ->
-            Logger.debug(TAG, "isKeyboardVisible: $isKeyboardVisible")
+//            Logger.debug(TAG, "isKeyboardVisible: $isKeyboardVisible")
             if (isKeyboardVisible) {
                 bottomNavigationView.visibility = View.GONE
             } else {
@@ -226,7 +226,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      */
 
     override fun onVerticalScroll(scrollYPosition: Int) {
-        Logger.debug(TAG, "onResponsesViewScrolled() -> $scrollYPosition")
+//        Logger.debug(TAG, "onVerticalScroll() -> $scrollYPosition")
 
         if (toolbar.elevation > MAX_TOOLBAR_ELEVATION) return
         var elevation: Float = scrollYPosition.toFloat()
@@ -244,7 +244,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      */
 
     override fun onBottomSheetSlide(slideOffset: Float) {
-        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
+//        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
 
 //        toolbar.setBackgroundColor(
 //            ColorUtils.blendARGB(
