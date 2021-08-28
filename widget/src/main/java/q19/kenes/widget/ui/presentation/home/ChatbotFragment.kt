@@ -171,6 +171,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         chatMessagesHeaderAdapter?.let { concatAdapter?.removeAdapter(it) }
         chatMessagesHeaderAdapter = null
 
+        messagesView?.clearOnScrollListeners()
         responsesView?.clearOnScrollListeners()
 
         onBackPressedDispatcherCallback?.remove()
@@ -298,6 +299,13 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
                 }
             }
         }
+
+        messagesView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                listener?.onVerticalScroll(recyclerView.computeVerticalScrollOffset())
+            }
+        })
 
         messageInputView?.setCallback(object : KenesMessageInputView.Callback {
             override fun onNewMediaSelection() {
