@@ -51,7 +51,7 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_ca
     // Activity + Fragment communication
     private var listener: Listener? = null
 
-    interface Listener {
+    interface Listener : HomeFragment.Listener {
         fun onLaunchCall(call: Call)
     }
 
@@ -119,6 +119,8 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_ca
 
         childFragmentManager.clearFragmentResultListener("request_key.call_selection")
 
+        recyclerView?.clearOnScrollListeners()
+
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
 
@@ -141,6 +143,13 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_ca
                 }
             }
         }
+
+        recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                listener?.onVerticalScroll(recyclerView.computeVerticalScrollOffset())
+            }
+        })
     }
 
     /**

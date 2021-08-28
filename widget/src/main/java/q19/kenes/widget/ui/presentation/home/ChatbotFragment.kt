@@ -81,8 +81,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     // Activity + Fragment communication
     private var listener: Listener? = null
 
-    interface Listener {
-        fun onResponsesViewScrolled(scrollYPosition: Int) {}
+    interface Listener : HomeFragment.Listener {
         fun onBottomSheetSlide(slideOffset: Float) {}
         fun onBottomSheetStateChanged(state: BottomSheetState) {}
     }
@@ -226,7 +225,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         responsesView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                listener?.onResponsesViewScrolled(recyclerView.computeVerticalScrollOffset())
+                listener?.onVerticalScroll(recyclerView.computeVerticalScrollOffset())
             }
         })
     }

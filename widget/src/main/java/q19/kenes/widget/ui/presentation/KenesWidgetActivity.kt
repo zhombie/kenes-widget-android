@@ -23,6 +23,7 @@ import q19.kenes.widget.ui.presentation.call.CallsFragment
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
+import q19.kenes.widget.ui.presentation.common.HomeFragment
 import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
@@ -32,6 +33,7 @@ import q19.kenes_widget.R
 
 internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     KenesWidgetView,
+    HomeFragment.Listener,
     ChatbotFragment.Listener,
     CallsFragment.Listener,
     VideoCallFragment.Listener,
@@ -220,10 +222,10 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     }
 
     /**
-     * [ChatbotFragment.Listener] implementation
+     * [HomeFragment.Listener] implementation
      */
 
-    override fun onResponsesViewScrolled(scrollYPosition: Int) {
+    override fun onVerticalScroll(scrollYPosition: Int) {
         Logger.debug(TAG, "onResponsesViewScrolled() -> $scrollYPosition")
 
         if (toolbar.elevation > MAX_TOOLBAR_ELEVATION) return
@@ -236,6 +238,10 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         }
         toolbar.elevation = elevation
     }
+
+    /**
+     * [ChatbotFragment.Listener] implementation
+     */
 
     override fun onBottomSheetSlide(slideOffset: Float) {
         Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")

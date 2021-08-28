@@ -6,4 +6,10 @@ import q19.kenes.widget.ui.presentation.platform.BasePresenter
 
 internal abstract class HomeFragment<Presenter : BasePresenter<*>> constructor(
     @LayoutRes contentLayoutId: Int
-) : BaseFragment<Presenter>(contentLayoutId)
+) : BaseFragment<Presenter>(contentLayoutId) {
+
+    interface Listener {
+        fun onVerticalScroll(scrollYPosition: Int) {}
+    }
+
+}
