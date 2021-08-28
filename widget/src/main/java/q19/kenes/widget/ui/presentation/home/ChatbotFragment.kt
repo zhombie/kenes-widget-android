@@ -317,6 +317,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
             }
         })
 
+        messageInputView?.setAttachmentButtonVisible(false)
+
         messageInputView?.setOnTextChangedListener { s, _, _, _ ->
             if (s.isNullOrBlank()) {
                 messageInputView?.setSendMessageButtonEnabled(false)
