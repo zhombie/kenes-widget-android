@@ -14,6 +14,9 @@ import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.view.binding.bind
+import kz.zhombie.cinema.CinemaDialogFragment
+import kz.zhombie.museum.MuseumDialogFragment
+import kz.zhombie.radio.Radio
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.BottomNavigationView
@@ -29,6 +32,7 @@ import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
+import q19.kenes_widget.BuildConfig
 import q19.kenes_widget.R
 
 internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
@@ -91,6 +95,15 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
         // Attach view to MVP presenter
         presenter.attachView(this)
+
+        // Cinema (video fullscreen preview)
+        CinemaDialogFragment.init(BuildConfig.DEBUG)
+
+        // Museum (image fullscreen preview)
+        MuseumDialogFragment.init(CoilImageLoader(this), BuildConfig.DEBUG)
+
+        // Radio (audio player)
+        Radio.init(BuildConfig.DEBUG)
 
         // Toolbar
         setupToolbar()
