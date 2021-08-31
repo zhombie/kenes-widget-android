@@ -29,7 +29,9 @@ import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.common.HomeFragment
 import q19.kenes.widget.ui.presentation.common.Screen
 import q19.kenes.widget.ui.presentation.home.ChatbotFragment
+import q19.kenes.widget.ui.presentation.info.InfoFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
+import q19.kenes.widget.ui.presentation.services.ServicesFragment
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
 import q19.kenes_widget.BuildConfig
@@ -162,7 +164,9 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     private fun setupViewPager() {
         fragments = arrayOf(
             ChatbotFragment.newInstance(),
-            CallsFragment.newInstance()
+            CallsFragment.newInstance(),
+            ServicesFragment.newInstance(),
+            InfoFragment.newInstance()
         )
 
         viewPagerAdapter = ViewPagerAdapter(this, fragments)
@@ -217,10 +221,9 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         toolbar.setRightButtonIcon(R.drawable.ic_cancel)
         toolbar.setRightButtonIconTint(R.color.kenes_gray)
         toolbar.setRightButtonOnClickListener {
-            supportFragmentManager.fragments.forEach {
-                if (it is ChatbotFragment) {
-                    it.collapseBottomSheet()
-                }
+            val fragment = viewPagerAdapter?.getFragment(viewPager.currentItem)
+            if (fragment is ChatbotFragment) {
+                fragment.collapseBottomSheet()
             }
         }
     }

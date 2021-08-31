@@ -15,6 +15,8 @@ import q19.kenes.widget.ui.presentation.call.CallsPresenter
 import q19.kenes.widget.ui.presentation.call.text.TextChatPresenter
 import q19.kenes.widget.ui.presentation.call.video.VideoCallPresenter
 import q19.kenes.widget.ui.presentation.home.ChatbotPresenter
+import q19.kenes.widget.ui.presentation.info.InfoPresenter
+import q19.kenes.widget.ui.presentation.services.ServicesPresenter
 
 internal class Injection private constructor(context: Context) {
 
@@ -67,6 +69,14 @@ internal class Injection private constructor(context: Context) {
 
     fun provideTextChatPresenter(language: Language): TextChatPresenter {
         return TextChatPresenter(language, socketRepository)
+    }
+
+    fun provideServicesPresenter(language: Language): ServicesPresenter {
+        return ServicesPresenter(language)
+    }
+
+    fun provideInfoPresenter(language: Language): InfoPresenter {
+        return InfoPresenter(language)
     }
 
     fun destroy() {
