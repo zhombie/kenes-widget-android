@@ -21,6 +21,7 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.android.dp2Px
+import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
@@ -35,6 +36,8 @@ internal class KenesToolbar @JvmOverloads constructor(
 
     companion object {
         private val TAG = KenesToolbar::class.java.simpleName
+
+        private val MAX_ELEVATION = 3F.dp2Px()
     }
 
     private var leftButton: MaterialButton? = null
@@ -68,6 +71,18 @@ internal class KenesToolbar @JvmOverloads constructor(
             e.printStackTrace()
         } finally {
             typedArray.recycle()
+        }
+    }
+
+    override fun setElevation(elevation: Float) {
+        Logger.debug(TAG, "setElevation() -> $elevation")
+
+        if (elevation == 0F) {
+            super.setElevation(elevation)
+        } else {
+            if (this@KenesToolbar.elevation < MAX_ELEVATION) {
+                super.setElevation(MAX_ELEVATION)
+            }
         }
     }
 

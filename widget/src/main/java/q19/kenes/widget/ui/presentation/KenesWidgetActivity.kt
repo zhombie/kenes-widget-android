@@ -241,15 +241,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun onVerticalScroll(scrollYPosition: Int) {
 //        Logger.debug(TAG, "onVerticalScroll() -> $scrollYPosition")
 
-        if (toolbar.elevation > MAX_TOOLBAR_ELEVATION) return
-        var elevation: Float = scrollYPosition.toFloat()
-        if (elevation < 0F) {
-            elevation = 0F
-        }
-        if (elevation > MAX_TOOLBAR_ELEVATION) {
-            elevation = MAX_TOOLBAR_ELEVATION
-        }
-        toolbar.elevation = elevation
+        toolbar.elevation = scrollYPosition.toFloat()
     }
 
     /**
