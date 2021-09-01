@@ -9,10 +9,7 @@
 
     <style name="Kenes.Widget.ShapeAppearance.Rounded.All.15dp" parent="Kenes.Widget.ShapeAppearance">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSizeBottomLeft">15dp</item>
-        <item name="cornerSizeBottomRight">15dp</item>
-        <item name="cornerSizeTopLeft">15dp</item>
-        <item name="cornerSizeTopRight">15dp</item>
+        <item name="cornerSize">15dp</item>
     </style>
 
     <style name="Kenes.Widget.ShapeAppearance.Rounded.Top.16dp" parent="Kenes.Widget.ShapeAppearance">

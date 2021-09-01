@@ -2,24 +2,45 @@ package q19.kenes.widget.ui.presentation.common.chat.viewholder
 
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.textview.MaterialTextView
+import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.media.Media
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.ui.components.SquareImageView
+import q19.kenes.widget.util.ViewHolderDelegate
 import q19.kenes.widget.util.loadImage
 import q19.kenes_widget.R
 
-internal class AlbumImageMessageAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class AlbumImageMessageAdapter constructor(
+    var callback: Callback? = null
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val TAG = AlbumImageMessageAdapter::class.java.simpleName
     }
 
-    var images: List<Media> = emptyList()
+    object ViewType {
+        const val IMAGE = 100
+        const val LAST_IMAGE = 101
+    }
+
+    private var totalCount: Int = 0
+
+    private var allImages = emptyList<Media>()
+
+    private var images: List<Media> = emptyList()
         set(value) {
             field = value
+            totalCount = field.size
             notifyDataSetChanged()
         }
+
+    fun setData(images: List<Media>) {
+        this.allImages = images
+        this.images = images.take(4)
+    }
 
     private fun getItem(position: Int): Media {
         return images[position]
@@ -29,32 +50,77 @@ internal class AlbumImageMessageAdapter : RecyclerView.Adapter<RecyclerView.View
         return images.isNotEmpty() && images.lastIndex == position
     }
 
-    override fun getItemCount(): Int = images.size
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_chat_message_album_image))
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is ViewHolder) {
-            holder.bind(getItem(position))
+    override fun getItemViewType(position: Int): Int {
+        return if (totalCount > 4) {
+            if (isLastItem(position)) {
+                ViewType.LAST_IMAGE
+            } else {
+                ViewType.IMAGE
+            }
+        } else {
+            ViewType.IMAGE
         }
     }
 
-    private inner class ViewHolder constructor(view: View) : RecyclerView.ViewHolder(view) {
-        private val imageView = view.findViewById<ShapeableImageView>(R.id.imageView)
+    override fun getItemCount(): Int = images.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            ViewType.IMAGE ->
+                ImageViewHolder(parent.inflate(R.layout.cell_chat_message_album_image))
+            ViewType.LAST_IMAGE ->
+                LastImageViewHolder(parent.inflate(R.layout.cell_chat_message_album_last_image))
+            else ->
+                throw ViewHolderViewTypeException(viewType)
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder is ImageViewHolder) {
+            holder.bind(getItem(position))
+        } else if (holder is LastImageViewHolder) {
+            holder.bind(getItem(position), totalCount)
+        }
+    }
+
+    private inner class ImageViewHolder constructor(view: View) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
+        private val imageView = view.findViewById<SquareImageView>(R.id.imageView)
 
         fun bind(image: Media) {
             imageView.loadImage(image.urlPath)
 
-            if (isLastItem(bindingAdapterPosition)) {
-
-            } else {
-
+            imageView.setOnClickListener {
+                callback?.onImagesClicked(allImages, allImages.indexOf(image))
             }
-
-            imageView.setOnClickListener {  }
         }
+
+        override fun getImageView(): ImageView {
+            return imageView
+        }
+    }
+
+    private inner class LastImageViewHolder constructor(view: View) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
+        private val imageView = view.findViewById<SquareImageView>(R.id.imageView)
+        private val textView = view.findViewById<MaterialTextView>(R.id.textView)
+
+        fun bind(image: Media, totalCount: Int) {
+            imageView.loadImage(image.urlPath)
+
+            textView.text = "Показать все ($totalCount)"
+
+            itemView.setOnClickListener {
+                callback?.onShowAllImagesClicked(allImages, allImages.lastIndex)
+            }
+        }
+
+        override fun getImageView(): ImageView {
+            return imageView
+        }
+    }
+
+    interface Callback {
+        fun onImagesClicked(images: List<Media>, imagePosition: Int)
+        fun onShowAllImagesClicked(images: List<Media>, imagePosition: Int)
     }
 
 }

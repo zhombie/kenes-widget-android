@@ -10,7 +10,6 @@ import kz.q19.domain.model.message.Message
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.*
-import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.ui.presentation.common.chat.viewholder.*
 
 internal class ChatMessagesAdapter constructor(
@@ -207,14 +206,15 @@ internal class ChatMessagesAdapter constructor(
         fun onAudioClicked(media: Media, itemPosition: Int) {}
         fun onMediaClicked(media: Media, itemPosition: Int) {}
 
+        fun onImagesClicked(recyclerView: RecyclerView, images: List<Media>, imagePosition: Int) {}
+
         // Button
         fun onInlineButtonClicked(message: Message, button: Button, itemPosition: Int) {}
 
         // Seek bar
         fun setOnSeekBarChangeListener(media: Media, progress: Int): Boolean = false
 
-        // Whole view
-        fun onMessageClicked(textView: KenesTextView, message: Message) {}
+        // Message
         fun onMessageLongClicked(text: String) {}
     }
 }

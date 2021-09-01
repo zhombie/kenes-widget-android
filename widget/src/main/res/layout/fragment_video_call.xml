@@ -69,6 +69,7 @@
                 android:layout_width="0dp"
                 android:layout_height="60dp"
                 android:layout_weight="1"
+                app:kenesHasUserInfo="true"
                 app:kenesTitleTextColor="@color/kenes_white"
                 app:kenesSubtitleTextColor="@color/kenes_white" />
 

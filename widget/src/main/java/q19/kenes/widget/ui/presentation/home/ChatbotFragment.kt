@@ -5,10 +5,12 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EdgeEffect
+import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -18,16 +20,22 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
+import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.clipboardManager
 import kz.q19.utils.android.dp2Px
 import kz.q19.utils.html.HTMLCompat
+import kz.zhombie.cinema.CinemaDialogFragment
+import kz.zhombie.cinema.model.Movie
+import kz.zhombie.museum.MuseumDialogFragment
+import kz.zhombie.museum.model.Painting
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView
+import q19.kenes.widget.ui.presentation.CoilImageLoader
 import q19.kenes.widget.ui.presentation.HomeScreenDelegate
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.common.HomeFragment
@@ -35,6 +43,7 @@ import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesHeaderAdapter
 import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.util.AlertDialogBuilder
+import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes.widget.util.hideKeyboardCompat
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
@@ -75,6 +84,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
     private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
 
+    private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
+
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
 
@@ -96,6 +107,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        imageLoader = CoilImageLoader(requireContext())
 
         presenter.attachView(this)
     }
@@ -334,6 +347,41 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
 
     override fun onUrlInTextClicked(url: String) {
         toast("url: $url")
+    }
+
+    override fun onImageClicked(imageView: ImageView, media: Media) {
+        MuseumDialogFragment.Builder()
+            .setPaintingLoader(imageLoader ?: return)
+            .setPainting(Painting(Uri.parse(media.urlPath), Painting.Info(media.title)))
+            .setImageView(imageView)
+            .setFooterViewEnabled(true)
+            .showSafely(childFragmentManager)
+    }
+
+    override fun onImagesClicked(
+        recyclerView: RecyclerView,
+        images: List<Media>,
+        imagePosition: Int
+    ) {
+        MuseumDialogFragment.Builder()
+            .setPaintingLoader(imageLoader ?: return)
+            .setPaintings(images.map { media ->
+                Painting(
+                    Uri.parse(media.urlPath),
+                    Painting.Info(media.title)
+                )
+            })
+            .setStartPosition(imagePosition)
+            .setFooterViewEnabled(true)
+            .showSafely(childFragmentManager)
+    }
+
+    override fun onVideoClicked(imageView: ImageView, media: Media) {
+        CinemaDialogFragment.Builder()
+            .setMovie(Movie(Uri.parse(media.urlPath), Movie.Info(media.title)))
+            .setScreenView(imageView)
+            .setFooterViewEnabled(true)
+            .showSafely(childFragmentManager)
     }
 
     override fun onMessageLongClicked(text: String) {

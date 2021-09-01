@@ -11,7 +11,8 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/kenes_white" />
+        android:background="@color/kenes_white"
+        app:kenesHasUserInfo="true" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/showVideoCallButton"

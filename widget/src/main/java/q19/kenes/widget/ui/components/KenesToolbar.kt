@@ -10,6 +10,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
+import android.widget.Space
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.Dimension
@@ -51,27 +52,45 @@ internal class KenesToolbar @JvmOverloads constructor(
         orientation = HORIZONTAL
         setPadding(16F.dp2Px().roundToInt(), 0, 16F.dp2Px().roundToInt(), 0)
 
-        addImageView()
-
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesToolbar)
 
-        try {
-            val titleTextColor = typedArray.getColor(
-                R.styleable.KenesToolbar_kenesTitleTextColor,
-                ContextCompat.getColor(context, R.color.kenes_dark_charcoal)
+        val hasUserInfo = try {
+            typedArray.getBoolean(
+                R.styleable.KenesToolbar_kenesHasUserInfo,
+                false
             )
-
-            val subtitleTextColor = typedArray.getColor(
-                R.styleable.KenesToolbar_kenesSubtitleTextColor,
-                ContextCompat.getColor(context, R.color.kenes_dark_gray)
-            )
-
-            addLinearLayout(titleTextColor, subtitleTextColor)
         } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            typedArray.recycle()
+            false
         }
+
+        if (hasUserInfo) {
+            val titleTextColor = try {
+                typedArray.getColor(
+                    R.styleable.KenesToolbar_kenesTitleTextColor,
+                    ContextCompat.getColor(context, R.color.kenes_dark_charcoal)
+                )
+            } catch (e: Exception) {
+                ContextCompat.getColor(context, R.color.kenes_dark_charcoal)
+            }
+
+            val subtitleTextColor = try {
+                typedArray.getColor(
+                    R.styleable.KenesToolbar_kenesSubtitleTextColor,
+                    ContextCompat.getColor(context, R.color.kenes_dark_gray)
+                )
+            } catch (e: Exception) {
+                ContextCompat.getColor(context, R.color.kenes_dark_gray)
+            }
+
+            addImageView()
+            addLinearLayout(titleTextColor, subtitleTextColor)
+        } else {
+            val space = Space(context)
+            space.layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F)
+            addView(space)
+        }
+
+        typedArray.recycle()
     }
 
     override fun setElevation(elevation: Float) {

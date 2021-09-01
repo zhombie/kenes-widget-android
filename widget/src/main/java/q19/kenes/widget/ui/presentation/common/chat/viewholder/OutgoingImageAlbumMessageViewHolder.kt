@@ -3,6 +3,7 @@ package q19.kenes.widget.ui.presentation.common.chat.viewholder
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.ui.components.KenesChatMessageTextView
@@ -14,7 +15,7 @@ import q19.kenes_widget.R
 internal class OutgoingImageAlbumMessageViewHolder constructor(
     view: View,
     private val callback: ChatMessagesAdapter.Callback? = null
-) : MessageViewHolder(view) {
+) : MessageViewHolder(view), AlbumImageMessageAdapter.Callback {
 
     companion object {
         private val TAG = OutgoingImageAlbumMessageViewHolder::class.java.simpleName
@@ -29,7 +30,7 @@ internal class OutgoingImageAlbumMessageViewHolder constructor(
     private var adapter: AlbumImageMessageAdapter? = null
 
     init {
-        adapter = AlbumImageMessageAdapter()
+        adapter = AlbumImageMessageAdapter(this)
         albumView.layoutManager =
             GridLayoutManager(itemView.context, 2, GridLayoutManager.VERTICAL, false)
         albumView.addItemDecoration(SpacingItemDecoration(1.5F.dp2Px()))
@@ -37,7 +38,12 @@ internal class OutgoingImageAlbumMessageViewHolder constructor(
     }
 
     override fun bind(message: Message) {
-        adapter?.images = message.attachments?.take(4) ?: emptyList()
+        val attachments = message.attachments
+        if (!attachments.isNullOrEmpty()) {
+            adapter?.setData(attachments)
+        } else {
+            adapter?.setData(emptyList())
+        }
 
         if (message.htmlText.isNullOrBlank()) {
             textView.visibility = View.GONE
@@ -55,6 +61,14 @@ internal class OutgoingImageAlbumMessageViewHolder constructor(
         }
 
         timeView.text = message.time
+    }
+
+    override fun onImagesClicked(images: List<Media>, imagePosition: Int) {
+        callback?.onImagesClicked(albumView, images, imagePosition)
+    }
+
+    override fun onShowAllImagesClicked(images: List<Media>, imagePosition: Int) {
+        callback?.onImagesClicked(albumView, images, imagePosition)
     }
 
 }
