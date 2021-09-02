@@ -2,20 +2,29 @@ package q19.kenes.widget.ui.presentation.call.text
 
 import android.content.Context
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.EdgeEffect
+import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.dp2Px
+import kz.zhombie.cinema.CinemaDialogFragment
+import kz.zhombie.cinema.model.Movie
+import kz.zhombie.museum.MuseumDialogFragment
+import kz.zhombie.museum.model.Painting
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
+import q19.kenes.widget.ui.presentation.CoilImageLoader
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
+import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.R
 
 internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragment_text_chat),
@@ -39,6 +48,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     // RecyclerView adapter
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
+    private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
+
     // Activity + Fragment communication
     private var listener: Listener? = null
 
@@ -57,6 +68,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        imageLoader = CoilImageLoader(requireContext())
 
         presenter.attachView(this)
     }
@@ -161,6 +174,41 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
 
     override fun onUrlInTextClicked(url: String) {
         toast("url: $url")
+    }
+
+    override fun onImageClicked(imageView: ImageView, media: Media) {
+        MuseumDialogFragment.Builder()
+            .setPaintingLoader(imageLoader ?: return)
+            .setPainting(Painting(Uri.parse(media.urlPath), Painting.Info(media.title)))
+            .setImageView(imageView)
+            .setFooterViewEnabled(true)
+            .showSafely(childFragmentManager)
+    }
+
+    override fun onImagesClicked(
+        recyclerView: RecyclerView,
+        images: List<Media>,
+        imagePosition: Int
+    ) {
+        MuseumDialogFragment.Builder()
+            .setPaintingLoader(imageLoader ?: return)
+            .setPaintings(images.map { media ->
+                Painting(
+                    Uri.parse(media.urlPath),
+                    Painting.Info(media.title)
+                )
+            })
+            .setStartPosition(imagePosition)
+            .setFooterViewEnabled(true)
+            .showSafely(childFragmentManager)
+    }
+
+    override fun onVideoClicked(imageView: ImageView, media: Media) {
+        CinemaDialogFragment.Builder()
+            .setMovie(Movie(Uri.parse(media.urlPath), Movie.Info(media.title)))
+            .setScreenView(imageView)
+            .setFooterViewEnabled(true)
+            .showSafely(childFragmentManager)
     }
 
     override fun onMessageLongClicked(text: String) {
