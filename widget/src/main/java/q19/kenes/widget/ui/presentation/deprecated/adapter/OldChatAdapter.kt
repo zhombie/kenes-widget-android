@@ -613,7 +613,7 @@ internal class OldChatAdapter constructor(
                 it.progress = progress
 
                 if (it.progress < it.max) {
-                    iconView?.setImageResource(R.drawable.kenes_ic_pause)
+                    iconView?.setImageResource(R.drawable.ic_pause)
                 } else {
                     iconView?.setImageResource(R.drawable.kenes_ic_play)
                 }

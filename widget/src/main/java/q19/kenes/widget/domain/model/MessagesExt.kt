@@ -2,6 +2,9 @@ package q19.kenes.widget.domain.model
 
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
+import q19.kenes.widget.core.logging.Logger
+
+private const val TAG = "MessagesExt"
 
 internal fun Message.isEmpty(): Boolean {
     return title.isNullOrBlank() &&
@@ -45,15 +48,19 @@ internal fun Media.hasRemoteUrl(): Boolean {
 }
 
 internal fun Message.hasMedia(type: Media.Type): Boolean {
-    return media?.type == type && media?.hasRemoteUrlOrLocalFile() == true
+    val media = media ?: return false
+    Logger.debug(TAG, "hasMedia() -> type: $type, media: $media")
+    return media.type == type && media.hasRemoteUrlOrLocalFile()
 }
 
 internal fun Message.hasAttachments(type: Media.Type, atLeast: Int = -1): Boolean {
-    if (attachments?.all { it.type == type && it.hasRemoteUrlOrLocalFile() } == true) {
+    val attachments = attachments
+    if (attachments.isNullOrEmpty()) return false
+    if (attachments.all { it.type == type && it.hasRemoteUrlOrLocalFile() }) {
         if (atLeast == -1) {
             return true
         } else {
-            if ((attachments?.size ?: 0) >= atLeast) {
+            if (attachments.size >= atLeast) {
                 return true
             }
         }

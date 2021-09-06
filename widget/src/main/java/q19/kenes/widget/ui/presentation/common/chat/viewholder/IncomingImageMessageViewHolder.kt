@@ -47,6 +47,12 @@ internal class IncomingImageMessageViewHolder constructor(
         }
 
         timeView.text = message.time
+
+        imageView.setOnClickListener {
+            message.media?.let { media ->
+                callback?.onImageClicked(imageView, media)
+            }
+        }
     }
 
 }

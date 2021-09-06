@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.EdgeEffect
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.core.view.updateLayoutParams
@@ -29,10 +30,14 @@ import kz.zhombie.cinema.CinemaDialogFragment
 import kz.zhombie.cinema.model.Movie
 import kz.zhombie.museum.MuseumDialogFragment
 import kz.zhombie.museum.model.Painting
+import kz.zhombie.radio.Radio
+import kz.zhombie.radio.getDurationOrZeroIfUnset
+import kz.zhombie.radio.getPositionByProgress
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.Element
 import q19.kenes.widget.domain.model.Nestable
 import q19.kenes.widget.domain.model.ResponseGroup
+import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView
 import q19.kenes.widget.ui.presentation.CoilImageLoader
@@ -85,6 +90,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
 
     private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
+
+    private var radio: Radio? = null
 
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
@@ -164,8 +171,11 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         listener = null
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        radio?.release()
+        radio = null
 
         bottomSheetBehaviorCallback?.let { bottomSheetBehavior?.removeBottomSheetCallback(it) }
         bottomSheetBehaviorCallback = null
@@ -186,6 +196,10 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
 
         messagesView?.clearOnScrollListeners()
         responsesView?.clearOnScrollListeners()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
 
         onBackPressedDispatcherCallback?.remove()
         onBackPressedDispatcherCallback = null
@@ -382,6 +396,78 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
             .setScreenView(imageView)
             .setFooterViewEnabled(true)
             .showSafely(childFragmentManager)
+    }
+
+    override fun onAudioClicked(media: Media, itemPosition: Int) {
+        val uri = media.sourceUri ?: return
+
+        if (radio != null) {
+            if (uri == radio?.currentSource && radio?.isReleased() == false) {
+                radio?.playOrPause()
+                return
+            }
+        }
+
+        radio?.release()
+        radio = null
+        radio = Radio.Builder(requireContext())
+            .create(object : Radio.Listener {
+                private fun getAudioDuration(): Long {
+                    return radio?.getDurationOrZeroIfUnset() ?: 0L
+                }
+
+                override fun onPlaybackStateChanged(state: Radio.PlaybackState) {
+                    Logger.debug(TAG, "onPlaybackStateChanged() -> state: $state")
+                    when (state) {
+                        Radio.PlaybackState.READY, Radio.PlaybackState.ENDED -> {
+                            chatMessagesAdapter?.resetAudioPlaybackState(
+                                itemPosition = itemPosition,
+                                duration = getAudioDuration()
+                            )
+                        }
+                        else -> {
+                        }
+                    }
+                }
+
+                override fun onIsPlayingStateChanged(isPlaying: Boolean) {
+                    Logger.debug(TAG, "onIsPlayingStateChanged() -> isPlaying: $isPlaying")
+
+                    chatMessagesAdapter?.setAudioPlaybackState(itemPosition, isPlaying)
+                }
+
+                override fun onPlaybackPositionChanged(position: Long) {
+                    Logger.debug(TAG, "onPlaybackPositionChanged() -> position: $position")
+
+                    chatMessagesAdapter?.setAudioPlayProgress(
+                        itemPosition = itemPosition,
+                        progress = radio?.currentPercentage ?: 0F,
+                        currentPosition = position,
+                        duration = getAudioDuration()
+                    )
+                }
+
+                override fun onPlayerError(cause: Throwable?) {
+                    radio?.release()
+                    radio = null
+                    toast("ERROR", Toast.LENGTH_SHORT)
+                }
+            })
+
+        radio?.start(uri, true)
+    }
+
+    override fun onSeekBarChange(media: Media, progress: Int): Boolean {
+        if (radio == null) return false
+        if (radio?.isReleased() == true) return false
+        if (media.sourceUri == radio?.currentSource) {
+            val position = radio?.getPositionByProgress(progress)
+            if (position != null) {
+                radio?.seekTo(position)
+                return true
+            }
+        }
+        return false
     }
 
     override fun onMessageLongClicked(text: String) {

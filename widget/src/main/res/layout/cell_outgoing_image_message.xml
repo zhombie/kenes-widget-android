@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -24,8 +25,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/bg_album_image"
                 android:minHeight="120dp"
                 android:maxHeight="175dp"
+                app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Rounded.All.15dp"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
             <q19.kenes.widget.ui.components.KenesChatMessageTextView

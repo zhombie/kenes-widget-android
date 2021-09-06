@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EdgeEffect
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
@@ -17,7 +18,11 @@ import kz.zhombie.cinema.CinemaDialogFragment
 import kz.zhombie.cinema.model.Movie
 import kz.zhombie.museum.MuseumDialogFragment
 import kz.zhombie.museum.model.Painting
+import kz.zhombie.radio.Radio
+import kz.zhombie.radio.getDurationOrZeroIfUnset
+import kz.zhombie.radio.getPositionByProgress
 import q19.kenes.widget.core.logging.Logger
+import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.CoilImageLoader
@@ -49,6 +54,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
     private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
+
+    private var radio: Radio? = null
 
     // Activity + Fragment communication
     private var listener: Listener? = null
@@ -97,8 +104,11 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         listener = null
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        radio?.release()
+        radio = null
 
         chatMessagesAdapter?.callback = null
         chatMessagesAdapter = null
@@ -209,6 +219,78 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
             .setScreenView(imageView)
             .setFooterViewEnabled(true)
             .showSafely(childFragmentManager)
+    }
+
+    override fun onAudioClicked(media: Media, itemPosition: Int) {
+        val uri = media.sourceUri ?: return
+
+        if (radio != null) {
+            if (uri == radio?.currentSource && radio?.isReleased() == false) {
+                radio?.playOrPause()
+                return
+            }
+        }
+
+        radio?.release()
+        radio = null
+        radio = Radio.Builder(requireContext())
+            .create(object : Radio.Listener {
+                private fun getAudioDuration(): Long {
+                    return radio?.getDurationOrZeroIfUnset() ?: 0L
+                }
+
+                override fun onPlaybackStateChanged(state: Radio.PlaybackState) {
+                    Logger.debug(TAG, "onPlaybackStateChanged() -> state: $state")
+                    when (state) {
+                        Radio.PlaybackState.READY, Radio.PlaybackState.ENDED -> {
+                            chatMessagesAdapter?.resetAudioPlaybackState(
+                                itemPosition = itemPosition,
+                                duration = getAudioDuration()
+                            )
+                        }
+                        else -> {
+                        }
+                    }
+                }
+
+                override fun onIsPlayingStateChanged(isPlaying: Boolean) {
+                    Logger.debug(TAG, "onIsPlayingStateChanged() -> isPlaying: $isPlaying")
+
+                    chatMessagesAdapter?.setAudioPlaybackState(itemPosition, isPlaying)
+                }
+
+                override fun onPlaybackPositionChanged(position: Long) {
+                    Logger.debug(TAG, "onPlaybackPositionChanged() -> position: $position")
+
+                    chatMessagesAdapter?.setAudioPlayProgress(
+                        itemPosition = itemPosition,
+                        progress = radio?.currentPercentage ?: 0F,
+                        currentPosition = position,
+                        duration = getAudioDuration()
+                    )
+                }
+
+                override fun onPlayerError(cause: Throwable?) {
+                    radio?.release()
+                    radio = null
+                    toast("ERROR", Toast.LENGTH_SHORT)
+                }
+            })
+
+        radio?.start(uri, true)
+    }
+
+    override fun onSeekBarChange(media: Media, progress: Int): Boolean {
+        if (radio == null) return false
+        if (radio?.isReleased() == true) return false
+        if (media.sourceUri == radio?.currentSource) {
+            val position = radio?.getPositionByProgress(progress)
+            if (position != null) {
+                radio?.seekTo(position)
+                return true
+            }
+        }
+        return false
     }
 
     override fun onMessageLongClicked(text: String) {
