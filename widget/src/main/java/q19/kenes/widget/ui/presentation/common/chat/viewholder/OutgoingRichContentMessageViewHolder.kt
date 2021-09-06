@@ -10,7 +10,7 @@ import q19.kenes_widget.R
 internal class OutgoingRichContentMessageViewHolder constructor(
     view: View,
     private val callback: ChatMessagesAdapter.Callback? = null
-) : MessageViewHolder(view) {
+) : BaseMessageViewHolder(view) {
 
     companion object {
         private val TAG = OutgoingRichContentMessageViewHolder::class.java.simpleName

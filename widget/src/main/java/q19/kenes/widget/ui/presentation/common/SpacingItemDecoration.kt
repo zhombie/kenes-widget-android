@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.presentation.common.chat
+package q19.kenes.widget.ui.presentation.common
 
 import android.graphics.Rect
 import android.view.View

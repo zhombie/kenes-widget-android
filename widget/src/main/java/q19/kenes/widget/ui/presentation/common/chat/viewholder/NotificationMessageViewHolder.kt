@@ -6,7 +6,7 @@ import q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes_widget.R
 
-internal class NotificationMessageViewHolder constructor(view: View) : MessageViewHolder(view) {
+internal class NotificationMessageViewHolder constructor(view: View) : BaseMessageViewHolder(view) {
 
     companion object {
         private val TAG = NotificationMessageViewHolder::class.java.simpleName

@@ -26,8 +26,8 @@ import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.CoilImageLoader
+import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
-import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.R
@@ -222,11 +222,13 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     override fun onAudioClicked(media: Media, itemPosition: Int) {
+        Logger.debug(TAG, "onAudioClicked() -> $media, $itemPosition")
+
         val uri = media.sourceUri ?: return
 
-        if (radio != null) {
-            if (uri == radio?.currentSource && radio?.isReleased() == false) {
-                radio?.playOrPause()
+        radio?.let {
+            if (uri == it.currentSource && !it.isReleased()) {
+                it.playOrPause()
                 return
             }
         }
@@ -242,11 +244,20 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
                 override fun onPlaybackStateChanged(state: Radio.PlaybackState) {
                     Logger.debug(TAG, "onPlaybackStateChanged() -> state: $state")
                     when (state) {
-                        Radio.PlaybackState.READY, Radio.PlaybackState.ENDED -> {
+                        Radio.PlaybackState.READY -> {
                             chatMessagesAdapter?.resetAudioPlaybackState(
                                 itemPosition = itemPosition,
                                 duration = getAudioDuration()
                             )
+                        }
+                        Radio.PlaybackState.ENDED -> {
+                            chatMessagesAdapter?.resetAudioPlaybackState(
+                                itemPosition = itemPosition,
+                                duration = getAudioDuration()
+                            )
+
+                            radio?.release()
+                            radio = null
                         }
                         else -> {
                         }
@@ -273,6 +284,9 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
                 override fun onPlayerError(cause: Throwable?) {
                     radio?.release()
                     radio = null
+
+                    chatMessagesAdapter?.resetAudioPlaybackState(itemPosition, getAudioDuration())
+
                     toast("ERROR", Toast.LENGTH_SHORT)
                 }
             })

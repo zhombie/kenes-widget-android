@@ -265,7 +265,7 @@ internal class ChatMessagesAdapter constructor(
 //        debug(TAG, "onBindViewHolder() -> payload: $payload")
 
         if (payload is Bundle) {
-            if (holder is IncomingAudioMessageViewHolder) {
+            if (holder is BaseAudioMessageViewHolder) {
                 val message = getItem(position)
 
                 when (payload.getString(PayloadKey.ACTION)) {

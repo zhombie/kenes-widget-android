@@ -7,37 +7,31 @@ import q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes_widget.R
 
-internal class IncomingRichContentMessageViewHolder constructor(
+internal abstract class BaseTextMessageViewHolder constructor(
     view: View,
     private val callback: ChatMessagesAdapter.Callback? = null
 ) : BaseMessageViewHolder(view) {
 
-    companion object {
-        private val TAG = IncomingRichContentMessageViewHolder::class.java.simpleName
-
-        val LAYOUT = R.layout.cell_incoming_text_message
-    }
-
-    private val textView = view.findViewById<KenesChatMessageTextView>(R.id.textView)
-    private val timeView = view.findViewById<KenesChatMessageTimeView>(R.id.timeView)
+    protected val textView: KenesChatMessageTextView? = view.findViewById(R.id.textView)
+    protected val timeView: KenesChatMessageTimeView? = view.findViewById(R.id.timeView)
 
     override fun bind(message: Message) {
         if (message.htmlText.isNullOrBlank()) {
-            textView.visibility = View.GONE
+            textView?.visibility = View.GONE
         } else {
-            textView.setHtmlText(message.htmlText) { _, url ->
+            textView?.setHtmlText(message.htmlText) { _, url ->
                 callback?.onUrlInTextClicked(url)
             }
 
-            textView.setOnLongClickListener {
+            textView?.setOnLongClickListener {
                 callback?.onMessageLongClicked(message.htmlText.toString())
                 true
             }
 
-            textView.visibility = View.VISIBLE
+            textView?.visibility = View.VISIBLE
         }
 
-        timeView.text = message.time
+        timeView?.text = message.time
     }
 
 }

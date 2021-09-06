@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.ui.presentation.call.Call
-import q19.kenes.widget.ui.presentation.common.chat.SpacingItemDecoration
+import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseBottomSheetDialogFragment
 import q19.kenes_widget.R
 
