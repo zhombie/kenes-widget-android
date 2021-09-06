@@ -1,9 +1,12 @@
 package q19.kenes.widget.ui.presentation.platform
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
+import androidx.core.os.HandlerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import kz.q19.common.locale.LocaleManager
@@ -24,8 +27,12 @@ internal abstract class BaseFragment<Presenter : BasePresenter<*>> constructor(
 
     protected abstract fun createPresenter(): Presenter
 
+    private var handler: Handler? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        handler = HandlerCompat.createAsync(activity?.mainLooper ?: Looper.getMainLooper())
 
         presenter = createPresenter()
     }
@@ -40,6 +47,10 @@ internal abstract class BaseFragment<Presenter : BasePresenter<*>> constructor(
         super.onDestroy()
 
         presenter.detachView()
+    }
+
+    fun runOnUiThread(action: Runnable) {
+        handler?.post(action)
     }
 
     fun getCurrentLocale(): Locale? {

@@ -26,8 +26,8 @@ import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.CoilImageLoader
-import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
+import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.R
@@ -52,6 +52,16 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
 
     // RecyclerView adapter
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
+
+    private val chatMessagesAdapterDataObserver by lazy(LazyThreadSafetyMode.NONE) {
+        object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+
+                messagesView?.smoothScrollToPosition(0)
+            }
+        }
+    }
 
     private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
 
@@ -110,6 +120,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         radio?.release()
         radio = null
 
+        chatMessagesAdapter?.unregisterAdapterDataObserver(chatMessagesAdapterDataObserver)
         chatMessagesAdapter?.callback = null
         chatMessagesAdapter = null
     }
@@ -136,11 +147,14 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     private fun setupMessagesView() {
-        messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
+        messagesView?.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
 
         chatMessagesAdapter = ChatMessagesAdapter(this)
         messagesView?.addItemDecoration(SpacingItemDecoration(5F.dp2Px()))
         messagesView?.adapter = chatMessagesAdapter
+
+        chatMessagesAdapter?.registerAdapterDataObserver(chatMessagesAdapterDataObserver)
 
         messagesView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
             override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
@@ -160,22 +174,18 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         })
     }
 
-    fun showCallAgentInfo(fullName: String, photoUrl: String?) {
-        activity?.runOnUiThread {
-            toolbar?.setImageContentPadding(0)
-            toolbar?.showImage(photoUrl)
+    fun showCallAgentInfo(fullName: String, photoUrl: String?) = runOnUiThread {
+        toolbar?.setImageContentPadding(0)
+        toolbar?.showImage(photoUrl)
 
-            toolbar?.setTitle(fullName)
-            toolbar?.setSubtitle("Оператор")
+        toolbar?.setTitle(fullName)
+        toolbar?.setSubtitle("Оператор")
 
-            toolbar?.reveal()
-        }
+        toolbar?.reveal()
     }
 
-    fun onNewChatMessage(message: Message) {
-        activity?.runOnUiThread {
-            presenter.onNewChatMessage(message)
-        }
+    fun onNewChatMessage(message: Message) = runOnUiThread {
+        presenter.onNewChatMessage(message)
     }
 
     /**
@@ -315,18 +325,12 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
      * [TextChatView] implementation
      */
 
-    override fun showNewMessage(message: Message) {
-        Logger.debug(TAG, "showNewMessage() -> $message")
-
-        activity?.runOnUiThread {
-            chatMessagesAdapter?.addNewMessage(message)
-        }
+    override fun showNewMessage(message: Message) = runOnUiThread {
+        chatMessagesAdapter?.addNewMessage(message)
     }
 
-    override fun clearMessageInput() {
-        activity?.runOnUiThread {
-            messageInputView?.clearInputViewText()
-        }
+    override fun clearMessageInput() = runOnUiThread {
+        messageInputView?.clearInputViewText()
     }
 
 }

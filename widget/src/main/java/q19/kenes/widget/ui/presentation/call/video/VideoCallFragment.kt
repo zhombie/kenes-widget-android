@@ -244,7 +244,7 @@ internal class VideoCallFragment :
     override fun showCallAgentInfo(fullName: String, photoUrl: String?) {
         Logger.debug(TAG, "showCallAgentInfo() -> $fullName, $photoUrl")
 
-        activity?.runOnUiThread {
+        runOnUiThread {
             toolbar?.setImageContentPadding(0)
             toolbar?.showImage(photoUrl)
 
@@ -269,59 +269,55 @@ internal class VideoCallFragment :
         }
     }
 
-    override fun enterFloatingVideostream() {
-        activity?.runOnUiThread {
-            presenter.setLocalVideostreamPaused()
-            presenter.setRemoteVideostreamPaused()
+    override fun enterFloatingVideostream() = runOnUiThread {
+        presenter.setLocalVideostreamPaused()
+        presenter.setRemoteVideostreamPaused()
 
-            floatingSurfaceViewRenderer?.let {
-                presenter.setRemoteVideostream(it, true)
-            }
-
-            presenter.setRemoteVideostreamResumed()
-
-            floatingLayout?.visibility = View.VISIBLE
-            floatingLayout?.alpha = 0.25F
-            floatingLayout?.scaleX = 0.5F
-            floatingLayout?.scaleY = 0.5F
-            floatingLayout?.animate()
-                ?.setDuration(150L)
-                ?.alpha(1F)
-                ?.scaleX(1F)
-                ?.scaleY(1F)
-                ?.withEndAction {
-                    floatingSurfaceViewRenderer?.visibility = View.VISIBLE
-                }
-                ?.start()
+        floatingSurfaceViewRenderer?.let {
+            presenter.setRemoteVideostream(it, true)
         }
+
+        presenter.setRemoteVideostreamResumed()
+
+        floatingLayout?.visibility = View.VISIBLE
+        floatingLayout?.alpha = 0.25F
+        floatingLayout?.scaleX = 0.5F
+        floatingLayout?.scaleY = 0.5F
+        floatingLayout?.animate()
+            ?.setDuration(150L)
+            ?.alpha(1F)
+            ?.scaleX(1F)
+            ?.scaleY(1F)
+            ?.withEndAction {
+                floatingSurfaceViewRenderer?.visibility = View.VISIBLE
+            }
+            ?.start()
     }
 
-    override fun exitFloatingVideostream() {
-        activity?.runOnUiThread {
-            presenter.setLocalVideostreamPaused()
-            presenter.setRemoteVideostreamPaused()
+    override fun exitFloatingVideostream() = runOnUiThread {
+        presenter.setLocalVideostreamPaused()
+        presenter.setRemoteVideostreamPaused()
 
-            floatingLayout?.visibility = View.GONE
-            floatingLayout?.alpha = 0.75F
-            floatingLayout?.scaleX = 1F
-            floatingLayout?.scaleY = 1F
-            floatingLayout?.animate()
-                ?.setDuration(100L)
-                ?.alpha(0F)
-                ?.scaleX(0.35F)
-                ?.scaleY(0.35F)
-                ?.withEndAction {
-                    floatingSurfaceViewRenderer?.visibility = View.GONE
+        floatingLayout?.visibility = View.GONE
+        floatingLayout?.alpha = 0.75F
+        floatingLayout?.scaleX = 1F
+        floatingLayout?.scaleY = 1F
+        floatingLayout?.animate()
+            ?.setDuration(100L)
+            ?.alpha(0F)
+            ?.scaleX(0.35F)
+            ?.scaleY(0.35F)
+            ?.withEndAction {
+                floatingSurfaceViewRenderer?.visibility = View.GONE
 
-                    fullscreenSurfaceViewRenderer?.let {
-                        presenter.setRemoteVideostream(it, false)
-                    }
-
-                    presenter.setLocalVideostreamResumed()
-                    presenter.setRemoteVideostreamResumed()
+                fullscreenSurfaceViewRenderer?.let {
+                    presenter.setRemoteVideostream(it, false)
                 }
-                ?.start()
-        }
+
+                presenter.setLocalVideostreamResumed()
+                presenter.setRemoteVideostreamResumed()
+            }
+            ?.start()
     }
 
     override fun collapseBottomSheet() {

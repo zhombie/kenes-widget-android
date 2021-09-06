@@ -85,6 +85,16 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     private var chatMessagesHeaderAdapter: ChatMessagesHeaderAdapter? = null
     private var chatMessagesAdapter: ChatMessagesAdapter? = null
 
+    private val chatMessagesAdapterDataObserver by lazy(LazyThreadSafetyMode.NONE) {
+        object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+
+                messagesView?.smoothScrollToPosition(0)
+            }
+        }
+    }
+
     // CoordinatorLayout + BottomSheet
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
     private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
@@ -187,6 +197,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         messageInputView?.setCallback(null)
         messageInputView = null
 
+        chatMessagesAdapter?.unregisterAdapterDataObserver(chatMessagesAdapterDataObserver)
         chatMessagesAdapter?.let { concatAdapter?.removeAdapter(it) }
         chatMessagesAdapter?.callback = null
         chatMessagesAdapter = null
@@ -238,7 +249,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
                 presenter.onResponseGroupChildClicked(child)
             }
         })
-        responsesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        responsesView?.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         responsesView?.itemAnimator = null
         responsesView?.adapter = responseGroupsAdapter
 
@@ -311,13 +323,16 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     }
 
     private fun setupMessagesView() {
-        messagesView?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
+        messagesView?.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, true)
 
         chatMessagesHeaderAdapter = ChatMessagesHeaderAdapter()
         chatMessagesAdapter = ChatMessagesAdapter(this)
         messagesView?.addItemDecoration(SpacingItemDecoration(5F.dp2Px()))
         concatAdapter = ConcatAdapter(chatMessagesAdapter, chatMessagesHeaderAdapter)
         messagesView?.adapter = concatAdapter
+
+        chatMessagesAdapter?.registerAdapterDataObserver(chatMessagesAdapterDataObserver)
 
         messagesView?.edgeEffectFactory = object : RecyclerView.EdgeEffectFactory() {
             override fun createEdgeEffect(view: RecyclerView, direction: Int): EdgeEffect {
@@ -486,14 +501,12 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         progressView?.show()
     }
 
-    override fun showResponses(nestables: List<Nestable>) {
+    override fun showResponses(nestables: List<Nestable>) = runOnUiThread {
         responseGroupsAdapter?.submitList(nestables)
     }
 
-    override fun showNewChatMessage(message: Message) {
-        activity?.runOnUiThread {
-            chatMessagesAdapter?.addNewMessage(message)
-        }
+    override fun showNewChatMessage(message: Message) = runOnUiThread {
+        chatMessagesAdapter?.addNewMessage(message)
     }
 
     override fun copyHTMLText(label: String, text: CharSequence?, htmlText: String) {
@@ -527,10 +540,6 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
         }
-    }
-
-    override fun scrollToBottom() {
-        messagesView?.smoothScrollToPosition(0)
     }
 
     override fun collapseBottomSheet() {

@@ -18,8 +18,6 @@ internal interface ChatbotView : BaseView {
     fun copyHTMLText(label: String, text: CharSequence?, htmlText: String)
     fun share(title: String, text: CharSequence?, htmlText: String)
 
-    fun scrollToBottom()
-
     fun collapseBottomSheet()
     fun expandBottomSheet()
 

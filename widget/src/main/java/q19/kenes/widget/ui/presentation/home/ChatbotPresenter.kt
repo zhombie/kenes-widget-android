@@ -294,8 +294,6 @@ internal class ChatbotPresenter constructor(
     private fun addNewChatMessage(message: Message) {
         interactor.chatMessages.add(message)
         getView().showNewChatMessage(message)
-
-        getView().scrollToBottom()
     }
 
     /**
