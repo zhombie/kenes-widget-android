@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.core.os.HandlerCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import kz.q19.common.locale.LocaleManager
 import kz.q19.domain.model.language.Language
@@ -16,7 +15,7 @@ import java.util.*
 
 internal abstract class BaseFragment<Presenter : BasePresenter<*>> constructor(
     @LayoutRes contentLayoutId: Int
-) : Fragment(contentLayoutId) {
+) : BaseResourceFragment(contentLayoutId) {
 
     constructor() : this(0)
 
@@ -53,7 +52,7 @@ internal abstract class BaseFragment<Presenter : BasePresenter<*>> constructor(
         handler?.post(action)
     }
 
-    fun getCurrentLocale(): Locale? {
+    protected fun getCurrentLocale(): Locale? {
         return LocaleManager.getLocale()
     }
 

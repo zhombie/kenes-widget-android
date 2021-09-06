@@ -49,7 +49,7 @@ internal abstract class BaseActivity<Presenter : BasePresenter<*>> : AppCompatAc
         presenter.onViewResumed()
     }
 
-    fun getCurrentLocale(): Locale? {
+    protected fun getCurrentLocale(): Locale? {
         return LocaleManager.getLocale()
     }
 

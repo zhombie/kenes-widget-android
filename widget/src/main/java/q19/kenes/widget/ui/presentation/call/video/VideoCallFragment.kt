@@ -49,6 +49,10 @@ internal class VideoCallFragment :
     private var minimizeButton: MaterialButton? = null
     private var toolbar: KenesToolbar? = null
     private var miniSurfaceViewRenderer: SurfaceViewRenderer? = null
+    private var toggleCameraButton: MaterialButton? = null
+    private var toggleAudioButton: MaterialButton? = null
+    private var toggleCameraSourceButton: MaterialButton? = null
+    private var hangupButton: MaterialButton? = null
 
     // WebRTC Wrapper
     private var peerConnectionClient: PeerConnectionClient? = null
@@ -123,6 +127,10 @@ internal class VideoCallFragment :
         minimizeButton = view.findViewById(R.id.minimizeButton)
         toolbar = view.findViewById(R.id.toolbar)
         miniSurfaceViewRenderer = view.findViewById(R.id.miniSurfaceViewRenderer)
+        toggleCameraButton = view.findViewById(R.id.toggleCameraButton)
+        toggleAudioButton = view.findViewById(R.id.toggleAudioButton)
+        toggleCameraSourceButton = view.findViewById(R.id.toggleCameraSourceButton)
+        hangupButton = view.findViewById(R.id.hangupButton)
 
         setupTextChat()
         setupBottomSheet()
@@ -213,6 +221,22 @@ internal class VideoCallFragment :
         minimizeButton?.setOnClickListener {
             presenter.onMinimizeClicked()
         }
+
+        toggleCameraButton?.setOnClickListener {
+            presenter.onToggleLocalCamera()
+        }
+
+        toggleAudioButton?.setOnClickListener {
+            presenter.onToggleLocalAudio()
+        }
+
+        toggleCameraSourceButton?.setOnClickListener {
+            presenter.onToggleLocalCameraSource()
+        }
+
+        hangupButton?.setOnClickListener {
+            presenter.onHangupCall()
+        }
     }
 
     private fun setupVideostreams() {
@@ -266,6 +290,38 @@ internal class VideoCallFragment :
         val fragment = childFragmentManager.findFragmentByTag("text_chat")
         if (fragment is TextChatFragment) {
             fragment.onNewChatMessage(message)
+        }
+    }
+
+    override fun setLocalAudioEnabled() = runOnUiThread {
+        toggleAudioButton?.apply {
+            backgroundTintList = getColorStateList(R.color.kenes_white)
+            icon = getDrawable(R.drawable.ic_mic_on_stroke)
+            iconTint = getColorStateList(R.color.kenes_black)
+        }
+    }
+
+    override fun setLocalAudioDisabled() = runOnUiThread {
+        toggleAudioButton?.apply {
+            backgroundTintList = getColorStateList(R.color.kenes_white_with_opacity_40)
+            icon = getDrawable(R.drawable.ic_mic_off_stroke)
+            iconTint = getColorStateList(R.color.kenes_white)
+        }
+    }
+
+    override fun setLocalVideoEnabled() = runOnUiThread {
+        toggleCameraButton?.apply {
+            backgroundTintList = getColorStateList(R.color.kenes_white)
+            icon = getDrawable(R.drawable.ic_camera_on_stroke)
+            iconTint = getColorStateList(R.color.kenes_black)
+        }
+    }
+
+    override fun setLocalVideoDisabled() = runOnUiThread {
+        toggleCameraButton?.apply {
+            backgroundTintList = getColorStateList(R.color.kenes_white_with_opacity_40)
+            icon = getDrawable(R.drawable.ic_camera_off_stroke)
+            iconTint = getColorStateList(R.color.kenes_white)
         }
     }
 

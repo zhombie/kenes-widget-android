@@ -136,6 +136,14 @@ internal class VideoCallPresenter constructor(
 
     fun onViewReady() {
         getView().expandBottomSheet()
+
+        interactor.isLocalAudioEnabled = call is Call.Audio || call is Call.Video
+        interactor.isLocalVideoEnabled = call is Call.Video
+        interactor.isRemoteAudioEnabled = call is Call.Audio || call is Call.Video
+        interactor.isRemoteVideoEnabled = call is Call.Video
+
+        onToggleLocalAudio()
+        onToggleLocalCamera()
     }
 
     fun initLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
@@ -154,6 +162,39 @@ internal class VideoCallPresenter constructor(
 
     fun onMinimizeClicked() {
         getView().collapseBottomSheet()
+    }
+
+    fun onToggleLocalAudio() {
+        interactor.isLocalAudioEnabled = !interactor.isLocalAudioEnabled
+
+        if (peerConnectionClient.setLocalAudioEnabled(interactor.isLocalAudioEnabled)) {
+            if (interactor.isLocalAudioEnabled) {
+                getView().setLocalAudioEnabled()
+            } else {
+                getView().setLocalAudioDisabled()
+            }
+        }
+    }
+
+    fun onToggleLocalCamera() {
+        interactor.isLocalVideoEnabled = !interactor.isLocalVideoEnabled
+
+        if (peerConnectionClient.setLocalVideoEnabled(interactor.isLocalVideoEnabled)) {
+            if (interactor.isLocalVideoEnabled) {
+                getView().setLocalVideoEnabled()
+            } else {
+                getView().setLocalVideoDisabled()
+            }
+        }
+    }
+
+    fun onToggleLocalCameraSource() {
+        peerConnectionClient.onSwitchCamera(
+            onDone = {},
+            onError = {
+                Logger.error(TAG, "onSwitchCamera() -> error -> $it")
+            }
+        )
     }
 
     fun onShowVideoCallScreen() {

@@ -50,7 +50,7 @@ internal class CallSelectionAdapter constructor(
                 is Call.Audio ->
                     iconView.setImageResource(R.drawable.ic_phone)
                 is Call.Video ->
-                    iconView.setImageResource(R.drawable.ic_video_camera)
+                    iconView.setImageResource(R.drawable.ic_camera_filled)
             }
 
             titleView.text = call.title

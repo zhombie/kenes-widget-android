@@ -7,6 +7,12 @@ internal interface VideoCallView : BaseView {
     fun showCallAgentInfo(fullName: String, photoUrl: String?)
     fun showNewChatMessage(message: Message)
 
+    fun setLocalAudioEnabled()
+    fun setLocalAudioDisabled()
+
+    fun setLocalVideoEnabled()
+    fun setLocalVideoDisabled()
+
     fun enterFloatingVideostream()
     fun exitFloatingVideostream()
 

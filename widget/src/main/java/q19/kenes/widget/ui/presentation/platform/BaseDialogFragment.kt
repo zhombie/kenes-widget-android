@@ -39,7 +39,7 @@ internal abstract class BaseDialogFragment<Presenter : BasePresenter<*>> constru
         presenter.detachView()
     }
 
-    fun getCurrentLocale(): Locale? {
+    protected fun getCurrentLocale(): Locale? {
         return LocaleManager.getLocale()
     }
 

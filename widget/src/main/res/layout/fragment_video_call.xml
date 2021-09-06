@@ -15,8 +15,8 @@
 
     <q19.kenes.widget.ui.components.FloatingLayout
         android:id="@+id/floatingLayout"
-        android:layout_width="150dp"
-        android:layout_height="200dp"
+        android:layout_width="125dp"
+        android:layout_height="180dp"
         android:layout_gravity="center_vertical|right"
         android:layout_margin="15dp"
         android:alpha="1.0"
@@ -45,64 +45,147 @@
             android:layout_height="match_parent" />
 
         <LinearLayout
-            android:id="@+id/headerLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2.5dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/minimizeButton"
-                style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/headerLayout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                app:icon="@drawable/ic_arrow_down"
-                app:iconSize="18dp"
-                app:iconTint="@color/kenes_white" />
+                android:layout_marginTop="2.5dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp">
 
-            <q19.kenes.widget.ui.components.KenesToolbar
-                android:id="@+id/toolbar"
-                android:layout_width="0dp"
-                android:layout_height="60dp"
-                android:layout_weight="1"
-                app:kenesHasUserInfo="true"
-                app:kenesTitleTextColor="@color/kenes_white"
-                app:kenesSubtitleTextColor="@color/kenes_white" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/minimizeButton"
+                    style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    app:icon="@drawable/ic_arrow_down"
+                    app:iconSize="18dp"
+                    app:iconTint="@color/kenes_white" />
+
+                <q19.kenes.widget.ui.components.KenesToolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    app:kenesHasUserInfo="true"
+                    app:kenesTitleTextColor="@color/kenes_white"
+                    app:kenesSubtitleTextColor="@color/kenes_white" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="125dp"
+                android:layout_height="180dp"
+                android:layout_gravity="top|right"
+                android:layout_margin="15dp">
+
+                <kz.q19.webrtc.core.ui.SurfaceViewRenderer
+                    android:id="@+id/miniSurfaceViewRenderer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/bg_videostream_reference_hint"
+                    android:fontFamily="sans-serif"
+                    android:includeFontPadding="false"
+                    android:paddingBottom="1dp"
+                    android:paddingLeft="7dp"
+                    android:paddingRight="1dp"
+                    android:paddingTop="2dp"
+                    android:text="Вы"
+                    android:textColor="#AAFFFFFF"
+                    android:textSize="9sp"
+                    android:textStyle="normal" />
+
+            </FrameLayout>
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="15dp"
+                android:paddingBottom="40dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggleCameraButton"
+                    style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+                    android:layout_width="@dimen/call_control_button_size"
+                    android:layout_height="@dimen/call_control_button_size"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/kenes_white_with_opacity_40"
+                    android:elevation="@dimen/call_control_button_elevation"
+                    app:icon="@drawable/ic_camera_on_stroke"
+                    app:iconTint="@color/kenes_white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/toggleAudioButton"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggleAudioButton"
+                    style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+                    android:layout_width="@dimen/call_control_button_size"
+                    android:layout_height="@dimen/call_control_button_size"
+                    android:backgroundTint="@color/kenes_white_with_opacity_40"
+                    android:layout_weight="1"
+                    android:elevation="@dimen/call_control_button_elevation"
+                    app:icon="@drawable/ic_mic_on_stroke"
+                    app:iconTint="@color/kenes_white"
+                    app:layout_constraintBottom_toBottomOf="@id/toggleCameraButton"
+                    app:layout_constraintLeft_toRightOf="@id/toggleCameraButton"
+                    app:layout_constraintRight_toLeftOf="@id/toggleCameraSourceButton"
+                    app:layout_constraintTop_toTopOf="@id/toggleCameraButton" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/toggleCameraSourceButton"
+                    style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+                    android:layout_width="@dimen/call_control_button_size"
+                    android:layout_height="@dimen/call_control_button_size"
+                    android:backgroundTint="@color/kenes_white_with_opacity_40"
+                    android:layout_weight="1"
+                    android:elevation="@dimen/call_control_button_elevation"
+                    app:icon="@drawable/ic_switch_camera"
+                    app:iconTint="@color/kenes_white"
+                    app:layout_constraintBottom_toBottomOf="@id/toggleCameraButton"
+                    app:layout_constraintLeft_toRightOf="@id/toggleAudioButton"
+                    app:layout_constraintRight_toLeftOf="@id/hangupButton"
+                    app:layout_constraintTop_toTopOf="@id/toggleCameraButton" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/hangupButton"
+                    style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+                    android:layout_width="@dimen/call_control_button_size"
+                    android:layout_height="@dimen/call_control_button_size"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/kenes_soft_red"
+                    android:elevation="@dimen/call_control_button_elevation"
+                    app:icon="@drawable/ic_phone_hangup"
+                    app:iconTint="@color/kenes_white"
+                    app:layout_constraintBottom_toBottomOf="@id/toggleCameraButton"
+                    app:layout_constraintLeft_toRightOf="@id/toggleCameraSourceButton"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/toggleCameraButton" />
+
+            </LinearLayout>
 
         </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="150dp"
-            android:layout_height="200dp"
-            android:layout_gravity="bottom|right"
-            android:layout_margin="15dp">
-
-            <kz.q19.webrtc.core.ui.SurfaceViewRenderer
-                android:id="@+id/miniSurfaceViewRenderer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <com.google.android.material.textview.MaterialTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:layout_margin="10dp"
-                android:background="@drawable/bg_videostream_reference_hint"
-                android:fontFamily="sans-serif"
-                android:paddingBottom="2dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="2dp"
-                android:text="Вы"
-                android:textColor="#AAFFFFFF"
-                android:textSize="9sp"
-                android:textStyle="normal" />
-
-        </FrameLayout>
 
     </FrameLayout>
 

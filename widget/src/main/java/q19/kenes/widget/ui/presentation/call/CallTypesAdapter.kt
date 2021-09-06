@@ -46,7 +46,7 @@ internal class CallTypesAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
                 is Call.Audio ->
                     iconView.setImageResource(R.drawable.ic_phone)
                 is Call.Video ->
-                    iconView.setImageResource(R.drawable.ic_video_camera)
+                    iconView.setImageResource(R.drawable.ic_camera_filled)
             }
         }
     }

@@ -33,6 +33,12 @@ internal class CallInteractor {
             listener?.onNewCallState(field)
         }
 
+    // Video
+    var isLocalAudioEnabled: Boolean = false
+    var isLocalVideoEnabled: Boolean = false
+    var isRemoteAudioEnabled: Boolean = false
+    var isRemoteVideoEnabled: Boolean = false
+
     var listener: CallStateListener? = null
 
     sealed class CallState {

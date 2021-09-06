@@ -2,6 +2,7 @@
 <resources>
     <color name="kenes_transparent">#00000000</color>
     <color name="kenes_white">#FFFFFF</color>
+    <color name="kenes_white_with_opacity_40">#40FFFFFF</color>
     <color name="kenes_lime_green">#85D089</color>
     <color name="kenes_soft_green">#74BE8D</color>
     <color name="kenes_blue">#008FFF</color>

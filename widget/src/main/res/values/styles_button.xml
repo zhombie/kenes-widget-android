@@ -43,6 +43,7 @@
         <item name="iconGravity">textStart</item>
         <item name="iconPadding">0dp</item>
         <item name="rippleColor">@color/kenes_gray</item>
+        <item name="shapeAppearance">@style/Kenes.Widget.ShapeAppearance.Circle</item>
     </style>
 
     <style name="Kenes.Widget.Button.BottomNavigation" parent="Kenes.Widget.Button.Borderless">

@@ -12,7 +12,6 @@ import androidx.fragment.app.commit
 import androidx.viewpager2.widget.ViewPager2
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
-import kz.q19.utils.android.dp2Px
 import kz.q19.utils.view.binding.bind
 import kz.zhombie.cinema.CinemaDialogFragment
 import kz.zhombie.museum.MuseumDialogFragment
@@ -47,8 +46,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
     companion object {
         private val TAG = KenesWidgetActivity::class.java.simpleName
-
-        private val MAX_TOOLBAR_ELEVATION = 3F.dp2Px()
 
         fun newIntent(
             context: Context,
@@ -120,14 +117,16 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun createPresenter(): KenesWidgetPresenter {
         // Language
         var language = intent.getParcelableExtra<Language>(IntentKey.LANGUAGE)
+
+        val locale = getCurrentLocale()
+
         if (language == null) {
-            language = getCurrentLanguage()
+            language = locale?.let { Language.from(it) } ?: Language.DEFAULT
         }
 
         // Set language
-        val currentLocale = getCurrentLocale()
-        Logger.debug(TAG, "currentLocale: $currentLocale")
-        if (currentLocale == null || language.locale != currentLocale) {
+        Logger.debug(TAG, "locale: $locale")
+        if (locale == null || language.locale != locale) {
             Logger.debug(TAG, "setLocale() -> language.locale: ${language.locale}")
             setLocale(language.locale)
         }
