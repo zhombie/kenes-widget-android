@@ -10,7 +10,7 @@ import kz.zhombie.museum.MuseumDialogFragment
 import kz.zhombie.museum.model.Painting
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.KenesToolbar
-import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
+import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
 import q19.kenes_widget.R
 

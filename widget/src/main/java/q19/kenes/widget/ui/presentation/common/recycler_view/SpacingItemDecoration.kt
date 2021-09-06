@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.presentation.common
+package q19.kenes.widget.ui.presentation.common.recycler_view
 
 import android.graphics.Rect
 import android.view.View

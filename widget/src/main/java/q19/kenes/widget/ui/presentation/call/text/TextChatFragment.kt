@@ -26,7 +26,7 @@ import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.CoilImageLoader
-import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
+import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.bindAutoClearedValue

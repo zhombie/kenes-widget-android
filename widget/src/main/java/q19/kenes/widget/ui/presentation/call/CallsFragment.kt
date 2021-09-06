@@ -17,7 +17,7 @@ import q19.kenes.widget.ui.presentation.HomeScreenDelegate
 import q19.kenes.widget.ui.presentation.call.selection.CallSelection
 import q19.kenes.widget.ui.presentation.call.selection.CallSelectionBottomSheetDialogFragment
 import q19.kenes.widget.ui.presentation.common.HomeFragment
-import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
+import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes_widget.R
 
 internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_calls),

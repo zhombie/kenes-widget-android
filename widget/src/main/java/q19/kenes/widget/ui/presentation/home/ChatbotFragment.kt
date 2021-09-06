@@ -46,7 +46,7 @@ import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.common.HomeFragment
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesHeaderAdapter
-import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
+import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes.widget.util.hideKeyboardCompat

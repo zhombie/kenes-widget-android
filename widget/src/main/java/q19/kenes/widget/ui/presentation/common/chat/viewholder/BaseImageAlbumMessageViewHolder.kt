@@ -9,7 +9,7 @@ import kz.q19.utils.android.dp2Px
 import q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
-import q19.kenes.widget.ui.presentation.common.SpacingItemDecoration
+import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes_widget.R
 
 internal abstract class BaseImageAlbumMessageViewHolder constructor(
