@@ -334,18 +334,29 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      * [TextChatFragment.Listener] implementation
      */
 
+    override fun onViewReady() {
+        runOnVideoCallScreen {
+            onViewReady()
+        }
+    }
+
     override fun onShowVideoCallScreen() {
-        val fragment = supportFragmentManager.findFragmentByTag("video_call")
-        if (fragment is VideoCallFragment) {
-            fragment.onShowVideoCallScreen()
+        runOnVideoCallScreen {
+            onShowVideoCallScreen()
         }
     }
 
     override fun onHangupCall() {
-        val fragment = supportFragmentManager.findFragmentByTag("video_call")
-        if (fragment is VideoCallFragment) {
-            fragment.onHangupCall()
+        runOnVideoCallScreen {
+            onHangupCall()
         }
     }
+
+    private fun runOnVideoCallScreen(block: VideoCallFragment.() -> Unit) =
+        with(supportFragmentManager.findFragmentByTag("video_call")) {
+            if (this is VideoCallFragment) {
+                block.invoke(this)
+            }
+        }
 
 }

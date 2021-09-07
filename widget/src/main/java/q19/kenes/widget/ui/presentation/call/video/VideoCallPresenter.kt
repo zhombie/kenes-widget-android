@@ -55,7 +55,20 @@ internal class VideoCallPresenter constructor(
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        initPeerConnection()
+        interactor.isLocalAudioEnabled = call is Call.Audio || call is Call.Video
+        interactor.isLocalVideoEnabled = call is Call.Video
+        interactor.isRemoteAudioEnabled = call is Call.Audio || call is Call.Video
+        interactor.isRemoteVideoEnabled = call is Call.Video
+
+        initPeerConnection(
+            Options(
+                isLocalAudioEnabled = interactor.isLocalAudioEnabled,
+                isLocalVideoEnabled = interactor.isLocalVideoEnabled,
+                isRemoteAudioEnabled = interactor.isRemoteAudioEnabled,
+                isRemoteVideoEnabled = interactor.isRemoteVideoEnabled,
+            )
+        )
+
         initCall()
     }
 
@@ -119,43 +132,30 @@ internal class VideoCallPresenter constructor(
         )
     }
 
-    private fun initPeerConnection() {
+    private fun initPeerConnection(options: Options) {
         val iceServers = database.getIceServers()
 
         peerConnectionClient.createPeerConnection(
-            options = Options(
-                isLocalAudioEnabled = true,
-                isLocalVideoEnabled = true,
-                isRemoteAudioEnabled = true,
-                isRemoteVideoEnabled = true,
-                iceServers = iceServers ?: emptyList()
-            ),
+            options = options.copy(iceServers = iceServers ?: emptyList()),
             listener = this
         )
     }
 
     fun onViewReady() {
-        getView().expandBottomSheet()
+        Logger.debug(TAG, "onViewReady()")
 
-        interactor.isLocalAudioEnabled = call is Call.Audio || call is Call.Video
-        interactor.isLocalVideoEnabled = call is Call.Video
-        interactor.isRemoteAudioEnabled = call is Call.Audio || call is Call.Video
-        interactor.isRemoteVideoEnabled = call is Call.Video
-
-        if (peerConnectionClient.setLocalAudioEnabled(interactor.isLocalAudioEnabled)) {
-            if (interactor.isLocalAudioEnabled) {
-                getView().setLocalAudioEnabled()
-            } else {
-                getView().setLocalAudioDisabled()
-            }
+        Logger.debug(TAG, "setupLocalAudio()")
+        if (interactor.isLocalAudioEnabled) {
+            getView().setLocalAudioEnabled()
+        } else {
+            getView().setLocalAudioDisabled()
         }
 
-        if (peerConnectionClient.setLocalVideoEnabled(interactor.isLocalVideoEnabled)) {
-            if (interactor.isLocalVideoEnabled) {
-                getView().setLocalVideoEnabled()
-            } else {
-                getView().setLocalVideoDisabled()
-            }
+        Logger.debug(TAG, "setupLocalVideo()")
+        if (interactor.isLocalVideoEnabled) {
+            getView().setLocalVideoEnabled()
+        } else {
+            getView().setLocalVideoDisabled()
         }
     }
 
@@ -219,8 +219,7 @@ internal class VideoCallPresenter constructor(
 
         interactor.bottomSheetState = state
 
-        if (interactor.callState == CallInteractor.CallState.Pending ||
-            interactor.callState == CallInteractor.CallState.Live) {
+        if (interactor.callState == CallInteractor.CallState.Live) {
             when (interactor.bottomSheetState) {
                 BottomSheetState.DRAGGING, BottomSheetState.SETTLING -> {
                     setLocalVideostreamPaused()
@@ -331,8 +330,8 @@ internal class VideoCallPresenter constructor(
                 getView().hideHangupCallButton()
             }
             is CallInteractor.CallState.Pending -> {
-                getView().showFloatingVideostreamView()
-                getView().showVideoCallScreenSwitcher()
+                getView().hideFloatingVideostreamView()
+                getView().hideVideoCallScreenSwitcher()
                 getView().showHangupCallButton()
             }
             is CallInteractor.CallState.Live -> {

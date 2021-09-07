@@ -71,6 +71,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     private var listener: Listener? = null
 
     interface Listener {
+        fun onViewReady()
         fun onShowVideoCallScreen()
         fun onHangupCall()
     }
@@ -106,6 +107,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         setupToolbar()
         setupVideoCallButton()
         setupMessagesView()
+
+        listener?.onViewReady()
     }
 
     override fun onDetach() {
@@ -155,6 +158,14 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
                 }
             }
         }
+
+        messagesView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                toolbar?.elevation = recyclerView.computeVerticalScrollOffset().toFloat()
+            }
+        })
 
         messageInputView?.setCallback(object : KenesMessageInputView.Callback {
             override fun onNewMediaSelection() {

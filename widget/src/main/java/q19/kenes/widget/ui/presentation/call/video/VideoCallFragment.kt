@@ -140,8 +140,6 @@ internal class VideoCallFragment :
         setupBottomSheet()
         setupVideostreamControlButtons()
         setupVideostreams()
-
-        presenter.onViewReady()
     }
 
     override fun onPause() {
@@ -257,6 +255,12 @@ internal class VideoCallFragment :
         fullscreenSurfaceViewRenderer?.let {
             presenter.initRemoteVideostream(it)
         }
+    }
+
+    fun onViewReady() {
+        Logger.debug(TAG, "onViewReady()")
+
+        presenter.onViewReady()
     }
 
     fun onShowVideoCallScreen() {
