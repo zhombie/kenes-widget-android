@@ -163,7 +163,11 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
 
-                toolbar?.elevation = recyclerView.computeVerticalScrollOffset().toFloat()
+                if (showVideoCallScreenButton?.visibility == View.VISIBLE) {
+                    toolbar?.elevation = 0F
+                } else {
+                    toolbar?.elevation = recyclerView.computeVerticalScrollOffset().toFloat()
+                }
             }
         })
 

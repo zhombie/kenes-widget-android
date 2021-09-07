@@ -37,7 +37,7 @@ internal class KenesToolbar @JvmOverloads constructor(
     companion object {
         private val TAG = KenesToolbar::class.java.simpleName
 
-        private val MAX_ELEVATION = 3F.dp2Px()
+        private val MAX_ELEVATION = 2F.dp2Px()
     }
 
     private var leftButton: MaterialButton? = null
@@ -95,12 +95,15 @@ internal class KenesToolbar @JvmOverloads constructor(
     override fun setElevation(elevation: Float) {
 //        Logger.debug(TAG, "setElevation() -> $elevation")
 
-        if (elevation == 0F) {
-            super.setElevation(elevation)
-        } else {
-            if (this@KenesToolbar.elevation < MAX_ELEVATION) {
-                super.setElevation(MAX_ELEVATION)
+        if (elevation != this@KenesToolbar.elevation) {
+            var finalElevation = elevation
+            if (finalElevation < 0) {
+                finalElevation = 0F
             }
+            if (finalElevation > MAX_ELEVATION) {
+                finalElevation = MAX_ELEVATION
+            }
+            super.setElevation(finalElevation)
         }
     }
 
