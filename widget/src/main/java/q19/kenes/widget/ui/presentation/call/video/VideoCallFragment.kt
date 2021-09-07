@@ -27,7 +27,8 @@ import q19.kenes_widget.R
 
 internal class VideoCallFragment :
     BaseFragment<VideoCallPresenter>(R.layout.fragment_video_call),
-    VideoCallView {
+    VideoCallView,
+    TextChatFragment.Listener {
 
     companion object {
         private val TAG = VideoCallFragment::class.java.simpleName
@@ -257,19 +258,19 @@ internal class VideoCallFragment :
         }
     }
 
-    fun onViewReady() {
+    override fun onViewReady() {
         Logger.debug(TAG, "onViewReady()")
 
         presenter.onViewReady()
     }
 
-    fun onShowVideoCallScreen() {
+    override fun onShowVideoCallScreen() {
         Logger.debug(TAG, "onShowVideoCallScreen()")
 
         presenter.onShowVideoCallScreen()
     }
 
-    fun onHangupCall() {
+    override fun onHangupCall() {
         Logger.debug(TAG, "onHangupCall()")
 
         presenter.onHangupCall()
