@@ -7,6 +7,15 @@ internal interface VideoCallView : BaseView {
     fun showCallAgentInfo(fullName: String, photoUrl: String?)
     fun showNewChatMessage(message: Message)
 
+    fun showFloatingVideostreamView()
+    fun hideFloatingVideostreamView()
+
+    fun showVideoCallScreenSwitcher()
+    fun hideVideoCallScreenSwitcher()
+
+    fun showHangupCallButton()
+    fun hideHangupCallButton()
+
     fun setLocalAudioEnabled()
     fun setLocalAudioDisabled()
 
@@ -19,6 +28,7 @@ internal interface VideoCallView : BaseView {
     fun collapseBottomSheet()
     fun expandBottomSheet()
 
+    fun showNoOnlineCallAgentsMessage(text: String?)
     fun showCancelPendingConfirmationMessage()
     fun showCancelLiveCallConfirmationMessage()
 

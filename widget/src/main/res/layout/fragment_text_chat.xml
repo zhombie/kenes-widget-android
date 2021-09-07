@@ -12,10 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/kenes_white"
-        app:kenesHasUserInfo="true" />
+        app:kenesHasContent="true" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/showVideoCallButton"
+        android:id="@+id/showVideoCallScreenButton"
         style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
         android:layout_width="match_parent"
         android:layout_height="40dp"

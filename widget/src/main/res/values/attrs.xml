@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="KenesToolbar">
-        <attr name="kenesHasUserInfo" format="boolean" />
+        <attr name="kenesHasContent" format="boolean" />
         <attr name="kenesTitleTextColor" format="color" />
         <attr name="kenesSubtitleTextColor" format="color" />
     </declare-styleable>

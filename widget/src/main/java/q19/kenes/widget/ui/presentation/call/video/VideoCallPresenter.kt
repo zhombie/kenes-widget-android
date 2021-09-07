@@ -219,18 +219,21 @@ internal class VideoCallPresenter constructor(
 
         interactor.bottomSheetState = state
 
-        when (interactor.bottomSheetState) {
-            BottomSheetState.DRAGGING, BottomSheetState.SETTLING -> {
-                setLocalVideostreamPaused()
-                setRemoteVideostreamPaused()
-            }
-            BottomSheetState.COLLAPSED -> {
-                getView().enterFloatingVideostream()
-            }
-            BottomSheetState.EXPANDED -> {
-                getView().exitFloatingVideostream()
-            }
-            else -> {
+        if (interactor.callState == CallInteractor.CallState.Pending ||
+            interactor.callState == CallInteractor.CallState.Live) {
+            when (interactor.bottomSheetState) {
+                BottomSheetState.DRAGGING, BottomSheetState.SETTLING -> {
+                    setLocalVideostreamPaused()
+                    setRemoteVideostreamPaused()
+                }
+                BottomSheetState.COLLAPSED -> {
+                    getView().enterFloatingVideostream()
+                }
+                BottomSheetState.EXPANDED -> {
+                    getView().exitFloatingVideostream()
+                }
+                else -> {
+                }
             }
         }
     }
@@ -259,22 +262,22 @@ internal class VideoCallPresenter constructor(
                 false
             }
             else -> {
-                getView().navigateToHome()
+                interactor.callState = CallInteractor.CallState.Disconnected.User
                 true
             }
         }
     }
 
     fun onCancelPendingCall() {
-        socketRepository.sendPendingCallCancellation()
+        interactor.callState = CallInteractor.CallState.Disconnected.User
 
-        getView().navigateToHome()
+        socketRepository.sendPendingCallCancellation()
     }
 
     fun onCancelLiveCall() {
-        socketRepository.sendCallAction(action = CallAction.FINISH)
+        interactor.callState = CallInteractor.CallState.Disconnected.User
 
-        getView().navigateToHome()
+        socketRepository.sendCallAction(action = CallAction.FINISH)
     }
 
     fun setLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer, isZOrderMediaOverlay: Boolean) {
@@ -294,22 +297,22 @@ internal class VideoCallPresenter constructor(
     }
 
     fun setLocalVideostreamPaused() {
-        Logger.debug(TAG, "setLocalVideostreamPaused()")
+//        Logger.debug(TAG, "setLocalVideostreamPaused()")
         peerConnectionClient.localSurfaceViewRenderer?.setFpsReduction(0F)
     }
 
     fun setRemoteVideostreamPaused() {
-        Logger.debug(TAG, "setRemoteVideostreamPaused()")
+//        Logger.debug(TAG, "setRemoteVideostreamPaused()")
         peerConnectionClient.remoteSurfaceViewRenderer?.setFpsReduction(0F)
     }
 
     fun setLocalVideostreamResumed() {
-        Logger.debug(TAG, "setLocalVideostreamResumed()")
+//        Logger.debug(TAG, "setLocalVideostreamResumed()")
         peerConnectionClient.localSurfaceViewRenderer?.setFpsReduction(30F)
     }
 
     fun setRemoteVideostreamResumed() {
-        Logger.debug(TAG, "setRemoteVideostreamResumed()")
+//        Logger.debug(TAG, "setRemoteVideostreamResumed()")
         peerConnectionClient.remoteSurfaceViewRenderer?.setFpsReduction(30F)
     }
 
@@ -321,6 +324,28 @@ internal class VideoCallPresenter constructor(
     }
 
     override fun onNewCallState(state: CallInteractor.CallState) {
+        when (state) {
+            is CallInteractor.CallState.IDLE -> {
+                getView().hideFloatingVideostreamView()
+                getView().hideVideoCallScreenSwitcher()
+                getView().hideHangupCallButton()
+            }
+            is CallInteractor.CallState.Pending -> {
+                getView().showFloatingVideostreamView()
+                getView().showVideoCallScreenSwitcher()
+                getView().showHangupCallButton()
+            }
+            is CallInteractor.CallState.Live -> {
+                getView().showFloatingVideostreamView()
+                getView().showVideoCallScreenSwitcher()
+                getView().showHangupCallButton()
+            }
+            is CallInteractor.CallState.Disconnected -> {
+                getView().hideFloatingVideostreamView()
+                getView().hideVideoCallScreenSwitcher()
+                getView().hideHangupCallButton()
+            }
+        }
     }
 
     /**
@@ -479,6 +504,11 @@ internal class VideoCallPresenter constructor(
 
     override fun onNoOnlineCallAgents(text: String?): Boolean {
         Logger.debug(TAG, "onNoOnlineCallAgents() -> text: $text")
+
+        interactor.callState = CallInteractor.CallState.IDLE
+
+        getView().showNoOnlineCallAgentsMessage(text)
+
         return true
     }
 

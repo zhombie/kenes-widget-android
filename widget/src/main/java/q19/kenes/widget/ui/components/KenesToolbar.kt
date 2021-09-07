@@ -55,7 +55,7 @@ internal class KenesToolbar @JvmOverloads constructor(
 
         val hasUserInfo = try {
             typedArray.getBoolean(
-                R.styleable.KenesToolbar_kenesHasUserInfo,
+                R.styleable.KenesToolbar_kenesHasContent,
                 false
             )
         } catch (e: Exception) {
@@ -160,6 +160,14 @@ internal class KenesToolbar @JvmOverloads constructor(
         layout.addView(subtitleView)
 
         addView(layout)
+    }
+
+    fun isLeftButtonEnabled(): Boolean {
+        return leftButton != null && indexOfChild(leftButton) > -1
+    }
+
+    fun isRightButtonEnabled(): Boolean {
+        return rightButton != null && indexOfChild(rightButton) > -1
     }
 
     fun showImage(imageUrl: String?) {

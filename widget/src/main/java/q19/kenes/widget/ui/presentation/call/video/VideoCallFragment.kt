@@ -3,6 +3,7 @@ package q19.kenes.widget.ui.presentation.call.video
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.ViewPropertyAnimator
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
@@ -70,6 +71,9 @@ internal class VideoCallFragment :
     interface Listener {
         fun onCallFinished()
     }
+
+    private var floatingVideostreamEnterAnimator: ViewPropertyAnimator? = null
+    private var floatingVideostreamExitAnimator: ViewPropertyAnimator? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -148,6 +152,12 @@ internal class VideoCallFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+
+        floatingVideostreamEnterAnimator?.cancel()
+        floatingVideostreamEnterAnimator = null
+
+        floatingVideostreamExitAnimator?.cancel()
+        floatingVideostreamExitAnimator = null
 
         bottomSheetBehaviorCallback?.let { bottomSheetBehavior?.removeBottomSheetCallback(it) }
         bottomSheetBehaviorCallback = null
@@ -278,18 +288,68 @@ internal class VideoCallFragment :
             toolbar?.reveal()
         }
 
-        val fragment = childFragmentManager.findFragmentByTag("text_chat")
-        if (fragment is TextChatFragment) {
-            fragment.showCallAgentInfo(fullName, photoUrl)
+        runOnTextChatScreen {
+            showCallAgentInfo(fullName, photoUrl)
         }
     }
 
     override fun showNewChatMessage(message: Message) {
-        Logger.debug(TAG, "showNewMessage() -> $message")
+        Logger.debug(TAG, "showNewChatMessage() -> $message")
 
-        val fragment = childFragmentManager.findFragmentByTag("text_chat")
-        if (fragment is TextChatFragment) {
-            fragment.onNewChatMessage(message)
+        runOnTextChatScreen {
+            onNewChatMessage(message)
+        }
+    }
+
+    override fun showFloatingVideostreamView() = runOnUiThread {
+        floatingVideostreamEnterAnimator?.cancel()
+        floatingVideostreamEnterAnimator = null
+
+        floatingVideostreamExitAnimator?.cancel()
+        floatingVideostreamExitAnimator = null
+
+        floatingSurfaceViewRenderer?.visibility = View.VISIBLE
+        floatingLayout?.visibility = View.VISIBLE
+    }
+
+    override fun hideFloatingVideostreamView() = runOnUiThread {
+        floatingVideostreamEnterAnimator?.cancel()
+        floatingVideostreamEnterAnimator = null
+
+        floatingVideostreamExitAnimator?.cancel()
+        floatingVideostreamExitAnimator = null
+
+        floatingSurfaceViewRenderer?.visibility = View.GONE
+        floatingLayout?.visibility = View.GONE
+    }
+
+    override fun showVideoCallScreenSwitcher() {
+        Logger.debug(TAG, "showVideoCallScreenSwitcher()")
+
+        runOnTextChatScreen {
+            showVideoCallScreenSwitcher()
+        }
+    }
+
+    override fun hideVideoCallScreenSwitcher() {
+        Logger.debug(TAG, "showVideoCallScreenSwitcher()")
+
+        runOnTextChatScreen {
+            hideVideoCallScreenSwitcher()
+        }
+    }
+
+    override fun showHangupCallButton() {
+        Logger.debug(TAG, "showHangupCallButton()")
+
+        runOnTextChatScreen {
+            showHangupCallButton()
+        }
+    }
+
+    override fun hideHangupCallButton() {
+        runOnTextChatScreen {
+            hideHangupCallButton()
         }
     }
 
@@ -339,7 +399,9 @@ internal class VideoCallFragment :
         floatingLayout?.alpha = 0.25F
         floatingLayout?.scaleX = 0.5F
         floatingLayout?.scaleY = 0.5F
-        floatingLayout?.animate()
+        floatingVideostreamEnterAnimator?.cancel()
+        floatingVideostreamEnterAnimator = null
+        floatingVideostreamEnterAnimator = floatingLayout?.animate()
             ?.setDuration(150L)
             ?.alpha(1F)
             ?.scaleX(1F)
@@ -347,7 +409,7 @@ internal class VideoCallFragment :
             ?.withEndAction {
                 floatingSurfaceViewRenderer?.visibility = View.VISIBLE
             }
-            ?.start()
+        floatingVideostreamEnterAnimator?.start()
     }
 
     override fun exitFloatingVideostream() = runOnUiThread {
@@ -358,7 +420,9 @@ internal class VideoCallFragment :
         floatingLayout?.alpha = 0.75F
         floatingLayout?.scaleX = 1F
         floatingLayout?.scaleY = 1F
-        floatingLayout?.animate()
+        floatingVideostreamExitAnimator?.cancel()
+        floatingVideostreamExitAnimator = null
+        floatingVideostreamExitAnimator = floatingLayout?.animate()
             ?.setDuration(100L)
             ?.alpha(0F)
             ?.scaleX(0.35F)
@@ -373,7 +437,7 @@ internal class VideoCallFragment :
                 presenter.setLocalVideostreamResumed()
                 presenter.setRemoteVideostreamResumed()
             }
-            ?.start()
+        floatingVideostreamExitAnimator?.start()
     }
 
     override fun collapseBottomSheet() {
@@ -388,6 +452,18 @@ internal class VideoCallFragment :
         view?.hideKeyboardCompat()
 
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    override fun showNoOnlineCallAgentsMessage(text: String?) = runOnUiThread {
+        AlertDialogBuilder(requireContext())
+            .setTitle(R.string.kenes_attention)
+            .setMessage(text ?: "No online call agents, please, try later")
+            .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+                dialog.dismiss()
+
+                presenter.onCancelPendingCall()
+            }
+            .show()
     }
 
     override fun showCancelPendingConfirmationMessage() {
@@ -423,5 +499,12 @@ internal class VideoCallFragment :
     override fun navigateToHome() {
         listener?.onCallFinished()
     }
+
+    private fun runOnTextChatScreen(block: TextChatFragment.() -> Unit) =
+        with(childFragmentManager.findFragmentByTag("text_chat")) {
+            if (this is TextChatFragment) {
+                block.invoke(this)
+            }
+        }
 
 }

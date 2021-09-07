@@ -46,7 +46,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
 
     // UI Views
     private var toolbar: KenesToolbar? = null
-    private var showVideoCallButton: MaterialButton? = null
+    private var showVideoCallScreenButton: MaterialButton? = null
     private var messagesView: RecyclerView? = null
     private var messageInputView: KenesMessageInputView? = null
 
@@ -99,7 +99,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         super.onViewCreated(view, savedInstanceState)
 
         toolbar = view.findViewById(R.id.toolbar)
-        showVideoCallButton = view.findViewById(R.id.showVideoCallButton)
+        showVideoCallScreenButton = view.findViewById(R.id.showVideoCallScreenButton)
         messagesView = view.findViewById(R.id.messagesView)
         messageInputView = view.findViewById(R.id.messageInputView)
 
@@ -126,14 +126,6 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     private fun setupToolbar() {
-        toolbar?.setRightButtonEnabled(true)
-        toolbar?.setRightButtonBackgroundTint(R.color.kenes_soft_red)
-        toolbar?.setRightButtonIcon(R.drawable.ic_phone)
-        toolbar?.setRightButtonIconTint(R.color.kenes_white)
-        toolbar?.setRightButtonOnClickListener {
-            listener?.onHangupCall()
-        }
-
         toolbar?.showImage(R.drawable.ic_user)
         toolbar?.setTitle("Имя оператора")
         toolbar?.setSubtitle("Ожидание...")
@@ -141,7 +133,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     private fun setupVideoCallButton() {
-        showVideoCallButton?.setOnClickListener {
+        showVideoCallScreenButton?.setOnClickListener {
             listener?.onShowVideoCallScreen()
         }
     }
@@ -182,6 +174,31 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         toolbar?.setSubtitle("Оператор")
 
         toolbar?.reveal()
+    }
+
+    fun showHangupCallButton() = runOnUiThread {
+        if (toolbar?.isRightButtonEnabled() == false) {
+            toolbar?.setRightButtonEnabled(true)
+            toolbar?.setRightButtonBackgroundTint(R.color.kenes_soft_red)
+            toolbar?.setRightButtonIcon(R.drawable.ic_phone)
+            toolbar?.setRightButtonIconTint(R.color.kenes_white)
+            toolbar?.setRightButtonOnClickListener {
+                listener?.onHangupCall()
+            }
+        }
+    }
+
+    fun hideHangupCallButton() = runOnUiThread {
+        toolbar?.setRightButtonOnClickListener(null)
+        toolbar?.setRightButtonEnabled(false)
+    }
+
+    fun showVideoCallScreenSwitcher() = runOnUiThread {
+        showVideoCallScreenButton?.visibility = View.VISIBLE
+    }
+
+    fun hideVideoCallScreenSwitcher() = runOnUiThread {
+        showVideoCallScreenButton?.visibility = View.GONE
     }
 
     fun onNewChatMessage(message: Message) = runOnUiThread {
