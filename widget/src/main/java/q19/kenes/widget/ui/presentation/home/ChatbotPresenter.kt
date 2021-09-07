@@ -69,7 +69,7 @@ internal class ChatbotPresenter constructor(
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupsResponseHandler(
             onSuccess = { responseGroups ->
-                Logger.debug(TAG, "loadResponseGroups() -> responseGroups: $responseGroups")
+//                Logger.debug(TAG, "loadResponseGroups() -> responseGroups: $responseGroups")
 
                 getView().hideLoadingIndicator()
 
@@ -100,9 +100,9 @@ internal class ChatbotPresenter constructor(
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupChildrenResponseHandler(
             onSuccess = { children ->
-                Logger.debug(TAG, "onResponseGroupClicked() -> " +
-                    "responseGroup: $responseGroup, " +
-                    "children: $children")
+//                Logger.debug(TAG, "onResponseGroupClicked() -> " +
+//                    "responseGroup: $responseGroup, " +
+//                    "children: $children")
 
                 getView().hideLoadingIndicator()
 
@@ -145,9 +145,9 @@ internal class ChatbotPresenter constructor(
 
         asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response"), params, ResponseInfoResponseHandler(
             onSuccess = { responseInfo ->
-                Logger.debug(TAG, "onResponseGroupChildClicked() -> " +
-                    "child: $child, " +
-                    "responseInfo: $responseInfo")
+//                Logger.debug(TAG, "onResponseGroupChildClicked() -> " +
+//                    "child: $child, " +
+//                    "responseInfo: $responseInfo")
 
                 getView().hideLoadingIndicator()
 

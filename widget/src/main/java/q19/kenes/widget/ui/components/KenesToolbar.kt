@@ -22,7 +22,6 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.android.dp2Px
-import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.util.loadImage
 import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
@@ -94,7 +93,7 @@ internal class KenesToolbar @JvmOverloads constructor(
     }
 
     override fun setElevation(elevation: Float) {
-        Logger.debug(TAG, "setElevation() -> $elevation")
+//        Logger.debug(TAG, "setElevation() -> $elevation")
 
         if (elevation == 0F) {
             super.setElevation(elevation)

@@ -142,8 +142,21 @@ internal class VideoCallPresenter constructor(
         interactor.isRemoteAudioEnabled = call is Call.Audio || call is Call.Video
         interactor.isRemoteVideoEnabled = call is Call.Video
 
-        onToggleLocalAudio()
-        onToggleLocalCamera()
+        if (peerConnectionClient.setLocalAudioEnabled(interactor.isLocalAudioEnabled)) {
+            if (interactor.isLocalAudioEnabled) {
+                getView().setLocalAudioEnabled()
+            } else {
+                getView().setLocalAudioDisabled()
+            }
+        }
+
+        if (peerConnectionClient.setLocalVideoEnabled(interactor.isLocalVideoEnabled)) {
+            if (interactor.isLocalVideoEnabled) {
+                getView().setLocalVideoEnabled()
+            } else {
+                getView().setLocalVideoDisabled()
+            }
+        }
     }
 
     fun initLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
@@ -202,7 +215,7 @@ internal class VideoCallPresenter constructor(
     }
 
     fun onBottomSheetStateChanged(state: BottomSheetState) {
-        Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
+//        Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
 
         interactor.bottomSheetState = state
 
