@@ -32,7 +32,7 @@ import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.R
 
-internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragment_text_chat),
+internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes_fragment_text_chat),
     TextChatView,
     ChatMessagesAdapter.Callback {
 
@@ -129,7 +129,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
     }
 
     private fun setupToolbar() {
-        toolbar?.showImage(R.drawable.ic_user)
+        toolbar?.showImage(R.drawable.kenes_ic_user)
         toolbar?.setTitle("Имя оператора")
         toolbar?.setSubtitle("Ожидание...")
         toolbar?.reveal()
@@ -194,7 +194,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
         if (toolbar?.isRightButtonEnabled() == false) {
             toolbar?.setRightButtonEnabled(true)
             toolbar?.setRightButtonBackgroundTint(R.color.kenes_soft_red)
-            toolbar?.setRightButtonIcon(R.drawable.ic_phone)
+            toolbar?.setRightButtonIcon(R.drawable.kenes_ic_phone)
             toolbar?.setRightButtonIconTint(R.color.kenes_white)
             toolbar?.setRightButtonOnClickListener {
                 listener?.onHangupCall()

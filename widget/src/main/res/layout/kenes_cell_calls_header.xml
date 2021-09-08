@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="6dp"
+    android:paddingBottom="12dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/titleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="Звонок оператору"
+        android:textColor="@color/kenes_dark_charcoal"
+        android:textSize="16sp"
+        android:textStyle="normal" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/descriptionView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif"
+        android:text="Выберите одну тему из нижеперечисленного списка для звонка с оператором"
+        android:textColor="@color/kenes_gray"
+        android:textSize="10sp"
+        android:textStyle="normal" />
+
+    <LinearLayout
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/backButton"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:backgroundTint="@color/kenes_white"
+            android:fontFamily="sans-serif"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:letterSpacing="0.01"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingBottom="0dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="0dp"
+            android:text="@string/kenes_back"
+            android:textAllCaps="false"
+            android:textColor="@color/kenes_dark_charcoal"
+            android:textSize="10sp"
+            android:textStyle="normal"
+            app:icon="@drawable/kenes_ic_arrow_left"
+            app:iconGravity="textStart"
+            app:iconPadding="6dp"
+            app:iconSize="10dp"
+            app:iconTint="#888888"
+            app:rippleColor="?colorControlHighlight"
+            app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Circle" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -54,10 +54,7 @@ internal class KenesToolbar @JvmOverloads constructor(
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesToolbar)
 
         val hasUserInfo = try {
-            typedArray.getBoolean(
-                R.styleable.KenesToolbar_kenesHasContent,
-                false
-            )
+            typedArray.getBoolean(R.styleable.KenesToolbar_kenesHasContent, false)
         } catch (e: Exception) {
             false
         }
@@ -81,12 +78,16 @@ internal class KenesToolbar @JvmOverloads constructor(
                 ContextCompat.getColor(context, R.color.kenes_dark_gray)
             }
 
-            addImageView()
-            addLinearLayout(titleTextColor, subtitleTextColor)
+            imageView = buildImageView()
+            addView(imageView)
+
+            val linearLayout = buildLinearLayout(titleTextColor, subtitleTextColor)
+            addView(linearLayout)
         } else {
-            val space = Space(context)
-            space.layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F)
-            addView(space)
+            Space(context).apply {
+                layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F)
+                addView(this)
+            }
         }
 
         typedArray.recycle()
@@ -107,62 +108,69 @@ internal class KenesToolbar @JvmOverloads constructor(
         }
     }
 
-    private fun addImageView() {
-        imageView = ShapeableImageView(context)
-        imageView?.id = View.generateViewId()
-        imageView?.layoutParams = LayoutParams(45F.dp2Px().roundToInt(), 45F.dp2Px().roundToInt())
-        imageView?.setContentPadding(
-            5F.dp2Px().roundToInt(),
-            5F.dp2Px().roundToInt(),
-            5F.dp2Px().roundToInt(),
-            5F.dp2Px().roundToInt()
-        )
-        imageView?.shapeAppearanceModel = ShapeAppearanceModel
-            .builder(context, R.style.Kenes_Widget_ShapeAppearance_Circle, 0)
-            .build()
-        imageView?.strokeColor = ColorStateList.valueOf(Color.parseColor("#1ABDBDBD"))
-        imageView?.strokeWidth = 0.5F.dp2Px()
-        addView(imageView)
+    private fun buildImageView(): ShapeableImageView {
+        return ShapeableImageView(context).apply {
+            id = View.generateViewId()
+            layoutParams = LayoutParams(45F.dp2Px().roundToInt(), 45F.dp2Px().roundToInt())
+            setContentPadding(
+                5F.dp2Px().roundToInt(),
+                5F.dp2Px().roundToInt(),
+                5F.dp2Px().roundToInt(),
+                5F.dp2Px().roundToInt()
+            )
+            shapeAppearanceModel = ShapeAppearanceModel
+                .builder(context, R.style.Kenes_Widget_ShapeAppearance_Circle, 0)
+                .build()
+            strokeColor = ColorStateList.valueOf(Color.parseColor("#1ABDBDBD"))
+            strokeWidth = 0.5F.dp2Px()
+        }
     }
 
-    private fun addLinearLayout(@ColorInt titleTextColor: Int, @ColorInt subtitleTextColor: Int) {
-        val layout = LinearLayout(context)
-        layout.id = View.generateViewId()
-        layout.layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F).apply {
-            setMargins(5F.dp2Px().roundToInt(), 0, 0, 0)
+    private fun buildLinearLayout(
+        @ColorInt titleTextColor: Int,
+        @ColorInt subtitleTextColor: Int
+    ): LinearLayout {
+        val linearLayout = LinearLayout(context).apply {
+            id = View.generateViewId()
+            layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F).apply {
+                setMargins(5F.dp2Px().roundToInt(), 0, 0, 0)
+            }
+            orientation = VERTICAL
         }
-        layout.orientation = VERTICAL
 
-        titleView = MaterialTextView(context)
-        titleView?.id = View.generateViewId()
-        titleView?.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-        titleView?.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
-        titleView?.includeFontPadding = false
-        titleView?.letterSpacing = 0F
-        titleView?.maxLines = 1
-        titleView?.isSingleLine = true
-        titleView?.isAllCaps = false
-        titleView?.setTextColor(titleTextColor)
-        titleView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14F)
-        layout.addView(titleView)
+        titleView = MaterialTextView(context).apply {
+            id = View.generateViewId()
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
+            includeFontPadding = false
+            letterSpacing = 0F
+            maxLines = 1
+            isSingleLine = true
+            isAllCaps = false
+            setTextColor(titleTextColor)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 14F)
 
-        subtitleView = MaterialTextView(context)
-        subtitleView?.id = View.generateViewId()
-        subtitleView?.layoutParams =
-            MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+            linearLayout.addView(this)
+        }
+
+        subtitleView = MaterialTextView(context).apply {
+            id = View.generateViewId()
+            layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
                 setMargins(0, 1F.dp2Px().roundToInt(), 0, 0)
             }
-        subtitleView?.setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
-        subtitleView?.includeFontPadding = false
-        subtitleView?.letterSpacing = 0F
-        subtitleView?.maxLines = 1
-        subtitleView?.isSingleLine = true
-        subtitleView?.isAllCaps = false
-        subtitleView?.setTextColor(subtitleTextColor)
-        subtitleView?.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10F)
-        layout.addView(subtitleView)
+            setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
+            includeFontPadding = false
+            letterSpacing = 0F
+            maxLines = 1
+            isSingleLine = true
+            isAllCaps = false
+            setTextColor(subtitleTextColor)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 10F)
 
-        addView(layout)
+            linearLayout.addView(this)
+        }
+
+        return linearLayout
     }
 
     fun isLeftButtonEnabled(): Boolean {
@@ -211,29 +219,15 @@ internal class KenesToolbar @JvmOverloads constructor(
             leftButton = null
 
             if (leftButton == null) {
-                leftButton = MaterialButton(context, null, R.style.Widget_MaterialComponents_Button_Icon)
-                leftButton?.id = View.generateViewId()
-                leftButton?.layoutParams = LayoutParams(40F.dp2Px().roundToInt(), 40F.dp2Px().roundToInt()).apply {
-                    setMargins(0, 0, 0, 0)
+                leftButton = KenesIconButton(context).apply {
+                    id = View.generateViewId()
+                    layoutParams = LayoutParams(40F.dp2Px().roundToInt(), 40F.dp2Px().roundToInt()).apply {
+                        setMargins(0, 0, 0, 0)
+                    }
+                    setPadding(10F.dp2Px().roundToInt())
+                    leftButton?.iconSize = 22F.dp2Px().roundToInt()
+                    leftButton?.iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
                 }
-                leftButton?.elevation = 0F
-                leftButton?.insetBottom = 0
-                leftButton?.insetTop = 0
-                leftButton?.minWidth = 0
-                leftButton?.minHeight = 0
-                leftButton?.maxHeight = 0
-                leftButton?.maxWidth = 0
-                leftButton?.setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_transparent))
-                leftButton?.iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
-                leftButton?.iconPadding = 0
-                leftButton?.iconSize = 22F.dp2Px().roundToInt()
-                leftButton?.iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
-                leftButton?.isAllCaps = false
-                leftButton?.setPadding(0, 0, 0, 0)
-                leftButton?.text = null
-                leftButton?.shapeAppearanceModel = ShapeAppearanceModel
-                    .builder(context, R.style.Kenes_Widget_ShapeAppearance_Circle, 0)
-                    .build()
             }
 
             addView(leftButton, 0)
@@ -249,29 +243,15 @@ internal class KenesToolbar @JvmOverloads constructor(
             rightButton = null
 
             if (rightButton == null) {
-                rightButton = MaterialButton(context, null, R.style.Widget_MaterialComponents_Button_Icon)
-                rightButton?.id = View.generateViewId()
-                rightButton?.layoutParams = LayoutParams(40F.dp2Px().roundToInt(), 40F.dp2Px().roundToInt()).apply {
-                    setMargins(0, 0, 0, 0)
+                rightButton = KenesIconButton(context).apply {
+                    id = View.generateViewId()
+                    layoutParams = LayoutParams(40F.dp2Px().roundToInt(), 40F.dp2Px().roundToInt()).apply {
+                        setMargins(0, 0, 0, 0)
+                    }
+                    setPadding(10F.dp2Px().roundToInt())
+                    iconSize = 22F.dp2Px().roundToInt()
+                    iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
                 }
-                rightButton?.elevation = 0F
-                rightButton?.insetBottom = 0
-                rightButton?.insetTop = 0
-                rightButton?.minWidth = 0
-                rightButton?.minHeight = 0
-                rightButton?.maxHeight = 0
-                rightButton?.maxWidth = 0
-                rightButton?.setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_transparent))
-                rightButton?.iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
-                rightButton?.iconPadding = 0
-                rightButton?.iconSize = 22F.dp2Px().roundToInt()
-                rightButton?.iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
-                rightButton?.isAllCaps = false
-                rightButton?.setPadding(0, 0, 0, 0)
-                rightButton?.text = null
-                rightButton?.shapeAppearanceModel = ShapeAppearanceModel
-                    .builder(context, R.style.Kenes_Widget_ShapeAppearance_Circle, 0)
-                    .build()
             }
 
             addView(rightButton, childCount)

@@ -30,7 +30,7 @@ internal class CallSelectionAdapter constructor(
     override fun getItemCount(): Int = calls.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_call_selection))
+        return ViewHolder(parent.inflate(R.layout.kenes_cell_call_selection))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
@@ -46,11 +46,11 @@ internal class CallSelectionAdapter constructor(
         fun bind(call: Call) {
             when (call) {
                 is Call.Text ->
-                    iconView.setImageResource(R.drawable.ic_chat)
+                    iconView.setImageResource(R.drawable.kenes_ic_chat)
                 is Call.Audio ->
-                    iconView.setImageResource(R.drawable.ic_phone)
+                    iconView.setImageResource(R.drawable.kenes_ic_phone)
                 is Call.Video ->
-                    iconView.setImageResource(R.drawable.ic_camera_filled)
+                    iconView.setImageResource(R.drawable.kenes_ic_camera_filled)
             }
 
             titleView.text = call.title

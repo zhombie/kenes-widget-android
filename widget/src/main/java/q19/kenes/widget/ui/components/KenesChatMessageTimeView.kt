@@ -47,7 +47,7 @@ internal class KenesChatMessageTimeView @JvmOverloads constructor(
     }
 
     fun setInvertedStyle() {
-        background = AppCompatResources.getDrawable(context, R.drawable.bg_rounded_alpha_black)
+        background = AppCompatResources.getDrawable(context, R.drawable.kenes_bg_rounded_alpha_black)
 
         setTextColor(ContextCompat.getColor(context, R.color.kenes_white))
     }

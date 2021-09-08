@@ -11,7 +11,7 @@ internal class NotificationMessageViewHolder constructor(view: View) : BaseMessa
     companion object {
         private val TAG = NotificationMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_notification_message
+        val LAYOUT = R.layout.kenes_cell_notification_message
     }
 
     private val textView = view.findViewById<KenesTextView>(R.id.textView)

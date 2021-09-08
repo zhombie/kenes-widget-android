@@ -24,7 +24,7 @@ import kz.q19.utils.view.inflate
 import kz.q19.utils.view.outlineprovider.RoundMode
 import kz.q19.utils.view.outlineprovider.RoundOutlineProvider
 import q19.kenes.widget.core.logging.Logger.debug
-import q19.kenes.widget.ui.components.base.TitleView
+import q19.kenes.widget.ui.components.deprecated.base.KenesTitleView
 import q19.kenes.widget.ui.util.*
 import q19.kenes_widget.R
 
@@ -39,7 +39,7 @@ internal class ServicesView @JvmOverloads constructor(
         private const val TAG = "ServicesView"
     }
 
-    private var titleView: TitleView? = null
+    private var titleView: KenesTitleView? = null
     private var recyclerView: RecyclerView? = null
     private var adapter: ServicesAdapter? = null
 
@@ -60,7 +60,7 @@ internal class ServicesView @JvmOverloads constructor(
         language: Language
     ) {
         if (titleView == null) {
-            titleView = TitleView(context)
+            titleView = KenesTitleView(context)
             titleView?.layoutParams = MarginLayoutParams(
                 MarginLayoutParams.MATCH_PARENT,
                 MarginLayoutParams.WRAP_CONTENT

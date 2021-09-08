@@ -40,7 +40,7 @@ import kz.q19.webrtc.PeerConnectionClient
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.core.permission.PermissionManager
-import q19.kenes.widget.ui.components.BottomNavigationView
+import q19.kenes.widget.ui.components.KenesBottomNavigationView
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView
 import q19.kenes.widget.ui.components.deprecated.*
@@ -101,7 +101,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     /**
      * Audio call [operatorCallView] screen view.
      */
-    private val operatorCallView by bind<CallTypeView>(R.id.operatorCallView)
+//    private val operatorCallView by bind<CallTypeView>(R.id.operatorCallView)
 
     private val operatorCallPendingView by bind<OperatorCallPendingView>(R.id.operatorCallPendingView)
 
@@ -134,7 +134,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     /**
      * Bottom navigation view variables: [bottomNavigationView]
      */
-    private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
+    private val bottomNavigationView by bind<KenesBottomNavigationView>(R.id.bottomNavigationView)
 
     /**
      * Video dialog view variables: [videoDialogView]
@@ -212,7 +212,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.kenes_activity_widget_v2)
+        setContentView(R.layout.kenes_old_activity_widget)
 
         // Status bar color
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
@@ -243,7 +243,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
         /**
          * Configuration of home bottom navigation button action listeners (click/touch)
          */
-        bottomNavigationView.callback = object : BottomNavigationView.Callback {
+        bottomNavigationView.callback = object : KenesBottomNavigationView.Callback {
             override fun onBottomNavigationSelected(screen: Screen) {
                 presenter.onBottomNavigationButtonClicked(screen)
             }
@@ -262,19 +262,19 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
             }
         }
 
-        operatorCallView.callback = object : CallTypeView.Callback {
-            override fun onCallTypeClicked(callType: CallType) {
-                presenter.onCallTypeClicked(callType)
-            }
-
-            override fun onCallClicked(call: Configs.Call) {
-                presenter.onCallClicked(call)
-            }
-
-            override fun onCallBackClicked() {
-                presenter.onCallBackClicked()
-            }
-        }
+//        operatorCallView.callback = object : CallTypeView.Callback {
+//            override fun onCallTypeClicked(callType: CallType) {
+//                presenter.onCallTypeClicked(callType)
+//            }
+//
+//            override fun onCallClicked(call: Configs.Call) {
+//                presenter.onCallClicked(call)
+//            }
+//
+//            override fun onCallBackClicked() {
+//                presenter.onCallBackClicked()
+//            }
+//        }
 
         operatorCallPendingView.setOnCancelCallButtonClickListener {
             presenter.onCallCancelClicked()
@@ -666,7 +666,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun setDefaultFooterView() {
         runOnUiThread {
-            footerView.setAttachmentButtonEnabled(false)
+            footerView.setAttachmentSelectionEnabled(false)
 
 //            footerView.setGoToActiveDialogButtonState(null)
 
@@ -676,16 +676,16 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun showOperatorCallButton(callType: CallType) {
         runOnUiThread {
-            operatorCallView.showCallButton(callType)
-            operatorCallView.setCallButtonEnabled(callType)
+//            operatorCallView.showCallButton(callType)
+//            operatorCallView.setCallButtonEnabled(callType)
         }
     }
 
     override fun hideOperatorCallButton(callType: CallType) {
         runOnUiThread {
-            operatorCallView.hideCallButton(callType)
-            operatorCallView.setCallButtonDisabled(callType)
-            operatorCallView.removeListener(callType)
+//            operatorCallView.hideCallButton(callType)
+//            operatorCallView.setCallButtonDisabled(callType)
+//            operatorCallView.removeListener(callType)
         }
     }
 
@@ -698,8 +698,8 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
             operatorCallPendingView.setCancelCallButtonDisabled()
             operatorCallPendingView.isVisible = false
 
-            operatorCallView.setCallButtonEnabled(CallType.AUDIO)
-            operatorCallView.setCallButtonEnabled(CallType.VIDEO)
+//            operatorCallView.setCallButtonEnabled(CallType.AUDIO)
+//            operatorCallView.setCallButtonEnabled(CallType.VIDEO)
         }
     }
 
@@ -861,8 +861,8 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun showFooterView() {
         runOnUiThread {
-            if (!footerView.isAttachmentButtonEnabled) {
-                footerView.setAttachmentButtonEnabled(true)
+            if (!footerView.isAttachmentSelectionEnabled) {
+                footerView.setAttachmentSelectionEnabled(true)
             }
             footerView.isVisible = true
         }
@@ -1080,7 +1080,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     override fun showAttachmentPicker(forced: Boolean) {
         permissionManager.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
             if (it) {
-                var isPermitted = footerView.isAttachmentButtonEnabled
+                var isPermitted = footerView.isAttachmentSelectionEnabled
                 if (forced) {
                     isPermitted = true
                 }
@@ -1110,7 +1110,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
             headerView.hideHangupButton()
 
             setDefaultOperatorCallView()
-            operatorCallView.isVisible = false
+//            operatorCallView.isVisible = false
             operatorCallPendingView.isVisible = false
 
             audioDialogView.setDefaultState()
@@ -1137,7 +1137,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                 runOnUiThread {
                     headerView.hideHangupButton()
 
-                    operatorCallView.isVisible = false
+//                    operatorCallView.isVisible = false
                     operatorCallPendingView.isVisible = false
 
                     audioDialogView.setDefaultState()
@@ -1223,7 +1223,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             feedbackView.setDefaultState()
                             feedbackView.isVisible = false
 
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
 
                             bottomNavigationView.setNavigationButtonsEnabled()
 //                            bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.HOME)
@@ -1242,14 +1242,14 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             headerView.showHangupButton()
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
 
                             bottomNavigationView.setNavigationButtonsDisabled()
                         }
                     }
                     ViewState.TextDialog.CallAgentDisconnected -> {
                         runOnUiThread {
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
 
                             bottomNavigationView.setNavigationButtonsEnabled()
                         }
@@ -1258,7 +1258,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             headerView.hideHangupButton()
 
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
 
                             bottomNavigationView.setNavigationButtonsEnabled()
                         }
@@ -1319,14 +1319,14 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     recyclerView.isVisible = false
 
 //                    footerView.setGoToActiveDialogButtonState(null)
-                    footerView.setAttachmentButtonEnabled(false)
+                    footerView.setAttachmentSelectionEnabled(false)
                     footerView.isVisible = false
 
                     bottomNavigationView.setNavigationButtonsEnabled()
 //                    bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.CALLS)
 
                     setDefaultOperatorCallView()
-                    operatorCallView.isVisible = true
+//                    operatorCallView.isVisible = true
                 }
             }
             is ViewState.AudioDialog -> {
@@ -1342,7 +1342,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
+//                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_audio_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
@@ -1359,13 +1359,13 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             headerView.showHangupButton()
 
-                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
-                            operatorCallView.isVisible = false
+//                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
+//                            operatorCallView.isVisible = false
                             operatorCallPendingView.isVisible = false
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
                             footerView.isVisible = true
 
                             bottomNavigationView.setNavigationButtonsDisabled()
@@ -1385,7 +1385,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
 
                             audioDialogView.setUnreadMessagesCount("0")
                             audioDialogView.hideUnreadMessagesCounter()
@@ -1408,7 +1408,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
                             setDefaultFooterView()
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
                             footerView.isVisible = false
 
                             audioDialogView.isVisible = false
@@ -1423,7 +1423,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             headerView.hideHangupButton()
 
                             setDefaultFooterView()
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
                             footerView.isVisible = false
 
                             audioDialogView.isVisible = false
@@ -1446,7 +1446,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             } else {
 //                                hideKeyboard(footerView.inputView)
 
-                                operatorCallView.isVisible = false
+//                                operatorCallView.isVisible = false
                                 operatorCallPendingView.isVisible = false
 
                                 recyclerView.isVisible = false
@@ -1474,7 +1474,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            operatorCallView.setCallButtonDisabled(CallType.VIDEO)
+//                            operatorCallView.setCallButtonDisabled(CallType.VIDEO)
                             operatorCallPendingView.setCallTypeViewText(getString(R.string.kenes_video_call))
                             operatorCallPendingView.showProgress()
                             operatorCallPendingView.setCancelCallButtonEnabled()
@@ -1492,12 +1492,12 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             headerView.showHangupButton()
 
                             setDefaultOperatorCallView()
-                            operatorCallView.isVisible = false
+//                            operatorCallView.isVisible = false
                             operatorCallPendingView.isVisible = false
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
                             footerView.isVisible = true
 
                             bottomNavigationView.setNavigationButtonsDisabled()
@@ -1517,7 +1517,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
 
                             videoDialogView.setUnreadMessagesCount("0")
                             videoDialogView.hideUnreadMessagesCounter()
@@ -1543,7 +1543,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             setDefaultFooterView()
                             footerView.isVisible = false
 
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
 
                             videoDialogView.isVisible = false
 
@@ -1559,7 +1559,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             setDefaultFooterView()
                             footerView.isVisible = false
 
-                            footerView.setAttachmentButtonEnabled(false)
+                            footerView.setAttachmentSelectionEnabled(false)
 
                             videoDialogView.isVisible = false
 
@@ -1581,7 +1581,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             } else {
 //                                hideKeyboard(footerView.inputView)
 
-                                operatorCallView.isVisible = false
+//                                operatorCallView.isVisible = false
                                 operatorCallPendingView.isVisible = false
 
                                 recyclerView.isVisible = false
@@ -1655,7 +1655,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
                             footerView.isVisible = true
                         }
                     }
@@ -1667,7 +1667,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentButtonEnabled(true)
+                            footerView.setAttachmentSelectionEnabled(true)
                             footerView.isVisible = true
 
                             bottomNavigationView.setNavigationButtonsEnabled()
@@ -1693,7 +1693,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     override fun onDestroy() {
         super.onDestroy()
 
-        footerView.setAttachmentButtonEnabled(false)
+        footerView.setAttachmentSelectionEnabled(false)
 
         presenter.detachView()
 

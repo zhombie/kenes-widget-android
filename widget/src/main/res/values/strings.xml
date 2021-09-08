@@ -13,9 +13,9 @@
     <string name="kenes_cancel">Cancel</string>
     <string name="kenes_ok" translatable="false">OK</string>
     <string name="kenes_back">Back</string>
-    <string name="menu">Menu</string>
-    <string name="copy">Copy</string>
-    <string name="share">Share</string>
+    <string name="kenes_menu">Menu</string>
+    <string name="kenes_copy">Copy</string>
+    <string name="kenes_share">Share</string>
 
     <string name="kenes_hint_message_input_field">Hello! How can I help?</string>
 
@@ -96,8 +96,8 @@
 
     <string name="kenes_fill_fields">Please, fill following fields: %s</string>
 
-    <string name="no_knowledge_base_available_response">There is no data yet</string>
+    <string name="kenes_no_knowledge_base_available_response">There is no data yet</string>
 
-    <string name="show_all">Show all</string>
-    <string name="collapse_list">Collapse list</string>
+    <string name="kenes_show_all">Show all</string>
+    <string name="kenes_collapse_list">Collapse list</string>
 </resources>

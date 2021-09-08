@@ -4,7 +4,7 @@ import android.os.Bundle
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class ServicesFragment : BaseFragment<ServicesPresenter>(R.layout.fragment_services) {
+internal class ServicesFragment : BaseFragment<ServicesPresenter>(R.layout.kenes_fragment_services) {
 
     companion object {
         private val TAG = ServicesFragment::class.java.simpleName

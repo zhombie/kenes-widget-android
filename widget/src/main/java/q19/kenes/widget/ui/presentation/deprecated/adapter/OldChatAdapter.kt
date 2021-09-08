@@ -11,8 +11,6 @@ import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.widget.AppCompatImageView
-import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,11 +37,6 @@ internal class OldChatAdapter constructor(
         private val LAYOUT_OURGOING_MESSAGE = R.layout.kenes_cell_outgoing_message
         private val LAYOUT_INCOMING_MESSAGE = R.layout.kenes_cell_incoming_message
         private val LAYOUT_MESSAGE_KEYBOARD = R.layout.kenes_cell_message_keyboard
-        val LAYOUT_NOTIFICATION = R.layout.kenes_cell_notification
-        private val LAYOUT_TYPING = R.layout.kenes_cell_typing
-        private val LAYOUT_CATEGORY = R.layout.kenes_cell_category
-        private val LAYOUT_CROSS_CHILDREN = R.layout.kenes_cell_cross_children
-        private val LAYOUT_RESPONSE = R.layout.old_cell_response
 
         private const val KEY_PROGRESS = "progress"
         private const val KEY_FILE_TYPE = "fileType"
@@ -180,7 +173,7 @@ internal class OldChatAdapter constructor(
                     }
                 }
                 Message.Type.NOTIFICATION ->
-                    LAYOUT_NOTIFICATION
+                    0
 //                Message.Type.TYPING ->
 //                    LAYOUT_TYPING
 //                Message.Type.CATEGORY ->
@@ -201,10 +194,6 @@ internal class OldChatAdapter constructor(
             LAYOUT_OURGOING_MESSAGE -> OutgoingMessageViewHolder(view)
             LAYOUT_INCOMING_MESSAGE -> IncomingMessageViewHolder(view)
             LAYOUT_MESSAGE_KEYBOARD -> MessageKeyboardViewHolder(view)
-            LAYOUT_NOTIFICATION -> NotificationViewHolder(view)
-            LAYOUT_TYPING -> TypingViewHolder(view)
-//            LAYOUT_CATEGORY -> OldCategoryViewHolder(view)
-//            LAYOUT_RESPONSE -> ResponseViewHolder(view)
             else -> throw ViewHolderViewTypeException(viewType)
         }
     }
@@ -613,7 +602,7 @@ internal class OldChatAdapter constructor(
                 it.progress = progress
 
                 if (it.progress < it.max) {
-                    iconView?.setImageResource(R.drawable.ic_pause)
+                    iconView?.setImageResource(R.drawable.kenes_ic_pause)
                 } else {
                     iconView?.setImageResource(R.drawable.kenes_ic_play)
                 }
@@ -780,93 +769,6 @@ internal class OldChatAdapter constructor(
             inlineKeyboardAdapter?.replyMarkup = keyboard
         }
 
-    }
-
-    private class NotificationViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view.findViewById<TextView>(R.id.textView)
-        private val timeView = view.findViewById<TextView>(R.id.timeView)
-
-        fun bind(message: Message) {
-            textView?.text = message.text
-            timeView?.text = message.time
-        }
-    }
-
-    private class TypingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        fun bind() {
-        }
-    }
-
-    private inner class ResponseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val titleView = view.findViewById<TextView>(R.id.titleView)
-        private val textView = view.findViewById<KenesTextView>(R.id.textView)
-        private val timeView = view.findViewById<TextView>(R.id.timeView)
-        private val attachmentView = view.findViewById<TextView>(R.id.attachmentView)
-        private val backButtonView = view.findViewById<RelativeLayout>(R.id.backButtonView)
-        private val backButton = backButtonView.findViewById<AppCompatTextView>(R.id.textView)
-        private val backButtonImageView = view.findViewById<AppCompatImageView>(R.id.imageView)
-
-        fun bind(message: Message) {
-//            val category = message.category
-
-//            if (category != null) {
-//                if (category.title.isNullOrBlank()) {
-//                    titleView?.visibility = View.GONE
-//                } else {
-//                    titleView?.text = category.title
-//                    titleView?.visibility = View.VISIBLE
-//
-//                    titleView?.setOnClickListener {
-//                        callback?.onGoBackClicked(category)
-//                    }
-//                }
-//
-//                if (message.text.isNullOrBlank()) {
-//                    textView?.visibility = View.GONE
-//                    timeView?.visibility = View.GONE
-//                } else {
-//                    textView?.setHtmlText(message.htmlText) { _, url ->
-//                        debug(TAG, "OnClick: $url")
-//                        callback?.onUrlInTextClicked(url)
-//                    }
-//
-//                    timeView?.text = message.time
-//
-//                    textView?.enableAutoLinkMask()
-//                    textView?.enableLinkMovementMethod()
-//
-//                    textView?.visibility = View.VISIBLE
-//                    timeView?.visibility = View.VISIBLE
-//                }
-//
-//                val attachments = message.attachments
-//                if (!attachments.isNullOrEmpty()) {
-//                    val attachment = attachments[0]
-//
-//                    attachmentView?.text = attachment.title
-//                    attachmentView?.visibility = View.VISIBLE
-//
-//                    attachmentView?.setOnClickListener {
-//                        callback?.onAttachmentClicked(attachment, absoluteAdapterPosition)
-//                    }
-//                } else {
-//                    attachmentView?.visibility = View.GONE
-//                }
-//
-//                backButtonImageView?.visibility = View.GONE
-//                backButton?.removeCompoundDrawables()
-//                backButton?.setText(R.string.kenes_back)
-//                backButton?.setTextColor(ContextCompat.getColor(itemView.context, R.color.kenes_bright_blue))
-//                backButtonView?.isClickable = true
-//                backButtonView?.isFocusable = true
-//                backButtonView?.background = ResourcesCompat.getDrawable(
-//                    itemView.resources,
-//                    R.drawable.kenes_bg_rounded_horizonal_button,
-//                    itemView.context.theme
-//                )
-//                backButtonView?.setOnClickListener { callback?.onGoBackClicked(category) }
-//            }
-        }
     }
 
     interface Callback {

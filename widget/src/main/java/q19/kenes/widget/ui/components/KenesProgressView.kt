@@ -51,7 +51,7 @@ internal class KenesProgressView @JvmOverloads constructor(
         }
 
     init {
-        val view = inflate(context, R.layout.view_progress, this)
+        val view = inflate(context, R.layout.kenes_view_progress, this)
 
         rootView = view.findViewById(R.id.rootView)
         centerView = view.findViewById(R.id.centerView)
@@ -128,12 +128,12 @@ internal class KenesProgressView @JvmOverloads constructor(
         val progressIndicator = CircularProgressIndicator(context, null, style)
 
         progressIndicator.layoutParams = MarginLayoutParams(
-            context.resources.getDimensionPixelOffset(R.dimen.progress_circle_size),
-            context.resources.getDimensionPixelOffset(R.dimen.progress_circle_size)
+            context.resources.getDimensionPixelOffset(R.dimen.kenes_progress_circle_size),
+            context.resources.getDimensionPixelOffset(R.dimen.kenes_progress_circle_size)
         )
 
-        progressIndicator.indicatorSize = context.resources.getDimensionPixelOffset(R.dimen.progress_circle_size)
-        progressIndicator.trackThickness = context.resources.getDimensionPixelOffset(R.dimen.progress_track_thickness)
+        progressIndicator.indicatorSize = context.resources.getDimensionPixelOffset(R.dimen.kenes_progress_circle_size)
+        progressIndicator.trackThickness = context.resources.getDimensionPixelOffset(R.dimen.kenes_progress_track_thickness)
 
         progressIndicator.setIndicatorColor(ContextCompat.getColor(context, R.color.kenes_white))
 

@@ -23,7 +23,7 @@ import kz.q19.utils.recyclerview.disableChangeAnimations
 import kz.q19.utils.textview.AbstractTextWatcher
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.ui.components.base.TitleView
+import q19.kenes.widget.ui.components.deprecated.base.KenesTitleView
 import q19.kenes.widget.util.AlertDialogBuilder
 import q19.kenes_widget.R
 
@@ -84,7 +84,7 @@ internal class DynamicFormView @JvmOverloads constructor(
 //                        form?.fields = fields
                         form?.let { form -> callback?.onSendButtonClicked(form) }
                     } else {
-                        val text = emptyFields.map { it.title }.joinToString(separator = "\n")
+                        val text = emptyFields.joinToString(separator = "\n") { it.title }
                         context.AlertDialogBuilder
                             .setCancelable(true)
                             .setTitle(R.string.kenes_attention)
@@ -299,7 +299,7 @@ private class FieldsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     private class TitleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val titleView = view.findViewById<TitleView>(R.id.titleView)
+        private val titleView = view.findViewById<KenesTitleView>(R.id.titleView)
 
         fun bind(title: String) {
             titleView?.text = title

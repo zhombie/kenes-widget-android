@@ -12,7 +12,7 @@ internal class OutgoingTextMessageViewHolder constructor(
     companion object {
         private val TAG = OutgoingTextMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_outgoing_text_message
+        val LAYOUT = R.layout.kenes_cell_outgoing_text_message
     }
 
 }

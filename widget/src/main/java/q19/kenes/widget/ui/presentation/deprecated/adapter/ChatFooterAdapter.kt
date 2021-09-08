@@ -117,7 +117,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
                 button1?.setText(R.string.kenes_switch_to_operator)
                 button1?.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
 
-                orView?.text = itemView.context.getString(R.string.kenes_or).toLowerCase(Locale.getDefault())
+                orView?.text = itemView.context.getString(R.string.kenes_or).lowercase(Locale.getDefault())
 
                 button2?.removeCompoundDrawables()
                 button2?.setText(R.string.kenes_register_appeal)
@@ -127,7 +127,7 @@ internal class ChatFooterAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
                 button1?.setText(R.string.kenes_switch_to_operator)
                 button1?.setOnClickListener { callback?.onSwitchToCallAgentButtonClicked() }
 
-                orView?.text = itemView.context.getString(R.string.kenes_or).toLowerCase(Locale.getDefault())
+                orView?.text = itemView.context.getString(R.string.kenes_or).lowercase(Locale.getDefault())
 
                 button2?.removeCompoundDrawables()
                 button2?.setText(R.string.kenes_go_to_home)

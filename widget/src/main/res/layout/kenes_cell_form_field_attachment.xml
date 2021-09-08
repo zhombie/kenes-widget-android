@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/kenes_bg_attachment"
         android:clickable="true"
-        android:drawableLeft="@drawable/kenes_ic_attachment_inclined"
+        android:drawableLeft="@drawable/kenes_ic_attachment"
         android:drawablePadding="15dp"
         android:focusable="true"
         android:paddingStart="20dp"

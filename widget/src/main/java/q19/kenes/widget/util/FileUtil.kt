@@ -39,7 +39,7 @@ internal object FileUtil {
             context.contentResolver.getType(this)
         } else {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(this.toString())
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase(Locale.getDefault()))
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.lowercase(Locale.getDefault()))
         }
     }
 

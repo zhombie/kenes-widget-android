@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<q19.kenes.widget.ui.components.base.TitleView xmlns:android="http://schemas.android.com/apk/res/android"
+<q19.kenes.widget.ui.components.deprecated.base.KenesTitleView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/titleView"
     android:layout_width="match_parent"

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#BB000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/centerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/kenes_bg_progress"
+        android:padding="20dp">
+
+    </FrameLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancelButton"
+        style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:letterSpacing="0.01"
+        android:minWidth="125dp"
+        android:text="@string/kenes_cancel"
+        android:textAllCaps="false"
+        android:textColor="@color/kenes_white"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        app:backgroundTint="#70333333"
+        app:cornerRadius="10dp"
+        app:rippleColor="@color/kenes_white" />
+
+</LinearLayout>

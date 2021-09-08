@@ -18,7 +18,7 @@ internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     private object Layout {
-        val RESPONSE_GROUP: Int = R.layout.cell_response_group
+        val RESPONSE_GROUP: Int = R.layout.kenes_cell_response_group
     }
 
     private val diffCallback = object : DiffUtil.ItemCallback<Nestable>() {

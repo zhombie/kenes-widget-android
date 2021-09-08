@@ -13,9 +13,9 @@
     <string name="kenes_no">Нет</string>
     <string name="kenes_cancel">Отмена</string>
     <string name="kenes_back">Назад</string>
-    <string name="menu">Меню</string>
-    <string name="copy">Скопировать</string>
-    <string name="share">Поделиться</string>
+    <string name="kenes_menu">Меню</string>
+    <string name="kenes_copy">Скопировать</string>
+    <string name="kenes_share">Поделиться</string>
 
     <string name="kenes_hint_message_input_field">Привет! Чем могу помочь?</string>
 
@@ -96,8 +96,8 @@
 
     <string name="kenes_fill_fields">Пожалуйста, заполните следующие поля: %s</string>
 
-    <string name="no_knowledge_base_available_response">Данных пока нет</string>
+    <string name="kenes_no_knowledge_base_available_response">Данных пока нет</string>
 
-    <string name="show_all">Показать все</string>
-    <string name="collapse_list">Свернуть список</string>
+    <string name="kenes_show_all">Показать все</string>
+    <string name="kenes_collapse_list">Свернуть список</string>
 </resources>

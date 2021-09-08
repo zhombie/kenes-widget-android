@@ -15,7 +15,7 @@ internal class OutgoingRichContentMessageViewHolder constructor(
     companion object {
         private val TAG = OutgoingRichContentMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_outgoing_text_message
+        val LAYOUT = R.layout.kenes_cell_outgoing_text_message
     }
 
     private val textView = view.findViewById<KenesChatMessageTextView>(R.id.textView)

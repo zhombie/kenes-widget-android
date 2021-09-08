@@ -51,7 +51,7 @@ internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFra
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_call_selection, container, false)
+        return inflater.inflate(R.layout.kenes_fragment_call_selection, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

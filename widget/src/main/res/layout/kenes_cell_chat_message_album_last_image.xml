@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<q19.kenes.widget.ui.components.KenesSquareFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <q19.kenes.widget.ui.components.KenesSquareImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="@drawable/kenes_bg_album_last_image"
+        android:scaleType="centerCrop"
+        app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Rounded.All.15dp"
+        tools:src="@tools:sample/backgrounds/scenic" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/kenes_white"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        tools:text="Показать все (4)" />
+
+</q19.kenes.widget.ui.components.KenesSquareFrameLayout>

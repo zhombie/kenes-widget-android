@@ -53,7 +53,7 @@ import q19.kenes.widget.util.hideKeyboardCompat
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
-internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragment_chatbot),
+internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_fragment_chatbot),
     ChatbotView,
     HomeScreenDelegate,
     ChatMessagesAdapter.Callback {
@@ -222,11 +222,11 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
 
             override fun onMenuButtonClicked() {
                 AlertDialogBuilder(requireContext())
-                    .setTitle(R.string.menu)
+                    .setTitle(R.string.kenes_menu)
                     .setItems(
                         arrayOf(
-                            getString(R.string.copy),
-                            getString(R.string.share)
+                            getString(R.string.kenes_copy),
+                            getString(R.string.kenes_share)
                         )
                     ) { dialog, which ->
                         dialog.dismiss()
@@ -274,7 +274,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
 
             bottomSheetBehaviorCallback = object : BottomSheetBehavior.BottomSheetCallback() {
                 private val peekHeight =
-                    requireContext().resources.getDimensionPixelOffset(R.dimen.bottom_sheet_peek_height)
+                    requireContext().resources.getDimensionPixelOffset(R.dimen.kenes_bottom_sheet_peek_height)
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
 //                    Logger.debug(TAG, "onStateChanged() -> $slideOffset")
@@ -513,7 +513,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
             context?.clipboardManager?.setPrimaryClip(ClipData.newPlainText(label, text))
         }
 
-        toast(R.string.copy)
+        toast(R.string.kenes_copy)
     }
 
     override fun share(title: String, text: CharSequence?, htmlText: String) {
@@ -555,7 +555,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
     }
 
     override fun showNoResponsesFoundMessage() {
-        toast(R.string.no_knowledge_base_available_response)
+        toast(R.string.kenes_no_knowledge_base_available_response)
     }
 
     /**

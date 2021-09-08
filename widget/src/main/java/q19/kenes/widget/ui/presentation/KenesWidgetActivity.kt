@@ -18,7 +18,7 @@ import kz.zhombie.museum.MuseumDialogFragment
 import kz.zhombie.radio.Radio
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.ui.components.BottomNavigationView
+import q19.kenes.widget.ui.components.KenesBottomNavigationView
 import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallsFragment
@@ -71,7 +71,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     private val toolbar by bind<KenesToolbar>(R.id.toolbar)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val fragmentContainerView by bind<FragmentContainerView>(R.id.fragmentContainerView)
-    private val bottomNavigationView by bind<BottomNavigationView>(R.id.bottomNavigationView)
+    private val bottomNavigationView by bind<KenesBottomNavigationView>(R.id.bottomNavigationView)
 
     // BottomNavigationView + ViewPager2 adapter
     private var viewPagerAdapter: ViewPagerAdapter? = null
@@ -81,7 +81,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_kenes_widget)
+        setContentView(R.layout.kenes_activity_kenes_widget)
 
         // Hostname
         val hostname: String? = intent.getStringExtra(IntentKey.HOSTNAME)
@@ -173,7 +173,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         viewPager.isUserInputEnabled = false
         viewPager.offscreenPageLimit = fragments.size
 
-        bottomNavigationView.callback = object : BottomNavigationView.Callback {
+        bottomNavigationView.callback = object : KenesBottomNavigationView.Callback {
             override fun onBottomNavigationSelected(screen: Screen) {
                 Logger.debug(TAG, "onBottomNavigationSelected() -> $screen")
                 presenter.onBottomNavigationButtonSelected(screen)
@@ -217,7 +217,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
     override fun showBottomSheetCloseButton() {
         toolbar.setRightButtonEnabled(true)
-        toolbar.setRightButtonIcon(R.drawable.ic_cancel)
+        toolbar.setRightButtonIcon(R.drawable.kenes_ic_cancel)
         toolbar.setRightButtonIconTint(R.color.kenes_gray)
         toolbar.setRightButtonOnClickListener {
             val fragment = viewPagerAdapter?.getFragment(viewPager.currentItem)

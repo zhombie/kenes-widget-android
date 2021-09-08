@@ -74,9 +74,9 @@ internal abstract class BaseAudioMessageViewHolder constructor(
         sliderAnimator = null
 
         if (isPlaying) {
-            iconView?.setImageResource(R.drawable.ic_pause)
+            iconView?.setImageResource(R.drawable.kenes_ic_pause)
         } else {
-            iconView?.setImageResource(R.drawable.ic_play)
+            iconView?.setImageResource(R.drawable.kenes_ic_play)
         }
     }
 
@@ -107,7 +107,7 @@ internal abstract class BaseAudioMessageViewHolder constructor(
         }
         animator?.start()
 
-        iconView?.setImageResource(R.drawable.ic_play)
+        iconView?.setImageResource(R.drawable.kenes_ic_play)
 
         playTimeView?.text = formatAudioProgress(0, duration)
     }

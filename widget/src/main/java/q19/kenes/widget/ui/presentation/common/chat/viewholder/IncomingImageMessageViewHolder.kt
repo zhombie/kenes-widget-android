@@ -12,7 +12,7 @@ internal class IncomingImageMessageViewHolder constructor(
     companion object {
         private val TAG = IncomingImageMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_incoming_image_message
+        val LAYOUT = R.layout.kenes_cell_incoming_image_message
     }
 
 }

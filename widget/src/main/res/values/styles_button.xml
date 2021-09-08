@@ -4,7 +4,7 @@
 
     <style name="Kenes.Widget.Button.Borderless" parent="Widget.AppCompat.Button.Borderless" />
 
-    <style name="SmallRoundedButton" parent="Kenes.Widget.Button.Borderless">
+    <style name="Kenes.SmallRoundedButton" parent="Kenes.Widget.Button.Borderless">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">40dp</item>
         <item name="android:background">@drawable/kenes_bg_button_light_blue_rounded_15dp</item>
@@ -16,7 +16,7 @@
         <item name="android:textSize">13sp</item>
     </style>
 
-    <style name="NormalRoundedButton" parent="Kenes.Widget.Button.Borderless">
+    <style name="Kenes.NormalRoundedButton" parent="Kenes.Widget.Button.Borderless">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/kenes_bg_button_light_blue_rounded_4dp</item>

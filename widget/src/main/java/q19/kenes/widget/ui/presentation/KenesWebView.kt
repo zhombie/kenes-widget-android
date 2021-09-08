@@ -1,7 +1,6 @@
 package q19.kenes.widget.ui.presentation
 
 import android.content.Context
-import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.webkit.CookieManager
@@ -44,18 +43,14 @@ internal class KenesWebView @JvmOverloads constructor(
     }
 
     fun setThirdPartyCookiesEnabled(enabled: Boolean) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            CookieManager.getInstance().setAcceptThirdPartyCookies(this, enabled)
-        }
+        CookieManager.getInstance().setAcceptThirdPartyCookies(this, enabled)
     }
 
     fun setMixedContentAllowed(allowed: Boolean) {
-        if (Build.VERSION.SDK_INT >= 21) {
-            settings.mixedContentMode = if (allowed) {
-                WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            } else {
-                WebSettings.MIXED_CONTENT_NEVER_ALLOW
-            }
+        settings.mixedContentMode = if (allowed) {
+            WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        } else {
+            WebSettings.MIXED_CONTENT_NEVER_ALLOW
         }
     }
 

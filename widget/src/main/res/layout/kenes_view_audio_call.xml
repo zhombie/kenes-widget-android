@@ -23,7 +23,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/audioCallButton"
-        style="@style/NormalRoundedButton"
+        style="@style/Kenes.NormalRoundedButton"
         android:layout_gravity="center"
         android:drawableStart="@drawable/kenes_selector_headphones"
         android:text="@string/kenes_audio_call" />

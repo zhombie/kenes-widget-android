@@ -20,7 +20,7 @@ import q19.kenes.widget.ui.presentation.common.HomeFragment
 import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes_widget.R
 
-internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.fragment_calls),
+internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragment_calls),
     CallsView,
     HomeScreenDelegate,
     CallsHeaderAdapter.Callback,

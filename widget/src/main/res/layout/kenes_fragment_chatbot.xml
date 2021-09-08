@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F7"
+    android:orientation="vertical"
+    tools:context="q19.kenes.widget.ui.presentation.home.ChatbotFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/responsesView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:paddingBottom="120dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="2"
+        tools:listitem="@layout/kenes_cell_response_group" />
+
+    <q19.kenes.widget.ui.components.KenesProgressView
+        android:id="@+id/progressView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:kenesBackgroundColor="#BBFFFFFF"
+        app:kenesIsCancelable="true"
+        app:kenesType="indeterminate" />
+
+    <include
+        android:id="@+id/chatView"
+        layout="@layout/kenes_view_chat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="@dimen/kenes_bottom_sheet_peek_height" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

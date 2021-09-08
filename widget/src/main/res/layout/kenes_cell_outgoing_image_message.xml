@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginLeft="50dp"
+        android:gravity="right"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/kenes_bg_rounded_chat_outgoing_message"
+            android:gravity="right"
+            android:orientation="vertical">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="@drawable/kenes_bg_album_image"
+                android:minHeight="120dp"
+                android:maxHeight="175dp"
+                app:shapeAppearance="@style/Kenes.Widget.ShapeAppearance.Rounded.All.15dp"
+                tools:src="@tools:sample/backgrounds/scenic" />
+
+            <q19.kenes.widget.ui.components.KenesChatMessageTextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/kenes_white"
+                tools:text="Outgoing message" />
+
+        </LinearLayout>
+
+        <q19.kenes.widget.ui.components.KenesChatMessageTimeView
+            android:id="@id/timeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="00:01" />
+
+    </LinearLayout>
+
+</FrameLayout>

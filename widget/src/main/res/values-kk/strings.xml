@@ -13,9 +13,9 @@
     <string name="kenes_no">Жоқ</string>
     <string name="kenes_cancel">Бас тарту</string>
     <string name="kenes_back">Артқа</string>
-    <string name="menu">Мәзір</string>
-    <string name="copy">Көшіру</string>
-    <string name="share">Бөлісу</string>
+    <string name="kenes_menu">Мәзір</string>
+    <string name="kenes_copy">Көшіру</string>
+    <string name="kenes_share">Бөлісу</string>
 
     <string name="kenes_hint_message_input_field">Сәлем! Қандай көмек қажет?</string>
 
@@ -96,8 +96,8 @@
 
     <string name="kenes_fill_fields">Өтініш, көрсетілген өрістерді толтырып шығыңыз: %s</string>
 
-    <string name="no_knowledge_base_available_response">Әзірге деректер жоқ</string>
+    <string name="kenes_no_knowledge_base_available_response">Әзірге деректер жоқ</string>
 
-    <string name="show_all">Барлығын көрсету</string>
-    <string name="collapse_list">Тізімді жию</string>
+    <string name="kenes_show_all">Барлығын көрсету</string>
+    <string name="kenes_collapse_list">Тізімді жию</string>
 </resources>

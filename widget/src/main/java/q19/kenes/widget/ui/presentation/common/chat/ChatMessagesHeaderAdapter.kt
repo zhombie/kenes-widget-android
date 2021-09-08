@@ -17,7 +17,7 @@ class ChatMessagesHeaderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(
     override fun getItemCount(): Int = size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_chat_messages_header))
+        return ViewHolder(parent.inflate(R.layout.kenes_cell_chat_messages_header))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

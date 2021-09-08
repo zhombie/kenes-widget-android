@@ -8,7 +8,7 @@ import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.media.Media
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.ui.components.SquareImageView
+import q19.kenes.widget.ui.components.KenesSquareImageView
 import q19.kenes.widget.util.ViewHolderDelegate
 import q19.kenes.widget.util.loadImage
 import q19.kenes_widget.R
@@ -67,9 +67,9 @@ internal class AlbumImageMessageAdapter constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewType.IMAGE ->
-                ImageViewHolder(parent.inflate(R.layout.cell_chat_message_album_image))
+                ImageViewHolder(parent.inflate(R.layout.kenes_cell_chat_message_album_image))
             ViewType.LAST_IMAGE ->
-                LastImageViewHolder(parent.inflate(R.layout.cell_chat_message_album_last_image))
+                LastImageViewHolder(parent.inflate(R.layout.kenes_cell_chat_message_album_last_image))
             else ->
                 throw ViewHolderViewTypeException(viewType)
         }
@@ -84,7 +84,7 @@ internal class AlbumImageMessageAdapter constructor(
     }
 
     private inner class ImageViewHolder constructor(view: View) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
-        private val imageView = view.findViewById<SquareImageView>(R.id.imageView)
+        private val imageView = view.findViewById<KenesSquareImageView>(R.id.imageView)
 
         fun bind(image: Media) {
             imageView.loadImage(image.urlPath)
@@ -100,7 +100,7 @@ internal class AlbumImageMessageAdapter constructor(
     }
 
     private inner class LastImageViewHolder constructor(view: View) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
-        private val imageView = view.findViewById<SquareImageView>(R.id.imageView)
+        private val imageView = view.findViewById<KenesSquareImageView>(R.id.imageView)
         private val textView = view.findViewById<MaterialTextView>(R.id.textView)
 
         fun bind(image: Media, totalCount: Int) {

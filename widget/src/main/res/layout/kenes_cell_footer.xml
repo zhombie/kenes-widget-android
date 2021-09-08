@@ -7,7 +7,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
-        style="@style/SmallRoundedButton"
+        style="@style/Kenes.SmallRoundedButton"
         android:layout_gravity="center_horizontal"
         tools:drawableStart="@drawable/kenes_selector_arrow_left"
         tools:text="@string/kenes_go_to_home" />

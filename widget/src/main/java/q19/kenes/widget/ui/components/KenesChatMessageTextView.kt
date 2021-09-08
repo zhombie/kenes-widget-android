@@ -26,7 +26,7 @@ internal class KenesChatMessageTextView @JvmOverloads constructor(
 
         setTextSize(
             TypedValue.COMPLEX_UNIT_PX,
-            context.resources.getDimension(R.dimen.chat_message_text_size)
+            context.resources.getDimension(R.dimen.kenes_chat_message_text_size)
         )
 
         minWidth = 60F.dp2Px().roundToInt()

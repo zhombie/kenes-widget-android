@@ -14,7 +14,7 @@ import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecorati
 import q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
 import q19.kenes_widget.R
 
-internal class ImagesFragment : BaseFullscreenDialogFragment<ImagesPresenter>(R.layout.fragment_images, true) {
+internal class ImagesFragment : BaseFullscreenDialogFragment<ImagesPresenter>(R.layout.kenes_fragment_images, true) {
 
     companion object {
         private val TAG = ImagesFragment::class.java.simpleName
@@ -57,7 +57,7 @@ internal class ImagesFragment : BaseFullscreenDialogFragment<ImagesPresenter>(R.
 
     private fun setupToolbar() {
         toolbar?.setLeftButtonEnabled(true)
-        toolbar?.setLeftButtonIcon(R.drawable.ic_arrow_left)
+        toolbar?.setLeftButtonIcon(R.drawable.kenes_ic_arrow_left)
         toolbar?.setLeftButtonIconTint(R.color.kenes_white)
         toolbar?.setLeftButtonOnClickListener {
             dismiss()

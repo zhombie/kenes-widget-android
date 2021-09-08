@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginLeft="50dp"
+        android:gravity="right"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/kenes_bg_rounded_chat_outgoing_message"
+            android:gravity="right"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/albumView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2"
+                tools:listitem="@layout/kenes_cell_chat_message_album_image" />
+
+            <q19.kenes.widget.ui.components.KenesChatMessageTextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/kenes_white"
+                tools:text="Outgoing message" />
+
+        </LinearLayout>
+
+        <q19.kenes.widget.ui.components.KenesChatMessageTimeView
+            android:id="@id/timeView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="00:01" />
+
+    </LinearLayout>
+
+</FrameLayout>

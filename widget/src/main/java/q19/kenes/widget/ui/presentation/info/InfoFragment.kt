@@ -4,7 +4,7 @@ import android.os.Bundle
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes_widget.R
 
-internal class InfoFragment : BaseFragment<InfoPresenter>(R.layout.fragment_info) {
+internal class InfoFragment : BaseFragment<InfoPresenter>(R.layout.kenes_fragment_info) {
 
     companion object {
         private val TAG = InfoFragment::class.java.simpleName

@@ -12,7 +12,7 @@ internal class IncomingVideoMessageViewHolder constructor(
     companion object {
         private val TAG = IncomingVideoMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_incoming_video_message
+        val LAYOUT = R.layout.kenes_cell_incoming_video_message
     }
 
 }

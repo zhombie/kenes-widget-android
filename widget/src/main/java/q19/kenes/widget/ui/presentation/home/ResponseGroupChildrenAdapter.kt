@@ -30,10 +30,10 @@ internal class ResponseGroupChildrenAdapter constructor(
     }
 
     private object Layout {
-        val EMPTY_RESPONSE_GROUP = R.layout.cell_empty_response_group
-        val RESPONSE_GROUP_CHILD = R.layout.cell_response_group_child
-        val RESPONSE_GROUP_CHILDREN_FOOTER = R.layout.cell_response_group_children_footer
-        val RESPONSE = R.layout.cell_response
+        val EMPTY_RESPONSE_GROUP = R.layout.kenes_cell_empty_response_group
+        val RESPONSE_GROUP_CHILD = R.layout.kenes_cell_response_group_child
+        val RESPONSE_GROUP_CHILDREN_FOOTER = R.layout.kenes_cell_response_group_children_footer
+        val RESPONSE = R.layout.kenes_cell_response
     }
 
     private object ViewType {
@@ -226,12 +226,12 @@ internal class ResponseGroupChildrenAdapter constructor(
         fun bind(element: Element) {
             when (element) {
                 is ResponseGroup -> {
-                    iconView?.setImageResource(R.drawable.ic_folder)
+                    iconView?.setImageResource(R.drawable.kenes_ic_folder)
                     iconView?.visibility = View.VISIBLE
 
                     textView?.text = element.title
 
-                    arrowView?.setImageResource(R.drawable.ic_arrow_right)
+                    arrowView?.setImageResource(R.drawable.kenes_ic_arrow_right)
                     arrowView?.visibility = View.VISIBLE
 
                     itemView.setOnClickListener {
@@ -239,7 +239,7 @@ internal class ResponseGroupChildrenAdapter constructor(
                     }
                 }
                 is ResponseGroup.Child -> {
-                    iconView?.setImageResource(R.drawable.ic_article)
+                    iconView?.setImageResource(R.drawable.kenes_ic_article)
                     iconView?.visibility = View.VISIBLE
 
                     textView?.text = element.title
@@ -270,25 +270,26 @@ internal class ResponseGroupChildrenAdapter constructor(
         private val textView = view.findViewById<MaterialTextView>(R.id.textView)
         private val imageView = view.findViewById<ShapeableImageView>(R.id.imageView)
 
+        private val transition = TransitionInflater.from(itemView.context)
+            .inflateTransition(R.transition.toggle)
+
         fun bind() {
             if (isCollapsed()) {
                 imageView.setImageDrawable(
-                    AppCompatResources.getDrawable(itemView.context, R.drawable.ic_arrow_down)
+                    AppCompatResources.getDrawable(itemView.context, R.drawable.kenes_ic_arrow_down)
                 )
 
-                textView.setText(R.string.show_all)
+                textView.setText(R.string.kenes_show_all)
             } else {
                 imageView.setImageDrawable(
-                    AppCompatResources.getDrawable(itemView.context, R.drawable.ic_arrow_up)
+                    AppCompatResources.getDrawable(itemView.context, R.drawable.kenes_ic_arrow_up)
                 )
 
-                textView.setText(R.string.collapse_list)
+                textView.setText(R.string.kenes_collapse_list)
             }
 
             itemView.setOnClickListener {
                 val parent = itemView.parent as? ViewGroup ?: return@setOnClickListener
-                val transition = TransitionInflater.from(itemView.context)
-                    .inflateTransition(R.transition.toggle)
                 TransitionManager.beginDelayedTransition(parent, transition)
                 toggle()
             }

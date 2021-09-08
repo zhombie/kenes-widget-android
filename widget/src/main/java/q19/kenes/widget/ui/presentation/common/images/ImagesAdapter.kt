@@ -31,7 +31,7 @@ internal class ImagesAdapter constructor(
     override fun getItemCount(): Int = images.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_image))
+        return ViewHolder(parent.inflate(R.layout.kenes_cell_image))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

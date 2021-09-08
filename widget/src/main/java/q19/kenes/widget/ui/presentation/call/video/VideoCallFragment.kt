@@ -15,7 +15,7 @@ import kz.q19.domain.model.message.Message
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.ui.components.FloatingLayout
+import q19.kenes.widget.ui.components.KenesFloatingLayout
 import q19.kenes.widget.ui.components.KenesToolbar
 import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
@@ -26,7 +26,7 @@ import q19.kenes.widget.util.hideKeyboardCompat
 import q19.kenes_widget.R
 
 internal class VideoCallFragment :
-    BaseFragment<VideoCallPresenter>(R.layout.fragment_video_call),
+    BaseFragment<VideoCallPresenter>(R.layout.kenes_fragment_video_call),
     VideoCallView,
     TextChatFragment.Listener {
 
@@ -44,7 +44,7 @@ internal class VideoCallFragment :
 
     // UI Views
     private var chatView: FragmentContainerView? = null
-    private var floatingLayout: FloatingLayout? = null
+    private var floatingLayout: KenesFloatingLayout? = null
     private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var videoView: FrameLayout? = null
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
@@ -361,7 +361,7 @@ internal class VideoCallFragment :
     override fun setLocalAudioEnabled() = runOnUiThread {
         toggleAudioButton?.apply {
             backgroundTintList = getColorStateList(R.color.kenes_white)
-            icon = getDrawable(R.drawable.ic_mic_on_stroke)
+            icon = getDrawable(R.drawable.kenes_ic_mic_on_stroke)
             iconTint = getColorStateList(R.color.kenes_black)
         }
     }
@@ -369,7 +369,7 @@ internal class VideoCallFragment :
     override fun setLocalAudioDisabled() = runOnUiThread {
         toggleAudioButton?.apply {
             backgroundTintList = getColorStateList(R.color.kenes_white_with_opacity_40)
-            icon = getDrawable(R.drawable.ic_mic_off_stroke)
+            icon = getDrawable(R.drawable.kenes_ic_mic_off_stroke)
             iconTint = getColorStateList(R.color.kenes_white)
         }
     }
@@ -377,7 +377,7 @@ internal class VideoCallFragment :
     override fun setLocalVideoEnabled() = runOnUiThread {
         toggleCameraButton?.apply {
             backgroundTintList = getColorStateList(R.color.kenes_white)
-            icon = getDrawable(R.drawable.ic_camera_on_stroke)
+            icon = getDrawable(R.drawable.kenes_ic_camera_on_stroke)
             iconTint = getColorStateList(R.color.kenes_black)
         }
     }
@@ -385,7 +385,7 @@ internal class VideoCallFragment :
     override fun setLocalVideoDisabled() = runOnUiThread {
         toggleCameraButton?.apply {
             backgroundTintList = getColorStateList(R.color.kenes_white_with_opacity_40)
-            icon = getDrawable(R.drawable.ic_camera_off_stroke)
+            icon = getDrawable(R.drawable.kenes_ic_camera_off_stroke)
             iconTint = getColorStateList(R.color.kenes_white)
         }
     }

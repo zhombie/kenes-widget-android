@@ -27,7 +27,7 @@ internal class CallsHeaderAdapter constructor(
     override fun getItemCount(): Int = 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_calls_header))
+        return ViewHolder(parent.inflate(R.layout.kenes_cell_calls_header))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

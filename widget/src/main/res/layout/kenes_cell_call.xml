@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/kenes_bg_ripple_rounded_white"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="20dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="20dp">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iconView"
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/kenes_ic_headphones" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/titleView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:fontFamily="sans-serif-medium"
+        android:includeFontPadding="false"
+        android:gravity="center_vertical"
+        android:maxLines="3"
+        android:singleLine="false"
+        android:textColor="@color/kenes_dark_charcoal"
+        android:textSize="16sp"
+        android:textStyle="normal"
+        tools:text="Аудизвонок" />
+
+</LinearLayout>

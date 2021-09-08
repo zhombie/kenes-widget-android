@@ -52,11 +52,11 @@ internal class CallsAdapter constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewType.CALL ->
-                CallViewHolder(parent.inflate(R.layout.cell_call))
+                CallViewHolder(parent.inflate(R.layout.kenes_cell_call))
             ViewType.PRIMARY_CALL_GROUP ->
-                PrimaryCallGroupViewHolder(parent.inflate(R.layout.cell_call_primary_group))
+                PrimaryCallGroupViewHolder(parent.inflate(R.layout.kenes_cell_call_primary_group))
             ViewType.SECONDARY_CALL_GROUP ->
-                SecondaryCallGroupViewHolder(parent.inflate(R.layout.cell_call_secondary_group))
+                SecondaryCallGroupViewHolder(parent.inflate(R.layout.kenes_cell_call_secondary_group))
             else ->
                 throw ViewHolderViewTypeException(viewType)
         }
@@ -158,11 +158,11 @@ internal class CallsAdapter constructor(
         fun bind(call: Call) {
             when (call) {
                 is Call.Text ->
-                    iconView.setImageResource(R.drawable.ic_chat)
+                    iconView.setImageResource(R.drawable.kenes_ic_chat)
                 is Call.Audio ->
-                    iconView.setImageResource(R.drawable.ic_headphones)
+                    iconView.setImageResource(R.drawable.kenes_ic_headphones)
                 is Call.Video ->
-                    iconView.setImageResource(R.drawable.ic_camera_filled)
+                    iconView.setImageResource(R.drawable.kenes_ic_camera_filled)
             }
 
             titleView.text = call.title

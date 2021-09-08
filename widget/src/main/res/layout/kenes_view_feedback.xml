@@ -34,7 +34,7 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/rateButton"
-        style="@style/NormalRoundedButton"
+        style="@style/Kenes.NormalRoundedButton"
         android:layout_gravity="bottom|end"
         android:enabled="false"
         android:text="@string/kenes_send" />

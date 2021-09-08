@@ -31,7 +31,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/videoCallButton"
-            style="@style/NormalRoundedButton"
+            style="@style/Kenes.NormalRoundedButton"
             android:layout_gravity="center_horizontal"
             android:drawableStart="@drawable/kenes_selector_camera"
             android:gravity="center"

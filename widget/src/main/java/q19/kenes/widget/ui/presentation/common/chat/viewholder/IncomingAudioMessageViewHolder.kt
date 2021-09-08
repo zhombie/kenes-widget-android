@@ -12,7 +12,7 @@ internal class IncomingAudioMessageViewHolder constructor(
     companion object {
         private val TAG = IncomingAudioMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_incoming_audio_message
+        val LAYOUT = R.layout.kenes_cell_incoming_audio_message
     }
 
 }

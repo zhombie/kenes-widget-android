@@ -25,10 +25,10 @@ internal class ChatAdapterItemDecoration constructor(context: Context) : Recycle
 
         if (adapter != null && position != null) {
             when (adapter.getItemViewType(position)) {
-                OldChatAdapter.LAYOUT_NOTIFICATION -> {
-                    outRect.top = verticalSpacing
-                    outRect.bottom = verticalSpacing
-                }
+//                OldChatAdapter.LAYOUT_NOTIFICATION -> {
+//                    outRect.top = verticalSpacing
+//                    outRect.bottom = verticalSpacing
+//                }
                 ChatFooterAdapter.LAYOUT_FOOTER, ChatFooterAdapter.LAYOUT_FOOTER_FUZZY -> {
                 }
                 else ->

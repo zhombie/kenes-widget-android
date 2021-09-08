@@ -22,7 +22,7 @@ class ResponseGroupChildrenHeaderAdapter : RecyclerView.Adapter<RecyclerView.Vie
     override fun getItemCount(): Int = 1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.cell_response_group_header))
+        return ViewHolder(parent.inflate(R.layout.kenes_cell_response_group_header))
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

@@ -12,7 +12,7 @@ internal class OutgoingImageMessageViewHolder constructor(
     companion object {
         private val TAG = OutgoingImageMessageViewHolder::class.java.simpleName
 
-        val LAYOUT = R.layout.cell_outgoing_image_message
+        val LAYOUT = R.layout.kenes_cell_outgoing_image_message
     }
 
 }

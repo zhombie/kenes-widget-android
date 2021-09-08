@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/kenes_bg_chatbot_info"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/kenes_ic_magnifying_glass"
+            android:tint="@color/kenes_dark_charcoal" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/titleView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:maxLines="2"
+            android:text="Напишите боту любое слово или фразу"
+            android:textColor="@color/kenes_dark_charcoal"
+            android:textSize="14sp"
+            android:textStyle="normal" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/descriptionView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:text="Бот постарается найти ответ на ваш запрос, в ином случае Вы можете обратиться напрямую к оператору"
+            android:textColor="@color/kenes_dark_charcoal"
+            android:textSize="13sp"
+            android:textStyle="normal" />
+
+    </LinearLayout>
+
+</FrameLayout>
