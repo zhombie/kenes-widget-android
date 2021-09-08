@@ -171,14 +171,13 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.fragm
             }
         })
 
-        messageInputView?.setCallback(object : KenesMessageInputView.Callback {
-            override fun onNewMediaSelection() {
-            }
+        messageInputView?.setOnSelectAttachmentClickListener {
+            // TODO: Implement media selection with certain permissions
+        }
 
-            override fun onSendTextMessage(message: String?) {
-                presenter.onSendTextMessage(message)
-            }
-        })
+        messageInputView?.setOnSendMessageClickListener { _, message ->
+            presenter.onSendTextMessage(message)
+        }
     }
 
     fun showCallAgentInfo(fullName: String, photoUrl: String?) = runOnUiThread {

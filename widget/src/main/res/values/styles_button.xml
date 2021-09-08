@@ -31,7 +31,7 @@
     </style>
 
     <style name="Kenes.Widget.Button.Unelevated.OnlyIcon" parent="Kenes.Widget.Button.Unelevated">
-        <item name="android:backgroundTint">@color/kenes_transparent</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:insetBottom">0dp</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
@@ -47,14 +47,11 @@
     </style>
 
     <style name="Kenes.Widget.Button.BottomNavigation" parent="Kenes.Widget.Button.Borderless">
-        <item name="background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
         <item name="android:drawablePadding">7dp</item>
-        <item name="fontFamily">sans-serif</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:paddingTop">7.5dp</item>
         <item name="android:paddingBottom">7.5dp</item>
-        <item name="textAllCaps">true</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/kenes_dark_gray</item>
         <item name="android:textSize">9sp</item>

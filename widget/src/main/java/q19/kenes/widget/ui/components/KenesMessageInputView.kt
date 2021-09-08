@@ -4,14 +4,12 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.View
 import android.widget.RelativeLayout
-import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
-import androidx.appcompat.widget.AppCompatEditText
-import androidx.appcompat.widget.AppCompatImageButton
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
 import q19.kenes_widget.R
 
 internal class KenesMessageInputView @JvmOverloads constructor(
@@ -21,42 +19,32 @@ internal class KenesMessageInputView @JvmOverloads constructor(
     @StyleRes defStyleRes: Int = 0
 ) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    private val inputView: AppCompatEditText
-    private val attachmentButton: AppCompatImageButton
-    private val sendMessageButton: AppCompatImageButton
+    private val selectAttachmentButton: MaterialButton
+    private val inputView: TextInputEditText
+    private val sendMessageButton: MaterialButton
 
     var isAttachmentButtonEnabled: Boolean = false
         private set
 
-    private var callback: Callback? = null
-
     init {
         val view = inflate(context, R.layout.view_message_input, this)
 
+        selectAttachmentButton = view.findViewById(R.id.selectAttachmentButton)
         inputView = view.findViewById(R.id.inputView)
-        attachmentButton = view.findViewById(R.id.attachmentButton)
         sendMessageButton = view.findViewById(R.id.sendMessageButton)
-
-        attachmentButton.setOnClickListener { callback?.onNewMediaSelection() }
-
-        sendMessageButton.setOnClickListener {
-            callback?.onSendTextMessage(inputView?.text?.toString())
-        }
     }
 
-    fun setCallback(callback: Callback?) {
-        this.callback = callback
-    }
-
-    fun clearInputViewText() {
-        inputView.text?.clear()
+    override fun onDetachedFromWindow() {
+        setOnSelectAttachmentClickListener(null)
+        setOnSendMessageClickListener(null)
+        super.onDetachedFromWindow()
     }
 
     fun setAttachmentButtonVisible(isVisible: Boolean) {
         if (isVisible) {
-            attachmentButton.visibility = View.VISIBLE
+            selectAttachmentButton.visibility = View.VISIBLE
         } else {
-            attachmentButton.visibility = View.GONE
+            selectAttachmentButton.visibility = View.GONE
         }
     }
 
@@ -68,12 +56,8 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         sendMessageButton.isEnabled = isEnabled
     }
 
-    fun setOnInputViewFocusChangeListener(
-        callback: (v: TextView?, actionId: Int, event: KeyEvent?) -> Boolean
-    ) {
-        inputView.setOnEditorActionListener { v, actionId, event ->
-            callback(v, actionId, event)
-        }
+    fun clearInputViewText() {
+        inputView.text?.clear()
     }
 
     fun setOnTextChangedListener(
@@ -90,9 +74,18 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         })
     }
 
-    interface Callback {
-        fun onNewMediaSelection() {}
-        fun onSendTextMessage(message: String?) {}
+    fun setOnSelectAttachmentClickListener(listener: OnClickListener?) {
+        selectAttachmentButton.setOnClickListener(listener)
+    }
+
+    fun setOnSendMessageClickListener(onSendMessage: ((view: View, message: String?) -> Unit)?) {
+        if (onSendMessage == null) {
+            sendMessageButton.setOnClickListener(onSendMessage)
+        } else {
+            sendMessageButton.setOnClickListener {
+                onSendMessage.invoke(it, inputView.text?.toString())
+            }
+        }
     }
 
 }

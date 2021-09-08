@@ -194,9 +194,6 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
         responseGroupsAdapter?.setCallback(null)
         responseGroupsAdapter = null
 
-        messageInputView?.setCallback(null)
-        messageInputView = null
-
         chatMessagesAdapter?.unregisterAdapterDataObserver(chatMessagesAdapterDataObserver)
         chatMessagesAdapter?.let { concatAdapter?.removeAdapter(it) }
         chatMessagesAdapter?.callback = null
@@ -349,15 +346,13 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.fragmen
             }
         })
 
-        messageInputView?.setCallback(object : KenesMessageInputView.Callback {
-            override fun onNewMediaSelection() {
-                // TODO: Implement media selection with certain permissions
-            }
+        messageInputView?.setOnSelectAttachmentClickListener {
+            // TODO: Implement media selection with certain permissions
+        }
 
-            override fun onSendTextMessage(message: String?) {
-                presenter.onSendTextMessage(message)
-            }
-        })
+        messageInputView?.setOnSendMessageClickListener { _, message ->
+            presenter.onSendTextMessage(message)
+        }
 
         messageInputView?.setAttachmentButtonVisible(false)
 
