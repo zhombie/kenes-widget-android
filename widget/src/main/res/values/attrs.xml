@@ -12,6 +12,10 @@
             <enum name="indeterminate" value="0" />
             <enum name="determinate" value="1" />
         </attr>
-        <attr name="kenesIsCancelable" format="boolean" />
+        <attr name="kenesCancelable" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="KenesMessageInputView">
+        <attr name="kenesSelectAttachmentButtonEnabled" format="boolean" />
     </declare-styleable>
 </resources>

@@ -17,7 +17,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.textfield.TextInputEditText
 import kz.q19.utils.android.dp2Px
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
@@ -33,16 +32,17 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         private val TAG = KenesChatMessageTextView::class.java.simpleName
     }
 
+    private var linearLayout: LinearLayout? = null
     private var selectAttachmentButton: MaterialButton? = null
-    private var inputView: TextInputEditText? = null
+    private var inputView: KenesTextInputEditText? = null
     private var sendMessageButton: MaterialButton? = null
 
     var isAttachmentSelectionEnabled: Boolean = false
         private set
 
     init {
-        elevation = 5F.dp2Px()
-        setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_white))
+        elevation = 2F.dp2Px()
+        setBackgroundColor(ContextCompat.getColor(context, R.color.kenes_white_with_opacity_EE))
         setPadding(
             7F.dp2Px().roundToInt(),
             10F.dp2Px().roundToInt(),
@@ -50,7 +50,7 @@ internal class KenesMessageInputView @JvmOverloads constructor(
             10F.dp2Px().roundToInt()
         )
 
-        val linearLayout = LinearLayout(context).apply {
+        linearLayout = LinearLayout(context).apply {
             id = View.generateViewId()
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
             orientation = LinearLayout.HORIZONTAL
@@ -63,14 +63,23 @@ internal class KenesMessageInputView @JvmOverloads constructor(
             )
         }
 
-        selectAttachmentButton = buildSelectAttachmentButton()
-        linearLayout.addView(selectAttachmentButton)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesMessageInputView)
+
+        try {
+            val isSelectAttachmentButtonEnabled = typedArray.getBoolean(
+                R.styleable.KenesMessageInputView_kenesSelectAttachmentButtonEnabled, false)
+            setSelectAttachmentButtonEnabled(isSelectAttachmentButtonEnabled)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            typedArray.recycle()
+        }
 
         inputView = buildInputView()
-        linearLayout.addView(inputView)
+        linearLayout?.addView(inputView)
 
         sendMessageButton = buildSendMessageButton()
-        linearLayout.addView(sendMessageButton)
+        linearLayout?.addView(sendMessageButton)
 
         addView(linearLayout)
     }
@@ -88,12 +97,7 @@ internal class KenesMessageInputView @JvmOverloads constructor(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             ).apply {
-                setMargins(
-                    0,
-                    0,
-                    5F.dp2Px().roundToInt(),
-                    0
-                )
+                setMargins(0, 0, 0, 0)
             }
             setPadding(8F.dp2Px().roundToInt())
             setIconResource(R.drawable.kenes_ic_attachment)
@@ -102,22 +106,22 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         }
     }
 
-    private fun buildInputView(): TextInputEditText {
-        return TextInputEditText(context).apply {
+    private fun buildInputView(): KenesTextInputEditText {
+        return KenesTextInputEditText(context).apply {
             id = View.generateViewId()
             layoutParams = LinearLayout.LayoutParams(
                 0,
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 1F
             ).apply {
-                setMargins(10F.dp2Px().roundToInt(), 0, 0, 0)
+                setMargins(6F.dp2Px().roundToInt(), 0, 0, 0)
             }
+            setMaxHeight(135F.dp2Px())
             background = null
             isCursorVisible = true
             setTypeface(Typeface.SANS_SERIF, Typeface.NORMAL)
             gravity = Gravity.CENTER_VERTICAL
             setHint(R.string.kenes_hint_message_input_field)
-            setLineSpacing(0F, 3F)
             maxLines = 6
             setPadding(
                 0,
@@ -125,7 +129,6 @@ internal class KenesMessageInputView @JvmOverloads constructor(
                 0,
                 5F.dp2Px().roundToInt()
             )
-            isSingleLine = false
             setTextColor(ContextCompat.getColor(context, R.color.kenes_dark_charcoal))
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -152,16 +155,18 @@ internal class KenesMessageInputView @JvmOverloads constructor(
             }
             setPadding(8F.dp2Px().roundToInt())
             setIconResource(R.drawable.kenes_ic_send)
-            iconSize = 24F.dp2Px().roundToInt()
-            setIconTintResource(R.color.kenes_blue)
+            iconSize = 23F.dp2Px().roundToInt()
+            setIconTintResource(R.color.kenes_bg_button_blue)
         }
     }
 
-    fun setAttachmentButtonVisible(isVisible: Boolean) {
-        if (isVisible) {
-            selectAttachmentButton?.visibility = View.VISIBLE
+    fun setSelectAttachmentButtonEnabled(isEnabled: Boolean) {
+        if (isEnabled) {
+            selectAttachmentButton = buildSelectAttachmentButton()
+            linearLayout?.addView(selectAttachmentButton, 0)
         } else {
-            selectAttachmentButton?.visibility = View.GONE
+            linearLayout?.removeView(selectAttachmentButton)
+            selectAttachmentButton = null
         }
     }
 
@@ -199,8 +204,8 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         if (onSendMessage == null) {
             sendMessageButton?.setOnClickListener(onSendMessage)
         } else {
-            sendMessageButton?.setOnClickListener {
-                onSendMessage.invoke(it, inputView?.text?.toString())
+            sendMessageButton?.setOnClickListener { view ->
+                onSendMessage.invoke(view, inputView?.text?.toString())
             }
         }
     }

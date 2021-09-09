@@ -197,7 +197,7 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragm
      */
 
     override fun showCalls(anyCalls: List<AnyCall>) {
-        Logger.debug(TAG, "showCalls() -> anyCalls: $anyCalls")
+//        Logger.debug(TAG, "showCalls() -> anyCalls: $anyCalls")
 
         callsHeaderAdapter?.isToolbarVisible = anyCalls.all { it is CallGroup.Secondary }
 
@@ -205,7 +205,7 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragm
     }
 
     override fun showCallSelection(callSelection: CallSelection) {
-        Logger.debug(TAG, "showCallSelection() -> callSelection: $callSelection")
+//        Logger.debug(TAG, "showCallSelection() -> callSelection: $callSelection")
 
         val fragment = childFragmentManager.findFragmentByTag("call_selection")
         if (fragment is CallSelectionBottomSheetDialogFragment) {

@@ -291,7 +291,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    Logger.debug(TAG, "onStateChanged() -> $newState")
+//                    Logger.debug(TAG, "onStateChanged() -> $newState")
 
                     if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
                         this@ChatbotFragment.view?.hideKeyboardCompat()
@@ -346,15 +346,11 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
             }
         })
 
-        messageInputView?.setOnSelectAttachmentClickListener {
-            // TODO: Implement media selection with certain permissions
-        }
+        messageInputView?.setSelectAttachmentButtonEnabled(false)
 
         messageInputView?.setOnSendMessageClickListener { _, message ->
             presenter.onSendTextMessage(message)
         }
-
-        messageInputView?.setAttachmentButtonVisible(false)
 
         messageInputView?.setOnTextChangedListener { s, _, _, _ ->
             if (s.isNullOrBlank()) {

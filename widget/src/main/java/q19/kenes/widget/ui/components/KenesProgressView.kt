@@ -77,7 +77,7 @@ internal class KenesProgressView @JvmOverloads constructor(
 
             centerView.addView(progressIndicator)
 
-            isCancelable = typedArray.getBoolean(R.styleable.KenesProgressView_kenesIsCancelable, false)
+            isCancelable = typedArray.getBoolean(R.styleable.KenesProgressView_kenesCancelable, false)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {

@@ -279,7 +279,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     }
 
     override fun onBottomSheetStateChanged(state: BottomSheetState) {
-        Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
+//        Logger.debug(TAG, "onBottomSheetStateChanged() -> $state")
 
         presenter.onBottomSheetStateChanged(state)
     }

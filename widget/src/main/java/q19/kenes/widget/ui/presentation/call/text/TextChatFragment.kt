@@ -171,12 +171,22 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
             }
         })
 
+        messageInputView?.setSelectAttachmentButtonEnabled(true)
+
         messageInputView?.setOnSelectAttachmentClickListener {
             // TODO: Implement media selection with certain permissions
         }
 
         messageInputView?.setOnSendMessageClickListener { _, message ->
             presenter.onSendTextMessage(message)
+        }
+
+        messageInputView?.setOnTextChangedListener { s, _, _, _ ->
+            if (s.isNullOrBlank()) {
+                messageInputView?.setSendMessageButtonEnabled(false)
+            } else {
+                messageInputView?.setSendMessageButtonEnabled(true)
+            }
         }
     }
 
