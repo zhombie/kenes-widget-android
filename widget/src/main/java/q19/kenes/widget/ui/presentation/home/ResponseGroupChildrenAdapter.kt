@@ -30,7 +30,7 @@ internal class ResponseGroupChildrenAdapter constructor(
     }
 
     private object Layout {
-        val EMPTY_RESPONSE_GROUP = R.layout.kenes_cell_empty_response_group
+        val EMPTY = R.layout.kenes_cell_empty
         val RESPONSE_GROUP_CHILD = R.layout.kenes_cell_response_group_child
         val RESPONSE_GROUP_CHILDREN_FOOTER = R.layout.kenes_cell_response_group_children_footer
         val RESPONSE = R.layout.kenes_cell_response
@@ -112,7 +112,11 @@ internal class ResponseGroupChildrenAdapter constructor(
                     }
                 }
                 is Response -> {
-                    ViewType.RESPONSE
+                    if (item.text.isNullOrBlank()) {
+                        ViewType.EMPTY
+                    } else {
+                        ViewType.RESPONSE
+                    }
                 }
                 else -> ViewType.EMPTY
             }
@@ -130,7 +134,11 @@ internal class ResponseGroupChildrenAdapter constructor(
                     }
                 }
                 is Response ->
-                    ViewType.RESPONSE
+                    if (item.text.isNullOrBlank()) {
+                        ViewType.EMPTY
+                    } else {
+                        ViewType.RESPONSE
+                    }
                 else ->
                     ViewType.RESPONSE_GROUP_CHILD
             }
@@ -182,7 +190,7 @@ internal class ResponseGroupChildrenAdapter constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ViewType.EMPTY ->
-                EmptyViewHolder(parent.inflate(Layout.EMPTY_RESPONSE_GROUP))
+                EmptyViewHolder(parent.inflate(Layout.EMPTY))
             ViewType.RESPONSE_GROUP_CHILD ->
                 ResponseGroupChildViewHolder(parent.inflate(Layout.RESPONSE_GROUP_CHILD))
             ViewType.RESPONSE_GROUP_FOOTER ->
