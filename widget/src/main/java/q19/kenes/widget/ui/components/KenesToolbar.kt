@@ -285,6 +285,14 @@ internal class KenesToolbar @JvmOverloads constructor(
         leftButton?.setIconTintResource(iconTintResourceId)
     }
 
+    fun setLeftButtonAlpha(alpha: Float) {
+        leftButton?.alpha = when {
+            alpha < 0F -> 0F
+            alpha > 1F -> 1F
+            else -> alpha
+        }
+    }
+
     fun setRightButtonBackgroundTint(tintList: ColorStateList?) {
         rightButton?.backgroundTintList = tintList
     }
@@ -307,6 +315,14 @@ internal class KenesToolbar @JvmOverloads constructor(
 
     fun setRightButtonIconTint(@ColorRes iconTintResourceId: Int) {
         rightButton?.setIconTintResource(iconTintResourceId)
+    }
+
+    fun setRightButtonAlpha(alpha: Float) {
+        rightButton?.alpha = when {
+            alpha < 0F -> 0F
+            alpha > 1F -> 1F
+            else -> alpha
+        }
     }
 
     fun reveal() {

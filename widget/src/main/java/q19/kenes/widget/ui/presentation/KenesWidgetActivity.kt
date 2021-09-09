@@ -253,6 +253,8 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun onBottomSheetSlide(slideOffset: Float) {
 //        Logger.debug(TAG, "onBottomSheetSlide() -> $slideOffset")
 
+        toolbar.setRightButtonAlpha(slideOffset)
+
 //        toolbar.setBackgroundColor(
 //            ColorUtils.blendARGB(
 //                Color.parseColor("#FFFFFF"),
