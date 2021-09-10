@@ -11,10 +11,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.Space
-import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.Dimension
-import androidx.annotation.DrawableRes
+import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
@@ -49,7 +46,7 @@ internal class KenesToolbar @JvmOverloads constructor(
     init {
         gravity = Gravity.CENTER_VERTICAL
         orientation = HORIZONTAL
-        setPadding(16F.dp2Px().roundToInt(), 0, 16F.dp2Px().roundToInt(), 0)
+        setPadding(10F.dp2Px().roundToInt(), 0, 10F.dp2Px().roundToInt(), 0)
 
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesToolbar)
 
@@ -133,7 +130,7 @@ internal class KenesToolbar @JvmOverloads constructor(
         val linearLayout = LinearLayout(context).apply {
             id = View.generateViewId()
             layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1F).apply {
-                setMargins(5F.dp2Px().roundToInt(), 0, 0, 0)
+                setMargins(4F.dp2Px().roundToInt(), 0, 0, 0)
             }
             orientation = VERTICAL
         }
@@ -221,10 +218,10 @@ internal class KenesToolbar @JvmOverloads constructor(
             if (leftButton == null) {
                 leftButton = KenesIconButton(context).apply {
                     id = View.generateViewId()
-                    layoutParams = LayoutParams(40F.dp2Px().roundToInt(), 40F.dp2Px().roundToInt()).apply {
+                    layoutParams = LayoutParams(38F.dp2Px().roundToInt(), 38F.dp2Px().roundToInt()).apply {
                         setMargins(0, 0, 0, 0)
                     }
-                    setPadding(10F.dp2Px().roundToInt())
+                    setPadding(8F.dp2Px().roundToInt())
                     leftButton?.iconSize = 22F.dp2Px().roundToInt()
                     leftButton?.iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
                 }
@@ -245,10 +242,10 @@ internal class KenesToolbar @JvmOverloads constructor(
             if (rightButton == null) {
                 rightButton = KenesIconButton(context).apply {
                     id = View.generateViewId()
-                    layoutParams = LayoutParams(40F.dp2Px().roundToInt(), 40F.dp2Px().roundToInt()).apply {
+                    layoutParams = LayoutParams(38F.dp2Px().roundToInt(), 38F.dp2Px().roundToInt()).apply {
                         setMargins(0, 0, 0, 0)
                     }
-                    setPadding(10F.dp2Px().roundToInt())
+                    setPadding(8F.dp2Px().roundToInt())
                     iconSize = 22F.dp2Px().roundToInt()
                     iconTint = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.kenes_black))
                 }
@@ -275,6 +272,10 @@ internal class KenesToolbar @JvmOverloads constructor(
 
     fun setLeftButtonIcon(@DrawableRes iconResourceId: Int) {
         leftButton?.setIconResource(iconResourceId)
+    }
+
+    fun setLeftButtonIconSize(@Px iconSize: Int) {
+        leftButton?.iconSize = iconSize
     }
 
     fun setLeftButtonIconTint(iconTint: ColorStateList?) {
@@ -307,6 +308,10 @@ internal class KenesToolbar @JvmOverloads constructor(
 
     fun setRightButtonIcon(@DrawableRes iconResourceId: Int) {
         rightButton?.setIconResource(iconResourceId)
+    }
+
+    fun setRightButtonIconSize(@Px iconSize: Int) {
+        rightButton?.iconSize = iconSize
     }
 
     fun setRightButtonIconTint(iconTint: ColorStateList?) {

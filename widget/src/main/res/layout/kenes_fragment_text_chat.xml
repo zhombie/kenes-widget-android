@@ -32,6 +32,7 @@
         android:textAllCaps="true"
         android:textColor="@color/kenes_white"
         android:textSize="12.5sp"
+        android:visibility="gone"
         app:cornerRadius="0dp" />
 
     <androidx.recyclerview.widget.RecyclerView

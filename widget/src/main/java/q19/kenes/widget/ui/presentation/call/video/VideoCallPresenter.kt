@@ -237,6 +237,26 @@ internal class VideoCallPresenter constructor(
         }
     }
 
+    fun onSendTextMessage(message: String?) {
+        if (interactor.callState == CallInteractor.CallState.Live) {
+            if (message.isNullOrBlank()) {
+                // Ignored
+            } else {
+                val outgoingMessage = message.trim()
+
+                getView().clearMessageInput()
+                socketRepository.sendUserMessage(outgoingMessage)
+
+                getView().showNewChatMessage(
+                    Message.Builder()
+                        .setType(Message.Type.OUTGOING)
+                        .setText(outgoingMessage)
+                        .build()
+                )
+            }
+        }
+    }
+
     fun onBackPressed(): Boolean {
         Logger.debug(TAG, "onBackPressed()")
 
@@ -249,7 +269,7 @@ internal class VideoCallPresenter constructor(
     }
 
     fun onHangupCall(): Boolean {
-        Logger.debug(TAG, "onHangupCall()")
+        Logger.debug(TAG, "onHangupCall() -> ${interactor.callState}")
 
         return when (interactor.callState) {
             CallInteractor.CallState.Pending -> {
@@ -271,12 +291,16 @@ internal class VideoCallPresenter constructor(
         interactor.callState = CallInteractor.CallState.Disconnected.User
 
         socketRepository.sendPendingCallCancellation()
+
+        peerConnectionClient.dispose()
     }
 
     fun onCancelLiveCall() {
         interactor.callState = CallInteractor.CallState.Disconnected.User
 
         socketRepository.sendCallAction(action = CallAction.FINISH)
+
+        peerConnectionClient.dispose()
     }
 
     fun setLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer, isZOrderMediaOverlay: Boolean) {
@@ -567,7 +591,6 @@ internal class VideoCallPresenter constructor(
      */
 
     override fun onDestroy() {
-        interactor.chatMessages.clear()
         interactor.listener = null
 
         peerConnectionClient.dispose()

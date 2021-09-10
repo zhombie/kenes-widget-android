@@ -135,6 +135,11 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         return injection.provideKenesWidgetPresenter(language)
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        Logger.debug(TAG, "onBackPressed()")
+    }
+
 //    override fun onBackPressed() {
 //        Logger.debug(TAG, "onBackPressed()")
 //
@@ -328,7 +333,9 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         fragmentContainerView.animate()
             .setDuration(200L)
             .alpha(0F)
-            .withEndAction { fragmentContainerView.visibility = View.GONE }
+            .withEndAction {
+                fragmentContainerView.visibility = View.GONE
+            }
             .start()
     }
 
@@ -342,9 +349,21 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         }
     }
 
+    override fun onNavigationBackPressed() {
+        runOnVideoCallScreen {
+            onNavigationBackPressed()
+        }
+    }
+
     override fun onShowVideoCallScreen() {
         runOnVideoCallScreen {
             onShowVideoCallScreen()
+        }
+    }
+
+    override fun onSendTextMessage(message: String?) {
+        runOnVideoCallScreen {
+            onSendTextMessage(message)
         }
     }
 

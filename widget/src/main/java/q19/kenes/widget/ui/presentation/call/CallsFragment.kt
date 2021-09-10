@@ -48,7 +48,7 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragm
     private var callsAdapter: CallsAdapter? = null
 
     // onBackPressed() dispatcher for Fragment
-    private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+    private var onBackPressedCallback: OnBackPressedCallback? = null
 
     // Activity + Fragment communication
     private var listener: Listener? = null
@@ -82,15 +82,15 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragm
 
         Logger.debug(TAG, "onResume()")
 
-        if (onBackPressedDispatcherCallback == null) {
-            onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
+        if (onBackPressedCallback == null) {
+            onBackPressedCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
                 if (presenter.onBackPressed()) {
                     isEnabled = false
                     activity?.onBackPressed()
                 }
             }
         } else {
-            onBackPressedDispatcherCallback?.isEnabled = true
+            onBackPressedCallback?.isEnabled = true
         }
     }
 
@@ -107,7 +107,7 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragm
 
         Logger.debug(TAG, "onPause()")
 
-        onBackPressedDispatcherCallback?.isEnabled = false
+        onBackPressedCallback?.isEnabled = false
     }
 
     override fun onDetach() {
@@ -123,8 +123,8 @@ internal class CallsFragment : HomeFragment<CallsPresenter>(R.layout.kenes_fragm
 
         recyclerView?.clearOnScrollListeners()
 
-        onBackPressedDispatcherCallback?.remove()
-        onBackPressedDispatcherCallback = null
+        onBackPressedCallback?.remove()
+        onBackPressedCallback = null
 
         permissionManager?.removeAllListeners()
         permissionManager = null

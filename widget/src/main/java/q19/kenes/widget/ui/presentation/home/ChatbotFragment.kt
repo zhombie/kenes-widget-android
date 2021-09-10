@@ -104,7 +104,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
     private var radio: Radio? = null
 
     // onBackPressed() dispatcher for Fragment
-    private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+    private var onBackPressedCallback: OnBackPressedCallback? = null
 
     // Activity + Fragment communication
     private var listener: Listener? = null
@@ -139,15 +139,15 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
 
         Logger.debug(TAG, "onResume()")
 
-        if (onBackPressedDispatcherCallback == null) {
-            onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
+        if (onBackPressedCallback == null) {
+            onBackPressedCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
                 if (presenter.onBackPressed()) {
                     isEnabled = false
                     activity?.onBackPressed()
                 }
             }
         } else {
-            onBackPressedDispatcherCallback?.isEnabled = true
+            onBackPressedCallback?.isEnabled = true
         }
     }
 
@@ -172,7 +172,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
 
         Logger.debug(TAG, "onPause()")
 
-        onBackPressedDispatcherCallback?.isEnabled = false
+        onBackPressedCallback?.isEnabled = false
     }
 
     override fun onDetach() {
@@ -209,8 +209,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
     override fun onDestroy() {
         super.onDestroy()
 
-        onBackPressedDispatcherCallback?.remove()
-        onBackPressedDispatcherCallback = null
+        onBackPressedCallback?.remove()
+        onBackPressedCallback = null
     }
 
     private fun setupResponsesView() {

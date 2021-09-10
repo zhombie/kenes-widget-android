@@ -31,6 +31,7 @@ import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecorati
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
 import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.R
+import kotlin.math.roundToInt
 
 internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes_fragment_text_chat),
     TextChatView,
@@ -72,7 +73,9 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     interface Listener {
         fun onViewReady()
+        fun onNavigationBackPressed()
         fun onShowVideoCallScreen()
+        fun onSendTextMessage(message: String?)
         fun onHangupCall()
     }
 
@@ -129,6 +132,14 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
     }
 
     private fun setupToolbar() {
+        toolbar?.setLeftButtonEnabled(true)
+        toolbar?.setLeftButtonIcon(R.drawable.kenes_ic_arrow_left)
+        toolbar?.setLeftButtonIconSize(17F.dp2Px().roundToInt())
+        toolbar?.setLeftButtonIconTint(R.color.kenes_black)
+        toolbar?.setLeftButtonOnClickListener {
+            listener?.onNavigationBackPressed()
+        }
+
         toolbar?.showImage(R.drawable.kenes_ic_user)
         toolbar?.setTitle("Имя оператора")
         toolbar?.setSubtitle("Ожидание...")
@@ -178,7 +189,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         }
 
         messageInputView?.setOnSendMessageClickListener { _, message ->
-            presenter.onSendTextMessage(message)
+            listener?.onSendTextMessage(message)
         }
 
         messageInputView?.setOnTextChangedListener { s, _, _, _ ->

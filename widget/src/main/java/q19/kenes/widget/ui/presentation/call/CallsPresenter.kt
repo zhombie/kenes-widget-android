@@ -71,7 +71,7 @@ internal class CallsPresenter constructor(
     }
 
     fun onBackPressed(): Boolean {
-        Logger.debug(TAG, "onGoBackButtonClicked()")
+        Logger.debug(TAG, "onBackPressed()")
 
         return if (interactor.breadcrumb.isEmpty()) {
             true

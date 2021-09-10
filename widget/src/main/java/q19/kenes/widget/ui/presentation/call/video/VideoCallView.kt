@@ -25,6 +25,8 @@ internal interface VideoCallView : BaseView {
     fun enterFloatingVideostream()
     fun exitFloatingVideostream()
 
+    fun clearMessageInput()
+
     fun collapseBottomSheet()
     fun expandBottomSheet()
 

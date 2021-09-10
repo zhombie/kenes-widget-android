@@ -64,7 +64,7 @@ internal class VideoCallFragment :
     private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
 
     // onBackPressed() dispatcher for Fragment
-    private var onBackPressedDispatcherCallback: OnBackPressedCallback? = null
+    private var onBackPressedCallback: OnBackPressedCallback? = null
 
     // Activity + Fragment communication
     private var listener: Listener? = null
@@ -105,19 +105,19 @@ internal class VideoCallFragment :
 
         Logger.debug(TAG, "onResume()")
 
-        if (onBackPressedDispatcherCallback == null) {
-            onBackPressedDispatcherCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
+        if (onBackPressedCallback == null) {
+            onBackPressedCallback = activity?.onBackPressedDispatcher?.addCallback(this) {
                 if (bottomSheetBehavior?.state == BottomSheetBehavior.STATE_EXPANDED) {
                     bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
                 } else {
                     if (presenter.onBackPressed()) {
                         isEnabled = false
-                        activity?.onBackPressed()
+                        listener?.onCallFinished()
                     }
                 }
             }
         } else {
-            onBackPressedDispatcherCallback?.isEnabled = true
+            onBackPressedCallback?.isEnabled = true
         }
     }
 
@@ -190,8 +190,8 @@ internal class VideoCallFragment :
     override fun onDestroy() {
         super.onDestroy()
 
-        onBackPressedDispatcherCallback?.remove()
-        onBackPressedDispatcherCallback = null
+        onBackPressedCallback?.remove()
+        onBackPressedCallback = null
 
         peerConnectionClient = null
     }
@@ -258,20 +258,35 @@ internal class VideoCallFragment :
         }
     }
 
+    /**
+     * [TextChatFragment.Listener] implementation
+     */
+
     override fun onViewReady() {
-        Logger.debug(TAG, "onViewReady()")
+//        Logger.debug(TAG, "onViewReady()")
 
         presenter.onViewReady()
     }
 
+    override fun onNavigationBackPressed() {
+        if (presenter.onBackPressed()) {
+            onBackPressedCallback?.isEnabled = false
+            listener?.onCallFinished()
+        }
+    }
+
     override fun onShowVideoCallScreen() {
-        Logger.debug(TAG, "onShowVideoCallScreen()")
+//        Logger.debug(TAG, "onShowVideoCallScreen()")
 
         presenter.onShowVideoCallScreen()
     }
 
+    override fun onSendTextMessage(message: String?) {
+        presenter.onSendTextMessage(message)
+    }
+
     override fun onHangupCall() {
-        Logger.debug(TAG, "onHangupCall()")
+//        Logger.debug(TAG, "onHangupCall()")
 
         presenter.onHangupCall()
     }
@@ -443,6 +458,12 @@ internal class VideoCallFragment :
                 presenter.setRemoteVideostreamResumed()
             }
         floatingVideostreamExitAnimator?.start()
+    }
+
+    override fun clearMessageInput() {
+        runOnTextChatScreen {
+            clearMessageInput()
+        }
     }
 
     override fun collapseBottomSheet() {
