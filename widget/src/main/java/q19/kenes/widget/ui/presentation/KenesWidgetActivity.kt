@@ -14,7 +14,6 @@ import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.view.binding.bind
 import kz.zhombie.cinema.CinemaDialogFragment
-import kz.zhombie.museum.MuseumDialogFragment
 import kz.zhombie.radio.Radio
 import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
@@ -33,6 +32,7 @@ import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.ui.presentation.services.ServicesFragment
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
+import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.BuildConfig
 import q19.kenes_widget.R
 
@@ -73,11 +73,13 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     private val fragmentContainerView by bind<FragmentContainerView>(R.id.fragmentContainerView)
     private val bottomNavigationView by bind<KenesBottomNavigationView>(R.id.bottomNavigationView)
 
+    private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
+
     // BottomNavigationView + ViewPager2 adapter
     private var viewPagerAdapter: ViewPagerAdapter? = null
 
     // Fragments for ViewPager2 adapter
-    private var fragments: Array<Fragment> = arrayOf()
+    private val fragments: MutableList<Fragment> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +94,8 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
             UrlUtil.setHostname(hostname)
         }
 
+        imageLoader = CoilImageLoader(this)
+
         // Attach view to MVP presenter
         presenter.attachView(this)
 
@@ -99,7 +103,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         CinemaDialogFragment.init(BuildConfig.DEBUG)
 
         // Museum (image fullscreen preview)
-        MuseumDialogFragment.init(CoilImageLoader(this), BuildConfig.DEBUG)
+//        imageLoader?.let { MuseumDialogFragment.init(it, BuildConfig.DEBUG) }
 
         // Radio (audio player)
         Radio.init(BuildConfig.DEBUG)
@@ -158,6 +162,8 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun onDestroy() {
         super.onDestroy()
 
+        fragments.clear()
+
         injection.destroy()
     }
 
@@ -166,12 +172,10 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     }
 
     private fun setupViewPager() {
-        fragments = arrayOf(
-            ChatbotFragment.newInstance(),
-            CallsFragment.newInstance(),
-            ServicesFragment.newInstance(),
-            InfoFragment.newInstance()
-        )
+        fragments.add(ChatbotFragment.newInstance())
+        fragments.add(CallsFragment.newInstance())
+        fragments.add(ServicesFragment.newInstance())
+        fragments.add(InfoFragment.newInstance())
 
         viewPagerAdapter = ViewPagerAdapter(this, fragments)
         viewPager.adapter = viewPagerAdapter
@@ -187,10 +191,10 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
             override fun onBottomNavigationReselected(screen: Screen) {
                 Logger.debug(TAG, "onBottomNavigationReselected() -> $screen")
 
-                val fragment = viewPagerAdapter?.getFragment(viewPager.currentItem)
-                Logger.debug(TAG, "onBottomNavigationReselected() -> $fragment")
-                if (fragment is HomeScreenDelegate) {
-                    fragment.onScreenRenavigate()
+                with(viewPagerAdapter?.getFragment(viewPager.currentItem)) {
+                    if (this is HomeScreenDelegate) {
+                        onScreenRenavigate()
+                    }
                 }
             }
         }
