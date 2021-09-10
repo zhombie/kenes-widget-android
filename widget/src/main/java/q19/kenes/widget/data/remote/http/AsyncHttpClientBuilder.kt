@@ -3,7 +3,7 @@ package q19.kenes.widget.data.remote.http
 import com.loopj.android.http.AsyncHttpClient
 import q19.kenes_widget.BuildConfig
 
-class AsyncHttpClientBuilder {
+internal class AsyncHttpClientBuilder {
 
     private var asyncHttpClient: AsyncHttpClient? = null
 

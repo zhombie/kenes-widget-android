@@ -3,7 +3,7 @@ package q19.kenes.widget.domain.model.media
 import android.graphics.Bitmap
 import android.net.Uri
 
-data class Image constructor(
+internal data class Image constructor(
     override val id: Long,
     override val uri: Uri,
     override val title: String,

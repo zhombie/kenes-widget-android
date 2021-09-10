@@ -6,7 +6,7 @@ import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.webrtc.IceServer
 import q19.kenes.widget.core.logging.Logger
 
-class Database private constructor(context: Context) {
+internal class Database private constructor(context: Context) {
 
     companion object {
         private val TAG = Database::class.java.simpleName

@@ -2,7 +2,7 @@ package q19.kenes.widget.domain.model.media
 
 import android.net.Uri
 
-data class Folder constructor(
+internal data class Folder constructor(
     val id: Long,
     val displayName: String? = null,
     val items: List<Content> = emptyList()

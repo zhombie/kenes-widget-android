@@ -6,7 +6,7 @@ import android.net.Uri
 /**
  * [duration] - The duration time of the [Audio]
  */
-data class Audio constructor(
+internal data class Audio constructor(
     override val id: Long,
     override val uri: Uri,
     override val title: String,

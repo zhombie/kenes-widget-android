@@ -6,7 +6,7 @@ import android.net.Uri
 /**
  * [duration] - The duration time of the [Video]
  */
-data class Video constructor(
+internal data class Video constructor(
     override val id: Long,
     override val uri: Uri,
     override val title: String,

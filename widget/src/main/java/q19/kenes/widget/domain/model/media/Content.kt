@@ -13,7 +13,7 @@ import java.io.File
  * [thumbnail] - The thumbnail/cover image of the [Content]
  * [folder] - The primary folder of this [Content]
  */
-open class Content constructor(
+internal open class Content constructor(
     open val id: Long,
     open val uri: Uri,
     open val title: String,

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 
-class ChatMessagesHeaderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class ChatMessagesHeaderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val TAG = ChatMessagesHeaderAdapter::class.java.simpleName

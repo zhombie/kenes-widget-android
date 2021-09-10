@@ -7,10 +7,10 @@ import kz.q19.utils.json.getLongOrNull
 import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
 import q19.kenes.widget.domain.model.Nestable
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.domain.model.Response
+import q19.kenes.widget.domain.model.ResponseGroup
 
-fun JSONObject.toResponseGroup(isPrimary: Boolean, children: MutableList<Nestable>): ResponseGroup? {
+internal fun JSONObject.toResponseGroup(isPrimary: Boolean, children: MutableList<Nestable>): ResponseGroup? {
     return ResponseGroup(
         id = getLongOrNull("id") ?: return null,
         title = getStringOrNull("title") ?: "",
@@ -25,7 +25,7 @@ fun JSONObject.toResponseGroup(isPrimary: Boolean, children: MutableList<Nestabl
     )
 }
 
-fun JSONObject.toResponseGroupChild(): ResponseGroup.Child? {
+internal fun JSONObject.toResponseGroupChild(): ResponseGroup.Child? {
     val responses = mutableListOf<Long>()
 
     val responsesJSONArray = getJSONArrayOrNull("responses")

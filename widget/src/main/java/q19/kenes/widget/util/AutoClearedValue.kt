@@ -10,14 +10,14 @@ import kotlin.reflect.KProperty
 /**
  * Creates an [AutoClearedValue] associated with this [AppCompatActivity].
  */
-fun <T : Any> LifecycleOwner.bindAutoClearedValue() = AutoClearedValue<T>(this)
+internal fun <T : Any> LifecycleOwner.bindAutoClearedValue() = AutoClearedValue<T>(this)
 
 
 /**
  * Safe any value wrapper, which controls [Lifecycle] states.
  * Event the [value] is [androidx.annotation.Nullable], which operates safe calls
  */
-class AutoClearedValue<T : Any> constructor(
+internal class AutoClearedValue<T : Any> constructor(
     private val owner: LifecycleOwner
 ) : ReadWriteProperty<LifecycleOwner, T?>, LifecycleObserver {
 

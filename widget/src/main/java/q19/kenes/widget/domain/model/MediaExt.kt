@@ -5,7 +5,7 @@ import kz.q19.domain.model.media.Media
 import q19.kenes.widget.util.UrlUtil
 import java.io.File
 
-sealed class Source constructor(
+internal sealed class Source constructor(
     open val uri: Uri,
     open val displayName: String
 ) {
@@ -23,7 +23,7 @@ sealed class Source constructor(
 }
 
 
-val Media.source: Source?
+internal val Media.source: Source?
     get() {
         val file = file?.get()
         return if (file?.exists() == true) {
@@ -47,7 +47,7 @@ val Media.source: Source?
     }
 
 
-val Media.sourceUri: Uri?
+internal val Media.sourceUri: Uri?
     get() = when (val source = source) {
         is Source.LocalFile, is Source.URL -> {
             source.uri
@@ -58,6 +58,6 @@ val Media.sourceUri: Uri?
     }
 
 
-fun Media.hasValidUrl(): Boolean {
+internal fun Media.hasValidUrl(): Boolean {
     return !UrlUtil.buildUrl(urlPath).isNullOrBlank()
 }

@@ -7,7 +7,7 @@ import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 
-class ResponseGroupChildrenHeaderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+internal class ResponseGroupChildrenHeaderAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
         private val TAG = ResponseGroupChildrenHeaderAdapter::class.java.simpleName

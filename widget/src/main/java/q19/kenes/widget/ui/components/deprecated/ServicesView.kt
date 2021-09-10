@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,10 @@ import kz.q19.utils.view.outlineprovider.RoundMode
 import kz.q19.utils.view.outlineprovider.RoundOutlineProvider
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.ui.components.deprecated.base.KenesTitleView
-import q19.kenes.widget.ui.util.*
+import q19.kenes.widget.ui.util.buildRippleDrawable
+import q19.kenes.widget.ui.util.getPathOfQuadBottomRectF
+import q19.kenes.widget.ui.util.getPathOfQuadTopRectF
+import q19.kenes.widget.ui.util.getPathOfRoundedRectF
 import q19.kenes_widget.R
 
 internal class ServicesView @JvmOverloads constructor(
@@ -286,7 +290,9 @@ private class ServicesAdapter(
                     itemView.isClickable = false
                     itemView.isFocusable = false
 
-                    itemView.background = buildSimpleDrawable(itemView.context)
+                    val drawable = GradientDrawable()
+                    drawable.setColor(ContextCompat.getColor(itemView.context, R.color.kenes_very_light_mostly_white_gray))
+                    itemView.background = drawable
 
                     itemView.setOnClickListener(null)
                 }

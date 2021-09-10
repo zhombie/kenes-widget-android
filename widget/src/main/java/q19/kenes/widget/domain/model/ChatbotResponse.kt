@@ -8,12 +8,12 @@ import kz.q19.domain.model.media.Media
 
 @Keep
 @Parcelize
-open class Element : Parcelable
+internal open class Element : Parcelable
 
 
 @Keep
 @Parcelize
-open class Nestable constructor(
+internal open class Nestable constructor(
     open val id: Long,
     open val title: String,
     open val language: Language
@@ -22,7 +22,7 @@ open class Nestable constructor(
 
 @Keep
 @Parcelize
-data class ResponseGroup constructor(
+internal data class ResponseGroup constructor(
     override val id: Long,
     override val title: String,
     override val language: Language,
@@ -44,7 +44,7 @@ data class ResponseGroup constructor(
 
 @Parcelize
 @Keep
-data class Response constructor(
+internal data class Response constructor(
     val id: Long,
     val messageId: String? = null,
     val text: String? = null,
