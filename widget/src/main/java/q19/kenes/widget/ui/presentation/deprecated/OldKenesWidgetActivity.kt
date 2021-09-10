@@ -1175,11 +1175,11 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                                     recyclerView.isVisible = false
                                 }
 
-                                if (progressView.isProgressHidden()) {
+                                if (progressView.isHidden()) {
                                     progressView.show()
                                 }
                             } else {
-                                if (progressView.isProgressShown()) {
+                                if (progressView.isVisible()) {
                                     progressView.hide()
                                 }
 
@@ -1198,11 +1198,11 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                                     recyclerView.isVisible = false
                                 }
 
-                                if (progressView.isProgressHidden()) {
+                                if (progressView.isHidden()) {
                                     progressView.show()
                                 }
                             } else {
-                                if (progressView.isProgressShown()) {
+                                if (progressView.isVisible()) {
                                     progressView.hide()
                                 }
 
