@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.LinearLayout
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
@@ -30,6 +32,7 @@ import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.info.InfoFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.ui.presentation.services.ServicesFragment
+import q19.kenes.widget.util.AbstractAnimationListener
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardInsetListener
 import q19.kenes.widget.util.bindAutoClearedValue
@@ -303,20 +306,15 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         Logger.debug(TAG, "onLaunchCall() -> $call")
 
         if (call is Call.Video) {
+            fragmentContainerView.visibility = View.VISIBLE
             supportFragmentManager.commit(false) {
+                setCustomAnimations(R.anim.kenes_slide_up, R.anim.kenes_slide_down)
                 add(
                     fragmentContainerView.id,
                     VideoCallFragment.newInstance(call),
                     "video_call"
                 )
             }
-
-            fragmentContainerView.alpha = 0F
-            fragmentContainerView.visibility = View.VISIBLE
-            fragmentContainerView.animate()
-                .setDuration(200L)
-                .alpha(1F)
-                .start()
         }
     }
 
@@ -325,22 +323,24 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      */
 
     override fun onCallFinished() {
-        supportFragmentManager.commit {
-            val fragment = supportFragmentManager.findFragmentByTag("video_call")
-            if (fragment != null) {
-                remove(fragment)
-            }
-        }
+        Logger.debug(TAG, "onCallFinished()")
 
-        fragmentContainerView.alpha = 1F
-        fragmentContainerView.visibility = View.VISIBLE
-        fragmentContainerView.animate()
-            .setDuration(200L)
-            .alpha(0F)
-            .withEndAction {
-                fragmentContainerView.visibility = View.GONE
+        val animation = AnimationUtils.loadAnimation(this, R.anim.kenes_slide_down)
+        animation.setAnimationListener(object : AbstractAnimationListener() {
+            override fun onAnimationEnd(animation: Animation?) {
+                supportFragmentManager.commit(false) {
+                    runOnCommit {
+                        fragmentContainerView.visibility = View.GONE
+                    }
+                    with(supportFragmentManager.findFragmentByTag("video_call")) {
+                        if (this != null) {
+                            remove(this)
+                        }
+                    }
+                }
             }
-            .start()
+        })
+        fragmentContainerView.startAnimation(animation)
     }
 
     /**

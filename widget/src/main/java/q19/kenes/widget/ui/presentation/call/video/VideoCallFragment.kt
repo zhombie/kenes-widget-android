@@ -263,8 +263,6 @@ internal class VideoCallFragment :
      */
 
     override fun onViewReady() {
-//        Logger.debug(TAG, "onViewReady()")
-
         presenter.onViewReady()
     }
 
@@ -276,8 +274,6 @@ internal class VideoCallFragment :
     }
 
     override fun onShowVideoCallScreen() {
-//        Logger.debug(TAG, "onShowVideoCallScreen()")
-
         presenter.onShowVideoCallScreen()
     }
 
@@ -286,8 +282,6 @@ internal class VideoCallFragment :
     }
 
     override fun onHangupCall() {
-//        Logger.debug(TAG, "onHangupCall()")
-
         presenter.onHangupCall()
     }
 

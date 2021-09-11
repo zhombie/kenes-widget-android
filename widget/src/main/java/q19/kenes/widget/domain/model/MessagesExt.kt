@@ -2,7 +2,6 @@ package q19.kenes.widget.domain.model
 
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
-import q19.kenes.widget.core.logging.Logger
 
 private const val TAG = "MessagesExt"
 
@@ -49,7 +48,6 @@ internal fun Media.hasRemoteUrl(): Boolean {
 
 internal fun Message.hasMedia(type: Media.Type): Boolean {
     val media = media ?: return false
-    Logger.debug(TAG, "hasMedia() -> type: $type, media: $media")
     return media.type == type && media.hasRemoteUrlOrLocalFile()
 }
 
