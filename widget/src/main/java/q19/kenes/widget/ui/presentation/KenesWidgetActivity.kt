@@ -34,7 +34,7 @@ import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.ui.presentation.services.ServicesFragment
 import q19.kenes.widget.util.AbstractAnimationListener
 import q19.kenes.widget.util.UrlUtil
-import q19.kenes.widget.util.addKeyboardInsetListener
+import q19.kenes.widget.util.addKeyboardVisibilityListener
 import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.BuildConfig
 import q19.kenes_widget.R
@@ -206,9 +206,8 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     private fun setupKeyboard() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        window.decorView.addKeyboardInsetListener { isKeyboardVisible ->
-//            Logger.debug(TAG, "isKeyboardVisible: $isKeyboardVisible")
-            if (isKeyboardVisible) {
+        window.addKeyboardVisibilityListener { isVisible ->
+            if (isVisible) {
                 bottomNavigationView.visibility = View.GONE
             } else {
                 bottomNavigationView.visibility = View.VISIBLE

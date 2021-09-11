@@ -1,24 +1,25 @@
 package q19.kenes.widget.util
 
 import android.view.View
+import android.view.Window
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 
-internal fun View.addKeyboardInsetListener(callback: (visible: Boolean) -> Unit) {
-    doOnLayout {
-        // get init state of keyboard
-        var wasKeyboardVisible = isKeyboardVisible()
+internal fun Window.addKeyboardVisibilityListener(block: (isVisible: Boolean) -> Unit) {
+    decorView.doOnLayout {
+        // Store initial state of keyboard
+        var wasKeyboardVisible = it.isKeyboardVisible()
 
-        // callback as soon as the layout is set with whether the keyboard is open or not
-        callback(wasKeyboardVisible)
+        // Callback as soon as the layout is set with whether the keyboard is open or not
+        block(wasKeyboardVisible)
 
-        // whenever there is an inset change on the App, check if the keyboard is visible.
-        ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-            val isKeyboardVisible = isKeyboardVisible()
-            // since the observer is hit quite often, only callback when there is a change.
+        // Whenever there is an inset change on the App, check if the keyboard is visible.
+        ViewCompat.setOnApplyWindowInsetsListener(it) { _, insets ->
+            val isKeyboardVisible = it.isKeyboardVisible()
+            // Since the observer is hit quite often, only callback when there is a change.
             if (isKeyboardVisible != wasKeyboardVisible) {
-                callback(isKeyboardVisible)
+                block(isKeyboardVisible)
                 wasKeyboardVisible = isKeyboardVisible
             }
 
@@ -30,10 +31,7 @@ internal fun View.addKeyboardInsetListener(callback: (visible: Boolean) -> Unit)
 
 internal fun View.isKeyboardVisible(): Boolean {
     return ViewCompat.getRootWindowInsets(this)
-        ?.isVisible(WindowInsetsCompat.Type.ime())
-        ?:
-        WindowInsetsCompat.toWindowInsetsCompat(rootWindowInsets)
-            .isVisible(WindowInsetsCompat.Type.ime())
+        ?.isVisible(WindowInsetsCompat.Type.ime()) == true
 }
 
 internal fun View.hideKeyboardCompat() {
