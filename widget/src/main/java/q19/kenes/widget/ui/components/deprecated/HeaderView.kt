@@ -9,9 +9,10 @@ import androidx.annotation.AttrRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
+import coil.load
+import coil.transform.CircleCropTransformation
 import kz.q19.domain.model.configs.Configs
 import kz.q19.utils.view.isVisible
-import q19.kenes.widget.util.loadCircleImage
 import q19.kenes_widget.R
 
 internal class HeaderView @JvmOverloads constructor(
@@ -68,7 +69,9 @@ internal class HeaderView @JvmOverloads constructor(
 
     fun setOpponentAvatar(photoUrl: String?) {
         if (!photoUrl.isNullOrBlank()) {
-            opponentAvatarView.loadCircleImage(photoUrl)
+            opponentAvatarView.load(photoUrl) {
+                transformations(CircleCropTransformation())
+            }
         } else {
             opponentAvatarView.setImageResource(R.drawable.kenes_placeholder_circle_gray)
         }

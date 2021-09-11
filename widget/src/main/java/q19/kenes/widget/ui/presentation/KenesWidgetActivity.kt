@@ -14,6 +14,7 @@ import androidx.fragment.app.commit
 import androidx.viewpager2.widget.ViewPager2
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
+import kz.q19.utils.animation.AbstractAnimationListener
 import kz.q19.utils.view.binding.bind
 import kz.zhombie.cinema.CinemaDialogFragment
 import kz.zhombie.radio.Radio
@@ -32,7 +33,6 @@ import q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import q19.kenes.widget.ui.presentation.info.InfoFragment
 import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.ui.presentation.services.ServicesFragment
-import q19.kenes.widget.util.AbstractAnimationListener
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardVisibilityListener
 import q19.kenes.widget.util.bindAutoClearedValue

@@ -20,7 +20,6 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.squareup.picasso.Picasso
 import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.form.Form
@@ -233,9 +232,9 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
         // ------------------------------------------------------------------------
 
-        if (Picasso.get() == null) {
-            Picasso.setSingletonInstance(Picasso.Builder(this).build())
-        }
+//        if (Picasso.get() == null) {
+//            Picasso.setSingletonInstance(Picasso.Builder(this).build())
+//        }
 
         // ------------------------------------------------------------------------
 

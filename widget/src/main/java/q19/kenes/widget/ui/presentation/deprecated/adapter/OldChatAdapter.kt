@@ -14,6 +14,8 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.RoundedCornersTransformation
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.file.File
 import kz.q19.domain.model.keyboard.button.Button
@@ -23,7 +25,6 @@ import kz.q19.socket.model.Category
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.ui.components.KenesTextView
-import q19.kenes.widget.util.loadRoundedImage
 import q19.kenes_widget.R
 import java.util.concurrent.TimeUnit
 
@@ -286,10 +287,9 @@ internal class OldChatAdapter constructor(
                 if (media.type == Media.Type.IMAGE) {
                     imageView?.visibility = View.VISIBLE
 
-                    imageView?.loadRoundedImage(
-                        media.urlPath,
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
-                    )
+                    imageView?.load(media.urlPath) {
+                        transformations(RoundedCornersTransformation(radius = itemView.resources.getDimension(R.dimen.kenes_message_background_corner_radius)))
+                    }
 
                     imageView?.setOnClickListener {
                         callback?.onImageClicked(
@@ -424,10 +424,9 @@ internal class OldChatAdapter constructor(
                 if (media.type == Media.Type.IMAGE) {
                     imageView?.visibility = View.VISIBLE
 
-                    imageView?.loadRoundedImage(
-                        media.urlPath,
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
-                    )
+                    imageView?.load(media.urlPath) {
+                        transformations(RoundedCornersTransformation(radius = itemView.resources.getDimension(R.dimen.kenes_message_background_corner_radius)))
+                    }
 
                     imageView?.setOnClickListener {
                         callback?.onImageClicked(
@@ -530,10 +529,9 @@ internal class OldChatAdapter constructor(
                 val attachment = attachments.first()
 
                 if (attachment.type == Media.Type.IMAGE) {
-                    imageView?.loadRoundedImage(
-                        attachment.urlPath,
-                        itemView.resources.getDimensionPixelOffset(R.dimen.kenes_message_background_corner_radius)
-                    )
+                    imageView?.load(attachment.urlPath) {
+                        transformations(RoundedCornersTransformation(radius = itemView.resources.getDimension(R.dimen.kenes_message_background_corner_radius)))
+                    }
                     imageView?.visibility = View.VISIBLE
 
                     imageView?.setOnClickListener {

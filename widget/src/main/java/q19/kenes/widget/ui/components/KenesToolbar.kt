@@ -14,13 +14,12 @@ import android.widget.Space
 import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
+import coil.load
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.shape.ShapeAppearanceModel
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.utils.android.dp2Px
-import q19.kenes.widget.util.loadImage
-import q19.kenes.widget.util.picasso.CircleTransformation
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
@@ -179,7 +178,7 @@ internal class KenesToolbar @JvmOverloads constructor(
     }
 
     fun showImage(imageUrl: String?) {
-        imageView?.loadImage(imageUrl, transformation = CircleTransformation())
+        imageView?.load(imageUrl)
     }
 
     fun showImage(@DrawableRes resId: Int) {

@@ -4,13 +4,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.media.Media
 import kz.q19.utils.view.inflate
+import kz.zhombie.museum.ViewHolderDelegate
 import q19.kenes.widget.ui.components.KenesSquareImageView
-import q19.kenes.widget.util.ViewHolderDelegate
-import q19.kenes.widget.util.loadImage
 import q19.kenes_widget.R
 
 internal class AlbumImageMessageAdapter constructor(
@@ -83,11 +83,13 @@ internal class AlbumImageMessageAdapter constructor(
         }
     }
 
-    private inner class ImageViewHolder constructor(view: View) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
+    private inner class ImageViewHolder constructor(
+        view: View
+    ) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
         private val imageView = view.findViewById<KenesSquareImageView>(R.id.imageView)
 
         fun bind(image: Media) {
-            imageView.loadImage(image.urlPath)
+            imageView.load(image.urlPath)
 
             imageView.setOnClickListener {
                 callback?.onImagesClicked(allImages, allImages.indexOf(image))
@@ -99,12 +101,14 @@ internal class AlbumImageMessageAdapter constructor(
         }
     }
 
-    private inner class LastImageViewHolder constructor(view: View) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
+    private inner class LastImageViewHolder constructor(
+        view: View
+    ) : RecyclerView.ViewHolder(view), ViewHolderDelegate {
         private val imageView = view.findViewById<KenesSquareImageView>(R.id.imageView)
         private val textView = view.findViewById<MaterialTextView>(R.id.textView)
 
         fun bind(image: Media, totalCount: Int) {
-            imageView.loadImage(image.urlPath)
+            imageView.load(image.urlPath)
 
             textView.text = "Показать все ($totalCount)"
 

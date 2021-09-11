@@ -48,7 +48,7 @@ android {
 }
 
 ext {
-    arbat_version = '1.3.4'
+    arbat_version = '1.3.5'
     coil_version = '1.3.2'
     exoplayer_version = '2.15.0'
 }
@@ -69,17 +69,14 @@ dependencies {
     // Jetpack Core
     implementation "androidx.core:core-ktx:1.6.0"
 
-    // Animation
-    implementation 'androidx.dynamicanimation:dynamicanimation-ktx:1.0.0-alpha03'
+    // Exifinterface
+    implementation "androidx.exifinterface:exifinterface:1.3.3"
 
     // Fragment
     implementation "androidx.fragment:fragment-ktx:1.3.6"
 
     // Material Design Components
     implementation 'com.google.android.material:material:1.4.0'
-
-    // Picasso
-    implementation 'com.squareup.picasso:picasso:2.71828'
 
     // [Cinema, Museum] Media preview (image, video)
     // [Radio] Audio player
@@ -92,7 +89,7 @@ dependencies {
     implementation 'com.github.zhombie:q19.data:1.1.3'
     implementation 'com.github.zhombie:q19.domain:1.4.6'
     implementation 'com.github.zhombie:q19.socket:1.5.0'
-    implementation 'com.github.zhombie:q19.utils:1.1.4'
+    implementation 'com.github.zhombie:q19.utils:1.1.5'
     implementation 'com.github.zhombie:q19.webrtc:1.4.5'
 
     // Permissions
