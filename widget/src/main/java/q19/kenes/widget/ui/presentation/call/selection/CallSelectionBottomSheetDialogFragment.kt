@@ -9,8 +9,8 @@ import androidx.fragment.app.setFragmentResult
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
+import kz.q19.domain.model.call.Call
 import kz.q19.utils.android.dp2Px
-import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseBottomSheetDialogFragment
 import q19.kenes_widget.R

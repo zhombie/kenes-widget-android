@@ -9,11 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.domain.model.knowledge_base.Element
+import kz.q19.domain.model.knowledge_base.Response
+import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.utils.html.HTMLCompat
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.domain.model.Element
-import q19.kenes.widget.domain.model.Response
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
 // TODO: Control expanded/collapsed state in more proper way
@@ -308,10 +308,11 @@ internal class ResponseGroupChildrenAdapter constructor(
         private val textView = view.findViewById<MaterialTextView>(R.id.textView)
 
         fun bind(response: Response) {
-            if (response.text.isNullOrBlank()) {
+            val text = response.text
+            if (text.isNullOrBlank()) {
                 textView.text = null
             } else {
-                textView.text = HTMLCompat.fromHtml(response.text)
+                textView.text = HTMLCompat.fromHtml(text)
             }
         }
     }

@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.util
+package q19.kenes.widget.util
 
 import android.graphics.Path
 import android.graphics.RectF

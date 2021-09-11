@@ -1,5 +1,6 @@
 package q19.kenes.widget.ui.presentation.call.video
 
+import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
@@ -23,7 +24,6 @@ import org.webrtc.MediaStream
 import q19.kenes.widget.core.device.DeviceInfo
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.data.local.Database
-import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallInteractor
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.platform.BasePresenter

@@ -2,6 +2,7 @@ package q19.kenes.widget.ui.presentation.home
 
 import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
+import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.Message
 import kz.q19.socket.listener.ChatBotListener
@@ -14,7 +15,6 @@ import q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import q19.kenes.widget.data.remote.http.ResponseGroupChildrenResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
 import q19.kenes.widget.ui.presentation.platform.BasePresenter
 import q19.kenes.widget.util.UrlUtil

@@ -2,6 +2,7 @@ package q19.kenes.widget.data.remote.http
 
 import com.loopj.android.http.JsonHttpResponseHandler
 import cz.msebera.android.httpclient.Header
+import kz.q19.domain.model.knowledge_base.Response
 import kz.q19.domain.model.media.Media
 import kz.q19.utils.enums.findEnumBy
 import kz.q19.utils.json.getJSONArrayOrNull
@@ -9,7 +10,6 @@ import kz.q19.utils.json.getJSONObjectOrNull
 import kz.q19.utils.json.getLongOrNull
 import kz.q19.utils.json.getStringOrNull
 import org.json.JSONObject
-import q19.kenes.widget.domain.model.Response
 
 internal class ResponseInfoResponseHandler constructor(
     private val onSuccess: (response: Response) -> Unit,

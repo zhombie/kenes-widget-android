@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
+import kz.q19.domain.model.call.AnyCall
+import kz.q19.domain.model.call.Call
+import kz.q19.domain.model.call.CallGroup
 import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 

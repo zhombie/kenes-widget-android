@@ -21,6 +21,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
+import kz.q19.domain.model.knowledge_base.Element
+import kz.q19.domain.model.knowledge_base.Nestable
+import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.utils.android.clipboardManager
@@ -34,9 +37,6 @@ import kz.zhombie.radio.Radio
 import kz.zhombie.radio.getDurationOrZeroIfUnset
 import kz.zhombie.radio.getPositionByProgress
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.domain.model.Element
-import q19.kenes.widget.domain.model.Nestable
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesProgressView

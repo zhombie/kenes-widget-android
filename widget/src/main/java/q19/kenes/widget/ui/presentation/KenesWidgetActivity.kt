@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.LinearLayout
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import androidx.viewpager2.widget.ViewPager2
+import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import kz.q19.utils.animation.AbstractAnimationListener
@@ -22,7 +22,6 @@ import q19.kenes.widget.KenesWidget
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.KenesBottomNavigationView
 import q19.kenes.widget.ui.components.KenesToolbar
-import q19.kenes.widget.ui.presentation.call.Call
 import q19.kenes.widget.ui.presentation.call.CallsFragment
 import q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
@@ -70,7 +69,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     }
 
     // UI Views
-    private val rootView by bind<LinearLayout>(R.id.rootView)
     private val toolbar by bind<KenesToolbar>(R.id.toolbar)
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val fragmentContainerView by bind<FragmentContainerView>(R.id.fragmentContainerView)

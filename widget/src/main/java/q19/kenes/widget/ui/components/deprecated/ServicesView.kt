@@ -26,10 +26,9 @@ import kz.q19.utils.view.outlineprovider.RoundMode
 import kz.q19.utils.view.outlineprovider.RoundOutlineProvider
 import q19.kenes.widget.core.logging.Logger.debug
 import q19.kenes.widget.ui.components.deprecated.base.KenesTitleView
-import q19.kenes.widget.ui.util.buildRippleDrawable
-import q19.kenes.widget.ui.util.getPathOfQuadBottomRectF
-import q19.kenes.widget.ui.util.getPathOfQuadTopRectF
-import q19.kenes.widget.ui.util.getPathOfRoundedRectF
+import q19.kenes.widget.util.getPathOfQuadBottomRectF
+import q19.kenes.widget.util.getPathOfQuadTopRectF
+import q19.kenes.widget.util.getPathOfRoundedRectF
 import q19.kenes_widget.R
 
 internal class ServicesView @JvmOverloads constructor(
@@ -266,7 +265,7 @@ private class ServicesAdapter(
                     itemView.isClickable = true
                     itemView.isFocusable = true
 
-                    itemView.background = buildRippleDrawable(itemView.context)
+//                    itemView.background = buildRippleDrawable(itemView.context)
 
                     itemView.setOnClickListener { callback.onServiceClicked(service) }
                 }
@@ -278,7 +277,7 @@ private class ServicesAdapter(
                     itemView.isClickable = true
                     itemView.isFocusable = true
 
-                    itemView.background = buildRippleDrawable(itemView.context)
+//                    itemView.background = buildRippleDrawable(itemView.context)
 
                     itemView.setOnClickListener { callback.onServiceClicked(service) }
                 }
@@ -311,7 +310,7 @@ private class ServicesAdapter(
             itemView.isClickable = true
             itemView.isFocusable = true
 
-            itemView.background = buildRippleDrawable(itemView.context)
+//            itemView.background = buildRippleDrawable(itemView.context)
 
             itemView.setOnClickListener { callback.onServiceBackClicked() }
         }

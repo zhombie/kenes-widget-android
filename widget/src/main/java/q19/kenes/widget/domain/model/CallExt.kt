@@ -1,5 +1,8 @@
 package q19.kenes.widget.domain.model
 
+import kz.q19.domain.model.call.AnyCall
+import kz.q19.domain.model.call.Call
+import kz.q19.domain.model.call.CallGroup
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.language.Language
 import q19.kenes.widget.ui.presentation.call.*

@@ -7,10 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.keyboard.button.Button
 import kz.q19.domain.model.media.Media
-import kz.q19.domain.model.message.Message
+import kz.q19.domain.model.message.*
 import kz.q19.utils.view.inflate
 import q19.kenes.widget.core.logging.Logger
-import q19.kenes.widget.domain.model.*
 import q19.kenes.widget.ui.presentation.common.chat.viewholder.*
 
 internal class ChatMessagesAdapter constructor(
@@ -266,7 +265,7 @@ internal class ChatMessagesAdapter constructor(
 
         if (payload is Bundle) {
             if (holder is BaseAudioMessageViewHolder) {
-                val message = getItem(position)
+//                val message = getItem(position)
 
                 when (payload.getString(PayloadKey.ACTION)) {
                     Action.SET_AUDIO_PLAYBACK_STATE ->

@@ -2,10 +2,10 @@ package q19.kenes.widget.data.remote.http
 
 import com.loopj.android.http.JsonHttpResponseHandler
 import cz.msebera.android.httpclient.Header
+import kz.q19.domain.model.knowledge_base.Nestable
+import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.utils.json.getJSONArrayOrNull
 import org.json.JSONObject
-import q19.kenes.widget.domain.model.Nestable
-import q19.kenes.widget.domain.model.ResponseGroup
 
 internal class ResponseGroupsResponseHandler constructor(
     private val onSuccess: (responseGroups: List<ResponseGroup>) -> Unit,

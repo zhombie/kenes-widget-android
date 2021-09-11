@@ -1,5 +1,7 @@
 package q19.kenes.widget.ui.presentation.call
 
+import kz.q19.domain.model.call.Call
+import kz.q19.domain.model.call.CallGroup
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.Message
 import kz.q19.socket.listener.ChatBotListener

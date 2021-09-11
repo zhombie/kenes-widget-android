@@ -196,7 +196,7 @@ internal class CoilImageLoader constructor(
         Logger.debug(TAG, "clearCache()")
 
         try {
-            cache?.directory?.deleteRecursively()
+            cache?.directory()?.deleteRecursively()
         } catch (e: Exception) {
             e.printStackTrace()
         }

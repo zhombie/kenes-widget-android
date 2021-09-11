@@ -1,8 +1,8 @@
 package q19.kenes.widget.ui.presentation.home
 
+import kz.q19.domain.model.knowledge_base.Nestable
+import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.message.Message
-import q19.kenes.widget.domain.model.Nestable
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes.widget.ui.presentation.common.BottomSheetState
 
 internal class ChatbotInteractor {

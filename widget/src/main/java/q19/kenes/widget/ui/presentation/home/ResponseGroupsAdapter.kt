@@ -5,10 +5,10 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.*
 import com.google.android.material.button.MaterialButton
+import kz.q19.domain.model.knowledge_base.Element
+import kz.q19.domain.model.knowledge_base.Nestable
+import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.utils.view.inflate
-import q19.kenes.widget.domain.model.Element
-import q19.kenes.widget.domain.model.Nestable
-import q19.kenes.widget.domain.model.ResponseGroup
 import q19.kenes_widget.R
 
 internal class ResponseGroupsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {

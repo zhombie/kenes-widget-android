@@ -16,9 +16,8 @@ import kz.q19.utils.view.inflate
 import kz.q19.utils.view.outlineprovider.RoundMode
 import kz.q19.utils.view.outlineprovider.RoundOutlineProvider
 import q19.kenes.widget.core.logging.Logger.debug
-import q19.kenes.widget.ui.util.buildRippleDrawable
-import q19.kenes.widget.ui.util.getPathOfQuadBottomRectF
-import q19.kenes.widget.ui.util.getPathOfRoundedRectF
+import q19.kenes.widget.util.getPathOfQuadBottomRectF
+import q19.kenes.widget.util.getPathOfRoundedRectF
 import q19.kenes_widget.R
 
 internal class InlineKeyboardAdapter constructor(
@@ -63,7 +62,7 @@ internal class InlineKeyboardAdapter constructor(
         fun bind(button: Button) {
             textView?.text = button.text
 
-            itemView.background = buildRippleDrawable(itemView.context)
+//            itemView.background = buildRippleDrawable(itemView.context)
 
             itemView.setOnClickListener { callback(button) }
         }

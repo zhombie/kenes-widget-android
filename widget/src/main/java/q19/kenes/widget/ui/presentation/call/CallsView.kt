@@ -1,5 +1,7 @@
 package q19.kenes.widget.ui.presentation.call
 
+import kz.q19.domain.model.call.AnyCall
+import kz.q19.domain.model.call.Call
 import q19.kenes.widget.ui.presentation.call.selection.CallSelection
 import q19.kenes.widget.ui.presentation.platform.BaseView
 

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kz.q19.domain.model.keyboard.Keyboard
 import kz.q19.domain.model.keyboard.button.Button
 import q19.kenes.widget.ui.presentation.deprecated.adapter.InlineKeyboardAdapterItemDecoration
-import q19.kenes.widget.ui.util.buildRippleDrawable
 import kz.q19.utils.view.inflate
 import q19.kenes_widget.R
 
@@ -111,7 +110,7 @@ private class KeyboardAdapter(
         fun bind(button: Button) {
             textView.text = button.text
 
-            itemView.background = buildRippleDrawable(itemView.context)
+//            itemView.background = buildRippleDrawable(itemView.context)
 
             itemView.setOnClickListener { callback(button) }
         }
