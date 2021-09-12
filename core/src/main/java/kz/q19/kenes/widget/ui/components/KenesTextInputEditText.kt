@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.annotation.AttrRes
 import com.google.android.material.textfield.TextInputEditText
-import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.R
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -39,7 +38,7 @@ internal class KenesTextInputEditText @JvmOverloads constructor(
      * @return A measure spec greedily imposing the max size.
      */
     private fun makeMeasureSpec(measureSpec: Int, maxSize: Int?): Int {
-        Logger.debug(TAG, "$lineCount, $maxLines")
+//        Logger.debug(TAG, "$lineCount, $maxLines")
         if (lineCount < maxLines) return measureSpec
         if (maxSize == null) return measureSpec
         val size = MeasureSpec.getSize(measureSpec)

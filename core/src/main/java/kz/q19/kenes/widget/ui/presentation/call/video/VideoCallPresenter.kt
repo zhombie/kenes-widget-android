@@ -10,6 +10,13 @@ import kz.q19.domain.model.message.QRTCAction
 import kz.q19.domain.model.webrtc.IceCandidate
 import kz.q19.domain.model.webrtc.IceConnectionState
 import kz.q19.domain.model.webrtc.SessionDescription
+import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.device.DeviceInfo
+import kz.q19.kenes.widget.core.logging.Logger
+import kz.q19.kenes.widget.data.local.Database
+import kz.q19.kenes.widget.ui.presentation.call.CallInteractor
+import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
+import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
 import kz.q19.socket.listener.CallListener
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.listener.SocketStateListener
@@ -21,13 +28,6 @@ import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 import org.webrtc.MediaStream
-import kz.q19.kenes.widget.core.device.DeviceInfo
-import kz.q19.kenes.widget.core.logging.Logger
-import kz.q19.kenes.widget.data.local.Database
-import kz.q19.kenes.widget.ui.presentation.call.CallInteractor
-import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
-import kz.q19.kenes.widget.util.UrlUtil
 
 internal class VideoCallPresenter constructor(
     private val language: Language,
@@ -113,8 +113,8 @@ internal class VideoCallPresenter constructor(
         socketRepository.sendCallInitialization(
             CallInitialization(
                 callType = callType,
-                domain = UrlUtil.getHostname()?.removePrefix("https://"),
-                topic = "zhombie",  // TODO: Change to 'call.topic' on production
+                domain = UrlManager.getDomain(),
+                topic = if (UrlManager.isDebug) "zhombie" else call.topic,
                 device = CallInitialization.Device(
                     os = deviceInfo.os,
                     osVersion = deviceInfo.osVersion,
@@ -127,7 +127,7 @@ internal class VideoCallPresenter constructor(
                         temperature = deviceInfo.batteryTemperature
                     )
                 ),
-                language = Language.RUSSIAN
+                language = language
             )
         )
     }
@@ -543,7 +543,7 @@ internal class VideoCallPresenter constructor(
 
         peerConnectionClient.addLocalStreamToPeer()
 
-        val fullUrl = UrlUtil.buildUrl(photoUrl)
+        val fullUrl = UrlManager.buildStaticUrl(photoUrl)
 
         getView().expandBottomSheet()
 

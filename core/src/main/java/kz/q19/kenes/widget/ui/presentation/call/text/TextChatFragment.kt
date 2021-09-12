@@ -13,14 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
-import kz.q19.utils.android.dp2Px
-import kz.zhombie.cinema.CinemaDialogFragment
-import kz.zhombie.cinema.model.Movie
-import kz.zhombie.museum.MuseumDialogFragment
-import kz.zhombie.museum.model.Painting
-import kz.zhombie.radio.Radio
-import kz.zhombie.radio.getDurationOrZeroIfUnset
-import kz.zhombie.radio.getPositionByProgress
+import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.Settings
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.domain.model.sourceUri
@@ -29,7 +22,14 @@ import kz.q19.kenes.widget.ui.components.KenesToolbar
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
-import kz.q19.kenes.widget.R
+import kz.q19.utils.android.dp2Px
+import kz.zhombie.cinema.CinemaDialogFragment
+import kz.zhombie.cinema.model.Movie
+import kz.zhombie.museum.MuseumDialogFragment
+import kz.zhombie.museum.model.Painting
+import kz.zhombie.radio.Radio
+import kz.zhombie.radio.getDurationOrZeroIfUnset
+import kz.zhombie.radio.getPositionByProgress
 import kotlin.math.roundToInt
 
 internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes_fragment_text_chat),
@@ -187,6 +187,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
             listener?.onSendTextMessage(message)
         }
 
+        messageInputView?.setSendMessageButtonEnabled(false)
         messageInputView?.setOnTextChangedListener { s, _, _, _ ->
             if (s.isNullOrBlank()) {
                 messageInputView?.setSendMessageButtonEnabled(false)

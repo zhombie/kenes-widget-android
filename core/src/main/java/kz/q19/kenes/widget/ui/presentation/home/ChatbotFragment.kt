@@ -347,6 +347,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
             presenter.onSendTextMessage(message)
         }
 
+        messageInputView?.setSendMessageButtonEnabled(false)
         messageInputView?.setOnTextChangedListener { s, _, _, _ ->
             if (s.isNullOrBlank()) {
                 messageInputView?.setSendMessageButtonEnabled(false)

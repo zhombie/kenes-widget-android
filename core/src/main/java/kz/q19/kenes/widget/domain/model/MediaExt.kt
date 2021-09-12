@@ -2,7 +2,7 @@ package kz.q19.kenes.widget.domain.model
 
 import android.net.Uri
 import kz.q19.domain.model.media.Media
-import kz.q19.kenes.widget.util.UrlUtil
+import kz.q19.kenes.widget.core.UrlManager
 import java.io.File
 
 internal sealed class Source constructor(
@@ -33,7 +33,7 @@ internal val Media.source: Source?
                 displayName = title ?: file.name
             )
         } else {
-            val fullUrl = UrlUtil.buildUrl(urlPath)
+            val fullUrl = UrlManager.buildStaticUrl(urlPath)
             if (!fullUrl.isNullOrBlank()) {
                 Source.URL(
                     fullUrl = fullUrl,
@@ -59,5 +59,5 @@ internal val Media.sourceUri: Uri?
 
 
 internal fun Media.hasValidUrl(): Boolean {
-    return !UrlUtil.buildUrl(urlPath).isNullOrBlank()
+    return !UrlManager.buildStaticUrl(urlPath).isNullOrBlank()
 }

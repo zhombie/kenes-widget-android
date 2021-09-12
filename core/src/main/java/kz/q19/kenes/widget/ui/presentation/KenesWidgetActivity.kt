@@ -18,6 +18,7 @@ import kz.q19.kenes.widget.BuildConfig
 import kz.q19.kenes.widget.KenesWidget
 import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.Settings
+import kz.q19.kenes.widget.core.UrlManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.components.KenesBottomNavigationView
 import kz.q19.kenes.widget.ui.components.KenesToolbar
@@ -31,7 +32,6 @@ import kz.q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import kz.q19.kenes.widget.ui.presentation.info.InfoFragment
 import kz.q19.kenes.widget.ui.presentation.platform.BaseActivity
 import kz.q19.kenes.widget.ui.presentation.services.ServicesFragment
-import kz.q19.kenes.widget.util.UrlUtil
 import kz.q19.kenes.widget.util.addKeyboardVisibilityListener
 import kz.q19.utils.animation.AbstractAnimationListener
 import kz.q19.utils.view.binding.bind
@@ -87,12 +87,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
         // Hostname
         val hostname: String? = intent.getStringExtra(IntentKey.HOSTNAME)
-        if (hostname.isNullOrBlank() || !hostname.startsWith("https://")) {
-            toast("hostname is blank or null, provide with hostname at first!")
-            finish()
-        } else {
-            UrlUtil.setHostname(hostname)
-        }
+        UrlManager.setHostname(hostname)
 
         // Attach view to MVP presenter
         presenter.attachView(this)

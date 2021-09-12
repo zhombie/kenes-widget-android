@@ -19,6 +19,15 @@ import kz.q19.domain.model.webrtc.IceCandidate
 import kz.q19.domain.model.webrtc.IceConnectionState
 import kz.q19.domain.model.webrtc.IceServer
 import kz.q19.domain.model.webrtc.SessionDescription
+import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.device.DeviceInfo
+import kz.q19.kenes.widget.core.logging.Logger.debug
+import kz.q19.kenes.widget.data.remote.file.DownloadResult
+import kz.q19.kenes.widget.data.remote.file.downloadFile
+import kz.q19.kenes.widget.ui.presentation.common.Screen
+import kz.q19.kenes.widget.ui.presentation.home.ChatbotInteractor
+import kz.q19.kenes.widget.ui.presentation.model.ViewState
+import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
 import kz.q19.socket.SocketClient
 import kz.q19.socket.SocketClientConfig
 import kz.q19.socket.listener.*
@@ -28,15 +37,6 @@ import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import org.webrtc.MediaStream
 import org.webrtc.PeerConnection
-import kz.q19.kenes.widget.core.device.DeviceInfo
-import kz.q19.kenes.widget.core.logging.Logger.debug
-import kz.q19.kenes.widget.data.remote.file.DownloadResult
-import kz.q19.kenes.widget.data.remote.file.downloadFile
-import kz.q19.kenes.widget.ui.presentation.common.Screen
-import kz.q19.kenes.widget.ui.presentation.home.ChatbotInteractor
-import kz.q19.kenes.widget.ui.presentation.model.ViewState
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
-import kz.q19.kenes.widget.util.UrlUtil
 
 internal class OldKenesWidgetPresenter constructor(
     private val deviceInfo: DeviceInfo,
@@ -158,14 +158,9 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     private fun initSocket() {
-        val socketUrl = UrlUtil.getSocketUrl(UrlUtil.getHostname())
-        if (socketUrl.isNullOrBlank()) {
-            throw NullPointerException("Signalling server url is null. Please, provide a valid url.")
-        }
-
         SocketClientConfig.init(true, language)
         socketClient = SocketClient.getInstance()
-        socketClient?.create(socketUrl)
+        socketClient?.create(UrlManager.getSocketUrl())
         socketClient?.connect()
 
         socketClient?.registerSocketConnectEventListener()
@@ -187,7 +182,7 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     private fun fetchWidgetConfigs() {
-        val url = UrlUtil.buildUrl("/configs") ?: return
+        val url = UrlManager.buildUrl("/configs") ?: return
         debug(TAG, "fetchWidgetConfigs() -> url: $url")
 
         val data: Configs? = null

@@ -5,10 +5,7 @@ import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.Message
-import kz.q19.socket.listener.ChatBotListener
-import kz.q19.socket.model.Category
-import kz.q19.socket.repository.SocketRepository
-import kz.q19.utils.html.HTMLCompat
+import kz.q19.kenes.widget.core.UrlManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
 import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
@@ -17,7 +14,10 @@ import kz.q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import kz.q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
 import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
-import kz.q19.kenes.widget.util.UrlUtil
+import kz.q19.socket.listener.ChatBotListener
+import kz.q19.socket.model.Category
+import kz.q19.socket.repository.SocketRepository
+import kz.q19.utils.html.HTMLCompat
 
 internal class ChatbotPresenter constructor(
     private val language: Language,
@@ -67,23 +67,27 @@ internal class ChatbotPresenter constructor(
             "nested", true
         )
 
-        asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupsResponseHandler(
-            onSuccess = { responseGroups ->
-//                Logger.debug(TAG, "loadResponseGroups() -> responseGroups: $responseGroups")
+        asyncHttpClient?.get(
+            UrlManager.buildUrl("/api/kbase/response_groups"),
+            params,
+            ResponseGroupsResponseHandler(
+                onSuccess = { responseGroups ->
+//                    Logger.debug(TAG, "loadResponseGroups() -> responseGroups: $responseGroups")
 
-                getView().hideLoadingIndicator()
+                    getView().hideLoadingIndicator()
 
-                interactor.primaryResponseGroups = responseGroups
-                interactor.lastResponseGroupsLoadedTime = System.currentTimeMillis()
+                    interactor.primaryResponseGroups = responseGroups
+                    interactor.lastResponseGroupsLoadedTime = System.currentTimeMillis()
 
-                getView().showResponses(responseGroups)
-            },
-            onFailure = {
-                Logger.debug(TAG, "onFailure(): $it")
+                    getView().showResponses(responseGroups)
+                },
+                onFailure = {
+                    Logger.debug(TAG, "onFailure(): $it")
 
-                getView().hideLoadingIndicator()
-            }
-        ))
+                    getView().hideLoadingIndicator()
+                }
+            )
+        )
     }
 
     fun onResponseGroupClicked(responseGroup: ResponseGroup) {
@@ -98,30 +102,34 @@ internal class ChatbotPresenter constructor(
             "nested", false
         )
 
-        asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response_groups"), params, ResponseGroupChildrenResponseHandler(
-            onSuccess = { children ->
-//                Logger.debug(TAG, "onResponseGroupClicked() -> " +
-//                    "responseGroup: $responseGroup, " +
-//                    "children: $children")
+        asyncHttpClient?.get(
+            UrlManager.buildUrl("/api/kbase/response_groups"),
+            params,
+            ResponseGroupChildrenResponseHandler(
+                onSuccess = { children ->
+//                    Logger.debug(TAG, "onResponseGroupClicked() -> " +
+//                        "responseGroup: $responseGroup, " +
+//                        "children: $children")
 
-                getView().hideLoadingIndicator()
+                    getView().hideLoadingIndicator()
 
-                val index = interactor.breadcrumb.indexOf(responseGroup)
-                interactor.breadcrumb[index] = responseGroup.copy(children = children)
+                    val index = interactor.breadcrumb.indexOf(responseGroup)
+                    interactor.breadcrumb[index] = responseGroup.copy(children = children)
 
-                Logger.debug(TAG, "onResponseGroupClicked() -> ${interactor.breadcrumb}")
+                    Logger.debug(TAG, "onResponseGroupClicked() -> ${interactor.breadcrumb}")
 
-                getView().showResponses(listOf(interactor.breadcrumb[index]))
-            },
-            onFailure = {
-                Logger.debug(TAG, "onFailure(): $it")
+                    getView().showResponses(listOf(interactor.breadcrumb[index]))
+                },
+                onFailure = {
+                    Logger.debug(TAG, "onFailure(): $it")
 
-                getView().hideLoadingIndicator()
+                    getView().hideLoadingIndicator()
 
-                val index = interactor.breadcrumb.indexOf(responseGroup)
-                getView().showResponses(listOf(interactor.breadcrumb[index]))
-            }
-        ))
+                    val index = interactor.breadcrumb.indexOf(responseGroup)
+                    getView().showResponses(listOf(interactor.breadcrumb[index]))
+                }
+            )
+        )
     }
 
     fun onResponseGroupChildClicked(child: ResponseGroup.Child) {
@@ -143,30 +151,34 @@ internal class ChatbotPresenter constructor(
             "response_id", child.responses.first().id
         )
 
-        asyncHttpClient?.get(UrlUtil.buildUrl("/api/kbase/response"), params, ResponseInfoResponseHandler(
-            onSuccess = { responseInfo ->
-//                Logger.debug(TAG, "onResponseGroupChildClicked() -> " +
-//                    "child: $child, " +
-//                    "responseInfo: $responseInfo")
+        asyncHttpClient?.get(
+            UrlManager.buildUrl("/api/kbase/response"),
+            params,
+            ResponseInfoResponseHandler(
+                onSuccess = { responseInfo ->
+//                    Logger.debug(TAG, "onResponseGroupChildClicked() -> " +
+//                        "child: $child, " +
+//                        "responseInfo: $responseInfo")
 
-                getView().hideLoadingIndicator()
+                    getView().hideLoadingIndicator()
 
-                val index = interactor.breadcrumb.indexOf(child)
-                interactor.breadcrumb[index] = child.copy(responses = listOf(responseInfo))
+                    val index = interactor.breadcrumb.indexOf(child)
+                    interactor.breadcrumb[index] = child.copy(responses = listOf(responseInfo))
 
-                Logger.debug(TAG, "onResponseGroupChildClicked() -> ${interactor.breadcrumb}")
+                    Logger.debug(TAG, "onResponseGroupChildClicked() -> ${interactor.breadcrumb}")
 
-                getView().showResponses(listOf(interactor.breadcrumb[index]))
-            },
-            onFailure = {
-                Logger.debug(TAG, "onFailure(): $it")
+                    getView().showResponses(listOf(interactor.breadcrumb[index]))
+                },
+                onFailure = {
+                    Logger.debug(TAG, "onFailure(): $it")
 
-                getView().hideLoadingIndicator()
+                    getView().hideLoadingIndicator()
 
-                val index = interactor.breadcrumb.indexOf(child)
-                getView().showResponses(listOf(interactor.breadcrumb[index]))
-            }
-        ))
+                    val index = interactor.breadcrumb.indexOf(child)
+                    getView().showResponses(listOf(interactor.breadcrumb[index]))
+                }
+            )
+        )
     }
 
     fun onBackPressed(): Boolean {

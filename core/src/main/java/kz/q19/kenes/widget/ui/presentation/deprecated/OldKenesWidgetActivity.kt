@@ -28,14 +28,8 @@ import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
-import kz.q19.socket.model.Category
-import kz.q19.utils.keyboard.hideKeyboard
-import kz.q19.utils.recyclerview.disableChangeAnimations
-import kz.q19.utils.recyclerview.setOverScrollColor
-import kz.q19.utils.view.binding.bind
-import kz.q19.utils.view.isVisible
-import kz.q19.webrtc.Options
-import kz.q19.webrtc.PeerConnectionClient
+import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.core.UrlManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger.debug
 import kz.q19.kenes.widget.core.permission.PermissionManager
@@ -50,7 +44,14 @@ import kz.q19.kenes.widget.ui.presentation.deprecated.adapter.OldChatAdapter
 import kz.q19.kenes.widget.ui.presentation.model.ViewState
 import kz.q19.kenes.widget.ui.presentation.platform.BaseActivity
 import kz.q19.kenes.widget.util.*
-import kz.q19.kenes.widget.R
+import kz.q19.socket.model.Category
+import kz.q19.utils.keyboard.hideKeyboard
+import kz.q19.utils.recyclerview.disableChangeAnimations
+import kz.q19.utils.recyclerview.setOverScrollColor
+import kz.q19.utils.view.binding.bind
+import kz.q19.utils.view.isVisible
+import kz.q19.webrtc.Options
+import kz.q19.webrtc.PeerConnectionClient
 
 internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(), OldKenesWidgetView {
 
@@ -220,11 +221,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
         // Hostname
         val hostname = intent.getStringExtra(IntentKey.HOSTNAME)
-        if (hostname.isNullOrBlank() || !hostname.startsWith("https://")) {
-            throwError()
-        } else {
-            UrlUtil.setHostname(hostname)
-        }
+        UrlManager.setHostname(hostname)
 
         // ------------------------------------------------------------------------
 
@@ -391,14 +388,14 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 //            }
 //            return@setOnInputViewFocusChangeListener false
 //        }
-
-        footerView.setOnTextChangedListener { s, _, _, _ ->
-            if (s.isNullOrBlank()) {
-                footerView.setSendMessageButtonEnabled(false)
-            } else {
-                footerView.setSendMessageButtonEnabled(true)
-            }
-        }
+//
+//        footerView.setOnTextChangedListener { s, _, _, _ ->
+//            if (s.isNullOrBlank()) {
+//                footerView.setSendMessageButtonEnabled(false)
+//            } else {
+//                footerView.setSendMessageButtonEnabled(true)
+//            }
+//        }
 
         videoDialogView.callback = object : VideoDialogView.Callback {
             override fun onGoToChatButtonClicked() {
