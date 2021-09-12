@@ -1,12 +1,13 @@
 package q19.kenes.widget;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+
+import q19.kenes.widget.api.Language;
 
 class MainActivity extends AppCompatActivity {
 
@@ -28,11 +29,11 @@ class MainActivity extends AppCompatActivity {
           EN -> To launch the widget, you need to send the hostname.
           Example: https://kenes.vlx.kz
          */
-        Intent intent = new KenesWidget.Builder()
+        new KenesWidget.Builder(this)
             .setHostname(BuildConfig.HOSTNAME)
-            .setLanguage(KenesWidget.Builder.Language.RUSSIAN)
-            .build(this);
-        startActivity(intent);
+            .setLanguage(Language.RUSSIAN)
+            .setImageLoader(new ConcatCoilImageLoader(this, BuildConfig.DEBUG))
+            .launch();
     }
 
 }

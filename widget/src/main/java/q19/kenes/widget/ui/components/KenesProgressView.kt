@@ -1,6 +1,7 @@
 package q19.kenes.widget.ui.components
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.util.AttributeSet
@@ -133,7 +134,7 @@ internal class KenesProgressView @JvmOverloads constructor(
                 setMargins(0, 25F.dp2Px().roundToInt(), 0, 0)
             }
             minWidth = 125F.dp2Px().roundToInt()
-            setBackgroundColor(Color.parseColor("#70333333"))
+            backgroundTintList = ColorStateList.valueOf(Color.parseColor("#70333333"))
             cornerRadius = 10F.dp2Px().roundToInt()
             letterSpacing = 0.01F
             isAllCaps = false
@@ -146,21 +147,21 @@ internal class KenesProgressView @JvmOverloads constructor(
     }
 
     fun show() {
-        visibility = View.VISIBLE
         alpha = 0F
+        visibility = View.VISIBLE
         animate()
+            .setDuration(100L)
             .alpha(1F)
-            .setDuration(200L)
             .start()
     }
 
     fun hide() {
-        visibility = View.VISIBLE
         alpha = 1F
+        visibility = View.VISIBLE
         animate()
+            .setDuration(100L)
             .alpha(0F)
             .withEndAction { visibility = View.GONE }
-            .setDuration(200L)
             .start()
     }
 

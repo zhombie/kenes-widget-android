@@ -17,8 +17,10 @@ import kz.q19.domain.model.language.Language
 import kz.q19.utils.animation.AbstractAnimationListener
 import kz.q19.utils.view.binding.bind
 import kz.zhombie.cinema.CinemaDialogFragment
+import kz.zhombie.museum.MuseumDialogFragment
 import kz.zhombie.radio.Radio
 import q19.kenes.widget.KenesWidget
+import q19.kenes.widget.core.Settings
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.ui.components.KenesBottomNavigationView
 import q19.kenes.widget.ui.components.KenesToolbar
@@ -34,7 +36,6 @@ import q19.kenes.widget.ui.presentation.platform.BaseActivity
 import q19.kenes.widget.ui.presentation.services.ServicesFragment
 import q19.kenes.widget.util.UrlUtil
 import q19.kenes.widget.util.addKeyboardVisibilityListener
-import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.BuildConfig
 import q19.kenes_widget.R
 
@@ -52,19 +53,19 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         fun newIntent(
             context: Context,
             hostname: String,
-            language: Language? = null,
+            languageKey: String,
             user: KenesWidget.Builder.User? = null
         ): Intent =
             Intent(context, KenesWidgetActivity::class.java)
                 .putExtra(IntentKey.HOSTNAME, hostname)
-                .putExtra(IntentKey.LANGUAGE, language)
+                .putExtra(IntentKey.LANGUAGE_KEY, languageKey)
                 .putExtra(IntentKey.USER, user)
     }
 
     // Intent Arguments
     private object IntentKey {
         const val HOSTNAME = "hostname"
-        const val LANGUAGE = "language"
+        const val LANGUAGE_KEY = "language"
         const val USER = "user"
     }
 
@@ -73,8 +74,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     private val viewPager by bind<ViewPager2>(R.id.viewPager)
     private val fragmentContainerView by bind<FragmentContainerView>(R.id.fragmentContainerView)
     private val bottomNavigationView by bind<KenesBottomNavigationView>(R.id.bottomNavigationView)
-
-    private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
 
     // BottomNavigationView + ViewPager2 adapter
     private var viewPagerAdapter: ViewPagerAdapter? = null
@@ -95,8 +94,6 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
             UrlUtil.setHostname(hostname)
         }
 
-        imageLoader = CoilImageLoader(this)
-
         // Attach view to MVP presenter
         presenter.attachView(this)
 
@@ -104,7 +101,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         CinemaDialogFragment.init(BuildConfig.DEBUG)
 
         // Museum (image fullscreen preview)
-//        imageLoader?.let { MuseumDialogFragment.init(it, BuildConfig.DEBUG) }
+//        MuseumDialogFragment.init(Settings.getImageLoader(), BuildConfig.DEBUG)
 
         // Radio (audio player)
         Radio.init(BuildConfig.DEBUG)
@@ -121,17 +118,19 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
     override fun createPresenter(): KenesWidgetPresenter {
         // Language
-        var language = intent.getParcelableExtra<Language>(IntentKey.LANGUAGE)
+        val languageKey = intent.getStringExtra(IntentKey.LANGUAGE_KEY)
 
-        val locale = getCurrentLocale()
+        var language = languageKey?.let { Language.by(key = it) }
+
+        val currentLocale = getCurrentLocale()
 
         if (language == null) {
-            language = locale?.let { Language.from(it) } ?: Language.DEFAULT
+            language = currentLocale?.let { Language.from(it) } ?: Language.DEFAULT
         }
 
         // Set language
-        Logger.debug(TAG, "locale: $locale")
-        if (locale == null || language.locale != locale) {
+        Logger.debug(TAG, "locale: $currentLocale")
+        if (currentLocale == null || language.locale != currentLocale) {
             Logger.debug(TAG, "setLocale() -> language.locale: ${language.locale}")
             setLocale(language.locale)
         }
@@ -162,6 +161,11 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
     override fun onDestroy() {
         super.onDestroy()
+
+        MuseumDialogFragment.clear()
+
+        Settings.getImageLoader().hashCode()
+        Settings.clear()
 
         fragments.clear()
 

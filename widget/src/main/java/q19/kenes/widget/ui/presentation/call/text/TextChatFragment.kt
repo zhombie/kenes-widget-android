@@ -21,15 +21,14 @@ import kz.zhombie.museum.model.Painting
 import kz.zhombie.radio.Radio
 import kz.zhombie.radio.getDurationOrZeroIfUnset
 import kz.zhombie.radio.getPositionByProgress
+import q19.kenes.widget.core.Settings
 import q19.kenes.widget.core.logging.Logger
 import q19.kenes.widget.domain.model.sourceUri
 import q19.kenes.widget.ui.components.KenesMessageInputView
 import q19.kenes.widget.ui.components.KenesToolbar
-import q19.kenes.widget.ui.presentation.CoilImageLoader
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import q19.kenes.widget.ui.presentation.platform.BaseFragment
-import q19.kenes.widget.util.bindAutoClearedValue
 import q19.kenes_widget.R
 import kotlin.math.roundToInt
 
@@ -64,8 +63,6 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         }
     }
 
-    private var imageLoader by bindAutoClearedValue<CoilImageLoader>()
-
     private var radio: Radio? = null
 
     // Activity + Fragment communication
@@ -89,8 +86,6 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        imageLoader = CoilImageLoader(requireContext())
 
         presenter.attachView(this)
     }
@@ -250,7 +245,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     override fun onImageClicked(imageView: ImageView, media: Media) {
         MuseumDialogFragment.Builder()
-            .setPaintingLoader(imageLoader ?: return)
+            .setPaintingLoader(Settings.getImageLoader())
             .setPainting(Painting(Uri.parse(media.urlPath), Painting.Info(media.title)))
             .setImageView(imageView)
             .setFooterViewEnabled(true)
@@ -263,7 +258,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         imagePosition: Int
     ) {
         MuseumDialogFragment.Builder()
-            .setPaintingLoader(imageLoader ?: return)
+            .setPaintingLoader(Settings.getImageLoader())
             .setPaintings(images.map { media ->
                 Painting(
                     Uri.parse(media.urlPath),

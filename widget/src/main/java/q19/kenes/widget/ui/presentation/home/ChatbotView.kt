@@ -6,8 +6,8 @@ import q19.kenes.widget.ui.presentation.platform.BaseView
 
 internal interface ChatbotView : BaseView {
     // UI actions
-    fun hideLoadingIndicator()
     fun showLoadingIndicator()
+    fun hideLoadingIndicator()
 
     // UI bind data
     fun showResponses(nestables: List<Nestable>)

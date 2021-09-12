@@ -9,8 +9,7 @@ import android.widget.TextView
 import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.appcompat.widget.AppCompatImageButton
-import coil.load
-import coil.transform.CircleCropTransformation
+import q19.kenes.widget.util.loadSmallImage
 import q19.kenes_widget.R
 
 internal class AudioDialogView @JvmOverloads constructor(
@@ -48,9 +47,7 @@ internal class AudioDialogView @JvmOverloads constructor(
 
     fun setAvatar(photoUrl: String?) {
         if (!photoUrl.isNullOrBlank()) {
-            avatarView.load(photoUrl) {
-                transformations(CircleCropTransformation())
-            }
+            avatarView.loadSmallImage(photoUrl)
         } else {
             avatarView.setImageDrawable(null)
         }

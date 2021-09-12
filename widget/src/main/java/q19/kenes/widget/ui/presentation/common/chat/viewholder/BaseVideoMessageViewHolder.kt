@@ -1,7 +1,6 @@
 package q19.kenes.widget.ui.presentation.common.chat.viewholder
 
 import android.view.View
-import coil.load
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.message.Message
@@ -9,6 +8,7 @@ import q19.kenes.widget.ui.components.KenesChatMessageTextView
 import q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import q19.kenes.widget.util.formatToDigitalClock
+import q19.kenes.widget.util.loadStandardImage
 import q19.kenes_widget.R
 
 internal abstract class BaseVideoMessageViewHolder constructor(
@@ -23,7 +23,7 @@ internal abstract class BaseVideoMessageViewHolder constructor(
     protected val timeView: KenesChatMessageTimeView? = view.findViewById(R.id.timeView)
 
     override fun bind(message: Message) {
-        imageView?.load(message.media?.urlPath)
+        imageView?.loadStandardImage(message.media?.urlPath)
 
         durationView?.text = message.media?.duration?.formatToDigitalClock()
 

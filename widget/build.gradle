@@ -49,7 +49,6 @@ android {
 
 ext {
     arbat_version = '1.3.5'
-    coil_version = '1.3.2'
     exoplayer_version = '2.15.0'
 }
 
@@ -104,9 +103,4 @@ dependencies {
 
     // HTTP client
     implementation 'com.loopj.android:android-async-http:1.4.11'
-
-    // Coil
-    implementation "io.coil-kt:coil:$coil_version"
-    implementation "io.coil-kt:coil-gif:$coil_version"
-    implementation "io.coil-kt:coil-video:$coil_version"
 }

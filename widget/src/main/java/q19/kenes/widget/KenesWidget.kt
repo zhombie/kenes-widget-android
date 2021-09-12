@@ -2,22 +2,23 @@ package q19.kenes.widget
 
 import android.content.Context
 import android.content.Intent
-import kz.q19.domain.model.language.Language
+import q19.kenes.widget.api.ImageLoader
+import q19.kenes.widget.api.ImageLoaderNullException
+import q19.kenes.widget.api.Language
+import q19.kenes.widget.core.Settings
 import q19.kenes.widget.ui.presentation.KenesWidgetActivity
 import java.io.Serializable
 
 class KenesWidget private constructor() {
 
     companion object {
-        val SUPPORTED_LOCALES = listOf(Language.RUSSIAN.locale, Language.KAZAKH.locale)
+        val SUPPORTED_LOCALES = listOf(
+            kz.q19.domain.model.language.Language.RUSSIAN.locale,
+            kz.q19.domain.model.language.Language.KAZAKH.locale
+        )
     }
 
-    class Builder {
-
-        enum class Language {
-            KAZAKH,
-            RUSSIAN
-        }
+    class Builder constructor(private val context: Context) {
 
         data class User constructor(
             val firstName: String? = null,
@@ -27,6 +28,7 @@ class KenesWidget private constructor() {
 
         private var hostname: String? = null
         private var language: Language? = null
+        private var imageLoader: ImageLoader? = null
         private var user: User? = null
 
         fun getHostname(): String? {
@@ -47,6 +49,11 @@ class KenesWidget private constructor() {
             return this
         }
 
+        fun setImageLoader(imageLoader: ImageLoader): Builder {
+            this.imageLoader = imageLoader
+            return this
+        }
+
         fun getUser(): User? {
             return user
         }
@@ -56,18 +63,22 @@ class KenesWidget private constructor() {
             return this
         }
 
-        fun build(context: Context): Intent {
-            val language = when (language) {
-                Language.KAZAKH -> kz.q19.domain.model.language.Language.KAZAKH
-                Language.RUSSIAN -> kz.q19.domain.model.language.Language.RUSSIAN
-                else -> null
-            }
+        fun build(): Intent {
+            Settings.clear()
+            Settings.setImageLoader(imageLoader ?: throw ImageLoaderNullException())
+
             return KenesWidgetActivity.newIntent(
-                context,
+                context = context,
                 hostname = requireNotNull(hostname) { "Declare hostname, without it widget won't work!" },
-                language = language,
+                languageKey = Language.map(language).key,
                 user = user
             )
+        }
+
+        fun launch(): Intent {
+            val intent = build()
+            context.startActivity(intent)
+            return intent
         }
     }
 

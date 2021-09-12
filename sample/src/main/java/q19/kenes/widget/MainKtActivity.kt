@@ -3,6 +3,7 @@ package q19.kenes.widget
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import q19.kenes.widget.api.Language
 
 class MainKtActivity : AppCompatActivity() {
 
@@ -23,11 +24,11 @@ class MainKtActivity : AppCompatActivity() {
          * EN -> To launch the widget, you need to send the hostname.
          * Example: https://kenes.vlx.kz
          */
-        val intent = KenesWidget.Builder()
+        KenesWidget.Builder(this)
             .setHostname(BuildConfig.HOSTNAME)
-            .setLanguage(KenesWidget.Builder.Language.RUSSIAN)
-            .build(this)
-        startActivity(intent)
+            .setLanguage(Language.RUSSIAN)
+            .setImageLoader(ConcatCoilImageLoader(this, BuildConfig.DEBUG))
+            .launch()
     }
 
 }

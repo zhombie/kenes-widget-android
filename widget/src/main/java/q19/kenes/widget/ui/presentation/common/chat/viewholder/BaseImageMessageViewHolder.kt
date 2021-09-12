@@ -1,12 +1,12 @@
 package q19.kenes.widget.ui.presentation.common.chat.viewholder
 
 import android.view.View
-import coil.load
 import com.google.android.material.imageview.ShapeableImageView
 import kz.q19.domain.model.message.Message
 import q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import q19.kenes.widget.ui.components.KenesTextView
 import q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
+import q19.kenes.widget.util.loadStandardImage
 import q19.kenes_widget.R
 
 internal abstract class BaseImageMessageViewHolder constructor(
@@ -20,9 +20,9 @@ internal abstract class BaseImageMessageViewHolder constructor(
 
     override fun bind(message: Message) {
         if (message.attachments.isNullOrEmpty()) {
-            imageView?.load(message.media?.urlPath)
+            imageView?.loadStandardImage(message.media?.urlPath)
         } else {
-            imageView?.load(message.attachments?.first()?.urlPath)
+            imageView?.loadStandardImage(message.attachments?.first()?.urlPath)
         }
 
         if (message.htmlText.isNullOrBlank()) {

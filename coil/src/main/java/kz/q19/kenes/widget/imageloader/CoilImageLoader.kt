@@ -1,4 +1,4 @@
-package q19.kenes.widget.ui.presentation
+package kz.q19.kenes.widget.imageloader
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,10 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import coil.ImageLoader
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
@@ -27,21 +23,18 @@ import coil.util.CoilUtils
 import coil.util.DebugLogger
 import kz.zhombie.museum.PaintingLoader
 import kz.zhombie.museum.component.CircularProgressDrawable
-import q19.kenes.widget.core.logging.Logger
-import q19.kenes_widget.BuildConfig
-import q19.kenes_widget.R
 
-internal class CoilImageLoader constructor(
+open class CoilImageLoader constructor(
     private val context: Context,
-    private val isGlobalInstance: Boolean = true
-) : PaintingLoader, LifecycleObserver {
+    private val isLoggingEnabled: Boolean
+) : PaintingLoader {
 
     companion object {
         private val TAG = CoilImageLoader::class.java.simpleName
     }
 
     private val imageLoader by lazy {
-        ImageLoader.Builder(context)
+        coil.ImageLoader.Builder(context)
             .allowHardware(true)
             .availableMemoryPercentage(0.25)
             .componentRegistry {
@@ -59,7 +52,7 @@ internal class CoilImageLoader constructor(
             }
             .crossfade(false)
             .diskCachePolicy(CachePolicy.ENABLED)
-            .logger(if (BuildConfig.DEBUG) DebugLogger() else null)
+            .logger(if (isLoggingEnabled) DebugLogger() else null)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .build()
     }
@@ -82,14 +75,8 @@ internal class CoilImageLoader constructor(
         it.centerRadius = 60F
         it.strokeCap = Paint.Cap.ROUND
         it.strokeWidth = 11F
-        it.setColorSchemeColors(ContextCompat.getColor(context, R.color.kenes_white))
+        it.setColorSchemeColors(ContextCompat.getColor(context, R.color.museum_white))
         it
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy() {
-        Logger.debug(TAG, "onDestroy()")
-        clearCache()
     }
 
     override fun loadSmallImage(context: Context, imageView: ImageView, uri: Uri) {
@@ -103,7 +90,7 @@ internal class CoilImageLoader constructor(
 //            .placeholder(R.drawable.museum_bg_black)
             .precision(Precision.AUTOMATIC)
             .scale(Scale.FIT)
-            .size(300, 300)
+            .size(350, 350)
             .target(imageView)
             .build()
             .hashMap(imageView)
@@ -156,43 +143,37 @@ internal class CoilImageLoader constructor(
             .hashMap(imageView)
     }
 
-    private fun ImageRequest.hashMap(imageView: ImageView) {
-        if (isGlobalInstance) {
-            imageLoader.enqueue(this)
-        } else {
-            if (hashMap == null) {
-                hashMap = hashMapOf()
-            }
-            if (hashMap?.isNotEmpty() == true) {
-                if ((hashMap?.size ?: 0) > 50) {
-                    hashMap?.remove(hashMap?.entries?.first()?.key)
-                }
-            }
-            hashMap?.set(imageView, imageLoader.enqueue(this))
+    protected fun ImageRequest.hashMap(imageView: ImageView) {
+        Logger.debug(TAG, "hashMap() -> imageView: $imageView")
+
+        if (hashMap == null) {
+            hashMap = hashMapOf()
         }
+        if (hashMap?.isNotEmpty() == true) {
+            if ((hashMap?.size ?: 0) > 50) {
+                hashMap?.remove(hashMap?.entries?.first()?.key)
+            }
+        }
+        hashMap?.set(imageView, imageLoader.enqueue(this))
     }
 
     override fun dispose(imageView: ImageView) {
         Logger.debug(TAG, "dispose() -> imageView: $imageView")
 
-        if (isGlobalInstance) {
+        if (hashMap == null) {
             imageView.setImageDrawable(null)
         } else {
-            if (hashMap == null) {
-                imageView.setImageDrawable(null)
-            } else {
-                if (hashMap?.get(imageView) != null && hashMap?.get(imageView)?.isDisposed == false) {
-                    hashMap?.get(imageView)?.dispose()
-                }
-
-                hashMap?.remove(imageView)
-
-                imageView.setImageDrawable(null)
+            if (hashMap?.get(imageView) != null && hashMap?.get(imageView)?.isDisposed == false) {
+                hashMap?.get(imageView)?.dispose()
             }
+
+            hashMap?.remove(imageView)
+
+            imageView.setImageDrawable(null)
         }
     }
 
-    fun clearCache() {
+    protected fun clearCache() {
         Logger.debug(TAG, "clearCache()")
 
         try {

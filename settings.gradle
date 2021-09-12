@@ -1,2 +1,2 @@
-include ':sample', ':widget'
-rootProject.name='Kenes Widget'
+rootProject.name='kenes widget'
+include ':sample', ':coil', ':widget'

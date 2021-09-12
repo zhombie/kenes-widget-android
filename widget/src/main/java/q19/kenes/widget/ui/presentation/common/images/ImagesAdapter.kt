@@ -5,9 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
 import com.google.android.material.imageview.ShapeableImageView
 import kz.q19.utils.view.inflate
+import q19.kenes.widget.util.loadStandardImage
 import q19.kenes_widget.R
 
 internal class ImagesAdapter constructor(
@@ -44,7 +44,7 @@ internal class ImagesAdapter constructor(
         private val imageView = view.findViewById<ShapeableImageView>(R.id.imageView)
 
         fun bind(image: Uri) {
-            imageView.load(image)
+            imageView.loadStandardImage(image)
 
             imageView.setOnClickListener { callback(imageView, image) }
         }
