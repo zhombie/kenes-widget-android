@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/kenes_white"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.presentation.deprecated.OldKenesWidgetActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <kz.q19.kenes.widget.ui.components.deprecated.HeaderView
+            android:id="@+id/headerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="5"
+            tools:listitem="@layout/kenes_cell_outgoing_message" />
+
+<!--        <q19.kenes.widget.ui.components.deprecated.CallTypeView-->
+<!--            android:id="@+id/operatorCallView"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:layout_weight="1"-->
+<!--            android:visibility="gone" />-->
+
+        <kz.q19.kenes.widget.ui.components.deprecated.InfoView
+            android:id="@+id/infoView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <kz.q19.kenes.widget.ui.components.deprecated.FeedbackView
+            android:id="@+id/feedbackView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <kz.q19.kenes.widget.ui.components.KenesProgressView
+            android:id="@+id/progressView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <!--        <q19.kenes.widget.ContactsView-->
+        <!--            android:id="@+id/contactsView"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="0dp"-->
+        <!--            android:layout_weight="1"-->
+        <!--            android:visibility="gone" />-->
+
+        <kz.q19.kenes.widget.ui.components.deprecated.ServicesView
+            android:id="@+id/servicesView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <kz.q19.kenes.widget.ui.components.deprecated.FormView
+            android:id="@+id/formView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <kz.q19.kenes.widget.ui.components.deprecated.DynamicFormView
+            android:id="@+id/dynamicFormView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone" />
+
+        <kz.q19.kenes.widget.ui.components.KenesMessageInputView
+            android:id="@+id/footerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <kz.q19.kenes.widget.ui.components.deprecated.KeyboardView
+            android:id="@+id/keyboardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <kz.q19.kenes.widget.ui.components.KenesBottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <kz.q19.kenes.widget.ui.components.deprecated.VideoDialogView
+        android:id="@+id/videoDialogView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <kz.q19.kenes.widget.ui.components.deprecated.AudioDialogView
+        android:id="@+id/audioDialogView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <kz.q19.kenes.widget.ui.components.deprecated.OperatorCallPendingView
+        android:id="@+id/operatorCallPendingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+</FrameLayout>

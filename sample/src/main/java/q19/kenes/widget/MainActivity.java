@@ -7,7 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
-import q19.kenes.widget.api.Language;
+import kz.q19.kenes.widget.KenesWidget;
+import kz.q19.kenes.widget.api.Language;
 
 class MainActivity extends AppCompatActivity {
 

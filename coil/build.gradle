@@ -16,6 +16,8 @@ android {
         versionName "1.0"
     }
 
+    resourcePrefix 'kenes_'
+
     buildTypes {
         release {
             minifyEnabled false

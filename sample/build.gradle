@@ -108,8 +108,8 @@ dependencies {
     // debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.7'
 
+    implementation project(':core')
     implementation project(':coil')
-    implementation project(':widget')
 }
 
 

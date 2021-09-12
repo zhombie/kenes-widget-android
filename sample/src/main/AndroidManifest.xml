@@ -29,7 +29,7 @@
         it has no modifications.
         -->
         <provider
-            android:name=".core.file.KenesWidgetFileProvider"
+            android:name="kz.q19.kenes.widget.core.file.KenesWidgetFileProvider"
             android:authorities="${applicationId}.provider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -52,7 +52,7 @@
         [EN] Required value for wigdet Activity as entry point.
         -->
         <activity
-            android:name=".ui.presentation.KenesWidgetActivity"
+            android:name="kz.q19.kenes.widget.ui.presentation.KenesWidgetActivity"
             android:windowSoftInputMode="stateHidden|adjustResize"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity" />

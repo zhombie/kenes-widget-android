@@ -7,9 +7,9 @@ import android.widget.ImageView
 import coil.request.ImageRequest
 import coil.size.Precision
 import coil.size.Scale
-import kz.q19.kenes.widget.imageloader.CoilImageLoader
+import kz.q19.kenes.widget.CoilImageLoader
+import kz.q19.kenes.widget.api.ImageLoader
 import kz.q19.kenes.widget.imageloader.R
-import q19.kenes.widget.api.ImageLoader
 
 class ConcatCoilImageLoader constructor(
     context: Context,
