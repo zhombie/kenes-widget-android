@@ -1,9 +1,8 @@
-package q19.kenes.widget
+package kz.q19.kenes.widget
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import kz.q19.kenes.widget.KenesWidget
 import kz.q19.kenes.widget.api.Language
 
 class MainKtActivity : AppCompatActivity() {

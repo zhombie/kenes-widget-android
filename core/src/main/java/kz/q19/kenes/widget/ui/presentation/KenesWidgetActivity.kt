@@ -160,14 +160,15 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 //    }
 
     override fun onDestroy() {
-        super.onDestroy()
+        Logger.debug(TAG, "onDestroy()")
 
         MuseumDialogFragment.clear()
 
-        Settings.getImageLoader().hashCode()
         Settings.clear()
 
         fragments.clear()
+
+        super.onDestroy()
 
         injection.destroy()
     }

@@ -80,9 +80,6 @@ internal class Injection private constructor(context: Context) {
     }
 
     fun destroy() {
-        socketRepository.removeAllListeners()
-        socketRepository.release()
-
         database.destroy()
 
         INSTANCE = null

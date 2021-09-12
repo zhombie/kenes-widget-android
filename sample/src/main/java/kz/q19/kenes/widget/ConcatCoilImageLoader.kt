@@ -1,4 +1,4 @@
-package q19.kenes.widget
+package kz.q19.kenes.widget
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,7 +7,6 @@ import android.widget.ImageView
 import coil.request.ImageRequest
 import coil.size.Precision
 import coil.size.Scale
-import kz.q19.kenes.widget.CoilImageLoader
 import kz.q19.kenes.widget.api.ImageLoader
 import kz.q19.kenes.widget.imageloader.R
 

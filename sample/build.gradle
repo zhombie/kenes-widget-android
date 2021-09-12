@@ -14,7 +14,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "q19.kenes.widget"
+        applicationId "kz.q19.kenes.widget"
 
         minSdkVersion 23
         targetSdkVersion 30

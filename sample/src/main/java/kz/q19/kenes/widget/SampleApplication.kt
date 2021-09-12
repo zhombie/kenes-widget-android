@@ -1,8 +1,7 @@
-package q19.kenes.widget
+package kz.q19.kenes.widget
 
 import android.app.Application
 import android.content.res.Configuration
-import kz.q19.kenes.widget.KenesWidget
 import kz.q19.kenes.widget.api.LocaleManager
 
 class SampleApplication : Application() {

@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:198361631544:android:11e197763e5a33e23ecfcd",
         "android_client_info": {
-          "package_name": "q19.kenes.widget"
+          "package_name": "kz.q19.kenes.widget"
         }
       },
       "oauth_client": [
@@ -39,7 +39,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:198361631544:android:2dd0ed601454cd993ecfcd",
         "android_client_info": {
-          "package_name": "q19.kenes.widget.dev"
+          "package_name": "kz.q19.kenes.widget.dev"
         }
       },
       "oauth_client": [
