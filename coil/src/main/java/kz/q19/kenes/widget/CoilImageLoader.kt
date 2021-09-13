@@ -7,13 +7,15 @@ import android.net.Uri
 import android.os.Build
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import coil.decode.GifDecoder
 import coil.decode.ImageDecoderDecoder
 import coil.decode.VideoFrameDecoder
 import coil.fetch.VideoFrameFileFetcher
 import coil.fetch.VideoFrameUriFetcher
 import coil.request.CachePolicy
-import coil.request.Disposable
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import coil.size.Precision
@@ -26,9 +28,9 @@ import kz.zhombie.museum.PaintingLoader
 import kz.zhombie.museum.component.CircularProgressDrawable
 
 open class CoilImageLoader constructor(
-    private val context: Context,
-    private val isLoggingEnabled: Boolean
-) : PaintingLoader {
+    context: Context,
+    isLoggingEnabled: Boolean
+) : PaintingLoader, LifecycleObserver {
 
     companion object {
         private val TAG = CoilImageLoader::class.java.simpleName
@@ -67,8 +69,6 @@ open class CoilImageLoader constructor(
         }
     }
 
-    private var hashMap: HashMap<ImageView, Disposable>? = null
-
     private val circularProgressDrawable by lazy {
         val it = CircularProgressDrawable(context)
         it.setStyle(CircularProgressDrawable.LARGE)
@@ -78,6 +78,12 @@ open class CoilImageLoader constructor(
         it.strokeWidth = 11F
         it.setColorSchemeColors(ContextCompat.getColor(context, R.color.museum_white))
         it
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy() {
+        Logger.debug(TAG, "onDestroy()")
+        clearCache()
     }
 
     override fun loadSmallImage(context: Context, imageView: ImageView, uri: Uri) {
@@ -91,10 +97,25 @@ open class CoilImageLoader constructor(
 //            .placeholder(R.drawable.museum_bg_black)
             .precision(Precision.AUTOMATIC)
             .scale(Scale.FIT)
-            .size(350, 350)
+            .size(300, 300)
             .target(imageView)
             .build()
-            .hashMap(imageView)
+            .enqueue()
+    }
+
+    protected fun loadSmallImage(context: Context, imageView: ImageView, bitmap: Bitmap) {
+        ImageRequest.Builder(context)
+            .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .crossfade(true)
+            .data(bitmap)
+            .error(R.drawable.museum_bg_black)
+//            .placeholder(R.drawable.museum_bg_black)
+            .precision(Precision.AUTOMATIC)
+            .scale(Scale.FIT)
+            .size(300, 300)
+            .target(imageView)
+            .build()
+            .enqueue()
     }
 
     override fun loadFullscreenImage(context: Context, imageView: ImageView, uri: Uri) {
@@ -141,40 +162,20 @@ open class CoilImageLoader constructor(
             )
             .target(imageView)
             .build()
-            .hashMap(imageView)
+            .enqueue()
     }
 
-    protected fun ImageRequest.hashMap(imageView: ImageView) {
-        Logger.debug(TAG, "hashMap() -> imageView: $imageView")
-
-        if (hashMap == null) {
-            hashMap = hashMapOf()
-        }
-        if (hashMap?.isNotEmpty() == true) {
-            if ((hashMap?.size ?: 0) > 50) {
-                hashMap?.remove(hashMap?.entries?.first()?.key)
-            }
-        }
-        hashMap?.set(imageView, imageLoader.enqueue(this))
+    protected fun ImageRequest.enqueue() {
+        imageLoader.enqueue(this)
     }
 
     override fun dispose(imageView: ImageView) {
         Logger.debug(TAG, "dispose() -> imageView: $imageView")
 
-        if (hashMap == null) {
-            imageView.setImageDrawable(null)
-        } else {
-            if (hashMap?.get(imageView) != null && hashMap?.get(imageView)?.isDisposed == false) {
-                hashMap?.get(imageView)?.dispose()
-            }
-
-            hashMap?.remove(imageView)
-
-            imageView.setImageDrawable(null)
-        }
+        imageView.setImageDrawable(null)
     }
 
-    protected fun clearCache() {
+    fun clearCache() {
         Logger.debug(TAG, "clearCache()")
 
         try {
@@ -186,10 +187,6 @@ open class CoilImageLoader constructor(
         circularProgressDrawable.stop()
 
         imageLoader.memoryCache.clear()
-
-        hashMap?.forEach { dispose(it.key) }
-        hashMap?.clear()
-        hashMap = null
     }
 
 }

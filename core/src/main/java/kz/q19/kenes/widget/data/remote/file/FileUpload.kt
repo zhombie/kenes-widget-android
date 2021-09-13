@@ -11,7 +11,8 @@ import org.json.JSONObject
 internal fun AsyncHttpClient.uploadFile(
     url: String?,
     params: RequestParams,
-    onSuccess: (path: String, hash: String) -> Unit,
+    onSuccess: (hash: String, title: String?, urlPath: String) -> Unit,
+    onProgress: (bytesWritten: Long, totalSize: Long) -> Unit = { _, _ -> },
     onFailure: (throwable: Throwable?) -> Unit = {}
 ): RequestHandle? {
     if (url.isNullOrBlank()) {
@@ -28,13 +29,18 @@ internal fun AsyncHttpClient.uploadFile(
             super.onSuccess(statusCode, headers, response)
 
             val hash = response?.optString("hash")
-            val path = response?.optString("url")
+            val title = response?.optString("title")
+            val urlPath = response?.optString("url")
 
-            if (hash.isNullOrBlank() || path.isNullOrBlank()) {
+            if (hash.isNullOrBlank() || urlPath.isNullOrBlank()) {
                 onFailure(NullPointerException())
             } else {
-                onSuccess(path, hash)
+                onSuccess(hash, title, urlPath)
             }
+        }
+
+        override fun onProgress(bytesWritten: Long, totalSize: Long) {
+            onProgress(bytesWritten, totalSize)
         }
 
         override fun onFailure(

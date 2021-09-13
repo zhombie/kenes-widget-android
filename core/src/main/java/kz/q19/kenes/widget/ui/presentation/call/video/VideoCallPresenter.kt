@@ -5,9 +5,9 @@ import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.call.CallType
+import kz.q19.domain.model.file.File
 import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
-import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.CallAction
 import kz.q19.domain.model.message.Message
 import kz.q19.domain.model.message.QRTCAction
@@ -20,7 +20,7 @@ import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
 import kz.q19.kenes.widget.data.remote.file.uploadFile
 import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
-import kz.q19.kenes.widget.domain.model.media.Image
+import kz.q19.kenes.widget.domain.model.media.*
 import kz.q19.kenes.widget.ui.presentation.call.CallInteractor
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
 import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
@@ -31,6 +31,7 @@ import kz.q19.socket.listener.WebRTCListener
 import kz.q19.socket.model.CallInitialization
 import kz.q19.socket.model.Category
 import kz.q19.socket.repository.SocketRepository
+import kz.q19.utils.enums.findEnumBy
 import kz.q19.webrtc.Options
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
@@ -262,26 +263,63 @@ internal class VideoCallPresenter constructor(
         }
     }
 
-    fun onMediaSelected(image: Image) {
-        val file = image.duplicateFile?.uri?.toFile()
+    fun onMediaSelected(content: Content): Boolean {
+        val file = content.duplicateFile?.uri?.toFile()
+
+        if (file == null) {
+            // TODO: Show file is null & cannot be sent
+            return false
+        }
+
+        val type = when (content) {
+            is Image -> "image"
+            is Video -> "video"
+            is Audio -> "audio"
+            is Document -> "document"
+            else -> return false
+        }
 
         val params = RequestParams().apply {
-            put("type", "image")
+            put("type", type)
             put("file", file)
         }
 
         asyncHttpClient?.uploadFile(
             URLManager.buildUrl("/upload"),
             params,
-            onSuccess = { path, hash ->
-                Logger.debug(TAG, "/upload + $path, $hash")
+            onSuccess = { hash, title, urlPath ->
+                Logger.debug(TAG, "/upload: $hash, $title, $urlPath")
 
-                socketRepository.sendUserMediaMessage(Media.Type.IMAGE, hash)
+                socketRepository.sendUserMediaMessage(kz.q19.domain.model.media.Media.Type.IMAGE, hash)
+
+                getView().showNewChatMessage(
+                    Message.Builder()
+                        .setType(Message.Type.OUTGOING)
+                        .setMedia(
+                            kz.q19.domain.model.media.Media(
+                                id = Content.generateId().toString(),
+                                type = kz.q19.domain.model.media.Media.Type.IMAGE,
+                                title = title,
+                                extension = findEnumBy { it.value == file.extension },
+                                width = if (content is Media.Visual) content.resolution?.width else null,
+                                height = if (content is Media.Visual) content.resolution?.height else null,
+                                size = file.length(),
+                                urlPath = URLManager.buildStaticUrl(urlPath),
+                                file = File(file)
+                            )
+                        )
+                        .build()
+                )
+            },
+            onProgress = { bytesWritten, totalSize ->
+                Logger.debug(TAG, "bytesWritten: $bytesWritten, totalSize: $totalSize")
             },
             onFailure = {
                 it?.printStackTrace()
             }
         )
+
+        return true
     }
 
     fun onSendTextMessage(message: String?) {

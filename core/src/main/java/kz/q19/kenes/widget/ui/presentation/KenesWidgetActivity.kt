@@ -20,6 +20,7 @@ import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.Settings
 import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.logging.Logger
+import kz.q19.kenes.widget.domain.model.media.Content
 import kz.q19.kenes.widget.ui.components.KenesBottomNavigationView
 import kz.q19.kenes.widget.ui.components.KenesToolbar
 import kz.q19.kenes.widget.ui.presentation.call.CallsFragment
@@ -227,6 +228,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      */
 
     override fun showBotInfo(bot: Configs.Bot) {
+        Logger.debug(TAG, "showBotInfo() -> ${bot.image}")
         toolbar.showImage(bot.image)
         toolbar.setTitle(bot.title)
         toolbar.setSubtitle("Smart Bot")
@@ -354,39 +356,31 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
      */
 
     override fun onViewReady() {
-        runOnVideoCallScreen {
-            onViewReady()
-        }
+        runOnVideoCallScreen { onViewReady() }
     }
 
     override fun onNavigationBackPressed() {
-        runOnVideoCallScreen {
-            onNavigationBackPressed()
-        }
+        runOnVideoCallScreen { onNavigationBackPressed() }
     }
 
     override fun onShowVideoCallScreen() {
-        runOnVideoCallScreen {
-            onShowVideoCallScreen()
-        }
+        runOnVideoCallScreen { onShowVideoCallScreen() }
     }
 
     override fun onSelectMedia() {
-        runOnVideoCallScreen {
-            onSelectMedia()
-        }
+        runOnVideoCallScreen { onSelectMedia() }
+    }
+
+    override fun onMediaSelected(content: Content) {
+        runOnVideoCallScreen { onMediaSelected(content) }
     }
 
     override fun onSendTextMessage(message: String?) {
-        runOnVideoCallScreen {
-            onSendTextMessage(message)
-        }
+        runOnVideoCallScreen { onSendTextMessage(message) }
     }
 
     override fun onHangupCall() {
-        runOnVideoCallScreen {
-            onHangupCall()
-        }
+        runOnVideoCallScreen { onHangupCall() }
     }
 
     private fun runOnVideoCallScreen(block: VideoCallFragment.() -> Unit) =

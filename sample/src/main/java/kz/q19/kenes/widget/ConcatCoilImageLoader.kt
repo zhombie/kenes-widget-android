@@ -12,7 +12,7 @@ import kz.q19.kenes.widget.imageloader.R
 
 class ConcatCoilImageLoader constructor(
     context: Context,
-    isLoggingEnabled: Boolean
+    isLoggingEnabled: Boolean = false
 ) : CoilImageLoader(context, isLoggingEnabled), ImageLoader {
 
     override fun loadStandardImage(context: Context, imageView: ImageView, uri: Uri) {
@@ -26,7 +26,7 @@ class ConcatCoilImageLoader constructor(
             .size(512, 512)
             .target(imageView)
             .build()
-            .hashMap(imageView)
+            .enqueue()
     }
 
     override fun cleanup() {

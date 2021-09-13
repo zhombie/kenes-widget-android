@@ -7,11 +7,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.media.Media
-import kz.q19.utils.view.inflate
-import kz.zhombie.museum.ViewHolderDelegate
+import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.ui.components.KenesSquareImageView
 import kz.q19.kenes.widget.util.loadSmallImage
-import kz.q19.kenes.widget.R
+import kz.q19.utils.view.inflate
+import kz.zhombie.museum.ViewHolderDelegate
 
 internal class AlbumImageMessageAdapter constructor(
     var callback: Callback? = null
@@ -123,6 +123,7 @@ internal class AlbumImageMessageAdapter constructor(
     }
 
     interface Callback {
+        fun onImageClicked(imageView: ImageView, image: Media)
         fun onImagesClicked(images: List<Media>, imagePosition: Int)
         fun onShowAllImagesClicked(images: List<Media>, imagePosition: Int)
     }

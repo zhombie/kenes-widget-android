@@ -5,14 +5,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kz.q19.utils.android.dp2Px
-import kz.zhombie.museum.MuseumDialogFragment
-import kz.zhombie.museum.model.Painting
+import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.components.KenesToolbar
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import kz.q19.kenes.widget.ui.presentation.platform.BaseFullscreenDialogFragment
-import kz.q19.kenes.widget.R
+import kz.q19.utils.android.dp2Px
+import kz.zhombie.museum.MuseumDialogFragment
+import kz.zhombie.museum.model.Painting
 
 internal class ImagesFragment : BaseFullscreenDialogFragment<ImagesPresenter>(R.layout.kenes_fragment_images, true) {
 

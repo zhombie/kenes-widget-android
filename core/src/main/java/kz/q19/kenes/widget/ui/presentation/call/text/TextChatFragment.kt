@@ -1,27 +1,45 @@
 package kz.q19.kenes.widget.ui.presentation.call.text
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.OpenableColumns
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.EdgeEffect
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.net.toFile
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.otaliastudios.transcoder.Transcoder
+import com.otaliastudios.transcoder.resample.AudioResampler
+import com.otaliastudios.transcoder.resize.FractionResizer
+import com.otaliastudios.transcoder.strategy.DefaultVideoStrategy
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.api.ImageLoader
 import kz.q19.kenes.widget.core.Settings
 import kz.q19.kenes.widget.core.logging.Logger
+import kz.q19.kenes.widget.domain.model.media.Content
+import kz.q19.kenes.widget.domain.model.media.Image
+import kz.q19.kenes.widget.domain.model.media.Video
 import kz.q19.kenes.widget.domain.model.sourceUri
 import kz.q19.kenes.widget.ui.components.KenesMessageInputView
 import kz.q19.kenes.widget.ui.components.KenesToolbar
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
+import kz.q19.kenes.widget.ui.presentation.common.contract.GetImage
+import kz.q19.kenes.widget.ui.presentation.common.contract.GetVideo
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
+import kz.q19.kenes.widget.util.ImageCompressor
+import kz.q19.kenes.widget.util.bindAutoClearedValue
 import kz.q19.utils.android.dp2Px
 import kz.zhombie.cinema.CinemaDialogFragment
 import kz.zhombie.cinema.model.Movie
@@ -30,6 +48,7 @@ import kz.zhombie.museum.model.Painting
 import kz.zhombie.radio.Radio
 import kz.zhombie.radio.getDurationOrZeroIfUnset
 import kz.zhombie.radio.getPositionByProgress
+import java.io.File
 import kotlin.math.roundToInt
 
 internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes_fragment_text_chat),
@@ -63,6 +82,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         }
     }
 
+    private var imageLoader by bindAutoClearedValue<ImageLoader>()
+
     private var radio: Radio? = null
 
     // Activity + Fragment communication
@@ -70,10 +91,16 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     interface Listener {
         fun onViewReady()
+
         fun onNavigationBackPressed()
+
         fun onShowVideoCallScreen()
+
         fun onSelectMedia()
+        fun onMediaSelected(content: Content)
+
         fun onSendTextMessage(message: String?)
+
         fun onHangupCall()
     }
 
@@ -87,6 +114,8 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        imageLoader = Settings.getImageLoader()
 
         presenter.attachView(this)
     }
@@ -117,10 +146,10 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
-
         radio?.release()
         radio = null
+
+        super.onDestroyView()
 
         chatMessagesAdapter?.unregisterAdapterDataObserver(chatMessagesAdapterDataObserver)
         chatMessagesAdapter?.callback = null
@@ -237,6 +266,14 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         presenter.onNewChatMessage(message)
     }
 
+    fun onSelectImage() = runOnUiThread {
+        getImage.launch(Any())
+    }
+
+    fun onSelectVideo() = runOnUiThread {
+        getVideo.launch(Any())
+    }
+
     /**
      * [ChatMessagesAdapter.Callback] implementation
      */
@@ -247,7 +284,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     override fun onImageClicked(imageView: ImageView, media: Media) {
         MuseumDialogFragment.Builder()
-            .setPaintingLoader(Settings.getImageLoader())
+            .setPaintingLoader(imageLoader ?: return)
             .setPainting(Painting(Uri.parse(media.urlPath), Painting.Info(media.title)))
             .setImageView(imageView)
             .setFooterViewEnabled(true)
@@ -260,7 +297,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         imagePosition: Int
     ) {
         MuseumDialogFragment.Builder()
-            .setPaintingLoader(Settings.getImageLoader())
+            .setPaintingLoader(imageLoader ?: return)
             .setPaintings(images.map { media ->
                 Painting(
                     Uri.parse(media.urlPath),
@@ -268,7 +305,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
                 )
             })
             .setStartPosition(imagePosition)
-            .setFooterViewEnabled(true)
+            .setFooterViewEnabled(false)
             .showSafely(childFragmentManager)
     }
 
@@ -276,7 +313,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         CinemaDialogFragment.Builder()
             .setMovie(Movie(Uri.parse(media.urlPath), Movie.Info(media.title)))
             .setScreenView(imageView)
-            .setFooterViewEnabled(true)
+            .setFooterViewEnabled(false)
             .showSafely(childFragmentManager)
     }
 
@@ -380,6 +417,113 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
     override fun clearMessageInput() = runOnUiThread {
         messageInputView?.clearInputViewText()
+    }
+
+    private val getImage = registerForActivityResult(GetImage()) {
+        Logger.debug(TAG, "image: $it")
+
+        val uri = it ?: return@registerForActivityResult
+
+        val projection = arrayOf(
+            OpenableColumns.DISPLAY_NAME,
+            OpenableColumns.SIZE
+        )
+
+        context?.contentResolver
+            ?.query(uri, projection, null, null, null)
+            ?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val displayName =
+                        cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+
+                    val mimeType = requireContext().contentResolver?.getType(uri)
+
+                    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+
+                    val compressed = ImageCompressor(requireContext())
+                        .compress(
+                            imageUri = uri,
+                            compressFormat = Bitmap.CompressFormat.JPEG,
+                            maxWidth = 1280F,
+                            maxHeight = 1280F,
+                            useMaxScale = true,
+                            quality = 75,
+                            minWidth = 150F,
+                            minHeight = 150F
+                        )
+
+                    val image = if (compressed == null) {
+                        Image(
+                            uri = uri,
+                            displayName = displayName
+                        )
+                    } else {
+                        val file = compressed.toFile()
+                        Image(
+                            uri = uri,
+                            displayName = displayName,
+                            title = file.name,
+                            duplicateFile = Content.DuplicateFile(
+                                mimeType = mimeType,
+                                extension = extension,
+                                uri = compressed
+                            ),
+                            history = Content.History(modifiedAt = file.lastModified())
+                        )
+                    }
+
+                    listener?.onMediaSelected(image)
+                }
+            }
+    }
+
+    private val getVideo = registerForActivityResult(GetVideo()) {
+        Logger.debug(TAG, "video: $it")
+
+        val uri = it ?: return@registerForActivityResult
+
+        val projection = arrayOf(
+            OpenableColumns.DISPLAY_NAME,
+            OpenableColumns.SIZE
+        )
+
+        context?.contentResolver
+            ?.query(uri, projection, null, null, null)
+            ?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val displayName =
+                        cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+
+                    val mimeType = requireContext().contentResolver?.getType(uri)
+
+                    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+
+                    val strategy = DefaultVideoStrategy.Builder()
+                        .addResizer(FractionResizer(0.5F))
+                        .frameRate(24)
+                        .build()
+
+                    val filename = requireContext().packageName + "_" + System.currentTimeMillis() + ".mp4"
+                    val directory = requireContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+                    val file = File(directory, filename)
+
+                    val transcoder = Transcoder.into(file.absolutePath)
+                        .addDataSource(requireContext(), uri)
+                        .setVideoTrackStrategy(strategy)
+                        .setAudioResampler(AudioResampler.DOWNSAMPLE)
+                        .build()
+
+                    val video = Video(
+                        uri = uri,
+                        displayName = displayName,
+                        duplicateFile = Content.DuplicateFile(
+                            mimeType = mimeType,
+                            extension = extension,
+                            uri = file.toUri()
+                        )
+                    )
+                }
+            }
     }
 
 }

@@ -1,9 +1,10 @@
 package kz.q19.kenes.widget.ui.presentation.common.chat.viewholder
 
 import android.view.View
+import android.widget.ImageView
 import kz.q19.domain.model.media.Media
-import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 
 internal class IncomingImageAlbumMessageViewHolder constructor(
     view: View,
@@ -18,6 +19,10 @@ internal class IncomingImageAlbumMessageViewHolder constructor(
 
     init {
         setAlbumImageMessageCallback(this)
+    }
+
+    override fun onImageClicked(imageView: ImageView, image: Media) {
+        callback?.onImageClicked(imageView, image)
     }
 
     override fun onImagesClicked(images: List<Media>, imagePosition: Int) {

@@ -27,6 +27,7 @@ import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.api.ImageLoader
 import kz.q19.kenes.widget.core.Settings
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.domain.model.sourceUri
@@ -39,6 +40,7 @@ import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesHeaderAdapter
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import kz.q19.kenes.widget.util.AlertDialogBuilder
+import kz.q19.kenes.widget.util.bindAutoClearedValue
 import kz.q19.kenes.widget.util.hideKeyboardCompat
 import kz.q19.utils.android.clipboardManager
 import kz.q19.utils.android.dp2Px
@@ -98,6 +100,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
     private var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>? = null
     private var bottomSheetBehaviorCallback: BottomSheetBehavior.BottomSheetCallback? = null
 
+    private var imageLoader by bindAutoClearedValue<ImageLoader>()
+
     private var radio: Radio? = null
 
     // onBackPressed() dispatcher for Fragment
@@ -121,6 +125,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        imageLoader = Settings.getImageLoader()
 
         presenter.attachView(this)
     }
@@ -177,10 +183,10 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
-
         radio?.release()
         radio = null
+
+        super.onDestroyView()
 
         bottomSheetBehaviorCallback?.let { bottomSheetBehavior?.removeBottomSheetCallback(it) }
         bottomSheetBehaviorCallback = null
@@ -367,10 +373,10 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
 
     override fun onImageClicked(imageView: ImageView, media: Media) {
         MuseumDialogFragment.Builder()
-            .setPaintingLoader(Settings.getImageLoader())
+            .setPaintingLoader(imageLoader ?: return)
             .setPainting(Painting(Uri.parse(media.urlPath), Painting.Info(media.title)))
             .setImageView(imageView)
-            .setFooterViewEnabled(true)
+            .setFooterViewEnabled(false)
             .showSafely(childFragmentManager)
     }
 
@@ -380,7 +386,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
         imagePosition: Int
     ) {
         MuseumDialogFragment.Builder()
-            .setPaintingLoader(Settings.getImageLoader())
+            .setPaintingLoader(imageLoader ?: return)
             .setPaintings(images.map { media ->
                 Painting(
                     Uri.parse(media.urlPath),
@@ -388,7 +394,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
                 )
             })
             .setStartPosition(imagePosition)
-            .setFooterViewEnabled(true)
+            .setFooterViewEnabled(false)
             .showSafely(childFragmentManager)
     }
 
@@ -396,7 +402,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
         CinemaDialogFragment.Builder()
             .setMovie(Movie(Uri.parse(media.urlPath), Movie.Info(media.title)))
             .setScreenView(imageView)
-            .setFooterViewEnabled(true)
+            .setFooterViewEnabled(false)
             .showSafely(childFragmentManager)
     }
 

@@ -1,47 +1,31 @@
 package kz.q19.kenes.widget.ui.presentation.call.video
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Environment
-import android.provider.OpenableColumns
 import android.view.View
 import android.view.ViewPropertyAnimator
-import android.webkit.MimeTypeMap
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
-import androidx.core.net.toFile
-import androidx.core.net.toUri
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.commit
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
-import com.otaliastudios.transcoder.Transcoder
-import com.otaliastudios.transcoder.resample.AudioResampler
-import com.otaliastudios.transcoder.resize.FractionResizer
-import com.otaliastudios.transcoder.strategy.DefaultVideoStrategy
 import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.domain.model.media.Content
-import kz.q19.kenes.widget.domain.model.media.Image
-import kz.q19.kenes.widget.domain.model.media.Video
 import kz.q19.kenes.widget.ui.components.KenesFloatingLayout
 import kz.q19.kenes.widget.ui.components.KenesToolbar
 import kz.q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
-import kz.q19.kenes.widget.ui.presentation.common.contract.GetImage
-import kz.q19.kenes.widget.ui.presentation.common.contract.GetVideo
 import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
 import kz.q19.kenes.widget.util.AlertDialogBuilder
-import kz.q19.kenes.widget.util.ImageCompressor
 import kz.q19.kenes.widget.util.hideKeyboardCompat
 import kz.q19.utils.android.dp2Px
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
-import java.io.File
 import kotlin.math.roundToInt
 
 internal class VideoCallFragment :
@@ -84,114 +68,6 @@ internal class VideoCallFragment :
 
     // onBackPressed() dispatcher for Fragment
     private var onBackPressedCallback: OnBackPressedCallback? = null
-
-    private val getImage = registerForActivityResult(GetImage()) {
-        Logger.debug(TAG, "image: $it")
-
-        val uri = it ?: return@registerForActivityResult
-
-        val projection = arrayOf(
-            OpenableColumns.DISPLAY_NAME,
-            OpenableColumns.SIZE
-        )
-
-        context?.contentResolver
-            ?.query(uri, projection, null, null, null)
-            ?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val displayName =
-                        cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-
-                    val mimeType = requireContext().contentResolver?.getType(uri)
-
-                    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-
-                    val compressed = ImageCompressor(requireContext())
-                        .compress(
-                            imageUri = uri,
-                            compressFormat = Bitmap.CompressFormat.JPEG,
-                            maxWidth = 1280F,
-                            maxHeight = 1280F,
-                            useMaxScale = true,
-                            quality = 75,
-                            minWidth = 150F,
-                            minHeight = 150F
-                        )
-
-                    val image = if (compressed == null) {
-                        Image(
-                            uri = uri,
-                            displayName = displayName
-                        )
-                    } else {
-                        val file = compressed.toFile()
-                        Image(
-                            uri = uri,
-                            displayName = displayName,
-                            title = file.name,
-                            duplicateFile = Content.DuplicateFile(
-                                mimeType = mimeType,
-                                extension = extension,
-                                uri = compressed
-                            ),
-                            history = Content.History(modifiedAt = file.lastModified())
-                        )
-                    }
-
-                    presenter.onMediaSelected(image)
-                }
-            }
-    }
-
-    private val getVideo = registerForActivityResult(GetVideo()) {
-        Logger.debug(TAG, "video: $it")
-
-        val uri = it ?: return@registerForActivityResult
-
-        val projection = arrayOf(
-            OpenableColumns.DISPLAY_NAME,
-            OpenableColumns.SIZE
-        )
-
-        context?.contentResolver
-            ?.query(uri, projection, null, null, null)
-            ?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val displayName =
-                        cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-
-                    val mimeType = requireContext().contentResolver?.getType(uri)
-
-                    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-
-                    val strategy = DefaultVideoStrategy.Builder()
-                        .addResizer(FractionResizer(0.5F))
-                        .frameRate(24)
-                        .build()
-
-                    val filename = requireContext().packageName + "_" + System.currentTimeMillis() + ".mp4"
-                    val directory = requireContext().getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-                    val file = File(directory, filename)
-
-                    Transcoder.into(file.absolutePath)
-                        .addDataSource(requireContext(), uri)
-                        .setVideoTrackStrategy(strategy)
-                        .setAudioResampler(AudioResampler.DOWNSAMPLE)
-//                        .setListener(this)
-                        .transcode()
-
-                    val video = Video(
-                        uri = uri,
-                        displayName = displayName,
-                        duplicateFile = Content.DuplicateFile(
-                            mimeType = mimeType,
-                            extension = extension,
-                            uri = file.toUri()
-                        )
-                    )
-                }
-            }
-    }
 
     // Activity + Fragment communication
     private var listener: Listener? = null
@@ -406,6 +282,10 @@ internal class VideoCallFragment :
 
     override fun onSelectMedia() {
         presenter.onSelectMedia()
+    }
+
+    override fun onMediaSelected(content: Content) {
+        presenter.onMediaSelected(content)
     }
 
     override fun onSendTextMessage(message: String?) {
@@ -676,8 +556,12 @@ internal class VideoCallFragment :
                 dialog.dismiss()
 
                 when (which) {
-                    0 -> getImage.launch(Any())
-                    1 -> getVideo.launch(Any())
+                    0 -> runOnTextChatScreen {
+                        onSelectImage()
+                    }
+                    1 -> runOnTextChatScreen {
+                        onSelectVideo()
+                    }
                 }
             }
             .setNegativeButton(R.string.file) { dialog, _ ->
