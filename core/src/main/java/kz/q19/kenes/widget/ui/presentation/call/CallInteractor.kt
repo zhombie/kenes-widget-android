@@ -30,6 +30,11 @@ internal class CallInteractor {
     var callState: CallState = CallState.IDLE
         set(value) {
             field = value
+
+            if (field is CallState.IDLE || field is CallState.Pending) {
+                callAgent = null
+            }
+
             listener?.onNewCallState(field)
         }
 
@@ -39,18 +44,28 @@ internal class CallInteractor {
     var isRemoteAudioEnabled: Boolean = false
     var isRemoteVideoEnabled: Boolean = false
 
+    var callAgent: CallAgent? = null
+
     var listener: CallStateListener? = null
 
     sealed class CallState {
         object IDLE : CallState()
+
         object Pending : CallState()
+
         object Live : CallState()
+
         sealed class Disconnected : CallState() {
             object User : Disconnected()
             object CallAgent : Disconnected()
             object Timeout : Disconnected()
         }
     }
+
+    data class CallAgent constructor(
+        val fullName: String,
+        val photoUrl: String?
+    )
 
     interface CallStateListener {
         fun onNewBottomSheetState(state: BottomSheetState)

@@ -45,7 +45,7 @@ internal class KenesToolbar @JvmOverloads constructor(
     init {
         gravity = Gravity.CENTER_VERTICAL
         orientation = HORIZONTAL
-        setPadding(10F.dp2Px().roundToInt(), 0, 10F.dp2Px().roundToInt(), 0)
+        setPadding(8F.dp2Px().roundToInt(), 0, 8F.dp2Px().roundToInt(), 0)
 
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesToolbar)
 

@@ -22,8 +22,10 @@ import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
 import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
 import kz.q19.kenes.widget.util.AlertDialogBuilder
 import kz.q19.kenes.widget.util.hideKeyboardCompat
+import kz.q19.utils.android.dp2Px
 import kz.q19.webrtc.PeerConnectionClient
 import kz.q19.webrtc.core.ui.SurfaceViewRenderer
+import kotlin.math.roundToInt
 
 internal class VideoCallFragment :
     BaseFragment<VideoCallPresenter>(R.layout.kenes_fragment_video_call),
@@ -293,21 +295,26 @@ internal class VideoCallFragment :
      * [VideoCallView] implementation
      */
 
-    override fun showCallAgentInfo(fullName: String, photoUrl: String?) {
-        Logger.debug(TAG, "showCallAgentInfo() -> $fullName, $photoUrl")
+    override fun showCallAgentInfo(title: String, subtitle: String, photoUrl: String?) {
+        Logger.debug(TAG, "showCallAgentInfo() -> $title, $subtitle, $photoUrl")
 
         runOnUiThread {
-            toolbar?.setImageContentPadding(0)
-            toolbar?.showImage(photoUrl)
+            if (photoUrl.isNullOrBlank()) {
+                toolbar?.setImageContentPadding(5F.dp2Px().roundToInt())
+                toolbar?.showImage(R.drawable.kenes_ic_user)
+            } else {
+                toolbar?.setImageContentPadding(0)
+                toolbar?.showImage(photoUrl)
+            }
 
-            toolbar?.setTitle(fullName)
-            toolbar?.setSubtitle("Оператор")
+            toolbar?.setTitle(title)
+            toolbar?.setSubtitle(subtitle)
 
             toolbar?.reveal()
         }
 
         runOnTextChatScreen {
-            showCallAgentInfo(fullName, photoUrl)
+            showCallAgentInfo(title, subtitle, photoUrl)
         }
     }
 

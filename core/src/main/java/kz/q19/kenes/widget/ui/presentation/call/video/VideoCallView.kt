@@ -4,7 +4,7 @@ import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.ui.presentation.platform.BaseView
 
 internal interface VideoCallView : BaseView {
-    fun showCallAgentInfo(fullName: String, photoUrl: String?)
+    fun showCallAgentInfo(title: String, subtitle: String, photoUrl: String?)
     fun showNewChatMessage(message: Message)
 
     fun showFloatingVideostreamView()

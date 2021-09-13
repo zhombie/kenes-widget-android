@@ -135,11 +135,6 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         toolbar?.setLeftButtonOnClickListener {
             listener?.onNavigationBackPressed()
         }
-
-        toolbar?.showImage(R.drawable.kenes_ic_user)
-        toolbar?.setTitle("Имя оператора")
-        toolbar?.setSubtitle("Ожидание...")
-        toolbar?.reveal()
     }
 
     private fun setupVideoCallButton() {
@@ -198,12 +193,17 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         }
     }
 
-    fun showCallAgentInfo(fullName: String, photoUrl: String?) = runOnUiThread {
-        toolbar?.setImageContentPadding(0)
-        toolbar?.showImage(photoUrl)
+    fun showCallAgentInfo(title: String, subtitle: String, photoUrl: String?) = runOnUiThread {
+        if (photoUrl.isNullOrBlank()) {
+            toolbar?.setImageContentPadding(5F.dp2Px().roundToInt())
+            toolbar?.showImage(R.drawable.kenes_ic_user)
+        } else {
+            toolbar?.setImageContentPadding(0)
+            toolbar?.showImage(photoUrl)
+        }
 
-        toolbar?.setTitle(fullName)
-        toolbar?.setSubtitle("Оператор")
+        toolbar?.setTitle(title)
+        toolbar?.setSubtitle(subtitle)
 
         toolbar?.reveal()
     }

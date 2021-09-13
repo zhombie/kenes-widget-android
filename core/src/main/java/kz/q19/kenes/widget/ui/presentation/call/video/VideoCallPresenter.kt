@@ -144,6 +144,8 @@ internal class VideoCallPresenter constructor(
     fun onViewReady() {
         Logger.debug(TAG, "onViewReady()")
 
+        getView().showCallAgentInfo("Имя оператора", "Ожидание...", null)
+
         Logger.debug(TAG, "setupLocalAudio()")
         if (interactor.isLocalAudioEnabled) {
             getView().setLocalAudioEnabled()
@@ -219,7 +221,7 @@ internal class VideoCallPresenter constructor(
 
         interactor.bottomSheetState = state
 
-        if (interactor.callState == CallInteractor.CallState.Live) {
+        if (interactor.callState is CallInteractor.CallState.Live) {
             when (interactor.bottomSheetState) {
                 BottomSheetState.DRAGGING, BottomSheetState.SETTLING -> {
                     setLocalVideostreamPaused()
@@ -238,7 +240,7 @@ internal class VideoCallPresenter constructor(
     }
 
     fun onSelectAttachment() {
-        if (interactor.callState == CallInteractor.CallState.Live) {
+        if (interactor.callState is CallInteractor.CallState.Live) {
             getView().showAttachmentSelection()
         } else {
             getView().showOperationAvailableOnlyDuringLiveCallMessage()
@@ -246,7 +248,7 @@ internal class VideoCallPresenter constructor(
     }
 
     fun onSendTextMessage(message: String?) {
-        if (interactor.callState == CallInteractor.CallState.Live) {
+        if (interactor.callState is CallInteractor.CallState.Live) {
             if (message.isNullOrBlank()) {
                 // Ignored
             } else {
@@ -282,11 +284,11 @@ internal class VideoCallPresenter constructor(
         Logger.debug(TAG, "onHangupCall() -> ${interactor.callState}")
 
         return when (interactor.callState) {
-            CallInteractor.CallState.Pending -> {
+            is CallInteractor.CallState.Pending -> {
                 getView().showCancelPendingConfirmationMessage()
                 false
             }
-            CallInteractor.CallState.Live -> {
+            is CallInteractor.CallState.Live -> {
                 getView().showCancelLiveCallConfirmationMessage()
                 false
             }
@@ -300,6 +302,8 @@ internal class VideoCallPresenter constructor(
     fun onCancelPendingCall() {
         interactor.callState = CallInteractor.CallState.Disconnected.User
 
+        getView().showCallAgentInfo("Имя оператора", "Звонок отменен", null)
+
         socketRepository.sendPendingCallCancellation()
 
         peerConnectionClient.dispose()
@@ -307,6 +311,8 @@ internal class VideoCallPresenter constructor(
 
     fun onCancelLiveCall() {
         interactor.callState = CallInteractor.CallState.Disconnected.User
+
+        getView().showCallAgentInfo("Имя оператора", "Звонок завершен", null)
 
         socketRepository.sendCallAction(action = CallAction.FINISH)
 
@@ -514,6 +520,10 @@ internal class VideoCallPresenter constructor(
     override fun onPeerHangupCall() {
         Logger.debug(TAG, "onPeerHangupCall()")
 
+        interactor.callAgent?.let {
+            getView().showCallAgentInfo(it.fullName, "Звонок завершен", it.photoUrl)
+        }
+
         interactor.callState = CallInteractor.CallState.Disconnected.CallAgent
 
         getView().collapseBottomSheet()
@@ -542,6 +552,8 @@ internal class VideoCallPresenter constructor(
 
         getView().showNoOnlineCallAgentsMessage(text)
 
+        getView().showCallAgentInfo("Имя оператора", "Нет онлайн операторов", null)
+
         return true
     }
 
@@ -549,15 +561,14 @@ internal class VideoCallPresenter constructor(
         Logger.debug(TAG, "onCallAgentGreet() -> " +
             "fullName: $fullName, photoUrl: $photoUrl, text: $text")
 
+        interactor.callAgent = CallInteractor.CallAgent(fullName, URLManager.buildStaticUrl(photoUrl))
         interactor.callState = CallInteractor.CallState.Live
 
         peerConnectionClient.addLocalStreamToPeer()
 
-        val fullUrl = URLManager.buildStaticUrl(photoUrl)
-
         getView().expandBottomSheet()
 
-        getView().showCallAgentInfo(fullName, fullUrl)
+        getView().showCallAgentInfo(fullName, "Оператор", interactor.callAgent?.photoUrl)
 
         getView().showNewChatMessage(
             Message.Builder()
