@@ -72,6 +72,7 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         fun onViewReady()
         fun onNavigationBackPressed()
         fun onShowVideoCallScreen()
+        fun onSelectAttachment()
         fun onSendTextMessage(message: String?)
         fun onHangupCall()
     }
@@ -178,9 +179,9 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
         })
 
         messageInputView?.setSelectAttachmentButtonEnabled(true)
-
+        messageInputView?.setAttachmentSelectionEnabled(false)
         messageInputView?.setOnSelectAttachmentClickListener {
-            // TODO: Implement media selection with certain permissions
+            listener?.onSelectAttachment()
         }
 
         messageInputView?.setOnSendMessageClickListener { _, message ->

@@ -581,7 +581,8 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     }
 
     override fun onBackPressed() {
-        showWidgetCloseConfirmDialog { finish() }
+//        showWidgetCloseConfirmDialog { finish() }
+        finish()
     }
 
     override fun finish() {
@@ -814,9 +815,9 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun showHangupConfirmationAlert() {
         runOnUiThread {
-            showHangupConfirmAlert {
-                presenter.onHangupLiveCall()
-            }
+//            showHangupConfirmAlert {
+//                presenter.onHangupLiveCall()
+//            }
         }
     }
 
@@ -838,7 +839,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun showNoOnlineCallAgentsAlert(text: String) {
         runOnUiThread {
-            showNoOnlineCallAgents(text) {}
+//            showNoOnlineCallAgents(text) {}
         }
     }
 
@@ -1089,7 +1090,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 //                        .withRequestCode(PermissionRequestCode.PICK_FILE)
 //                        .start()
                 } else {
-                    showAddAttachmentButtonDisabledAlert {}
+//                    showAddAttachmentButtonDisabledAlert {}
                 }
             }
         }

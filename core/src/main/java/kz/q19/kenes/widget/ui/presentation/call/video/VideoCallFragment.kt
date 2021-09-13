@@ -13,8 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
 import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.message.Message
-import kz.q19.webrtc.PeerConnectionClient
-import kz.q19.webrtc.core.ui.SurfaceViewRenderer
+import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.components.KenesFloatingLayout
 import kz.q19.kenes.widget.ui.components.KenesToolbar
@@ -23,7 +22,8 @@ import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
 import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
 import kz.q19.kenes.widget.util.AlertDialogBuilder
 import kz.q19.kenes.widget.util.hideKeyboardCompat
-import kz.q19.kenes.widget.R
+import kz.q19.webrtc.PeerConnectionClient
+import kz.q19.webrtc.core.ui.SurfaceViewRenderer
 
 internal class VideoCallFragment :
     BaseFragment<VideoCallPresenter>(R.layout.kenes_fragment_video_call),
@@ -277,6 +277,10 @@ internal class VideoCallFragment :
         presenter.onShowVideoCallScreen()
     }
 
+    override fun onSelectAttachment() {
+        presenter.onSelectAttachment()
+    }
+
     override fun onSendTextMessage(message: String?) {
         presenter.onSendTextMessage(message)
     }
@@ -486,6 +490,16 @@ internal class VideoCallFragment :
             .show()
     }
 
+    override fun showOperationAvailableOnlyDuringLiveCallMessage() {
+        AlertDialogBuilder(requireContext())
+            .setTitle(R.string.kenes_attention)
+            .setMessage(R.string.kenes_select_attachment_button_disabled)
+            .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     override fun showCancelPendingConfirmationMessage() {
         AlertDialogBuilder(requireContext())
             .setTitle(R.string.kenes_cancel_call)
@@ -503,8 +517,8 @@ internal class VideoCallFragment :
 
     override fun showCancelLiveCallConfirmationMessage() {
         AlertDialogBuilder(requireContext())
-            .setTitle(R.string.kenes_cancel_call)
-            .setMessage(R.string.kenes_cancel_call)
+            .setTitle(R.string.kenes_attention)
+            .setMessage(R.string.kenes_end_dialog)
             .setNegativeButton(R.string.kenes_no) { dialog, _ ->
                 dialog.dismiss()
             }
@@ -512,6 +526,27 @@ internal class VideoCallFragment :
                 dialog.dismiss()
 
                 presenter.onCancelLiveCall()
+            }
+            .show()
+    }
+
+    override fun showAttachmentSelection() {
+        val items = arrayOf(
+            requireContext().getString(R.string.kenes_image),
+            requireContext().getString(R.string.kenes_video),
+            requireContext().getString(R.string.kenes_audio),
+            requireContext().getString(R.string.kenes_document)
+        )
+        val checkedItem = 0
+        AlertDialogBuilder(requireContext())
+            .setTitle(requireContext().getString(R.string.kenes_select))
+            .setSingleChoiceItems(items, checkedItem) { dialog, which ->
+                dialog.dismiss()
+
+                Logger.debug(TAG, "SELECTED: " + items[which])
+            }
+            .setNegativeButton(R.string.file) { dialog, _ ->
+                dialog.dismiss()
             }
             .show()
     }

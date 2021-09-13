@@ -18,29 +18,12 @@ internal class AlertDialogBuilder constructor(
     context: Context
 ) : MaterialAlertDialogBuilder(context, R.style.Kenes_Widget_Dialog_Alert)
 
-internal val Context.AlertDialogBuilder
-    get() = MaterialAlertDialogBuilder(this, R.style.Kenes_Widget_Dialog_Alert)
-
-
-internal fun Context.showHangupConfirmAlert(callback: () -> Unit): AlertDialog? {
-    return AlertDialogBuilder
-        .setTitle(R.string.kenes_attention)
-        .setMessage(R.string.kenes_end_dialog)
-        .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-            callback()
-            dialog.dismiss()
-        }
-        .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-            dialog.dismiss()
-        }
-        .show()
-}
 
 internal fun Context.showLanguageSelectionAlert(
     items: Array<String>,
     callback: (which: Int) -> Unit
 ): AlertDialog? {
-    return AlertDialogBuilder
+    return AlertDialogBuilder(this)
         .setTitle(R.string.kenes_select_language_from_list)
         .setSingleChoiceItems(items, -1) { dialog, which ->
             callback(which)
@@ -98,7 +81,7 @@ internal fun Context.showOpenLinkConfirmAlert(
 
     messageView.addView(textView)
 
-    return AlertDialogBuilder
+    return AlertDialogBuilder(this)
         .setTitle(R.string.kenes_open_link)
         .setView(messageView)
         .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
@@ -116,7 +99,7 @@ internal fun Context.showPermanentlyDeniedDialog(
     positiveButtonText: String,
     callback: (isPositive: Boolean) -> Unit
 ): AlertDialog? {
-    return AlertDialogBuilder
+    return AlertDialogBuilder(this)
         .setTitle(R.string.kenes_attention)
         .setMessage(message)
         .setCancelable(false)
@@ -131,44 +114,10 @@ internal fun Context.showPermanentlyDeniedDialog(
         .show()
 }
 
-internal fun Context.showWidgetCloseConfirmDialog(callback: () -> Unit): AlertDialog? {
-    return AlertDialogBuilder
-        .setTitle(R.string.kenes_exit_widget_title)
-        .setMessage(R.string.kenes_exit_widget_text)
-        .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
-            dialog.dismiss()
-            callback()
-        }
-        .setNegativeButton(R.string.kenes_no) { dialog, _ ->
-            dialog.dismiss()
-        }
-        .show()
-}
-
-internal fun Context.showNoOnlineCallAgents(
-    message: String?,
-    callback: () -> Unit
-): AlertDialog? {
-    return AlertDialogBuilder
-        .setTitle(R.string.kenes_attention)
-        .setMessage(message)
-        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-            dialog.dismiss()
-            callback()
-        }
-        .setOnCancelListener {
-            callback()
-        }
-        .setOnDismissListener {
-            callback()
-        }
-        .show()
-}
-
 internal fun Context.showAlreadyCallingAlert(
     callback: (isPositive: Boolean) -> Unit
 ): AlertDialog? {
-    return AlertDialogBuilder
+    return AlertDialogBuilder(this)
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_already_calling_to_operator)
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
@@ -183,7 +132,7 @@ internal fun Context.showAlreadyCallingAlert(
 }
 
 internal fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
-    return AlertDialogBuilder
+    return AlertDialogBuilder(this)
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_form_sent_success)
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
@@ -194,20 +143,9 @@ internal fun Context.showFormSentSuccess(callback: () -> Unit): AlertDialog? {
 }
 
 internal fun Context.showPendingFileDownloadAlert(callback: () -> Unit): AlertDialog? {
-    return AlertDialogBuilder
+    return AlertDialogBuilder(this)
         .setTitle(R.string.kenes_attention)
         .setMessage(R.string.kenes_file_pending_download)
-        .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
-            dialog.dismiss()
-            callback()
-        }
-        .show()
-}
-
-internal fun Context.showAddAttachmentButtonDisabledAlert(callback: () -> Unit): AlertDialog? {
-    return AlertDialogBuilder
-        .setTitle(R.string.kenes_attention)
-        .setMessage(R.string.kenes_add_attachment_button_disabled)
         .setPositiveButton(R.string.kenes_ok) { dialog, _ ->
             dialog.dismiss()
             callback()

@@ -1,40 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Kenes.Widget.Dialog.Alert" parent="Theme.MaterialComponents.Light.Dialog.Alert">
-        <!--title color-->
-<!--        <item name="android:textColorPrimary">@color/kenes_black</item>-->
+    <style name="Kenes.Widget.Dialog.Alert" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="alertDialogStyle">@style/Kenes.Widget.AlertDialogStyle</item>
 
-        <!--list item color-->
-<!--        <item name="textColorAlertDialogListItem">@color/kenes_black</item>-->
+        <!--Background dim-->
+        <item name="android:backgroundDimAmount">0.7</item>
 
-        <!--dialog background-->
-<!--        <item name="popupMenuBackground">@drawable/kenes_bg_dialog</item>-->
-<!--        <item name="android:windowBackground">@drawable/kenes_bg_dialog</item>-->
+        <!--Shape appearance-->
+        <item name="shapeAppearanceMediumComponent">@style/Kenes.Widget.ShapeAppearance.Rounded.All.8dp</item>
 
-        <item name="dialogCornerRadius">8dp</item>
+        <!--Item RadioButton or CheckBox color-->
+        <item name="colorControlNormal">#7B797A</item>
+        <item name="colorControlActivated">#409EFF</item>
 
-        <!--item RadioButton or CheckBox color-->
-        <item name="colorControlNormal">@color/kenes_dark_grayish_pink</item>
-        <item name="colorControlActivated">@color/kenes_light_blue</item>
+        <!--Positive button style-->
+        <item name="buttonBarPositiveButtonStyle">@style/Kenes.Widget.Dialog.Alert.Button.Positive</item>
 
-        <!--positive button style-->
-        <item name="buttonBarPositiveButtonStyle">@style/Kenes.Widget.Dialog.Button.Positive</item>
+        <!--Negative button style-->
+        <item name="buttonBarNegativeButtonStyle">@style/Kenes.Widget.Dialog.Alert.Button.Negative</item>
 
-        <!--negative button style-->
-        <item name="buttonBarNegativeButtonStyle">@style/Kenes.Widget.Dialog.Button.Negative</item>
+        <!--Negative button style-->
+        <item name="buttonBarNeutralButtonStyle">@style/Kenes.Widget.Dialog.Alert.Button.Neutral</item>
 
-        <!--paddings-->
+        <!--Padding-->
         <item name="listPreferredItemPaddingLeft">@dimen/kenes_dialog_spacing</item>
         <item name="listPreferredItemPaddingRight">@dimen/kenes_dialog_spacing</item>
 
-        <!--size-->
-<!--        <item name="windowMinWidthMinor">80%</item>-->
-<!--        <item name="windowMinWidthMajor">80%</item>-->
-<!--        <item name="android:windowMinWidthMajor">80%</item>-->
-<!--        <item name="android:windowMinWidthMinor">80%</item>-->
+        <!--Title-->
+        <item name="materialAlertDialogTitleTextStyle">@style/Kenes.Widget.Dialog.Alert.TitleText</item>
+
+        <!--Body-->
+        <item name="materialAlertDialogBodyTextStyle">@style/Kenes.Widget.Dialog.Alert.BodyText</item>
+
+        <!--Choice-->
+        <item name="android:checkedTextViewStyle">@style/Kenes.Widget.Dialog.Alert.CheckedTextView</item>
     </style>
 
-    <style name="Kenes.Widget.Dialog.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <style name="Kenes.Widget.AlertDialogStyle" parent="MaterialAlertDialog.MaterialComponents">
+        <item name="shapeAppearance">@style/Kenes.Widget.ShapeAppearance.Rounded.All.8dp</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.Button.Positive" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
 <!--        <item name="android:minWidth">0dp</item>-->
         <item name="android:letterSpacing">0</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -48,7 +54,7 @@
         <item name="android:background">@null</item>
     </style>
 
-    <style name="Kenes.Widget.Dialog.Button.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <style name="Kenes.Widget.Dialog.Alert.Button.Negative" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
 <!--        <item name="android:minWidth">0dp</item>-->
         <item name="android:letterSpacing">0</item>
         <item name="android:fontFamily">sans-serif-medium</item>
@@ -60,5 +66,56 @@
 
         <item name="background">@null</item>
         <item name="android:background">@null</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.Button.Neutral" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:letterSpacing">0.0</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">#4A4A4A</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+<!--        <item name="rippleColor">@color/kenes_gray</item>-->
+
+        <item name="background">@null</item>
+        <item name="android:background">@null</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.TitleText" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+        <item name="android:textAppearance">@style/Kenes.Widget.Dialog.Alert.TitleTextAppearance</item>
+        <item name="android:textColor">@color/kenes_black</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.BodyText" parent="MaterialAlertDialog.MaterialComponents.Body.Text">
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:letterSpacing">0.0</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+        <item name="android:textAppearance">@style/Kenes.Widget.Dialog.Alert.BodyTextAppearance</item>
+        <item name="android:textColor">@color/kenes_black</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.TitleTextAppearance" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="fontFamily">sans-serif-medium</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.0</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.BodyTextAppearance" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="fontFamily">sans-serif</item>
+        <item name="textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="Kenes.Widget.Dialog.Alert.CheckedTextView" parent="Widget.MaterialComponents.CheckedTextView">
+        <item name="android:textColor">@color/kenes_black</item>
     </style>
 </resources>

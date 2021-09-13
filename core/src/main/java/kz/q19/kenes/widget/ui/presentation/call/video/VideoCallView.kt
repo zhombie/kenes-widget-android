@@ -31,8 +31,10 @@ internal interface VideoCallView : BaseView {
     fun expandBottomSheet()
 
     fun showNoOnlineCallAgentsMessage(text: String?)
+    fun showOperationAvailableOnlyDuringLiveCallMessage()
     fun showCancelPendingConfirmationMessage()
     fun showCancelLiveCallConfirmationMessage()
+    fun showAttachmentSelection()
 
     fun navigateToHome()
 }

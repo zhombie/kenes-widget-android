@@ -19,13 +19,13 @@ import androidx.recyclerview.widget.RecyclerView
 import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.form.Form
 import kz.q19.domain.model.media.Media
-import kz.q19.utils.recyclerview.disableChangeAnimations
-import kz.q19.utils.textview.AbstractTextWatcher
-import kz.q19.utils.view.inflate
+import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.components.deprecated.base.KenesTitleView
 import kz.q19.kenes.widget.util.AlertDialogBuilder
-import kz.q19.kenes.widget.R
+import kz.q19.utils.recyclerview.disableChangeAnimations
+import kz.q19.utils.textview.AbstractTextWatcher
+import kz.q19.utils.view.inflate
 
 internal class DynamicFormView @JvmOverloads constructor(
     context: Context,
@@ -85,7 +85,7 @@ internal class DynamicFormView @JvmOverloads constructor(
                         form?.let { form -> callback?.onSendButtonClicked(form) }
                     } else {
                         val text = emptyFields.joinToString(separator = "\n") { it.title }
-                        context.AlertDialogBuilder
+                        AlertDialogBuilder(context)
                             .setCancelable(true)
                             .setTitle(R.string.kenes_attention)
                             .setMessage(context.getString(R.string.kenes_fill_fields, text))

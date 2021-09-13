@@ -237,6 +237,14 @@ internal class VideoCallPresenter constructor(
         }
     }
 
+    fun onSelectAttachment() {
+        if (interactor.callState == CallInteractor.CallState.Live) {
+            getView().showAttachmentSelection()
+        } else {
+            getView().showOperationAvailableOnlyDuringLiveCallMessage()
+        }
+    }
+
     fun onSendTextMessage(message: String?) {
         if (interactor.callState == CallInteractor.CallState.Live) {
             if (message.isNullOrBlank()) {
@@ -254,6 +262,8 @@ internal class VideoCallPresenter constructor(
                         .build()
                 )
             }
+        } else {
+            getView().showOperationAvailableOnlyDuringLiveCallMessage()
         }
     }
 

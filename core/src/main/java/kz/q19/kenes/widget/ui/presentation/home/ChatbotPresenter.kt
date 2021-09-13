@@ -182,7 +182,7 @@ internal class ChatbotPresenter constructor(
     }
 
     fun onBackPressed(): Boolean {
-        Logger.debug(TAG, "onGoBackButtonClicked()")
+        Logger.debug(TAG, "onBackPressed()")
 
         if (interactor.bottomSheetState == BottomSheetState.EXPANDED) {
             getView().collapseBottomSheet()

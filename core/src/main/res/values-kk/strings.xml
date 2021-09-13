@@ -81,7 +81,7 @@
     <string name="kenes_file_pending_download">Файл жүктелуде</string>
     <string name="kenes_file_download_error">Файл жүктелмеді</string>
 
-    <string name="kenes_add_attachment_button_disabled">
+    <string name="kenes_select_attachment_button_disabled">
         Файлды жүктеу тек оператормен байланыс/диалог кезінде қолжетімді
     </string>
 
@@ -100,4 +100,10 @@
 
     <string name="kenes_show_all">Барлығын көрсету</string>
     <string name="kenes_collapse_list">Тізімді жию</string>
+
+    <string name="kenes_select">Таңдау</string>
+    <string name="kenes_image">Сурет</string>
+    <string name="kenes_video">Бейне</string>
+    <string name="kenes_audio">Аудио</string>
+    <string name="kenes_document">Құжат</string>
 </resources>

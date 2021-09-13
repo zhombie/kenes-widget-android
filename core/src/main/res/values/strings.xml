@@ -81,7 +81,7 @@
     <string name="kenes_file_pending_download">File is downloading</string>
     <string name="kenes_file_download_error">File not downloaded</string>
 
-    <string name="kenes_add_attachment_button_disabled">
+    <string name="kenes_select_attachment_button_disabled">
         File attachment is available only during active conversation/dialogue with the operator
     </string>
 
@@ -100,4 +100,10 @@
 
     <string name="kenes_show_all">Show all</string>
     <string name="kenes_collapse_list">Collapse list</string>
+
+    <string name="kenes_select">Select</string>
+    <string name="kenes_image">Image</string>
+    <string name="kenes_video">Video</string>
+    <string name="kenes_audio">Audio</string>
+    <string name="kenes_document">Document</string>
 </resources>

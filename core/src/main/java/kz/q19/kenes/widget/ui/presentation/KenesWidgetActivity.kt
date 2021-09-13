@@ -142,14 +142,23 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 //    override fun onBackPressed() {
 //        Logger.debug(TAG, "onBackPressed()")
 //
-//        val fragment = supportFragmentManager.findFragmentByTag("video_call")
-//        if (fragment is VideoCallFragment) {
+//        if (supportFragmentManager.findFragmentByTag("video_call") is VideoCallFragment) {
 //            super.onBackPressed()
 //        } else {
 //            if (viewPager.currentItem > 0) {
 //                bottomNavigationView.setFirstNavigationButtonActive()
 //            } else {
-//                super.onBackPressed()
+//                AlertDialogBuilder(this)
+//                    .setTitle(R.string.kenes_exit_widget_title)
+//                    .setMessage(R.string.kenes_exit_widget_text)
+//                    .setPositiveButton(R.string.kenes_yes) { dialog, _ ->
+//                        dialog.dismiss()
+//                        finish()
+//                    }
+//                    .setNegativeButton(R.string.kenes_no) { dialog, _ ->
+//                        dialog.dismiss()
+//                    }
+//                    .show()
 //            }
 //        }
 //    }
@@ -359,6 +368,12 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
     override fun onShowVideoCallScreen() {
         runOnVideoCallScreen {
             onShowVideoCallScreen()
+        }
+    }
+
+    override fun onSelectAttachment() {
+        runOnVideoCallScreen {
+            onSelectAttachment()
         }
     }
 

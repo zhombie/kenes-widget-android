@@ -81,7 +81,7 @@
     <string name="kenes_file_pending_download">Файл загружается</string>
     <string name="kenes_file_download_error">Файл не загрузился</string>
 
-    <string name="kenes_add_attachment_button_disabled">
+    <string name="kenes_select_attachment_button_disabled">
         Приклепление файла доступно только при активном разговоре/диалоге с оператором
     </string>
 
@@ -100,4 +100,10 @@
 
     <string name="kenes_show_all">Показать все</string>
     <string name="kenes_collapse_list">Свернуть список</string>
+
+    <string name="kenes_select">Выбор</string>
+    <string name="kenes_image">Фото</string>
+    <string name="kenes_video">Видео</string>
+    <string name="kenes_audio">Аудио</string>
+    <string name="kenes_document">Документ</string>
 </resources>
