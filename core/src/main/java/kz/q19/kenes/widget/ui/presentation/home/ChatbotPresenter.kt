@@ -5,7 +5,7 @@ import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.message.Message
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
 import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
@@ -68,7 +68,7 @@ internal class ChatbotPresenter constructor(
         )
 
         asyncHttpClient?.get(
-            UrlManager.buildUrl("/api/kbase/response_groups"),
+            URLManager.buildUrl("/api/kbase/response_groups"),
             params,
             ResponseGroupsResponseHandler(
                 onSuccess = { responseGroups ->
@@ -103,7 +103,7 @@ internal class ChatbotPresenter constructor(
         )
 
         asyncHttpClient?.get(
-            UrlManager.buildUrl("/api/kbase/response_groups"),
+            URLManager.buildUrl("/api/kbase/response_groups"),
             params,
             ResponseGroupChildrenResponseHandler(
                 onSuccess = { children ->
@@ -152,7 +152,7 @@ internal class ChatbotPresenter constructor(
         )
 
         asyncHttpClient?.get(
-            UrlManager.buildUrl("/api/kbase/response"),
+            URLManager.buildUrl("/api/kbase/response"),
             params,
             ResponseInfoResponseHandler(
                 onSuccess = { responseInfo ->

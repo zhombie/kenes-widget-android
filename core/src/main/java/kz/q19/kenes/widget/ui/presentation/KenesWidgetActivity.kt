@@ -18,7 +18,7 @@ import kz.q19.kenes.widget.BuildConfig
 import kz.q19.kenes.widget.KenesWidget
 import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.Settings
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.components.KenesBottomNavigationView
 import kz.q19.kenes.widget.ui.components.KenesToolbar
@@ -87,7 +87,7 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
 
         // Hostname
         val hostname: String? = intent.getStringExtra(IntentKey.HOSTNAME)
-        UrlManager.setHostname(hostname)
+        URLManager.setHostname(hostname)
 
         // Attach view to MVP presenter
         presenter.attachView(this)

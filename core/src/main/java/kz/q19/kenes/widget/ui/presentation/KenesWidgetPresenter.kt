@@ -2,7 +2,7 @@ package kz.q19.kenes.widget.ui.presentation
 
 import com.loopj.android.http.AsyncHttpClient
 import kz.q19.domain.model.language.Language
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
 import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
@@ -39,7 +39,7 @@ internal class KenesWidgetPresenter constructor(
 
     private fun loadConfigs() {
         asyncHttpClient?.get(
-            UrlManager.buildUrl("/configs"),
+            URLManager.buildUrl("/configs"),
             ConfigsResponseHandler(
                 onSuccess = { configs ->
                     database.setConfigs(configs)
@@ -55,7 +55,7 @@ internal class KenesWidgetPresenter constructor(
 
     private fun loadIceServers() {
         asyncHttpClient?.get(
-            UrlManager.buildUrl("/ice_servers"),
+            URLManager.buildUrl("/ice_servers"),
             IceServersResponseHandler(
                 onSuccess = { iceServers ->
                     database.setIceServers(iceServers)
@@ -77,7 +77,7 @@ internal class KenesWidgetPresenter constructor(
         socketRepository.registerSocketDisconnectEventListener()
 
         if (!socketRepository.isConnected()) {
-            socketRepository.create(UrlManager.getSocketUrl())
+            socketRepository.create(URLManager.getSocketUrl())
 
             socketRepository.connect()
         }

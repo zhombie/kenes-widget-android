@@ -19,7 +19,7 @@ import kz.q19.domain.model.webrtc.IceCandidate
 import kz.q19.domain.model.webrtc.IceConnectionState
 import kz.q19.domain.model.webrtc.IceServer
 import kz.q19.domain.model.webrtc.SessionDescription
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger.debug
 import kz.q19.kenes.widget.data.remote.file.DownloadResult
@@ -160,7 +160,7 @@ internal class OldKenesWidgetPresenter constructor(
     private fun initSocket() {
         SocketClientConfig.init(true, language)
         socketClient = SocketClient.getInstance()
-        socketClient?.create(UrlManager.getSocketUrl())
+        socketClient?.create(URLManager.getSocketUrl())
         socketClient?.connect()
 
         socketClient?.registerSocketConnectEventListener()
@@ -182,7 +182,7 @@ internal class OldKenesWidgetPresenter constructor(
     }
 
     private fun fetchWidgetConfigs() {
-        val url = UrlManager.buildUrl("/configs") ?: return
+        val url = URLManager.buildUrl("/configs") ?: return
         debug(TAG, "fetchWidgetConfigs() -> url: $url")
 
         val data: Configs? = null

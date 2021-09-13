@@ -10,7 +10,7 @@ import kz.q19.domain.model.message.QRTCAction
 import kz.q19.domain.model.webrtc.IceCandidate
 import kz.q19.domain.model.webrtc.IceConnectionState
 import kz.q19.domain.model.webrtc.SessionDescription
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
@@ -113,8 +113,8 @@ internal class VideoCallPresenter constructor(
         socketRepository.sendCallInitialization(
             CallInitialization(
                 callType = callType,
-                domain = UrlManager.getDomain(),
-                topic = if (UrlManager.isDebug) "zhombie" else call.topic,
+                domain = URLManager.getDomain(),
+                topic = if (URLManager.isDebug) "zhombie" else call.topic,
                 device = CallInitialization.Device(
                     os = deviceInfo.os,
                     osVersion = deviceInfo.osVersion,
@@ -543,7 +543,7 @@ internal class VideoCallPresenter constructor(
 
         peerConnectionClient.addLocalStreamToPeer()
 
-        val fullUrl = UrlManager.buildStaticUrl(photoUrl)
+        val fullUrl = URLManager.buildStaticUrl(photoUrl)
 
         getView().expandBottomSheet()
 

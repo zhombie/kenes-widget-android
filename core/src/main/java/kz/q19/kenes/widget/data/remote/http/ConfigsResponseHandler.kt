@@ -7,7 +7,7 @@ import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.configs.Configs
 import kz.q19.domain.model.i18n.I18NId
 import kz.q19.domain.model.i18n.I18NString
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.utils.json.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -34,7 +34,7 @@ internal open class ConfigsResponseHandler constructor(
 //        Logger.debug(TAG, "callScopesJSONArray: $callScopesJSONArray")
 
         val bot = Configs.Bot(
-            image = UrlManager.buildStaticUrl(configsJSONObject?.getStringOrNull("image")),
+            image = URLManager.buildStaticUrl(configsJSONObject?.getStringOrNull("image")),
             title = configsJSONObject?.getStringOrNull("title")
         )
 

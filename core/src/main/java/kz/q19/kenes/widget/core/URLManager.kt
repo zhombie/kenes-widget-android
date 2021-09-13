@@ -1,6 +1,6 @@
 package kz.q19.kenes.widget.core
 
-internal object UrlManager {
+internal object URLManager {
 
     private const val PROTOCOL = "https://"
     private const val SOCKET_URL_PATH = "/user"

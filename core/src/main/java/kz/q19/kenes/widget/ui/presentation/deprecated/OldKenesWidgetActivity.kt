@@ -29,7 +29,7 @@ import kz.q19.domain.model.language.Language
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.R
-import kz.q19.kenes.widget.core.UrlManager
+import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger.debug
 import kz.q19.kenes.widget.core.permission.PermissionManager
@@ -221,7 +221,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
         // Hostname
         val hostname = intent.getStringExtra(IntentKey.HOSTNAME)
-        UrlManager.setHostname(hostname)
+        URLManager.setHostname(hostname)
 
         // ------------------------------------------------------------------------
 
