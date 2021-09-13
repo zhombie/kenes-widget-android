@@ -96,7 +96,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     /**
      * Header view [headerView] for opponent info display.
      */
-    private val headerView by bind<HeaderView>(R.id.headerView)
+//    private val headerView by bind<HeaderView>(R.id.headerView)
 
     /**
      * Audio call [operatorCallView] screen view.
@@ -252,11 +252,11 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
         /**
          * Configuration of other button action listeners (click/touch)
          */
-        headerView.callback = object : HeaderView.Callback {
-            override fun onHangupButtonClicked() {
-                presenter.onHangupButtonClicked()
-            }
-        }
+//        headerView.callback = object : HeaderView.Callback {
+//            override fun onHangupButtonClicked() {
+//                presenter.onHangupButtonClicked()
+//            }
+//        }
 
 //        operatorCallView.callback = object : CallTypeView.Callback {
 //            override fun onCallTypeClicked(callType: CallType) {
@@ -619,7 +619,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun showPeerInfo(opponent: Configs.CallAgent) {
         runOnUiThread {
-            headerView.setOpponentInfo(opponent)
+//            headerView.setOpponentInfo(opponent)
         }
     }
 
@@ -649,7 +649,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun hideHangupButton() {
         runOnUiThread {
-            headerView.hideHangupButton()
+//            headerView.hideHangupButton()
         }
     }
 
@@ -1103,7 +1103,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
             chatFooterAdapter?.clear()
 
-            headerView.hideHangupButton()
+//            headerView.hideHangupButton()
 
             setDefaultOperatorCallView()
 //            operatorCallView.isVisible = false
@@ -1131,7 +1131,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
         when (viewState) {
             is ViewState.ChatBot -> {
                 runOnUiThread {
-                    headerView.hideHangupButton()
+//                    headerView.hideHangupButton()
 
 //                    operatorCallView.isVisible = false
                     operatorCallPendingView.isVisible = false
@@ -1214,7 +1214,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                 when (viewState) {
                     ViewState.TextDialog.IDLE -> {
                         runOnUiThread {
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             feedbackView.setDefaultState()
                             feedbackView.isVisible = false
@@ -1227,7 +1227,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     }
                     ViewState.TextDialog.Pending -> {
                         runOnUiThread {
-                            headerView.showHangupButton()
+//                            headerView.showHangupButton()
 
                             chatFooterAdapter?.clear()
                         }
@@ -1236,7 +1236,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            headerView.showHangupButton()
+//                            headerView.showHangupButton()
 
                             footerView.setAttachmentSelectionEnabled(true)
 
@@ -1252,7 +1252,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     }
                     ViewState.TextDialog.UserDisconnected -> {
                         runOnUiThread {
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             footerView.setAttachmentSelectionEnabled(false)
 
@@ -1261,7 +1261,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     }
                     is ViewState.TextDialog.UserFeedback -> {
                         runOnUiThread {
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
@@ -1301,7 +1301,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                    headerView.hideHangupButton()
+//                    headerView.hideHangupButton()
 
                     audioDialogView.setDefaultState()
                     audioDialogView.isVisible = false
@@ -1353,7 +1353,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
 //                            hideKeyboard(footerView.inputView)
 
-                            headerView.showHangupButton()
+//                            headerView.showHangupButton()
 
 //                            operatorCallView.setCallButtonDisabled(CallType.AUDIO)
 //                            operatorCallView.isVisible = false
@@ -1416,7 +1416,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             setDefaultFooterView()
                             footerView.setAttachmentSelectionEnabled(false)
@@ -1429,7 +1429,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     }
                     is ViewState.AudioDialog.UserFeedback -> {
                         runOnUiThread {
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
@@ -1485,7 +1485,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
 //                            hideKeyboard(footerView.inputView)
 
-                            headerView.showHangupButton()
+//                            headerView.showHangupButton()
 
                             setDefaultOperatorCallView()
 //                            operatorCallView.isVisible = false
@@ -1550,7 +1550,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             setDefaultFooterView()
                             footerView.isVisible = false
@@ -1564,7 +1564,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     }
                     is ViewState.VideoDialog.UserFeedback -> {
                         runOnUiThread {
-                            headerView.hideHangupButton()
+//                            headerView.hideHangupButton()
 
                             if (viewState.isFeedbackSent) {
                                 chatFooterAdapter?.showGoToHomeButton()
