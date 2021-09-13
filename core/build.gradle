@@ -101,4 +101,7 @@ dependencies {
 
     // HTTP client
     implementation 'com.loopj.android:android-async-http:1.4.11'
+
+    // Transcoder (Video compression)
+    implementation 'com.otaliastudios:transcoder:0.10.3'
 }

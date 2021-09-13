@@ -663,7 +663,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun setDefaultFooterView() {
         runOnUiThread {
-            footerView.setAttachmentSelectionEnabled(false)
+            footerView.setMediaSelectionEnabled(false)
 
 //            footerView.setGoToActiveDialogButtonState(null)
 
@@ -858,8 +858,8 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
     override fun showFooterView() {
         runOnUiThread {
-            if (!footerView.isAttachmentSelectionEnabled) {
-                footerView.setAttachmentSelectionEnabled(true)
+            if (!footerView.isMediaSelectionEnabled) {
+                footerView.setMediaSelectionEnabled(true)
             }
             footerView.isVisible = true
         }
@@ -1077,7 +1077,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     override fun showAttachmentPicker(forced: Boolean) {
         permissionManager.checkPermission(PermissionManager.Permission.EXTERNAL_STORAGE) {
             if (it) {
-                var isPermitted = footerView.isAttachmentSelectionEnabled
+                var isPermitted = footerView.isMediaSelectionEnabled
                 if (forced) {
                     isPermitted = true
                 }
@@ -1220,7 +1220,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             feedbackView.setDefaultState()
                             feedbackView.isVisible = false
 
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
 
                             bottomNavigationView.setNavigationButtonsEnabled()
 //                            bottomNavigationView.setNavigationButtonActive(BottomNavigationView.NavigationButton.HOME)
@@ -1239,14 +1239,14 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
 //                            headerView.showHangupButton()
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
 
                             bottomNavigationView.setNavigationButtonsDisabled()
                         }
                     }
                     ViewState.TextDialog.CallAgentDisconnected -> {
                         runOnUiThread {
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
 
                             bottomNavigationView.setNavigationButtonsEnabled()
                         }
@@ -1255,7 +1255,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
 //                            headerView.hideHangupButton()
 
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
 
                             bottomNavigationView.setNavigationButtonsEnabled()
                         }
@@ -1316,7 +1316,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                     recyclerView.isVisible = false
 
 //                    footerView.setGoToActiveDialogButtonState(null)
-                    footerView.setAttachmentSelectionEnabled(false)
+                    footerView.setMediaSelectionEnabled(false)
                     footerView.isVisible = false
 
                     bottomNavigationView.setNavigationButtonsEnabled()
@@ -1362,7 +1362,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
                             footerView.isVisible = true
 
                             bottomNavigationView.setNavigationButtonsDisabled()
@@ -1382,7 +1382,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
 
                             audioDialogView.setUnreadMessagesCount("0")
                             audioDialogView.hideUnreadMessagesCounter()
@@ -1405,7 +1405,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
                             setDefaultFooterView()
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
                             footerView.isVisible = false
 
                             audioDialogView.isVisible = false
@@ -1420,7 +1420,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 //                            headerView.hideHangupButton()
 
                             setDefaultFooterView()
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
                             footerView.isVisible = false
 
                             audioDialogView.isVisible = false
@@ -1494,7 +1494,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
                             footerView.isVisible = true
 
                             bottomNavigationView.setNavigationButtonsDisabled()
@@ -1514,7 +1514,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                         runOnUiThread {
                             chatFooterAdapter?.clear()
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
 
                             videoDialogView.setUnreadMessagesCount("0")
                             videoDialogView.hideUnreadMessagesCounter()
@@ -1540,7 +1540,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             setDefaultFooterView()
                             footerView.isVisible = false
 
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
 
                             videoDialogView.isVisible = false
 
@@ -1556,7 +1556,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
                             setDefaultFooterView()
                             footerView.isVisible = false
 
-                            footerView.setAttachmentSelectionEnabled(false)
+                            footerView.setMediaSelectionEnabled(false)
 
                             videoDialogView.isVisible = false
 
@@ -1652,7 +1652,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
                             footerView.isVisible = true
                         }
                     }
@@ -1664,7 +1664,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
 
                             recyclerView.isVisible = true
 
-                            footerView.setAttachmentSelectionEnabled(true)
+                            footerView.setMediaSelectionEnabled(true)
                             footerView.isVisible = true
 
                             bottomNavigationView.setNavigationButtonsEnabled()
@@ -1690,7 +1690,7 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
     override fun onDestroy() {
         super.onDestroy()
 
-        footerView.setAttachmentSelectionEnabled(false)
+        footerView.setMediaSelectionEnabled(false)
 
         presenter.detachView()
 

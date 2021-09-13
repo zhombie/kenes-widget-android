@@ -341,7 +341,7 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
             }
         })
 
-        messageInputView?.setSelectAttachmentButtonEnabled(false)
+        messageInputView?.setSelectMediaButtonEnabled(false)
 
         messageInputView?.setOnSendMessageClickListener { _, message ->
             presenter.onSendTextMessage(message)

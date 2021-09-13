@@ -16,6 +16,6 @@
     </declare-styleable>
 
     <declare-styleable name="KenesMessageInputView">
-        <attr name="kenesSelectAttachmentButtonEnabled" format="boolean" />
+        <attr name="kenesSelectMediaButtonEnabled" format="boolean" />
     </declare-styleable>
 </resources>

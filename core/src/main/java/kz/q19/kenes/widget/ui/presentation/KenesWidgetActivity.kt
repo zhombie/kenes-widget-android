@@ -371,9 +371,9 @@ internal class KenesWidgetActivity : BaseActivity<KenesWidgetPresenter>(),
         }
     }
 
-    override fun onSelectAttachment() {
+    override fun onSelectMedia() {
         runOnVideoCallScreen {
-            onSelectAttachment()
+            onSelectMedia()
         }
     }
 

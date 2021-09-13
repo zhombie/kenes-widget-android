@@ -1,9 +1,13 @@
 package kz.q19.kenes.widget.ui.presentation.call.video
 
+import androidx.core.net.toFile
+import com.loopj.android.http.AsyncHttpClient
+import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.call.CallType
 import kz.q19.domain.model.keyboard.button.RateButton
 import kz.q19.domain.model.language.Language
+import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.CallAction
 import kz.q19.domain.model.message.Message
 import kz.q19.domain.model.message.QRTCAction
@@ -14,6 +18,9 @@ import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
+import kz.q19.kenes.widget.data.remote.file.uploadFile
+import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
+import kz.q19.kenes.widget.domain.model.media.Image
 import kz.q19.kenes.widget.ui.presentation.call.CallInteractor
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
 import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
@@ -48,12 +55,16 @@ internal class VideoCallPresenter constructor(
         private val TAG = VideoCallPresenter::class.java.simpleName
     }
 
+    private var asyncHttpClient: AsyncHttpClient? = null
+
     private val interactor = CallInteractor().apply {
         listener = this@VideoCallPresenter
     }
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
+
+        asyncHttpClient = AsyncHttpClientBuilder().build()
 
         interactor.isLocalAudioEnabled = call is Call.Audio || call is Call.Video
         interactor.isLocalVideoEnabled = call is Call.Video
@@ -239,12 +250,38 @@ internal class VideoCallPresenter constructor(
         }
     }
 
-    fun onSelectAttachment() {
+    fun onSelectMedia() {
+        // TODO: Return
+        getView().showMediaSelection()
+        return
+
         if (interactor.callState is CallInteractor.CallState.Live) {
-            getView().showAttachmentSelection()
+            getView().showMediaSelection()
         } else {
             getView().showOperationAvailableOnlyDuringLiveCallMessage()
         }
+    }
+
+    fun onMediaSelected(image: Image) {
+        val file = image.duplicateFile?.uri?.toFile()
+
+        val params = RequestParams().apply {
+            put("type", "image")
+            put("file", file)
+        }
+
+        asyncHttpClient?.uploadFile(
+            URLManager.buildUrl("/upload"),
+            params,
+            onSuccess = { path, hash ->
+                Logger.debug(TAG, "/upload + $path, $hash")
+
+                socketRepository.sendUserMediaMessage(Media.Type.IMAGE, hash)
+            },
+            onFailure = {
+                it?.printStackTrace()
+            }
+        )
     }
 
     fun onSendTextMessage(message: String?) {
@@ -613,6 +650,9 @@ internal class VideoCallPresenter constructor(
 
     override fun onDestroy() {
         interactor.listener = null
+
+        asyncHttpClient?.cancelAllRequests(true)
+        asyncHttpClient = null
 
         peerConnectionClient.dispose()
 

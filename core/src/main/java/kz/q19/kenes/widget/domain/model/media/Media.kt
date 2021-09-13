@@ -6,21 +6,21 @@ import android.net.Uri
 internal open class Media constructor(
     override val id: Long,
     override val uri: Uri,
-    override val title: String,
+    override val title: String?,
     override val displayName: String,
+    override val folder: Folder?,
     override val duplicateFile: DuplicateFile?,
     override val history: History?,
-    override val thumbnail: Bitmap?,
-    override val folder: Folder?
+    override val thumbnail: Bitmap?
 ) : Content(
     id = id,
     uri = uri,
     title = title,
     displayName = displayName,
+    folder = folder,
     duplicateFile = duplicateFile,
     history = history,
-    thumbnail = thumbnail,
-    folder = folder
+    thumbnail = thumbnail
 ) {
 
     interface Playable {

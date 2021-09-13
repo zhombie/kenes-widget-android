@@ -9,12 +9,12 @@ import android.net.Uri
 internal data class Video constructor(
     override val id: Long,
     override val uri: Uri,
-    override val title: String,
+    override val title: String?,
     override val displayName: String,
+    override val folder: Folder?,
     override val duplicateFile: DuplicateFile?,
     override val history: History?,
     override val thumbnail: Bitmap?,
-    override val folder: Folder?,
 
     override val duration: Long,
 
@@ -24,8 +24,27 @@ internal data class Video constructor(
     uri = uri,
     title = title,
     displayName = displayName,
+    folder = folder,
     duplicateFile = duplicateFile,
     history = history,
-    thumbnail = thumbnail,
-    folder = folder
-), Media.Playable, Media.Visual
+    thumbnail = thumbnail
+), Media.Playable, Media.Visual {
+
+    constructor(
+        uri: Uri,
+        displayName: String,
+        duplicateFile: DuplicateFile
+    ) : this(
+        id = generateId(),
+        uri = uri,
+        title = null,
+        displayName = displayName,
+        folder = null,
+        duplicateFile = duplicateFile,
+        history = null,
+        thumbnail = null,
+        duration = -1,
+        resolution = null
+    )
+
+}

@@ -17,8 +17,8 @@ import androidx.annotation.AttrRes
 import androidx.annotation.StyleRes
 import androidx.core.content.ContextCompat
 import com.google.android.material.button.MaterialButton
-import kz.q19.utils.android.dp2Px
 import kz.q19.kenes.widget.R
+import kz.q19.utils.android.dp2Px
 import kotlin.math.roundToInt
 
 internal class KenesMessageInputView @JvmOverloads constructor(
@@ -33,11 +33,11 @@ internal class KenesMessageInputView @JvmOverloads constructor(
     }
 
     private var linearLayout: LinearLayout? = null
-    private var selectAttachmentButton: MaterialButton? = null
+    private var selectMediaButton: MaterialButton? = null
     private var inputView: KenesTextInputEditText? = null
     private var sendMessageButton: MaterialButton? = null
 
-    var isAttachmentSelectionEnabled: Boolean = false
+    var isMediaSelectionEnabled: Boolean = false
         private set
 
     init {
@@ -66,9 +66,9 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesMessageInputView)
 
         try {
-            val isSelectAttachmentButtonEnabled = typedArray.getBoolean(
-                R.styleable.KenesMessageInputView_kenesSelectAttachmentButtonEnabled, false)
-            setSelectAttachmentButtonEnabled(isSelectAttachmentButtonEnabled)
+            val isSelectMediaButtonEnabled = typedArray.getBoolean(
+                R.styleable.KenesMessageInputView_kenesSelectMediaButtonEnabled, false)
+            setSelectMediaButtonEnabled(isSelectMediaButtonEnabled)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -85,12 +85,12 @@ internal class KenesMessageInputView @JvmOverloads constructor(
     }
 
     override fun onDetachedFromWindow() {
-        setOnSelectAttachmentClickListener(null)
+        setOnSelectMediaClickListener(null)
         setOnSendMessageClickListener(null)
         super.onDetachedFromWindow()
     }
 
-    private fun buildSelectAttachmentButton(): KenesIconButton {
+    private fun buildSelectMediaButton(): KenesIconButton {
         return KenesIconButton(context).apply {
             id = generateViewId()
             layoutParams = LinearLayout.LayoutParams(
@@ -160,18 +160,18 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         }
     }
 
-    fun setSelectAttachmentButtonEnabled(isEnabled: Boolean) {
+    fun setSelectMediaButtonEnabled(isEnabled: Boolean) {
         if (isEnabled) {
-            selectAttachmentButton = buildSelectAttachmentButton()
-            linearLayout?.addView(selectAttachmentButton, 0)
+            selectMediaButton = buildSelectMediaButton()
+            linearLayout?.addView(selectMediaButton, 0)
         } else {
-            linearLayout?.removeView(selectAttachmentButton)
-            selectAttachmentButton = null
+            linearLayout?.removeView(selectMediaButton)
+            selectMediaButton = null
         }
     }
 
-    fun setAttachmentSelectionEnabled(isEnabled: Boolean) {
-        isAttachmentSelectionEnabled = isEnabled
+    fun setMediaSelectionEnabled(isEnabled: Boolean) {
+        isMediaSelectionEnabled = isEnabled
     }
 
     fun setSendMessageButtonEnabled(isEnabled: Boolean) {
@@ -196,8 +196,8 @@ internal class KenesMessageInputView @JvmOverloads constructor(
         })
     }
 
-    fun setOnSelectAttachmentClickListener(listener: OnClickListener?) {
-        selectAttachmentButton?.setOnClickListener(listener)
+    fun setOnSelectMediaClickListener(listener: OnClickListener?) {
+        selectMediaButton?.setOnClickListener(listener)
     }
 
     fun setOnSendMessageClickListener(onSendMessage: ((view: View, message: String?) -> Unit)?) {

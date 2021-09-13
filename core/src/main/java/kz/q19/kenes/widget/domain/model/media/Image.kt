@@ -6,7 +6,7 @@ import android.net.Uri
 internal data class Image constructor(
     override val id: Long,
     override val uri: Uri,
-    override val title: String,
+    override val title: String?,
     override val displayName: String,
     override val folder: Folder?,
     override val duplicateFile: DuplicateFile?,
@@ -19,24 +19,41 @@ internal data class Image constructor(
     uri = uri,
     title = title,
     displayName = displayName,
+    folder = folder,
     duplicateFile = duplicateFile,
     history = history,
-    thumbnail = thumbnail,
-    folder = folder
+    thumbnail = thumbnail
 ), Media.Visual {
 
     constructor(
         uri: Uri,
-        displayName: String,
-        duplicateFile: DuplicateFile
+        displayName: String
     ) : this(
-        id = System.currentTimeMillis() + duplicateFile.file.name.length + duplicateFile.file.length(),
+        id = generateId(),
         uri = uri,
-        title = duplicateFile.file.name,
+        title = null,
+        displayName = displayName,
+        folder = null,
+        duplicateFile = null,
+        history = null,
+        thumbnail = null,
+        resolution = null
+    )
+
+    constructor(
+        uri: Uri,
+        title: String,
+        displayName: String,
+        duplicateFile: DuplicateFile,
+        history: History
+    ) : this(
+        id = generateId(),
+        uri = uri,
+        title = title,
         displayName = displayName,
         folder = null,
         duplicateFile = duplicateFile,
-        history = null,
+        history = history,
         thumbnail = null,
         resolution = null
     )

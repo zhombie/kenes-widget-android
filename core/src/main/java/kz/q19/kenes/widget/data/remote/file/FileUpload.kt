@@ -5,13 +5,20 @@ import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestHandle
 import com.loopj.android.http.RequestParams
 import cz.msebera.android.httpclient.Header
+import org.json.JSONArray
 import org.json.JSONObject
 
 internal fun AsyncHttpClient.uploadFile(
-    url: String,
+    url: String?,
     params: RequestParams,
-    listener: (path: String, hash: String) -> Unit
+    onSuccess: (path: String, hash: String) -> Unit,
+    onFailure: (throwable: Throwable?) -> Unit = {}
 ): RequestHandle? {
+    if (url.isNullOrBlank()) {
+        onFailure(NullPointerException())
+        return null
+    }
+
     return post(url, params, object : JsonHttpResponseHandler() {
         override fun onSuccess(
             statusCode: Int,
@@ -24,10 +31,37 @@ internal fun AsyncHttpClient.uploadFile(
             val path = response?.optString("url")
 
             if (hash.isNullOrBlank() || path.isNullOrBlank()) {
-                return
+                onFailure(NullPointerException())
+            } else {
+                onSuccess(path, hash)
             }
+        }
 
-            listener(path, hash)
+        override fun onFailure(
+            statusCode: Int,
+            headers: Array<out Header>?,
+            throwable: Throwable?,
+            errorResponse: JSONObject?
+        ) {
+            onFailure(throwable)
+        }
+
+        override fun onFailure(
+            statusCode: Int,
+            headers: Array<out Header>?,
+            throwable: Throwable?,
+            errorResponse: JSONArray?
+        ) {
+            onFailure(throwable)
+        }
+
+        override fun onFailure(
+            statusCode: Int,
+            headers: Array<out Header>?,
+            responseString: String?,
+            throwable: Throwable?
+        ) {
+            onFailure(throwable)
         }
     })
 }
