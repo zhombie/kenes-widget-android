@@ -49,13 +49,13 @@ internal class KenesToolbar @JvmOverloads constructor(
 
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.KenesToolbar)
 
-        val hasUserInfo = try {
+        val hasContent = try {
             typedArray.getBoolean(R.styleable.KenesToolbar_kenesHasContent, false)
         } catch (e: Exception) {
             false
         }
 
-        if (hasUserInfo) {
+        if (hasContent) {
             val titleTextColor = try {
                 typedArray.getColor(
                     R.styleable.KenesToolbar_kenesTitleTextColor,
