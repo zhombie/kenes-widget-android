@@ -57,7 +57,7 @@ internal class KenesFloatingLayout @JvmOverloads constructor(
     var isActive: Boolean = true
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
-        return true
+        return super.onInterceptTouchEvent(ev)
     }
 
     @SuppressLint("ClickableViewAccessibility")

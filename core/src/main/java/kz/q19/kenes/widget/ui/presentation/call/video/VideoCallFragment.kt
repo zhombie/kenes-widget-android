@@ -49,6 +49,7 @@ internal class VideoCallFragment :
     private var chatView: FragmentContainerView? = null
     private var floatingLayout: KenesFloatingLayout? = null
     private var floatingSurfaceViewRenderer: SurfaceViewRenderer? = null
+    private var hideButton: MaterialButton? = null
     private var videoView: FrameLayout? = null
     private var fullscreenSurfaceViewRenderer: SurfaceViewRenderer? = null
     private var minimizeButton: MaterialButton? = null
@@ -130,6 +131,7 @@ internal class VideoCallFragment :
         chatView = view.findViewById(R.id.chatView)
         floatingLayout = view.findViewById(R.id.floatingLayout)
         floatingSurfaceViewRenderer = view.findViewById(R.id.floatingSurfaceViewRenderer)
+        hideButton = view.findViewById(R.id.hideButton)
         videoView = view.findViewById(R.id.videoView)
         fullscreenSurfaceViewRenderer = view.findViewById(R.id.fullscreenSurfaceViewRenderer)
         minimizeButton = view.findViewById(R.id.minimizeButton)
@@ -141,6 +143,7 @@ internal class VideoCallFragment :
         hangupButton = view.findViewById(R.id.hangupButton)
 
         setupTextChat()
+        setupFloatingView()
         setupBottomSheet()
         setupVideostreamControlButtons()
         setupVideostreams()
@@ -206,6 +209,12 @@ internal class VideoCallFragment :
                 TextChatFragment.newInstance(),
                 "text_chat"
             )
+        }
+    }
+
+    private fun setupFloatingView() {
+        hideButton?.setOnClickListener {
+            presenter.onHideFloatingView()
         }
     }
 

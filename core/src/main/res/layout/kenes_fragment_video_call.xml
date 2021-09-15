@@ -29,6 +29,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/hideButton"
+            style="@style/Kenes.Widget.Button.Unelevated.OnlyIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:padding="5dp"
+            app:icon="@drawable/kenes_ic_cancel"
+            app:iconSize="20dp"
+            app:iconTint="@color/kenes_white" />
+
     </kz.q19.kenes.widget.ui.components.KenesFloatingLayout>
 
     <include

@@ -411,7 +411,6 @@ internal class OldKenesWidgetActivity : BaseActivity<OldKenesWidgetPresenter>(),
             }
 
             override fun onSwitchScalingButtonClicked() {
-                // TODO: Toggle
 //                peerConnectionClient?.setLocalVideoScalingType(ScalingType.SCALE_ASPECT_FIT)
             }
 

@@ -177,14 +177,12 @@ internal class VideoCallPresenter constructor(
         Logger.debug(TAG, "setLocalSurfaceViewRenderer()")
 
         peerConnectionClient.setLocalSurfaceView(surfaceViewRenderer)
-        peerConnectionClient.initLocalCameraStream(isMirrored = false, isZOrderMediaOverlay = true)
     }
 
     fun initRemoteVideostream(surfaceViewRenderer: SurfaceViewRenderer) {
         Logger.debug(TAG, "setRemoteSurfaceViewRenderer()")
 
         peerConnectionClient.setRemoteSurfaceView(surfaceViewRenderer)
-        peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
     }
 
     fun onMinimizeClicked() {
@@ -252,7 +250,7 @@ internal class VideoCallPresenter constructor(
     }
 
     fun onSelectMedia() {
-        // TODO: Return
+        // TODO: Remove on production
         getView().showMediaSelection()
         return
 
@@ -392,6 +390,12 @@ internal class VideoCallPresenter constructor(
         socketRepository.sendCallAction(action = CallAction.FINISH)
 
         peerConnectionClient.dispose()
+    }
+
+    // TODO: Pause useless stream, too
+    fun onHideFloatingView() {
+        Logger.debug(TAG, "onHideFloatingView()")
+        getView().hideFloatingVideostreamView()
     }
 
     fun setLocalVideostream(surfaceViewRenderer: SurfaceViewRenderer, isZOrderMediaOverlay: Boolean) {
@@ -638,6 +642,9 @@ internal class VideoCallPresenter constructor(
 
         interactor.callAgent = CallInteractor.CallAgent(fullName, URLManager.buildStaticUrl(photoUrl))
         interactor.callState = CallInteractor.CallState.Live
+
+        peerConnectionClient.initLocalCameraStream(isMirrored = false, isZOrderMediaOverlay = true)
+        peerConnectionClient.initRemoteCameraStream(isMirrored = false, isZOrderMediaOverlay = false)
 
         peerConnectionClient.addLocalStreamToPeer()
 
