@@ -8,19 +8,22 @@ import cz.msebera.android.httpclient.Header
 import org.json.JSONArray
 import org.json.JSONObject
 
-internal fun AsyncHttpClient.uploadFile(
+internal fun AsyncHttpClient.upload(
     url: String?,
     params: RequestParams,
-    onSuccess: (hash: String, title: String?, urlPath: String) -> Unit,
-    onProgress: (bytesWritten: Long, totalSize: Long) -> Unit = { _, _ -> },
-    onFailure: (throwable: Throwable?) -> Unit = {}
+    listener: (result: UploadResult) -> Unit
 ): RequestHandle? {
     if (url.isNullOrBlank()) {
-        onFailure(NullPointerException())
+        listener(UploadResult.Error(cause = NullPointerException()))
         return null
     }
 
     return post(url, params, object : JsonHttpResponseHandler() {
+        override fun onProgress(bytesWritten: Long, totalSize: Long) {
+            val progress = (100 * bytesWritten / totalSize).toInt()
+            listener(UploadResult.Progress(progress))
+        }
+
         override fun onSuccess(
             statusCode: Int,
             headers: Array<out Header>?,
@@ -33,14 +36,10 @@ internal fun AsyncHttpClient.uploadFile(
             val urlPath = response?.optString("url")
 
             if (hash.isNullOrBlank() || urlPath.isNullOrBlank()) {
-                onFailure(NullPointerException())
+                listener(UploadResult.Error(cause = NullPointerException()))
             } else {
-                onSuccess(hash, title, urlPath)
+                listener(UploadResult.Success(hash = hash, title = title, urlPath = urlPath))
             }
-        }
-
-        override fun onProgress(bytesWritten: Long, totalSize: Long) {
-            onProgress(bytesWritten, totalSize)
         }
 
         override fun onFailure(
@@ -49,7 +48,7 @@ internal fun AsyncHttpClient.uploadFile(
             throwable: Throwable?,
             errorResponse: JSONObject?
         ) {
-            onFailure(throwable)
+            listener(UploadResult.Error(cause = throwable))
         }
 
         override fun onFailure(
@@ -58,7 +57,7 @@ internal fun AsyncHttpClient.uploadFile(
             throwable: Throwable?,
             errorResponse: JSONArray?
         ) {
-            onFailure(throwable)
+            listener(UploadResult.Error(cause = throwable))
         }
 
         override fun onFailure(
@@ -67,7 +66,7 @@ internal fun AsyncHttpClient.uploadFile(
             responseString: String?,
             throwable: Throwable?
         ) {
-            onFailure(throwable)
+            listener(UploadResult.Error(cause = throwable))
         }
     })
 }

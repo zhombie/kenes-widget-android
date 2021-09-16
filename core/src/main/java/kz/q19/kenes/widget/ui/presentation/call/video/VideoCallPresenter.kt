@@ -18,7 +18,8 @@ import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
-import kz.q19.kenes.widget.data.remote.file.uploadFile
+import kz.q19.kenes.widget.data.remote.file.UploadResult
+import kz.q19.kenes.widget.data.remote.file.upload
 import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
 import kz.q19.kenes.widget.domain.model.media.*
 import kz.q19.kenes.widget.ui.presentation.call.CallInteractor
@@ -282,40 +283,40 @@ internal class VideoCallPresenter constructor(
             put("file", file)
         }
 
-        asyncHttpClient?.uploadFile(
-            URLManager.buildUrl("/upload"),
-            params,
-            onSuccess = { hash, title, urlPath ->
-                Logger.debug(TAG, "/upload: $hash, $title, $urlPath")
+        asyncHttpClient?.upload(URLManager.buildUrl("/upload"), params) {
+            when (it) {
+                is UploadResult.Success -> {
+                    Logger.debug(TAG, "/upload: $it.hash, $it.title, $it.urlPath")
 
-                socketRepository.sendUserMediaMessage(kz.q19.domain.model.media.Media.Type.IMAGE, hash)
+                    socketRepository.sendUserMediaMessage(kz.q19.domain.model.media.Media.Type.IMAGE, it.hash)
 
-                getView().showNewChatMessage(
-                    Message.Builder()
-                        .setType(Message.Type.OUTGOING)
-                        .setMedia(
-                            kz.q19.domain.model.media.Media(
-                                id = Content.generateId().toString(),
-                                type = kz.q19.domain.model.media.Media.Type.IMAGE,
-                                title = title,
-                                extension = findEnumBy { it.value == file.extension },
-                                width = if (content is Media.Visual) content.resolution?.width else null,
-                                height = if (content is Media.Visual) content.resolution?.height else null,
-                                size = file.length(),
-                                urlPath = URLManager.buildStaticUrl(urlPath),
-                                file = File(file)
+                    getView().showNewChatMessage(
+                        Message.Builder()
+                            .setType(Message.Type.OUTGOING)
+                            .setMedia(
+                                kz.q19.domain.model.media.Media(
+                                    id = Content.generateId().toString(),
+                                    type = kz.q19.domain.model.media.Media.Type.IMAGE,
+                                    title = it.title,
+                                    extension = findEnumBy { it.value == file.extension },
+                                    width = if (content is Media.Visual) content.resolution?.width else null,
+                                    height = if (content is Media.Visual) content.resolution?.height else null,
+                                    size = file.length(),
+                                    urlPath = URLManager.buildStaticUrl(it.urlPath),
+                                    file = File(file)
+                                )
                             )
-                        )
-                        .build()
-                )
-            },
-            onProgress = { bytesWritten, totalSize ->
-                Logger.debug(TAG, "bytesWritten: $bytesWritten, totalSize: $totalSize")
-            },
-            onFailure = {
-                it?.printStackTrace()
+                            .build()
+                    )
+                }
+                is UploadResult.Progress -> {
+                    Logger.debug(TAG, "progress: ${it.progress}")
+                }
+                is UploadResult.Error -> {
+                    it.cause?.printStackTrace()
+                }
             }
-        )
+        }
 
         return true
     }

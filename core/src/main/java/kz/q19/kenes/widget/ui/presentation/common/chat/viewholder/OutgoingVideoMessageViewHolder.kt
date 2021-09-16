@@ -3,6 +3,7 @@ package kz.q19.kenes.widget.ui.presentation.common.chat.viewholder
 import android.view.View
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base.BaseVideoMessageViewHolder
 
 internal class OutgoingVideoMessageViewHolder constructor(
     view: View,

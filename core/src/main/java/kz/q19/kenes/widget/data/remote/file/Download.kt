@@ -6,10 +6,10 @@ import com.loopj.android.http.RequestHandle
 import cz.msebera.android.httpclient.Header
 import java.io.File
 
-internal fun AsyncHttpClient.downloadFile(
+internal fun AsyncHttpClient.download(
     file: File,
     url: String,
-    listener: (DownloadResult) -> Unit
+    listener: (result: DownloadResult) -> Unit
 ): RequestHandle? {
     return get(url, object : FileAsyncHttpResponseHandler(file) {
         override fun onProgress(bytesWritten: Long, totalSize: Long) {

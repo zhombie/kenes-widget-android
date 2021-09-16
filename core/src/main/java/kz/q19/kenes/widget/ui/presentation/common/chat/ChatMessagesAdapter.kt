@@ -8,9 +8,10 @@ import kz.q19.common.error.ViewHolderViewTypeException
 import kz.q19.domain.model.keyboard.button.Button
 import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.*
-import kz.q19.utils.view.inflate
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.*
+import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base.BaseAudioMessageViewHolder
+import kz.q19.utils.view.inflate
 
 internal class ChatMessagesAdapter constructor(
     var callback: Callback? = null
@@ -91,7 +92,12 @@ internal class ChatMessagesAdapter constructor(
         })
     }
 
-    fun setAudioPlayProgress(itemPosition: Int, progress: Float, currentPosition: Long, duration: Long) {
+    fun setAudioPlayProgress(
+        itemPosition: Int,
+        progress: Float,
+        currentPosition: Long,
+        duration: Long
+    ) {
         Logger.debug(TAG, "setAudioPlayProgress() -> " +
             "itemPosition: $itemPosition, " +
             "progress: $progress, " +

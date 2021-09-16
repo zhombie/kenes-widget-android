@@ -6,6 +6,7 @@ import kz.q19.kenes.widget.ui.components.KenesChatMessageTextView
 import kz.q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base.BaseMessageViewHolder
 
 internal class IncomingRichContentMessageViewHolder constructor(
     view: View,

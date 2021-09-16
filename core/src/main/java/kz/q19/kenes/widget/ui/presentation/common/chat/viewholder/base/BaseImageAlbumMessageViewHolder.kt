@@ -1,4 +1,4 @@
-package kz.q19.kenes.widget.ui.presentation.common.chat.viewholder
+package kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base
 
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
@@ -10,6 +10,7 @@ import kz.q19.kenes.widget.ui.components.KenesTextView
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.AlbumImageMessageAdapter
 
 internal abstract class BaseImageAlbumMessageViewHolder constructor(
     view: View,

@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.TypedValue
-import kz.q19.utils.android.dp2Px
 import kz.q19.kenes.widget.R
+import kz.q19.utils.android.dp2Px
 import kotlin.math.roundToInt
 
 internal class KenesChatMessageTextView @JvmOverloads constructor(
@@ -16,7 +16,7 @@ internal class KenesChatMessageTextView @JvmOverloads constructor(
 ) : KenesTextView(context, attrs, defStyleAttr, defStyleRes) {
 
     companion object {
-        private val TAG = KenesTextView::class.java.simpleName
+        private val TAG = KenesChatMessageTextView::class.java.simpleName
     }
 
     init {

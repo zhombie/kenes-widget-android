@@ -23,7 +23,7 @@ import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger.debug
 import kz.q19.kenes.widget.data.remote.file.DownloadResult
-import kz.q19.kenes.widget.data.remote.file.downloadFile
+import kz.q19.kenes.widget.data.remote.file.download
 import kz.q19.kenes.widget.ui.presentation.common.Screen
 import kz.q19.kenes.widget.ui.presentation.home.ChatbotInteractor
 import kz.q19.kenes.widget.ui.presentation.model.ViewState
@@ -301,8 +301,8 @@ internal class OldKenesWidgetPresenter constructor(
         callback: () -> Unit
     ) {
         if (url.isNullOrBlank()) return
-        httpClient.downloadFile(this.get(), url) { downloadResult ->
-            when (downloadResult) {
+        httpClient.download(this.get(), url) { result ->
+            when (result) {
                 is DownloadResult.Success -> {
                     callback()
                     getView().showFileDownloadStatus(
@@ -313,7 +313,7 @@ internal class OldKenesWidgetPresenter constructor(
                 is DownloadResult.Error ->
                     getView().showFileDownloadStatus(File.DownloadStatus.ERROR, itemPosition)
                 is DownloadResult.Progress ->
-                    getView().showFileDownloadProgress(downloadResult.progress, fileType, itemPosition)
+                    getView().showFileDownloadProgress(result.progress, fileType, itemPosition)
             }
         }
     }

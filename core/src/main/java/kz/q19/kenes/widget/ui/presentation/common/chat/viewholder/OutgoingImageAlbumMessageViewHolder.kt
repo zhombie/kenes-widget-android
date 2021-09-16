@@ -5,6 +5,7 @@ import android.widget.ImageView
 import kz.q19.domain.model.media.Media
 import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
+import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base.BaseImageAlbumMessageViewHolder
 
 internal class OutgoingImageAlbumMessageViewHolder constructor(
     view: View,

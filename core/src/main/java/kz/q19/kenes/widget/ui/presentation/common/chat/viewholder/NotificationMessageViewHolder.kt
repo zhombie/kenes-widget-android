@@ -5,6 +5,7 @@ import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import kz.q19.kenes.widget.ui.components.KenesTextView
 import kz.q19.kenes.widget.R
+import kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base.BaseMessageViewHolder
 
 internal class NotificationMessageViewHolder constructor(view: View) : BaseMessageViewHolder(view) {
 

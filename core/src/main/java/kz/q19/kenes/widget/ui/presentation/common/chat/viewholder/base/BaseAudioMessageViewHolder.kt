@@ -1,4 +1,4 @@
-package kz.q19.kenes.widget.ui.presentation.common.chat.viewholder
+package kz.q19.kenes.widget.ui.presentation.common.chat.viewholder.base
 
 import android.animation.ValueAnimator
 import android.view.View
@@ -8,12 +8,12 @@ import com.google.android.material.imageview.ShapeableImageView
 import com.google.android.material.slider.Slider
 import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.message.Message
+import kz.q19.kenes.widget.R
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.ui.components.KenesChatMessageTextView
 import kz.q19.kenes.widget.ui.components.KenesChatMessageTimeView
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.util.formatToDigitalClock
-import kz.q19.kenes.widget.R
 import java.time.Duration
 
 internal abstract class BaseAudioMessageViewHolder constructor(
