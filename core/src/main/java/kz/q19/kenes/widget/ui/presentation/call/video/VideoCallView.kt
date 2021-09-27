@@ -1,7 +1,7 @@
 package kz.q19.kenes.widget.ui.presentation.call.video
 
 import kz.q19.domain.model.message.Message
-import kz.q19.kenes.widget.ui.presentation.platform.BaseView
+import kz.q19.kenes.widget.ui.platform.BaseView
 
 internal interface VideoCallView : BaseView {
     fun showCallAgentInfo(title: String, subtitle: String, photoUrl: String?)

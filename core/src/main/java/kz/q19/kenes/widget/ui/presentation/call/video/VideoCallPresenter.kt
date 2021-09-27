@@ -1,7 +1,6 @@
 package kz.q19.kenes.widget.ui.presentation.call.video
 
 import androidx.core.net.toFile
-import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.call.Call
 import kz.q19.domain.model.call.CallType
@@ -20,11 +19,11 @@ import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
 import kz.q19.kenes.widget.data.remote.file.UploadResult
 import kz.q19.kenes.widget.data.remote.file.upload
-import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
+import kz.q19.kenes.widget.data.remote.http.AsyncHTTPClient
 import kz.q19.kenes.widget.domain.model.media.*
+import kz.q19.kenes.widget.ui.platform.BasePresenter
 import kz.q19.kenes.widget.ui.presentation.call.CallInteractor
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
 import kz.q19.socket.listener.CallListener
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.listener.SocketStateListener
@@ -57,7 +56,7 @@ internal class VideoCallPresenter constructor(
         private val TAG = VideoCallPresenter::class.java.simpleName
     }
 
-    private var asyncHttpClient: AsyncHttpClient? = null
+    private var asyncHttpClient: AsyncHTTPClient? = null
 
     private val interactor = CallInteractor().apply {
         listener = this@VideoCallPresenter
@@ -66,7 +65,8 @@ internal class VideoCallPresenter constructor(
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        asyncHttpClient = AsyncHttpClientBuilder().build()
+        asyncHttpClient = AsyncHTTPClient.Builder()
+            .build()
 
         interactor.isLocalAudioEnabled = call is Call.Audio || call is Call.Video
         interactor.isLocalVideoEnabled = call is Call.Video
@@ -697,7 +697,7 @@ internal class VideoCallPresenter constructor(
     override fun onDestroy() {
         interactor.listener = null
 
-        asyncHttpClient?.cancelAllRequests(true)
+        asyncHttpClient?.dispose()
         asyncHttpClient = null
 
         peerConnectionClient.dispose()

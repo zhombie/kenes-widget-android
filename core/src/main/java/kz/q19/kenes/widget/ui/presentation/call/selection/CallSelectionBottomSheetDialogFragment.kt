@@ -12,7 +12,7 @@ import com.google.android.material.textview.MaterialTextView
 import kz.q19.domain.model.call.Call
 import kz.q19.utils.android.dp2Px
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
-import kz.q19.kenes.widget.ui.presentation.platform.BaseBottomSheetDialogFragment
+import kz.q19.kenes.widget.ui.platform.BaseBottomSheetDialogFragment
 import kz.q19.kenes.widget.R
 
 internal class CallSelectionBottomSheetDialogFragment : BaseBottomSheetDialogFragment() {

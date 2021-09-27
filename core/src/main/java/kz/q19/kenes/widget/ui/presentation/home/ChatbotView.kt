@@ -2,7 +2,7 @@ package kz.q19.kenes.widget.ui.presentation.home
 
 import kz.q19.domain.model.knowledge_base.Nestable
 import kz.q19.domain.model.message.Message
-import kz.q19.kenes.widget.ui.presentation.platform.BaseView
+import kz.q19.kenes.widget.ui.platform.BaseView
 
 internal interface ChatbotView : BaseView {
     // UI actions

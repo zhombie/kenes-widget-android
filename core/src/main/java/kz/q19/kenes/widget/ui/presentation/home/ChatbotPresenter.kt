@@ -1,6 +1,5 @@
 package kz.q19.kenes.widget.ui.presentation.home
 
-import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.RequestParams
 import kz.q19.domain.model.knowledge_base.ResponseGroup
 import kz.q19.domain.model.language.Language
@@ -8,12 +7,12 @@ import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
-import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
+import kz.q19.kenes.widget.data.remote.http.AsyncHTTPClient
 import kz.q19.kenes.widget.data.remote.http.ResponseGroupChildrenResponseHandler
 import kz.q19.kenes.widget.data.remote.http.ResponseGroupsResponseHandler
 import kz.q19.kenes.widget.data.remote.http.ResponseInfoResponseHandler
+import kz.q19.kenes.widget.ui.platform.BasePresenter
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
 import kz.q19.socket.listener.ChatBotListener
 import kz.q19.socket.model.Category
 import kz.q19.socket.repository.SocketRepository
@@ -29,14 +28,15 @@ internal class ChatbotPresenter constructor(
         private val TAG = ChatbotPresenter::class.java.simpleName
     }
 
-    private var asyncHttpClient: AsyncHttpClient? = null
+    private var asyncHTTPClient: AsyncHTTPClient? = null
 
     private val interactor = ChatbotInteractor()
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
-        asyncHttpClient = AsyncHttpClientBuilder().build()
+        asyncHTTPClient = AsyncHTTPClient.Builder()
+            .build()
 
         loadResponseGroups(true)
     }
@@ -67,7 +67,7 @@ internal class ChatbotPresenter constructor(
             "nested", true
         )
 
-        asyncHttpClient?.get(
+        asyncHTTPClient?.get(
             URLManager.buildUrl("/api/kbase/response_groups"),
             params,
             ResponseGroupsResponseHandler(
@@ -102,7 +102,7 @@ internal class ChatbotPresenter constructor(
             "nested", false
         )
 
-        asyncHttpClient?.get(
+        asyncHTTPClient?.get(
             URLManager.buildUrl("/api/kbase/response_groups"),
             params,
             ResponseGroupChildrenResponseHandler(
@@ -151,7 +151,7 @@ internal class ChatbotPresenter constructor(
             "response_id", child.responses.first().id
         )
 
-        asyncHttpClient?.get(
+        asyncHTTPClient?.get(
             URLManager.buildUrl("/api/kbase/response"),
             params,
             ResponseInfoResponseHandler(
@@ -318,8 +318,8 @@ internal class ChatbotPresenter constructor(
         socketRepository.unregisterMessageEventListener()
         socketRepository.setChatBotListener(null)
 
-        asyncHttpClient?.cancelAllRequests(true)
-        asyncHttpClient = null
+        asyncHTTPClient?.dispose()
+        asyncHTTPClient = null
 
         interactor.breadcrumb.clear()
         interactor.lastResponseGroupsLoadedTime = -1L

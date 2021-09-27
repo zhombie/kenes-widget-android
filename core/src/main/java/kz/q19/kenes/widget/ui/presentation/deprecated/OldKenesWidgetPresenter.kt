@@ -22,12 +22,10 @@ import kz.q19.domain.model.webrtc.SessionDescription
 import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.device.DeviceInfo
 import kz.q19.kenes.widget.core.logging.Logger.debug
-import kz.q19.kenes.widget.data.remote.file.DownloadResult
-import kz.q19.kenes.widget.data.remote.file.download
+import kz.q19.kenes.widget.ui.platform.BasePresenter
 import kz.q19.kenes.widget.ui.presentation.common.Screen
 import kz.q19.kenes.widget.ui.presentation.home.ChatbotInteractor
 import kz.q19.kenes.widget.ui.presentation.model.ViewState
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
 import kz.q19.socket.SocketClient
 import kz.q19.socket.SocketClientConfig
 import kz.q19.socket.listener.*
@@ -301,21 +299,21 @@ internal class OldKenesWidgetPresenter constructor(
         callback: () -> Unit
     ) {
         if (url.isNullOrBlank()) return
-        httpClient.download(this.get(), url) { result ->
-            when (result) {
-                is DownloadResult.Success -> {
-                    callback()
-                    getView().showFileDownloadStatus(
-                        File.DownloadStatus.COMPLETED,
-                        itemPosition
-                    )
-                }
-                is DownloadResult.Error ->
-                    getView().showFileDownloadStatus(File.DownloadStatus.ERROR, itemPosition)
-                is DownloadResult.Progress ->
-                    getView().showFileDownloadProgress(result.progress, fileType, itemPosition)
-            }
-        }
+//        httpClient.download(this.get(), url) { result ->
+//            when (result) {
+//                is DownloadResult.Success -> {
+//                    callback()
+//                    getView().showFileDownloadStatus(
+//                        File.DownloadStatus.COMPLETED,
+//                        itemPosition
+//                    )
+//                }
+//                is DownloadResult.Error ->
+//                    getView().showFileDownloadStatus(File.DownloadStatus.ERROR, itemPosition)
+//                is DownloadResult.Progress ->
+//                    getView().showFileDownloadProgress(result.progress, fileType, itemPosition)
+//            }
+//        }
     }
 
     fun onAttachmentClicked(attachment: Media, file: File, itemPosition: Int) {

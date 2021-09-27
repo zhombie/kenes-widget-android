@@ -3,7 +3,7 @@ package kz.q19.kenes.widget.ui.presentation.call
 import kz.q19.domain.model.call.AnyCall
 import kz.q19.domain.model.call.Call
 import kz.q19.kenes.widget.ui.presentation.call.selection.CallSelection
-import kz.q19.kenes.widget.ui.presentation.platform.BaseView
+import kz.q19.kenes.widget.ui.platform.BaseView
 
 internal interface CallsView : BaseView {
     fun showCalls(anyCalls: List<AnyCall>)

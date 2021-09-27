@@ -1,4 +1,4 @@
-package kz.q19.kenes.widget.ui.presentation.platform
+package kz.q19.kenes.widget.ui.platform
 
 import android.os.Bundle
 import android.widget.Toast

@@ -1,16 +1,15 @@
 package kz.q19.kenes.widget.ui.presentation
 
-import com.loopj.android.http.AsyncHttpClient
 import kz.q19.domain.model.language.Language
 import kz.q19.kenes.widget.core.URLManager
 import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
-import kz.q19.kenes.widget.data.remote.http.AsyncHttpClientBuilder
+import kz.q19.kenes.widget.data.remote.http.AsyncHTTPClient
 import kz.q19.kenes.widget.data.remote.http.ConfigsResponseHandler
 import kz.q19.kenes.widget.data.remote.http.IceServersResponseHandler
+import kz.q19.kenes.widget.ui.platform.BasePresenter
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
 import kz.q19.kenes.widget.ui.presentation.common.Screen
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
 import kz.q19.socket.listener.SocketStateListener
 import kz.q19.socket.repository.SocketRepository
 
@@ -24,12 +23,13 @@ internal class KenesWidgetPresenter constructor(
         private val TAG = KenesWidgetPresenter::class.java.simpleName
     }
 
-    private var asyncHttpClient: AsyncHttpClient? = null
+    private var asyncHTTPClient: AsyncHTTPClient? = null
 
     private var bottomSheetState: BottomSheetState? = null
 
     override fun onFirstViewAttach() {
-        asyncHttpClient = AsyncHttpClientBuilder().build()
+        asyncHTTPClient = AsyncHTTPClient.Builder()
+            .build()
 
         loadConfigs()
         loadIceServers()
@@ -38,7 +38,7 @@ internal class KenesWidgetPresenter constructor(
     }
 
     private fun loadConfigs() {
-        asyncHttpClient?.get(
+        asyncHTTPClient?.get(
             URLManager.buildUrl("/configs"),
             ConfigsResponseHandler(
                 onSuccess = { configs ->
@@ -54,7 +54,7 @@ internal class KenesWidgetPresenter constructor(
     }
 
     private fun loadIceServers() {
-        asyncHttpClient?.get(
+        asyncHTTPClient?.get(
             URLManager.buildUrl("/ice_servers"),
             IceServersResponseHandler(
                 onSuccess = { iceServers ->
@@ -132,8 +132,8 @@ internal class KenesWidgetPresenter constructor(
         socketRepository.removeAllListeners()
         socketRepository.release()
 
-        asyncHttpClient?.cancelAllRequests(true)
-        asyncHttpClient = null
+        asyncHTTPClient?.dispose()
+        asyncHTTPClient = null
     }
 
 }

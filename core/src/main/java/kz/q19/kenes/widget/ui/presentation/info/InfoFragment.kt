@@ -2,7 +2,7 @@ package kz.q19.kenes.widget.ui.presentation.info
 
 import android.os.Bundle
 import kz.q19.kenes.widget.R
-import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
+import kz.q19.kenes.widget.ui.platform.BaseFragment
 
 internal class InfoFragment : BaseFragment<InfoPresenter>(R.layout.kenes_fragment_info) {
 

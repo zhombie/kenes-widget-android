@@ -42,7 +42,7 @@ import kz.q19.kenes.widget.ui.presentation.deprecated.adapter.ChatAdapterItemDec
 import kz.q19.kenes.widget.ui.presentation.deprecated.adapter.ChatFooterAdapter
 import kz.q19.kenes.widget.ui.presentation.deprecated.adapter.OldChatAdapter
 import kz.q19.kenes.widget.ui.presentation.model.ViewState
-import kz.q19.kenes.widget.ui.presentation.platform.BaseActivity
+import kz.q19.kenes.widget.ui.platform.BaseActivity
 import kz.q19.kenes.widget.util.*
 import kz.q19.socket.model.Category
 import kz.q19.utils.keyboard.hideKeyboard

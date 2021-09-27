@@ -14,7 +14,7 @@ import java.io.InputStream
 import kotlin.math.max
 import kotlin.math.min
 
-internal class ImageCompressor constructor(private val context: Context) {
+internal class ImageCompressor {
 
     companion object {
         private val TAG = ImageCompressor::class.java.simpleName
@@ -34,6 +34,7 @@ internal class ImageCompressor constructor(private val context: Context) {
      * @return output image [android.net.Uri]
      */
     fun compress(
+        context: Context,
         imageUri: Uri,
         compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG,
         maxWidth: Float = 1280F,
@@ -46,7 +47,7 @@ internal class ImageCompressor constructor(private val context: Context) {
         /**
          * Decode uri bitmap from activity result using content provider
          */
-        val decoded = decodeBitmapFromUri(imageUri)
+        val decoded = decodeBitmapFromUri(context, imageUri)
 
         Logger.debug(TAG, "BITMAP: ${decoded.first}")
 
@@ -71,12 +72,22 @@ internal class ImageCompressor constructor(private val context: Context) {
          * - Adjust image rotation
          * - Scale image matrix based on remaining [scaleDownFactor / [BitmapFactory.Options].inSampleSize]
          */
-        val matrix: Matrix = calculateImageMatrix(imageUri, scaleDownFactor, options) ?: return null
+        val matrix: Matrix = calculateImageMatrix(
+            context = context,
+            imageUri = imageUri,
+            scaleFactor = scaleDownFactor,
+            options = options
+        ) ?: return null
 
         /**
          * Create new bitmap based on defined [BitmapFactory.Options] and calculated matrix
          */
-        val newBitmap: Bitmap = generateNewBitmap(imageUri, options, matrix) ?: return null
+        val newBitmap: Bitmap = generateNewBitmap(
+            context = context,
+            imageUri = imageUri,
+            options = options,
+            matrix = matrix
+        ) ?: return null
         val newBitmapWidth = newBitmap.width
         val newBitmapHeight = newBitmap.height
 
@@ -113,13 +124,16 @@ internal class ImageCompressor constructor(private val context: Context) {
          * Compress and save image
          */
         val imageFilePath: String = compressAndSaveImage(
-            finalBitmap, compressFormat, quality
+            context = context,
+            bitmap = finalBitmap,
+            compressFormat = compressFormat,
+            quality = quality
         ) ?: return null
 
         return Uri.fromFile(File(imageFilePath))
     }
 
-    private fun decodeBitmapFromUri(imageUri: Uri): Pair<Bitmap?, BitmapFactory.Options> {
+    private fun decodeBitmapFromUri(context: Context, imageUri: Uri): Pair<Bitmap?, BitmapFactory.Options> {
         val options = BitmapFactory.Options().apply {
             inJustDecodeBounds = true
         }
@@ -166,6 +180,7 @@ internal class ImageCompressor constructor(private val context: Context) {
     }
 
     private fun calculateImageMatrix(
+        context: Context,
         imageUri: Uri,
         scaleFactor: Float,
         options: BitmapFactory.Options
@@ -191,6 +206,7 @@ internal class ImageCompressor constructor(private val context: Context) {
     }
 
     private fun generateNewBitmap(
+        context: Context,
         imageUri: Uri,
         options: BitmapFactory.Options,
         matrix: Matrix
@@ -277,6 +293,7 @@ internal class ImageCompressor constructor(private val context: Context) {
     }
 
     private fun compressAndSaveImage(
+        context: Context,
         bitmap: Bitmap,
         compressFormat: Bitmap.CompressFormat?,
         quality: Int,

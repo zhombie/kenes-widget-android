@@ -1,14 +1,14 @@
 package kz.q19.kenes.widget.data.remote.file
 
-import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.JsonHttpResponseHandler
 import com.loopj.android.http.RequestHandle
 import com.loopj.android.http.RequestParams
 import cz.msebera.android.httpclient.Header
+import kz.q19.kenes.widget.data.remote.http.AsyncHTTPClient
 import org.json.JSONArray
 import org.json.JSONObject
 
-internal fun AsyncHttpClient.upload(
+internal fun AsyncHTTPClient.upload(
     url: String?,
     params: RequestParams,
     listener: (result: UploadResult) -> Unit

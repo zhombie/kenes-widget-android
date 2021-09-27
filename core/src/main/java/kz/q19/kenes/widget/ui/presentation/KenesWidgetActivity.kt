@@ -23,6 +23,7 @@ import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.domain.model.media.Content
 import kz.q19.kenes.widget.ui.components.KenesBottomNavigationView
 import kz.q19.kenes.widget.ui.components.KenesToolbar
+import kz.q19.kenes.widget.ui.platform.BaseActivity
 import kz.q19.kenes.widget.ui.presentation.call.CallsFragment
 import kz.q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import kz.q19.kenes.widget.ui.presentation.call.video.VideoCallFragment
@@ -31,7 +32,6 @@ import kz.q19.kenes.widget.ui.presentation.common.HomeFragment
 import kz.q19.kenes.widget.ui.presentation.common.Screen
 import kz.q19.kenes.widget.ui.presentation.home.ChatbotFragment
 import kz.q19.kenes.widget.ui.presentation.info.InfoFragment
-import kz.q19.kenes.widget.ui.presentation.platform.BaseActivity
 import kz.q19.kenes.widget.ui.presentation.services.ServicesFragment
 import kz.q19.kenes.widget.util.addKeyboardVisibilityListener
 import kz.q19.utils.animation.AbstractAnimationListener

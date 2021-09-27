@@ -1,4 +1,4 @@
-package kz.q19.kenes.widget.ui.presentation.platform
+package kz.q19.kenes.widget.ui.platform
 
 import java.lang.ref.WeakReference
 

@@ -3,23 +3,20 @@ package kz.q19.kenes.widget.domain.model
 import android.net.Uri
 import kz.q19.domain.model.media.Media
 import kz.q19.kenes.widget.core.URLManager
-import java.io.File
 
-internal sealed class Source constructor(
+internal sealed class Source private constructor(
     open val uri: Uri,
-    open val displayName: String
+    open val title: String
 ) {
     data class LocalFile constructor(
-        val file: File,
         override val uri: Uri,
-        override val displayName: String
-    ) : Source(uri, displayName)
+        override val title: String
+    ) : Source(uri, title)
 
     data class URL constructor(
-        val fullUrl: String,
         override val uri: Uri,
-        override val displayName: String
-    ) : Source(uri, displayName)
+        override val title: String
+    ) : Source(uri, title)
 }
 
 
@@ -28,20 +25,18 @@ internal val Media.source: Source?
         val file = file?.get()
         return if (file?.exists() == true) {
             Source.LocalFile(
-                file = file,
                 uri = Uri.fromFile(file),
-                displayName = title ?: file.name
+                title = title ?: file.name
             )
         } else {
-            val fullUrl = URLManager.buildStaticUrl(urlPath)
-            if (!fullUrl.isNullOrBlank()) {
-                Source.URL(
-                    fullUrl = fullUrl,
-                    uri = Uri.parse(fullUrl),
-                    displayName = title ?: fullUrl.split("/").last()
-                )
-            } else {
+            val url = URLManager.buildStaticUrl(urlPath)
+            if (url.isNullOrBlank()) {
                 null
+            } else {
+                Source.URL(
+                    uri = Uri.parse(url),
+                    title = title ?: url.split("/").last()
+                )
             }
         }
     }
@@ -49,12 +44,8 @@ internal val Media.source: Source?
 
 internal val Media.sourceUri: Uri?
     get() = when (val source = source) {
-        is Source.LocalFile, is Source.URL -> {
-            source.uri
-        }
-        else -> {
-            null
-        }
+        is Source.LocalFile, is Source.URL -> source.uri
+        else -> null
     }
 
 

@@ -409,8 +409,8 @@ internal class ChatbotFragment : HomeFragment<ChatbotPresenter>(R.layout.kenes_f
     override fun onAudioClicked(media: Media, itemPosition: Int) {
         val uri = media.sourceUri ?: return
 
-        if (radio != null) {
-            if (uri == radio?.currentSource && radio?.isReleased() == false) {
+        if (radio?.isReleased() == false) {
+            if (uri == radio?.currentSource) {
                 radio?.playOrPause()
                 return
             }

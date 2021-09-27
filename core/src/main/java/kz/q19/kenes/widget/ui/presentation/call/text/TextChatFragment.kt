@@ -33,11 +33,11 @@ import kz.q19.kenes.widget.domain.model.media.Video
 import kz.q19.kenes.widget.domain.model.sourceUri
 import kz.q19.kenes.widget.ui.components.KenesMessageInputView
 import kz.q19.kenes.widget.ui.components.KenesToolbar
+import kz.q19.kenes.widget.ui.platform.BaseFragment
 import kz.q19.kenes.widget.ui.presentation.common.chat.ChatMessagesAdapter
 import kz.q19.kenes.widget.ui.presentation.common.contract.GetImage
 import kz.q19.kenes.widget.ui.presentation.common.contract.GetVideo
 import kz.q19.kenes.widget.ui.presentation.common.recycler_view.SpacingItemDecoration
-import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
 import kz.q19.kenes.widget.util.ImageCompressor
 import kz.q19.kenes.widget.util.bindAutoClearedValue
 import kz.q19.utils.android.dp2Px
@@ -322,9 +322,9 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
         val uri = media.sourceUri ?: return
 
-        radio?.let {
-            if (uri == it.currentSource && !it.isReleased()) {
-                it.playOrPause()
+        if (radio?.isReleased() == false) {
+            if (uri == radio?.currentSource) {
+                radio?.playOrPause()
                 return
             }
         }
@@ -440,8 +440,9 @@ internal class TextChatFragment : BaseFragment<TextChatPresenter>(R.layout.kenes
 
                     val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
 
-                    val compressed = ImageCompressor(requireContext())
+                    val compressed = ImageCompressor()
                         .compress(
+                            context = requireContext(),
                             imageUri = uri,
                             compressFormat = Bitmap.CompressFormat.JPEG,
                             maxWidth = 1280F,

@@ -4,12 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.provider.OpenableColumns
 import androidx.activity.result.contract.ActivityResultContract
-import com.otaliastudios.transcoder.TranscoderListener
-import kz.q19.kenes.widget.core.logging.Logger
 
-internal class GetVideo : ActivityResultContract<Any, Uri?>(), TranscoderListener {
+internal class GetVideo : ActivityResultContract<Any, Uri?>() {
 
     companion object {
         private val TAG = GetVideo::class.java.simpleName
@@ -24,22 +21,6 @@ internal class GetVideo : ActivityResultContract<Any, Uri?>(), TranscoderListene
     override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
         if (intent == null || resultCode != Activity.RESULT_OK) return null
         return intent.data
-    }
-
-    override fun onTranscodeProgress(progress: Double) {
-        Logger.debug(TAG, "onTranscodeProgress() -> $progress")
-    }
-
-    override fun onTranscodeCompleted(successCode: Int) {
-        Logger.debug(TAG, "onTranscodeCompleted() -> $successCode")
-    }
-
-    override fun onTranscodeCanceled() {
-        Logger.debug(TAG, "onTranscodeCanceled()")
-    }
-
-    override fun onTranscodeFailed(exception: Throwable) {
-        Logger.debug(TAG, "onTranscodeFailed() -> $exception")
     }
 
 }

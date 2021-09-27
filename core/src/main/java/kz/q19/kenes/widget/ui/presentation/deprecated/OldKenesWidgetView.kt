@@ -11,7 +11,7 @@ import kz.q19.domain.model.media.Media
 import kz.q19.domain.model.message.Message
 import kz.q19.kenes.widget.ui.presentation.common.Screen
 import kz.q19.kenes.widget.ui.presentation.model.ViewState
-import kz.q19.kenes.widget.ui.presentation.platform.BaseView
+import kz.q19.kenes.widget.ui.platform.BaseView
 
 internal interface OldKenesWidgetView : BaseView {
     fun showCurrentLanguage(language: Language)

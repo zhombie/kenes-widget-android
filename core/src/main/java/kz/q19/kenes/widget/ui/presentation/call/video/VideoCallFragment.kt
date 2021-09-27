@@ -18,9 +18,9 @@ import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.domain.model.media.Content
 import kz.q19.kenes.widget.ui.components.KenesFloatingLayout
 import kz.q19.kenes.widget.ui.components.KenesToolbar
+import kz.q19.kenes.widget.ui.platform.BaseFragment
 import kz.q19.kenes.widget.ui.presentation.call.text.TextChatFragment
 import kz.q19.kenes.widget.ui.presentation.common.BottomSheetState
-import kz.q19.kenes.widget.ui.presentation.platform.BaseFragment
 import kz.q19.kenes.widget.util.AlertDialogBuilder
 import kz.q19.kenes.widget.util.hideKeyboardCompat
 import kz.q19.utils.android.dp2Px

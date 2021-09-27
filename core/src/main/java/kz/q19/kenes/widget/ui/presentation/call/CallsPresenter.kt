@@ -12,7 +12,7 @@ import kz.q19.kenes.widget.core.logging.Logger
 import kz.q19.kenes.widget.data.local.Database
 import kz.q19.kenes.widget.domain.model.buildCallsAsTree
 import kz.q19.kenes.widget.ui.presentation.call.selection.CallSelection
-import kz.q19.kenes.widget.ui.presentation.platform.BasePresenter
+import kz.q19.kenes.widget.ui.platform.BasePresenter
 
 internal class CallsPresenter constructor(
     private val language: Language,

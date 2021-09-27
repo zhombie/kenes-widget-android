@@ -1,12 +1,12 @@
 package kz.q19.kenes.widget.data.remote.file
 
-import com.loopj.android.http.AsyncHttpClient
 import com.loopj.android.http.FileAsyncHttpResponseHandler
 import com.loopj.android.http.RequestHandle
 import cz.msebera.android.httpclient.Header
+import kz.q19.kenes.widget.data.remote.http.AsyncHTTPClient
 import java.io.File
 
-internal fun AsyncHttpClient.download(
+internal fun AsyncHTTPClient.download(
     file: File,
     url: String,
     listener: (result: DownloadResult) -> Unit
